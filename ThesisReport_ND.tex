@@ -1,0 +1,853 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+%\usepackage{microtype}
+\usepackage[T1]{fontenc}
+\usepackage{bussproofs}
+\EnableBpAbbreviations
+
+\let\AXM\AXC
+\let\BIM\BIC
+\let\UIM\UIC
+\let\TIM\TIC
+\let\RLM\RL
+
+% --- Theorem environments ---
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+% --- Listings setup for Lean ---
+\lstdefinelanguage{Lean}{
+  morekeywords={
+    import, namespace, end, inductive, def, theorem, abbrev,
+    by, intro, apply, exact, simp, constructor, cases, with,
+    match, open, have, let
+  },
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]"
+}
+
+% Unicode rendering to math for readability (non-Lean readers)
+\lstset{
+  language=Lean,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!60!black},
+  commentstyle=\color{green!40!black},
+  stringstyle=\color{red!50!black},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  mathescape=true,
+  literate=
+    {⟶}{{$\to$}}1
+    {~}{{$\neg$}}1
+    {∅}{{$\emptyset$}}1
+    {⊢}{{$\vdash$}}1
+    {⊧}{{$\models$}}1
+    {⋎}{{$\lor$}}1
+    {∼}{{$\sim$}}1
+    {¬}{{$\neg$}}1
+    {∀}{{$\forall$}}1
+    {→}{{$\to$}}1
+    {↔}{{$\leftrightarrow$}}1
+    {Γ}{{$\Gamma$}}1
+    {φ}{{$\varphi$}}1
+    {ψ}{{$\psi$}}1
+    {∈}{{$\in$}}1
+    {⊥}{{$\bot$}}1
+    {∧}{{$\land$}}1
+    {∨}{{$\lor$}}1
+}
+
+
+% --- Notation in the paper ---
+\newcommand{\Imp}{\rightarrow}
+\newcommand{\Not}{\neg}
+\newcommand{\Or}{\vee}
+\newcommand{\Sat}{\models}
+\newcommand{\Prov}{\vdash}
+\newcommand{\llbracket}{[\![}
+\newcommand{\rrbracket}{]\!]}
+
+\title{Completeness of Propositional Logic in Lean 4:\\ A Verified Bridge from Semantics to a Natural-Deduction Interface}
+\author{\textbf{Author Name} \\ Undergraduate Thesis \\ University \\ \texttt{email@example.com}}
+\date{January 2026}
+
+\begin{document}
+\maketitle
+
+
+
+\begin{abstract}
+This chapter develops a machine-checked verification pipeline for classical propositional logic in Lean~4.
+The construction is deliberately modular: we define a surface language with only atoms, negation, and implication;
+give its standard classical semantics; and formalize a verified translation into the \emph{Foundation} library's propositional calculus.
+A bridge lemma (semantics preservation) is proved, allowing us to import the library's completeness result.
+Finally, we package the result as a \emph{Provability Interface}: a genuine Natural Deduction system with contexts and discharge,
+augmented by a verified oracle that lifts library proofs to the surface.
+The exposition targets readers new to Lean, mapping code to mathematics line-by-line, and explicitly outlining
+the architectural separation between the surface interface and the library backend.
+\end{abstract}
+
+\tableofcontents
+
+\section{Motivation and relation to Stansifer (2001)}
+\label{sec:stansifer}
+
+The guiding inspiration for this chapter is Ryan Stansifer's paper
+\emph{Completeness of Propositional Logic as a Program}~\cite{Stansifer2001}.
+Stansifer emphasizes a viewpoint that has become central in modern mechanized reasoning:
+a constructive completeness proof can be executed as a program that takes a tautology $\varphi$ and returns a
+derivation of $\varphi$ in a fixed proof system.
+
+In Stansifer's development, propositional formulas use only $\Not$ and $\Imp$,
+and proofs are explicit proof trees in a Hilbert system (specifically \L{}ukasiewicz axioms plus modus ponens).
+The program produces proof objects and is correct by construction.
+The same conceptual foundation also appears in proof theory and type theory:
+\emph{proof objects are computational artifacts} and can be manipulated systematically.
+
+Lean provides a setting where this slogan is made precise:
+proofs are typed terms, and the verification of correctness is delegated to a small trusted kernel.
+This chapter adopts Stansifer's conceptual perspective while exploiting Lean's ecosystem:
+instead of generating large explicit proof trees, the key engineering move is a verified translation into a library
+calculus that already contains a completeness theorem.
+
+\section{Why Lean is a good fit (a short primer)}
+\label{sec:lean-primer}
+
+This section explains what Lean is checking, why the approach is trustworthy, and how to read the code as mathematics.
+
+% ============================================================
+% PREPARATORY SECTION (insert after the Lean primer section)
+% This section is adapted in spirit from the documentation excerpt
+% you provided, but rewritten in a single, thesis-consistent voice,
+% and connected directly to *your* Lean development.
+%
+% IMPORTANT PREAMBLE ADDITIONS (add near your other \usepackage lines):
+%   \usepackage{bussproofs}
+%   \EnableBpAbbreviations
+%
+% bussproofs provides \AXM, \BIM, \UIM, \TIM, \RLM, \DP used for proof trees.
+% ============================================================
+
+\section{Preparatory background: natural deduction rules and their Lean realizations}
+\label{sec:prep-doc}
+
+This section prepares the reader to interpret Lean proofs as natural deduction derivations.
+The emphasis is on the \emph{structural correspondence} between the familiar proof trees of
+symbolic logic and the Lean expressions that inhabit the corresponding proposition types.
+
+\subsection{From logic puzzles to formal rules (why proof trees)}
+A standard logic puzzle (such as ``Malice and Alice'') is solved by organizing informal reasoning into
+reusable patterns: ``if $\dots$ then $\dots$,'' ``either $\dots$ or $\dots$,'' ``assume $\dots$ and derive a contradiction,'' and so on.
+Symbolic logic isolates these patterns by replacing content-rich statements with propositional variables
+$A,B,C,\dots$ and replacing English connectives by formal connectives $\wedge,\vee,\neg,\to$.
+The crucial payoff is that \emph{inference} becomes the study of a small number of \emph{rules}.
+
+We will represent rules as proof trees in the standard way:
+if $C$ is derivable from $A$ and $B$, we draw
+\[
+\frac{A \qquad B}{C}.
+\]
+In natural deduction, these trees can contain \emph{subproofs} with temporarily assumed hypotheses
+that are later \emph{discharged} (canceled). This is the formal counterpart of hypothetical reasoning in prose:
+\begin{quote}
+``Assume $A$. Then show $B$. Therefore $A\to B$.'' 
+\end{quote}
+
+\subsection{The central idea: propositions as types, proofs as terms}
+Lean makes the proof-tree discipline both precise and executable:
+\[
+\text{a proposition }P \text{ is a type}, \qquad \text{a proof of }P \text{ is a term of type }P.
+\]
+Thus, in Lean, proving $P$ means constructing a term whose type is $P$.
+This is not metaphorical: the Lean kernel checks the term is well-typed,
+and that check is the formal correctness criterion for the proof.
+
+In particular, implication is realized literally as a function type:
+\[
+A \to B \quad\text{is interpreted as the type of functions }(A \to B).
+\]
+This is why implication elimination (modus ponens) becomes ordinary function application,
+and implication introduction becomes lambda abstraction (\texttt{fun} or $\lambda$).
+
+\subsection{Rules of inference as proof trees}
+We now list the most important rules (in the proof-tree style used in the documentation)
+and immediately show the corresponding Lean patterns. The point is not to learn syntax by memorization,
+but to see that the Lean expression \emph{is the proof tree}.
+
+\subsubsection{Implication elimination (modus ponens)}
+The elimination rule for implication is:
+
+\begin{prooftree}
+\AXM{$A \to B$}
+\AXM{$A$}
+\RLM{$\to\mathrm{E}$}
+\BIM{$B$}
+\end{prooftree}
+
+In Lean, if \texttt{h1 : A $\to$ B} and \texttt{h2 : A}, then \texttt{h1 h2 : B}.
+That is, modus ponens is function application.
+
+\begin{lstlisting}
+section
+  variable (A B : Prop)
+  variable (h1 : A → B) (h2 : A)
+
+  #check h1 h2  -- has type B
+end
+\end{lstlisting}
+
+\subsubsection{Implication introduction (hypothetical reasoning)}
+The introduction rule is:
+\begin{center}
+\begin{prooftree}
+\AXM{}
+\RLM{1}
+\UIM{$A$}
+\noLine
+\UIM{$\vdots$}
+\noLine
+\UIM{$B$}
+\RLM{$1\;\;\to\mathrm{I}$}
+\UIM{$A \to B$}
+\end{prooftree}
+\end{center}
+The label ``1'' indicates the hypothesis $A$ is discharged at the end. In Lean, this is exactly a lambda term:
+if assuming \texttt{h : A} we can build a term of type \texttt{B}, then \texttt{fun h : A $\mapsto$ ...} has type \texttt{A $\to$ B}.
+
+\begin{lstlisting}
+section
+  variable (A B : Prop)
+  -- a skeleton: to prove A → B, we assume A and prove B
+  example : A → B :=
+  fun (h : A) =>
+    show B from by
+      -- here we can use h : A to derive B
+      sorry
+end
+\end{lstlisting}
+
+\subsubsection{Conjunction}
+The introduction rule:
+\begin{center}
+\begin{prooftree}
+\AXM{$A$}
+\AXM{$B$}
+\RLM{$\wedge\mathrm{I}$}
+\BIM{$A \wedge B$}
+\end{prooftree}
+\end{center}
+is \texttt{And.intro} in Lean. The elimination rules:
+\begin{center}
+\begin{prooftree}
+\AXM{$A \wedge B$}
+\RLM{$\wedge\mathrm{E_l}$}
+\UIM{$A$}
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\AXM{$A \wedge B$}
+\RLM{$\wedge\mathrm{E_r}$}
+\UIM{$B$}
+\end{prooftree}
+\end{center}
+are \texttt{And.left} and \texttt{And.right}.
+
+\begin{lstlisting}
+section
+  variable (A B : Prop)
+  variable (hA : A) (hB : B)
+
+  #check And.intro hA hB  -- : A ∧ B
+
+  variable (h : A ∧ B)
+  #check And.left h   -- : A
+  #check And.right h  -- : B
+end
+\end{lstlisting}
+
+\subsubsection{Disjunction and proof by cases}
+Disjunction introduction:
+\begin{center}
+\begin{prooftree}
+\AXM{$A$}
+\RLM{$\vee\mathrm{I_l}$}
+\UIM{$A \vee B$}
+\end{prooftree}
+\qquad
+\begin{prooftree}
+\AXM{$B$}
+\RLM{$\vee\mathrm{I_r}$}
+\UIM{$A \vee B$}
+\end{prooftree}
+\end{center}
+corresponds to \texttt{Or.inl} and \texttt{Or.inr}. Disjunction elimination is the formal case split:
+\begin{center}
+\begin{prooftree}
+\AXM{$A \vee B$}
+\AXM{}
+\RLM{1}
+\UIM{$A$}
+\noLine
+\UIM{$\vdots$}
+\noLine
+\UIM{$C$}
+\AXM{}
+\RLM{2}
+\UIM{$B$}
+\noLine
+\UIM{$\vdots$}
+\noLine
+\UIM{$C$}
+\RLM{$\vee\mathrm{E}$}
+\TIM{$C$}
+\end{prooftree}
+\end{center}
+In Lean, \texttt{Or.elim} expresses exactly this two-branch structure:
+provide a proof of $C$ assuming $A$, and a proof of $C$ assuming $B$.
+
+\begin{lstlisting}
+section
+  variable (A B C : Prop)
+  variable (h : A ∨ B)
+  variable (ha : A → C)
+  variable (hb : B → C)
+
+  example : C :=
+    Or.elim h
+      (fun a : A => ha a)
+      (fun b : B => hb b)
+end
+\end{lstlisting}
+
+\subsubsection{Negation, falsity, and \emph{ex falso}}
+Negation is treated in Lean as implication into \texttt{False}:
+\[
+\neg A \quad \equiv\quad A \to \bot.
+\]
+Thus the negation elimination rule
+\begin{center}
+\begin{prooftree}
+\AXM{$\neg A$}
+\AXM{$A$}
+\RLM{$\neg\mathrm{E}$}
+\BIM{$\bot$}
+\end{prooftree}
+\end{center}
+is again function application: if \texttt{hnot : $\neg$A} and \texttt{hA : A} then \texttt{hnot hA : False}.
+And from falsity we may derive anything (\emph{ex falso}):
+\begin{center}
+\begin{prooftree}
+\AXM{$\bot$}
+\RLM{$\bot\mathrm{E}$}
+\UIM{$A$}
+\end{prooftree}
+\end{center}
+implemented as \texttt{False.elim}.
+
+\begin{lstlisting}
+section
+  variable (A : Prop)
+  variable (hFalse : False)
+
+  -- ex falso: from False, derive anything
+  #check False.elim hFalse  -- : A
+
+  variable (hnotA : ¬ A) (hA : A)
+  #check hnotA hA  -- : False
+end
+\end{lstlisting}
+
+\subsection{How this preparatory material connects to the chapter}
+The rest of the chapter specializes these general principles to the propositional fragment we use in the implementation.
+
+\subsubsection{Why the surface language uses only \texorpdfstring{$\neg$ and $\to$}{negation and implication}}
+Stansifer's paper uses only $\neg$ and $\to$ as primitives, treating other connectives as definable.
+We do the same, for two reasons:
+\begin{enumerate}
+\item It keeps the surface syntax small and the semantics easy to explain.
+\item It makes the bridge to the Foundation library conceptually clean:
+      implication is translated using the classical identity
+      \[
+      (A \to B) \leftrightarrow (\neg A \vee B).
+      \]
+\end{enumerate}
+
+\subsubsection{Where the proof trees appear in our Lean development}
+In our files, proof trees appear in two different but tightly related ways:
+
+\paragraph{(1) Proof trees as inductive objects.}
+When we define an inductive predicate like
+\texttt{ND : Formula $\to$ Prop}, each constructor is an inference rule.
+A term \texttt{p : ND $\varphi$} is a structured proof object.
+This is the same viewpoint as Stansifer's proof trees, except Lean checks correctness by typing, not by runtime checks.
+
+\paragraph{(2) Proof trees as terms built by tactics.}
+When we write
+\texttt{theorem eval\_tr ... := by ...},
+Lean’s tactic mode constructs a term of the required type.
+The tactics can be understood as a readable script that produces the proof tree.
+
+\subsection{A final ``bridge'' example: why implication corresponds to \texorpdfstring{$\neg A \vee B$}{neg A or B}}
+The translation step of this thesis uses the classical equivalence
+\[
+(A \to B) \leftrightarrow (\neg A \vee B).
+\]
+This identity is exactly what makes the surface semantics align with the target semantics.
+At the level of proof trees, this is the reason that the implication case of our bridge lemma reduces to
+a case split on whether $A$ holds:
+\[
+A \to B \quad\text{is true iff}\quad (\neg A)\ \text{or}\ B.
+\]
+In Lean, the corresponding proof is the combination of:
+\begin{itemize}
+\item a case split (\texttt{by\_cases} / \texttt{cases}) on $A$,
+\item and a disjunction introduction (\texttt{Or.inl} / \texttt{Or.inr}) to build $\neg A \vee B$.
+\end{itemize}
+
+This is precisely the same logical structure as the informal puzzle reasoning in the documentation:
+\emph{split into exhaustive cases, derive the same conclusion, and conclude the goal holds.}
+
+\subsection{Takeaway}
+Lean does not replace mathematics with syntax; it enforces that the mathematics has been fully specified.
+Proof trees, hypotheses, discharge, and case splits all appear explicitly:
+\begin{itemize}
+\item as inductive constructors (when we encode a proof system), and
+\item as proof terms (when we build proofs directly).
+\end{itemize}
+With this perspective in place, the remaining chapter can be read as a sequence of proof-tree constructions
+whose correctness is checked automatically by the Lean kernel.
+
+\subsection{Proofs as typed terms (Curry--Howard)}
+Lean is based on dependent type theory. The key operational principle is the Curry--Howard correspondence:
+\[
+\text{Propositions} \ \leftrightarrow\  \text{Types},
+\qquad
+\text{Proofs} \ \leftrightarrow\  \text{Terms (programs)}.
+\]
+Under Curry--Howard, an implication $P\Imp Q$ corresponds to a function type $P \to Q$:
+a proof of $P\Imp Q$ is a function that transforms proofs of $P$ into proofs of $Q$.
+This relationship is the conceptual bridge between natural deduction and typed functional programming.
+For background and a systematic treatment, see Sørensen--Urzyczyn~\cite{SorensenUrzyczyn2006} and Pierce~\cite{PierceTAPL2002}.%
+
+\subsection{Inductive definitions as inference systems}
+Lean's \texttt{inductive} definitions encode the \emph{least} set closed under specified constructors.
+This is exactly how inference rules generate provability relations.
+Thus, an inductive predicate
+\[
+\mathrm{ND}(\varphi) : \mathsf{Prop}
+\]
+with constructors corresponding to axiom schemata and modus ponens gives a fully formal notion of derivability.
+Any Lean term of type \texttt{ND $\varphi$} is, by construction, a derivation of $\varphi$ according to those rules.
+
+\subsection{Computation inside proofs}
+Lean definitions are computational: they can be unfolded and reduced.
+The \texttt{simp} tactic performs definitional unfolding and rewriting using registered lemmas.
+In this chapter, \texttt{simp} is used primarily to expand the recursive definitions of semantics and translation,
+reducing a proof to elementary propositional reasoning that is then discharged explicitly.
+
+\subsection{Libraries as verified mathematical infrastructure}
+A distinctive advantage of Lean is that large theorems can be reused safely:
+the system checks that a theorem is applied with correct hypotheses and correct types.
+In this chapter, the Foundation library provides a completeness theorem for a propositional calculus with respect to classical semantics;
+we supply the interface (translation + semantics preservation) that makes the theorem applicable to our surface language.
+
+\section{Glossary (Lean term \texorpdfstring{$\leftrightarrow$}{<->} mathematical meaning)}
+\label{sec:glossary}
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Lean notation / identifier} & \textbf{Mathematical meaning} \\
+\midrule
+\texttt{Formula} & Surface formula syntax $\varphi ::= p \mid \Not\varphi \mid (\varphi\Imp\psi)$ \\
+\texttt{Valuation := String $\to$ Prop} & Classical valuation $v : \mathsf{Var} \to \{\mathsf{true},\mathsf{false}\}$ (encoded as $\mathsf{Prop}$) \\
+\texttt{eval v $\varphi$} & Semantics $\llbracket \varphi \rrbracket_v$ \\
+\texttt{IsTautology $\varphi$} & $\forall v,\ \llbracket \varphi \rrbracket_v$ \\
+\texttt{F := NNFormula String} & Target formula type in Foundation \\
+\texttt{tr : Formula $\to$ F} & Translation $t(\varphi)$ into Foundation syntax \\
+\texttt{v $\models$ $\psi$} / \texttt{Sat v $\psi$} & Library satisfaction relation $v \Sat \psi$ \\
+\texttt{T $\vdash$ $\psi$} & Library provability $T \Prov \psi$ \\
+\texttt{eval\_tr} & Bridge lemma: $\llbracket\varphi\rrbracket_v \leftrightarrow (v\Sat t(\varphi))$ \\
+\texttt{provable\_tr\_of\_tautology} & Tautology $\Rightarrow$ library provability of translation \\
+\texttt{ND $\Gamma$ $\varphi$} & Genuine ND proof of $\varphi$ from assumptions $\Gamma$ \\
+\texttt{simp} & Definitional unfolding + rewriting (normalization by simplification) \\
+\texttt{induction $\varphi$} & Structural induction on the syntax of $\varphi$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Surface syntax and semantics (\texttt{Syntax.lean})}
+\label{sec:syntax}
+
+\subsection{Mathematics}
+We fix a set of variables $\mathsf{Var}$ and define formulas by:
+\[
+\varphi ::= p \mid \Not\varphi \mid (\varphi\Imp\psi).
+\]
+A valuation $v$ assigns truth-values to atoms. We define evaluation:
+\[
+\llbracket p \rrbracket_v = v(p),\quad
+\llbracket \Not\varphi \rrbracket_v = \Not \llbracket \varphi \rrbracket_v,\quad
+\llbracket \varphi\Imp\psi \rrbracket_v = (\llbracket\varphi\rrbracket_v \Imp \llbracket\psi\rrbracket_v).
+\]
+A tautology is a formula true under all valuations:
+\[
+\mathrm{Taut}(\varphi) \iff \forall v,\ \llbracket \varphi \rrbracket_v.
+\]
+
+\subsection{Proof sketch (file-to-math map)}
+\begin{itemize}
+\item \texttt{inductive Formula} implements the grammar above.
+\item \texttt{def eval} implements $\llbracket\cdot\rrbracket_v$ by recursion on syntax.
+\item \texttt{def IsTautology} implements $\forall v,\ \llbracket\varphi\rrbracket_v$.
+\end{itemize}
+
+\subsection{Lean code (excerpt)}
+\begin{lstlisting}
+namespace Thesis.Prop
+
+inductive Formula : Type
+| atom : String → Formula
+| neg  : Formula → Formula
+| impl : Formula → Formula → Formula
+deriving DecidableEq, Repr
+
+prefix:60 "~" => Formula.neg
+infixr:55 " ⟶ " => Formula.impl
+
+abbrev Valuation : Type := String → Prop
+
+def eval (v : Valuation) : Formula → Prop
+| .atom s   => v s
+| .neg p    => ¬ eval v p
+| .impl p q => eval v p → eval v q
+
+def IsTautology (φ : Formula) : Prop :=
+  ∀ v : Valuation, eval v φ
+
+end Thesis.Prop
+\end{lstlisting}
+
+\section{Translation into Foundation (\texttt{BridgeToFoundation.lean})}
+\label{sec:translation}
+
+\subsection{Mathematics}
+We translate implication into disjunction and negation using the classical equivalence:
+\[
+(\varphi \Imp \psi) \equiv (\Not\varphi \Or \psi).
+\]
+Thus we define:
+\[
+t(p)=p,\qquad t(\Not\varphi)=\Not t(\varphi),\qquad t(\varphi\Imp\psi)=\Not t(\varphi)\Or t(\psi).
+\]
+This choice is standard in proof theory and matches the truth-table semantics for implication.
+
+\subsection{Proof sketch (file-to-math map)}
+\begin{itemize}
+\item \texttt{abbrev F} fixes the target formula type (Foundation's \texttt{NNFormula}).
+\item \texttt{def tr} implements $t(\cdot)$ with the key implication clause $t(\varphi\Imp\psi)=\Not t(\varphi)\Or t(\psi)$.
+\item \texttt{abbrev Sat} names the library satisfaction predicate $v\Sat\Phi$.
+\end{itemize}
+
+\subsection{Lean code (excerpt)}
+\begin{lstlisting}
+import Foundation.Propositional.ClassicalSemantics.Tait
+import Thesis.Prop.Syntax
+
+open Classical
+
+namespace Thesis.Prop
+
+abbrev F : Type := LO.Propositional.NNFormula String
+
+def tr : Formula → F
+| .atom s   => LO.Propositional.NNFormula.atom s
+| .neg p    => (∼ (tr p))
+| .impl p q => (∼ (tr p)) ⋎ (tr q)
+
+abbrev Sat (v : Valuation) (ψ : F) : Prop :=
+  v ⊧ ψ
+
+end Thesis.Prop
+\end{lstlisting}
+
+\section{The bridge lemma (\texorpdfstring{\texttt{eval\_tr}}{eval\_tr}) and why it is the key}
+\label{sec:bridge}
+
+\subsection{Statement}
+\begin{lemma}[Semantics preservation]\label{lem:bridge}
+For every valuation $v$ and surface formula $\varphi$,
+\[
+\llbracket \varphi \rrbracket_v \;\Longleftrightarrow\; v \Sat t(\varphi).
+\]
+\end{lemma}
+
+\subsection{Proof idea}
+The proof is by structural induction on $\varphi$.
+The only substantive step is the implication case: after unfolding definitions,
+the goal reduces to the classical tautology
+\[
+(P\Imp Q) \leftrightarrow (\Not P \Or Q),
+\]
+which is proved by a standard case split on $P$.
+
+\subsection{Proof sketch (line-by-line structure)}
+\begin{itemize}
+\item \texttt{induction $\varphi$} corresponds to induction on the grammar of formulas.
+\item In the atom case, \texttt{simp} reduces both sides to the same proposition $v(p)$.
+\item In the negation case, \texttt{simp} reduces the goal to the induction hypothesis under $\Not$.
+\item In the implication case, \texttt{simp} reduces to a propositional goal and the proof proceeds by:
+  \begin{enumerate}
+    \item assuming $P\Imp Q$ and proving $\Not P\Or Q$ via cases on $P$;
+    \item assuming $\Not P\Or Q$ and proving $P\Imp Q$ by assuming $P$ and eliminating the disjunction.
+  \end{enumerate}
+\end{itemize}
+
+\subsection{Lean code (as implemented)}
+\begin{lstlisting}
+theorem eval_tr (v : Valuation) : ∀ φ : Formula, eval v φ ↔ Sat v (tr φ) := by
+  intro φ
+  induction φ with
+  | atom s => simp [eval, tr, Sat]
+  | neg p ih =>
+      simp [eval, tr, Sat, ih]
+  | impl p q ihp ihq =>
+      simp [eval, tr, Sat, ihp, ihq]
+      tauto
+\end{lstlisting}
+
+\section{Completeness via Foundation (\texttt{CompletenessViaFoundation.lean})}
+\label{sec:completeness}
+
+\subsection{Mathematics}
+The Foundation library provides a completeness theorem of the form:
+\[
+T \models \Phi \Longrightarrow T \Prov \Phi,
+\]
+i.e.\ semantic consequence implies provability (for the library calculus).
+Specializing to the empty theory $T=\emptyset$:
+\[
+(\forall v,\ v\Sat \Phi)\Longrightarrow \emptyset \Prov \Phi.
+\]
+Now if $\varphi$ is a tautology in the surface semantics, then by Lemma~\ref{lem:bridge} we have
+$\forall v,\ v\Sat t(\varphi)$, hence $\emptyset\Prov t(\varphi)$.
+
+\subsection{Proof sketch (file-to-math map)}
+\begin{itemize}
+\item \texttt{provable\_tr\_of\_tautology} is the composition:
+  \[
+  \mathrm{Taut}(\varphi) \xRightarrow{\text{bridge lemma}} \forall v,\ v\Sat t(\varphi)
+  \xRightarrow{\text{library completeness}} \emptyset\Prov t(\varphi).
+  \]
+\item In the Lean proof:
+  \begin{enumerate}
+  \item \texttt{apply ... completeness!} invokes the library theorem;
+  \item the remaining goal is to show semantic consequence from tautologyhood;
+  \item \texttt{exact (eval\_tr v $\varphi$).1 ...} converts surface truth into library satisfaction.
+  \end{enumerate}
+\end{itemize}
+
+\subsection{Lean code (as implemented)}
+\begin{lstlisting}
+import Thesis.Prop.BridgeToFoundation
+
+namespace Thesis.Prop
+
+abbrev Theory : Type := LO.Propositional.Theory String
+
+abbrev Provable (T : Theory) (ψ : F) : Prop :=
+  T ⊢ ψ
+
+theorem provable_tr_of_tautology (φ : Formula) :
+    IsTautology φ → Provable (∅ : Theory) (tr φ) := by
+  intro hTaut
+  apply LO.Propositional.ClassicalSemantics.completeness!
+  intro v hvT
+  have : eval v φ := hTaut v
+  exact (eval_tr v φ).1 this
+
+end Thesis.Prop
+\end{lstlisting}
+
+
+\section{The Provability Interface: A Natural Deduction System}
+\label{sec:nd-interface}
+
+\subsection{Defining the Surface Proof System}
+We now define the surface provability relation as a \textbf{Natural Deduction system with contexts and discharge}. This matches the standard pedagogical presentation of logic and supports standard proof techniques like hypothetical reasoning ($\Imp$-Introduction) and classical reductio.
+
+The definition \texttt{ND} is given by an inductive predicate \texttt{ND : Set Formula → Formula → Prop}, representing the judgment $\Gamma \vdash \varphi$.
+
+\begin{lstlisting}
+open Set
+
+/-- 
+We encode ⊥ inside the {~, ⟶}-only surface language as ~(P ⟶ P).
+This is semantically always false, so it behaves as falsity.
+-/
+def Bot : Formula := ~(.atom "⊥" ⟶ .atom "⊥")
+
+/-- Natural Deduction with contexts (Γ) and discharge. -/
+inductive ND : Set Formula → Formula → Prop
+| hyp {Γ φ} : φ ∈ Γ → ND Γ φ
+
+| impI {Γ φ ψ} : ND (insert φ Γ) ψ → ND Γ (φ ⟶ ψ)
+| impE {Γ φ ψ} : ND Γ (φ ⟶ ψ) → ND Γ φ → ND Γ ψ
+
+| negI {Γ φ} : ND (insert φ Γ) Bot → ND Γ (~φ)
+| negE {Γ φ} : ND Γ (~φ) → ND Γ φ → ND Γ Bot
+
+| botE {Γ φ} : ND Γ Bot → ND Γ φ
+
+/-- Classical reductio: from Γ,¬φ ⊢ ⊥ infer Γ ⊢ φ. -/
+| classical {Γ φ} : ND (insert (~φ) Γ) Bot → ND Γ φ
+
+/-- The Verified Oracle (The Bridge) -/
+| oracle {φ} :
+    Provable (∅ : Theory) (tr φ) → ND (∅ : Set Formula) φ
+\end{lstlisting}
+
+\subsection{The Architectural Role of the Oracle (Hybrid Proof System)}
+The constructor \texttt{oracle} is the defining feature of this architecture. In a traditional ``monolithic'' completeness proof, one would prove that every tautology can be derived using only the standard introduction and elimination rules.
+
+However, formalizing a full completeness proof for Natural Deduction from scratch involves complex syntactic manipulations (e.g., proving that $\Gamma \cup \{\varphi\} \vdash \bot \implies \Gamma \vdash \neg \varphi$ is admissible without using the rule itself). Instead, we use a \textbf{modular interface approach} that results in a \textbf{hybrid proof system}:
+\begin{enumerate}
+    \item We treat the \emph{Foundation} library as a trusted backend logic engine (providing semantic tableaux).
+    \item We treat the surface system \texttt{ND} as a user-facing interface for manual proof construction.
+    \item The \texttt{oracle} acts as a \textbf{verified semantic bridge}: it allows the surface system to import complete proofs from the backend, but only at the empty context ($\emptyset$).
+\end{enumerate}
+This design formally guarantees that any tautology is provable in our system, either by manual derivation or by invoking the backend engine.
+
+\subsection{Completeness Statement}
+With the oracle in place, we obtain immediate completeness for the natural deduction system.
+
+\begin{theorem}[ND Completeness via Backend]
+For every surface formula $\varphi$,
+\[
+\mathrm{Taut}(\varphi) \Longrightarrow \emptyset \vdash_{\mathrm{ND}} \varphi.
+\]
+\end{theorem}
+\begin{proof}
+    Assume $\mathrm{Taut}(\varphi)$.
+    \begin{enumerate}
+        \item By the Bridge Lemma (Lemma~\ref{lem:bridge}), we have $\forall v, v \Sat t(\varphi)$.
+        \item By the Foundation library's completeness theorem, $\emptyset \Prov t(\varphi)$.
+        \item By applying the constructor \texttt{ND.oracle}, we conclude $\mathrm{ND}(\emptyset, \varphi)$.
+    \end{enumerate}
+\end{proof}
+
+\subsection{The Path to Internalization}
+This subsection has been superseded by the detailed discussion in Section~\ref{sec:limitations}.
+
+\section{Limitations and Future Work: Towards Syntactic Completeness}
+\label{sec:limitations}
+
+The current system is ``complete by import'': if $\varphi$ is valid, there exists a derivation in \texttt{ND} because the \texttt{oracle} rule allows valid formulas to be accepted as axioms.
+
+A fully internal completeness theorem would remove the reliance on the oracle by proving a \textbf{Syntactic Compilation Theorem}:
+\[
+(\emptyset \Prov_{\mathrm{Foundation}} t(\varphi)) \implies (\emptyset \vdash_{\mathrm{ND}} \varphi)
+\]
+This would require implementing a compiler that translates every proof step from Foundation's sequent calculus into a corresponding tree of natural deduction rules. Such a result---establishing that the oracle is \emph{admissible} rather than primitive---is the gold standard of proof-theoretic verification but is significantly more labor-intensive.
+
+The present work establishes the architecture for such a future development: the surface syntax, semantics, and bridge lemma are fully verified, leaving the internal compiler as a modular component for future work.
+
+\section{Main example file (\texttt{Main.lean})}
+\label{sec:main}
+
+\subsection{Proof sketch}
+This file demonstrates the end-to-end usage:
+\begin{enumerate}
+\item Define $P$ and $\varphi := (P\Imp P)$.
+\item Prove $\mathrm{Taut}(\varphi)$ by simplification.
+\item Apply completeness to obtain a derivation in the ND system (via the oracle).
+\end{enumerate}
+
+\subsection{Lean code (example)}
+\begin{lstlisting}
+import Thesis.Prop.NaturalDeduction
+
+namespace Thesis.Prop
+
+def P : Formula := .atom "P"
+def taut1 : Formula := P ⟶ P
+
+theorem taut1_is_taut : IsTautology taut1 := by
+  intro v
+  simp [taut1, eval]
+
+theorem taut1_complete_ND : ND (∅ : Set Formula) taut1 :=
+  completeness_ND taut1 taut1_is_taut
+
+end Thesis.Prop
+\end{lstlisting}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+The chapter establishes a verified pipeline from semantics to natural deduction:
+\[
+\mathrm{Taut}(\varphi)
+\;\xRightarrow{\text{bridge lemma}}\;
+\forall v,\ v\Sat t(\varphi)
+\;\xRightarrow{\text{library completeness}}\;
+\emptyset\Prov t(\varphi)
+\;\xRightarrow{\text{ND oracle}}\;
+\mathrm{ND}(\emptyset, \varphi).
+\]
+The central mathematical work performed locally is the semantics-preservation bridge lemma.
+The framework cleanly separates the user-friendly surface system (ND with contexts) from the powerful backend engine (Foundation's semantic tableaux), providing a robust architecture for educational proof assistants.
+
+\begin{thebibliography}{99}
+
+\bibitem{Stansifer2001}
+Ryan Stansifer.
+\newblock \emph{Completeness of Propositional Logic as a Program}.
+\newblock March 2001.
+
+\bibitem{Gentzen1935}
+Gerhard Gentzen.
+\newblock Untersuchungen "uber das logische Schlie{\ss}en. I.
+\newblock \emph{Mathematische Zeitschrift} 35:176--210, 1935.
+
+\bibitem{Prawitz1965}
+Dag Prawitz.
+\newblock \emph{Natural Deduction: A Proof-Theoretical Study}.
+\newblock Almqvist \& Wiksell, 1965. Reprinted by Dover, 2006.
+
+\bibitem{TroelstraSchwichtenberg1996}
+A.~S. Troelstra and H.~Schwichtenberg.
+\newblock \emph{Basic Proof Theory}.
+\newblock Cambridge Tracts in Theoretical Computer Science 43, Cambridge University Press, 1996.
+
+\bibitem{SorensenUrzyczyn2006}
+M.~H. S{\o}rensen and P.~Urzyczyn.
+\newblock \emph{Lectures on the Curry--Howard Isomorphism}.
+\newblock Studies in Logic and the Foundations of Mathematics 149, Elsevier, 2006.
+
+\bibitem{PierceTAPL2002}
+Benjamin C.~Pierce.
+\newblock \emph{Types and Programming Languages}.
+\newblock MIT Press, 2002.
+
+\bibitem{FoundationRepo}
+FormalizedFormalLogic.
+\newblock \emph{Foundation: A Lean 4 library for formal logic}.
+\newblock \url{https://github.com/FormalizedFormalLogic/Foundation}.
+\newblock Accessed January 2026.
+
+\end{thebibliography}
+
+\end{document}
