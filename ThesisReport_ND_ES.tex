@@ -1,0 +1,66 @@
+\documentclass[11pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{bussproofs}
+\EnableBpAbbreviations
+\let\AXM\AXC \let\BIM\BIC \let\UIM\UIC \let\TIM\TIC \let\RLM\RL
+
+% --- Notación ---
+\newcommand{\Imp}{\rightarrow}
+\newcommand{\Not}{\neg}
+\newcommand{\Or}{\vee}
+\providecommand{\Sat}{\models}
+\providecommand{\Prov}{\vdash}
+\newcommand{\Provnd}{\vdash_{\mathrm{ND}}}
+\newcommand{\sem}[1]{[\![ #1 ]\!]}
+
+% --- Entornos de teoremas (declaración del autor) ---
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{lema}[teorema]{Lema}
+\newtheorem{corolario}[teorema]{Corolario}
+\newtheorem{proposicion}[teorema]{Proposición}
+\theoremstyle{definition}
+\newtheorem{definicion}[teorema]{Definición}
+\newtheorem{ejemplo}[teorema]{Ejemplo}
+\theoremstyle{remark}
+\newtheorem{nota}[teorema]{Nota}
+\newenvironment{demostracion}{\begin{proof}[Demostración]}{\renewcommand{\qedsymbol}{$\blacksquare$}\end{proof}}
+\newenvironment{solucion}{\begin{proof}[Solución]}{\renewcommand{\qedsymbol}{$\square$}\end{proof}}
+
+% --- Configuración de listings para Lean ---
+\lstdefinelanguage{Lean}{
+  morekeywords={import, namespace, end, inductive, def, theorem, abbrev,
+    by, intro, apply, exact, simp, constructor, cases, with, match, open,
+    have, let, refine, rcases, induction, noncomputable, attribute,
+    instance, obtain, by_cases, by_contra, fun},
+  sensitive=true, morecomment=[l]{--}, morestring=[b]"}
+\lstset{
+  language=Lean, basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!60!black}, commentstyle=\color{green!40!black},
+  stringstyle=\color{red!50!black}, showstringspaces=false,
+  breaklines=true, frame=single, columns=fullflexible, mathescape=true,
+  literate=
+    {⟶}{{$\to$}}1 {~}{{$\neg$}}1 {∅}{{$\emptyset$}}1 {⊢}{{$\vdash$}}1
+    {⊧}{{$\models$}}1 {⊨}{{$\models$}}1 {⋎}{{$\lor$}}1 {∼}{{$\sim$}}1
+    {¬}{{$\neg$}}1 {∀}{{$\forall$}}1 {→}{{$\to$}}1 {↔}{{$\leftrightarrow$}}1
+    {Γ}{{$\Gamma$}}1 {Δ}{{$\Delta$}}1 {φ}{{$\varphi$}}1 {ψ}{{$\psi$}}1
+    {χ}{{$\chi$}}1 {∈}{{$\in$}}1 {∉}{{$\notin$}}1 {⊆}{{$\subseteq$}}1
+    {∪}{{$\cup$}}1 {≠}{{$\neq$}}1 {⊥}{{$\bot$}}1 {∧}{{$\land$}}1
+    {∨}{{$\lor$}}1 {·}{{$\cdot$}}1 {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1
+    {▸}{{$\triangleright$}}1 {á}{{\'a}}1 {…}{{$\dots$}}1}
+
+\title{Completitud de la deducción natural proposicional en Lean~4}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\input{ThesisReport_ND_ES.txt}
+\end{document}
