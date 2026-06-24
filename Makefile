@@ -1,4 +1,4 @@
-.PHONY: build audit pdf check clean
+.PHONY: build audit pdf check clean verify-aristotle
 
 # Build the verified Lean development (pulls the Mathlib cache first).
 build:
@@ -14,9 +14,16 @@ audit:
 pdf: audit
 	latexmk -pdf -interaction=nonstopmode ThesisReport_ND.tex
 
-# CI gate: proofs build and the committed audit still matches reality.
+# Type-check the standalone Aristotle case-study files (Section: AI cross-validation).
+# Not part of the lake build (they re-declare the calculus in their own units).
+verify-aristotle:
+	lake env lean aristotle/NDCore.lean
+	lake env lean aristotle/NDFull.lean
+
+# CI gate: proofs build, the committed audit still matches reality, and the
+# AI-generated case-study proofs still compile.
 # Fails if a sorry (sorryAx) or rogue axiom sneaks in, or audit.txt drifts.
-check: build audit
+check: build audit verify-aristotle
 	git diff --exit-code audit.txt
 
 clean:
