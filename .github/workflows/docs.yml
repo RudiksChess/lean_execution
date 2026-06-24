@@ -15,7 +15,9 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # Let runs finish instead of cancelling — a cancelled job skips its post-job
+  # cache-save, which would leave the doc cache cold for the next build.
+  cancel-in-progress: false
 
 jobs:
   build:
