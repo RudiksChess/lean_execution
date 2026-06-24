@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Installs the toolchain from lean-toolchain, fetches the Mathlib cache,
+      # and runs `lake build` (kernel-checks every proof).
+      - uses: leanprover/lean-action@v1
+
+      # Reproduce the axiom certificate and fail if it drifts from the
+      # committed audit.txt — i.e. if a sorry or a rogue axiom appears.
+      - name: Axiom audit
+        run: |
+          lake env lean Thesis/Prop/Audit.lean > audit.txt
+          git diff --exit-code audit.txt

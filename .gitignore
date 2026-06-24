@@ -1,0 +1,15 @@
+# Lean build output (re-fetch with `lake exe cache get`, rebuild with `lake build`)
+/.lake/
+
+# LaTeX build artifacts (regenerate with `make pdf`)
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.pdf
+
+# macOS
+.DS_Store
