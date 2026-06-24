@@ -1151,6 +1151,69 @@ external corroboration of Theorem~\ref{thm:adequacy}.
 
 \lstinputlisting[linerange=provableTr-provableTr]{Thesis/Prop/CompletenessViaFoundation.lean}
 
+\section{Cross-validation by an automated prover (Harmonic Aristotle)}
+\label{sec:aristotle}
+As a final, independent check on the central result, we asked an automated theorem-proving
+agent---Harmonic's \emph{Aristotle}~\cite{Aristotle}---to reconstruct the proofs \emph{cold}.
+Aristotle operates inside Lean~4 and discharges every goal through the same kernel used throughout
+this thesis, so whatever it produces is verified to the identical standard: it is not an oracle
+whose word we take on trust, but a proof-search procedure whose output is a checkable Lean term.
+
+\paragraph{Protocol.} We supplied Aristotle with only the surface syntax, the semantics, the
+natural-deduction calculus, and the elementary metatheory (weakening, the derived rules,
+soundness)---exactly the contents of \texttt{Syntax.lean} and \texttt{NaturalDeduction.lean}. We
+\emph{withheld} \texttt{Completeness.lean} entirely: Kalm\'ar's lemma and the atom-discharge
+construction were removed, and the target was presented as a bare stub,
+\begin{lstlisting}
+theorem completeness_ND (φ : Formula) (h : IsTautology φ) : ND (∅ : Set Formula) φ := by
+  sorry
+\end{lstlisting}
+with the instruction to complete it introducing no axioms and no \texttt{sorry}. Every artifact
+reported below compiles under the same Lean~v4.29.0 toolchain as the rest of this development and
+was passed through the axiom audit of Section~\ref{sec:axioms}.
+
+\subsection{A derived rule: \texttt{byCases}}
+Given the derived rule \texttt{byCases} with its proof replaced by \texttt{sorry}, Aristotle
+returned a proof with the \emph{same} structure as ours: classical \emph{reductio}, deriving
+$\Not\varphi$ and $\Not\Not\varphi$ from the two branches and closing with $\Not$-elimination. It
+differs only in surface idiom---explicit named hypotheses where our proof uses \texttt{refine} with
+anonymous holes---and depends on the same three axioms.
+
+\subsection{The completeness theorem}
+The headline experiment is more demanding: with the entire completeness argument withheld, can the
+agent \emph{rediscover} it? It can. Aristotle reintroduced precisely Kalm\'ar's method under its own
+names. It defined the signed literal of an atom, the (finite) set of atoms occurring in a formula,
+and the literal context of a valuation:
+\lstinputlisting[linerange=adefs-adefs]{aristotle/NDFull.lean}
+\noindent These are our \texttt{lit}, \texttt{atoms}, and \texttt{litCtx} (Section~\ref{sec:axioms}
+collects the originals); the only structural divergence is that Aristotle gathers atoms in a
+\texttt{Finset} rather than a deduplicated \texttt{List}. It then stated the two halves of Kalm\'ar's
+lemma and the atom-elimination step with the signatures one would write by hand,
+\lstinputlisting[linerange=akalmarsig-akalmarsig]{aristotle/NDFull.lean}
+\lstinputlisting[linerange=aelimsig-aelimsig]{aristotle/NDFull.lean}
+\noindent and assembled them into completeness exactly as our \texttt{completeness\_ND} composes
+\texttt{kalmar} with \texttt{discharge}:
+\lstinputlisting[linerange=amain-amain]{aristotle/NDFull.lean}
+
+\paragraph{What differs, and what does not.} Mathematically the two developments are the same proof:
+Kalm\'ar's lemma by induction on the formula, then discharge of the literal hypotheses one atom at a
+time by excluded middle. They differ in \emph{idiom}. The hand proof is written for a human
+reader---structured term-mode applications with explicit membership witnesses. Aristotle's proof
+leans on Mathlib's general-purpose automation (\texttt{grind}, \texttt{aesop}, \texttt{simp~+decide},
+\texttt{convert}), which closes many steps opaquely: it is correct and machine-checked but less
+transparent. Decisively, the axiom audit returns the identical verdict---%
+\texttt{completeness\_ND} depends on \texttt{[propext, Classical.choice, Quot.sound]}, with no
+\texttt{sorryAx} and no postulated rule.
+
+\paragraph{Interpretation.} This is evidence of a kind the Foundation cross-validation
+(Section~\ref{app:foundation}) cannot supply. Foundation confirms that our \emph{notion of
+tautology} agrees with an external library's. Aristotle confirms that the \emph{proof strategy} of
+this thesis---oracle-free internal completeness via Kalm\'ar's lemma---is not an artifact of one
+author's choices: an independent agent, given only the calculus and its elementary metatheory,
+converges on the same mathematical content, and its reconstruction carries exactly the trust
+guarantee of the original. The hand proof is presented in the body of this thesis because it is
+meant to be \emph{read}; the agent's reconstruction shows that the result was there to be found.
+
 \begin{thebibliography}{99}
 
 \bibitem{Stansifer2001}
@@ -1212,6 +1275,12 @@ Benjamin C.~Pierce.
 FormalizedFormalLogic.
 \newblock \emph{Foundation: A Lean 4 library for formal logic}.
 \newblock \url{https://github.com/FormalizedFormalLogic/Foundation}.
+\newblock Accessed June 2026.
+
+\bibitem{Aristotle}
+Harmonic.
+\newblock \emph{Aristotle: an automated theorem-proving agent for Lean~4}.
+\newblock \url{https://aristotle.harmonic.fun}.
 \newblock Accessed June 2026.
 
 \end{thebibliography}
