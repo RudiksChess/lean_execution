@@ -14,7 +14,10 @@ this verified source.
 > **Mathematical overview** (no Lean needed): a side-by-side "maths ↔ code"
 > walkthrough of the whole proof is at
 > <https://rudikschess.github.io/lean_execution/overview.html> — written for
-> readers who want the mathematics, with the verified code shown alongside.
+> readers who want the mathematics, with the verified code shown alongside. A
+> deeper, step-by-step companion (prerequisites, a "how Lean works" primer, and
+> every case of the completeness proof) is at
+> <https://rudikschess.github.io/lean_execution/completeness.html>.
 >
 > **Browse the proofs:** generated API docs (hover for types, click to jump to
 > definitions) are published at
