@@ -9,7 +9,10 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \newcommand{\rr}{\raggedright\arraybackslash}
-%\usepackage{microtype}
+\usepackage{microtype}
+% Absorb the last few points of overrun from long \texttt{} identifiers in prose
+% (break before the long token and stretch, rather than hyphenate code names).
+\setlength{\emergencystretch}{3em}
 \usepackage[T1]{fontenc}
 \usepackage{bussproofs}
 \EnableBpAbbreviations
