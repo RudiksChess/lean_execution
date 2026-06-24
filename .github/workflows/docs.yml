@@ -1,22 +1,30 @@
 name: Docs
 
-# Browsable API docs (doc-gen4) deployed to GitHub Pages.
-# Heavy: generates HTML for the full Mathlib import closure, so this runs only
-# on releases and manual dispatch, not on every push.
+# Browsable API docs (doc-gen4), published to the `gh-pages` branch.
+# Heavy: regenerates HTML for the full Mathlib import closure. So it runs ONLY
+# when the Lean code changes (or on release / manual dispatch) — never on edits
+# to the static pages in web/, which are handled by site.yml in seconds.
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'Thesis/**'
+      - 'Thesis.lean'
+      - 'lakefile.lean'
+      - 'lean-toolchain'
+      - 'lake-manifest.json'
+      - 'docbuild/**'
+      - '.github/workflows/docs.yml'
   release:
     types: [published]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
-  # Let runs finish instead of cancelling — a cancelled job skips its post-job
-  # cache-save, which would leave the doc cache cold for the next build.
+  # Shared with site.yml so the two never push to gh-pages at the same time.
+  group: gh-pages-publish
   cancel-in-progress: false
 
 jobs:
@@ -25,14 +33,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Toolchain + Mathlib cache for the root project.
       - uses: leanprover/lean-action@v1
         with:
           use-mathlib-cache: true
 
-      # Cache the generated doc outputs. Mathlib's docs never change between our
-      # runs, so after the first build only the Thesis modules re-document
-      # (~30 min first time, a couple minutes thereafter).
       - name: Cache generated docs
         uses: actions/cache@v4
         with:
@@ -48,21 +52,15 @@ jobs:
           lake exe cache get
           lake build Thesis:docs
 
-      # Drop the hand-written pages (mathematical overview) alongside the API docs.
-      - name: Add static pages
+      # Bundle the hand-written static pages so a full rebuild yields a complete site.
+      - name: Bundle static pages
         run: cp -r web/. docbuild/.lake/build/doc/
 
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: docbuild/.lake/build/doc
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docbuild/.lake/build/doc
+          publish_branch: gh-pages
+          keep_files: false
+          commit_message: "docs: rebuild API docs + static pages"

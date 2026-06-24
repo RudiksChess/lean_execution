@@ -1,0 +1,32 @@
+name: Site
+
+# Fast path: publish the hand-written static pages (web/) to gh-pages in seconds,
+# WITHOUT running doc-gen4. keep_files preserves the API docs already on the branch.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish static pages to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./web
+          publish_branch: gh-pages
+          keep_files: true
+          commit_message: "site: update static pages"
