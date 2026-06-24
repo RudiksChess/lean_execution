@@ -7,6 +7,8 @@
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{booktabs}
+\usepackage{tabularx}
+\newcommand{\rr}{\raggedright\arraybackslash}
 %\usepackage{microtype}
 \usepackage[T1]{fontenc}
 \usepackage{bussproofs}
@@ -111,7 +113,7 @@
 
 \title{Completeness of Propositional Natural Deduction in Lean 4:\\
 An Oracle-Free Internal Proof via Kalm\'ar's Lemma}
-\author{\textbf{Author Name} \\ Undergraduate Thesis \\ University \\ \texttt{email@example.com}}
+\author{\textbf{Rudik Rompich} \\ Undergraduate Thesis \\ Universidad del Valle de Guatemala \\ \texttt{rom19857@uvg.edu.gt}}
 \date{June 2026}
 
 \begin{document}
@@ -310,7 +312,7 @@ Remark~\ref{rem:two-levels} distinguished the object level from the meta level; 
 correspondence is exact.
 
 \begin{center}
-\begin{tabular}{@{}ll@{}}
+\begin{tabularx}{\linewidth}{@{}>{\hsize=.72\hsize\rr}X >{\hsize=1.28\hsize\rr}X@{}}
 \toprule
 \textbf{Mathematical / logical notion} & \textbf{CIC counterpart in Lean} \\
 \midrule
@@ -327,7 +329,7 @@ Discharging a hypothesis & forming a term over \texttt{insert $\varphi$ $\Gamma$
 Kernel type-checking & proof-checking \\
 \texttt{\#print axioms} & the \texttt{axiom}-declared constants in the term's dependency graph \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 The decisive line is the third-from-top: \emph{a derivation is a term}. An object-level proof is
@@ -439,7 +441,7 @@ meta-level proof term. The tactic script is a readable recipe for that term.
 \label{sec:glossary}
 
 \begin{center}
-\begin{tabular}{@{}ll@{}}
+\begin{tabularx}{\linewidth}{@{}>{\hsize=.82\hsize\rr}X >{\hsize=1.18\hsize\rr}X@{}}
 \toprule
 \textbf{Lean notation / identifier} & \textbf{Mathematical meaning} \\
 \midrule
@@ -462,7 +464,7 @@ meta-level proof term. The tactic script is a readable recipe for that term.
 \texttt{soundComplete} & $\mathrm{Taut}(\varphi) \leftrightarrow \emptyset\Provnd\varphi$ \\
 \texttt{induction d} & Rule induction on a derivation \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \section{Surface syntax and semantics (\texttt{Syntax.lean})}
