@@ -1,0 +1,13 @@
+{
+  "name": "Lean 4 — lean_execution",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "postCreateCommand": "curl -sSfL https://elan.lean-lang.org/elan-init.sh | sh -s -- -y && ~/.elan/bin/lake exe cache get",
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.elan/bin"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["leanprover.lean4"]
+    }
+  }
+}

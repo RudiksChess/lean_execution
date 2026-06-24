@@ -27,8 +27,14 @@ this verified source.
 
 ## Reproduce it
 
-Requires [`elan`](https://github.com/leanprover/elan) (the toolchain version is
-pinned in `lean-toolchain`).
+**In the cloud, no install** — open the repo in a GitHub Codespace
+(**Code ▸ Codespaces ▸ Create**). The devcontainer installs the toolchain and
+primes the Mathlib cache automatically; then in the terminal run `lake build`
+(or `make check`). Already compiled? CI does exactly this on every push — the
+badge above is the proof.
+
+**Locally** — requires [`elan`](https://github.com/leanprover/elan) (the
+toolchain version is pinned in `lean-toolchain`).
 
 ```sh
 lake exe cache get   # fetch the prebuilt Mathlib (skips a multi-hour build)
