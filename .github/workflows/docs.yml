@@ -46,6 +46,10 @@ jobs:
           lake exe cache get
           lake build Thesis:docs
 
+      # Drop the hand-written pages (mathematical overview) alongside the API docs.
+      - name: Add static pages
+        run: cp -r web/. docbuild/.lake/build/doc/
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

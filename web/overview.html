@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Completeness of Propositional Natural Deduction — Mathematical Overview</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  :root{
+    --bg:#fbfbfd; --fg:#1d1d1f; --muted:#6e6e73; --line:#e3e3e8;
+    --math-bg:#ffffff; --code-bg:#1e2330; --code-fg:#e6e6e6;
+    --accent:#2b5fb3; --kw:#7fb3ff; --cm:#8ea3b0;
+    --maxw:1100px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  header{padding:3rem 1.25rem 2rem;border-bottom:1px solid var(--line);background:#fff}
+  header .wrap,main{max-width:var(--maxw);margin:0 auto;padding:0 1.25rem}
+  h1{font-size:1.9rem;line-height:1.2;margin:.2rem 0 .4rem}
+  .sub{color:var(--muted);font-size:1.02rem}
+  .byline{margin-top:1rem;font-size:.95rem;color:var(--muted)}
+  .links{margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap}
+  .links a{display:inline-block;padding:.4rem .8rem;border:1px solid var(--line);border-radius:8px;
+    text-decoration:none;color:var(--accent);background:#fff;font-size:.9rem}
+  .links a:hover{background:#f0f4fb}
+  main{padding-bottom:4rem}
+  h2{font-size:1.4rem;margin:2.6rem 0 .3rem;padding-top:1rem}
+  h2 .n{color:var(--muted);font-weight:600;margin-right:.5rem}
+  .lead{color:var(--muted);margin:.2rem 0 1rem}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:stretch;margin:1rem 0}
+  .panel{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .panel .cap{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    padding:.5rem .85rem;border-bottom:1px solid var(--line);background:#fafafc}
+  .math{background:var(--math-bg)}
+  .math .body{padding:1rem .9rem}
+  pre{margin:0;background:var(--code-bg);color:var(--code-fg);padding:1rem;overflow:auto;
+    font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .code .cap{background:#171b26;color:#9fb0c3;border-bottom-color:#2a3142}
+  .note{background:#f4f7fc;border:1px solid #dbe6f7;border-radius:10px;padding:.8rem 1rem;margin:1rem 0;
+    color:#2a3a52;font-size:.95rem}
+  .kw{color:var(--kw)} .cm{color:var(--cm)}
+  table.ax{border-collapse:collapse;margin:.5rem 0;font-size:.95rem}
+  table.ax td{border:1px solid var(--line);padding:.4rem .7rem;background:#fff}
+  footer{border-top:1px solid var(--line);color:var(--muted);font-size:.88rem;
+    max-width:var(--maxw);margin:2rem auto 0;padding:1.5rem 1.25rem 3rem}
+  @media (max-width:760px){.pair{grid-template-columns:1fr}}
+  code.inl{background:#eef0f4;padding:.05rem .35rem;border-radius:5px;font-size:.92em}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="sub">Undergraduate thesis · formal verification in Lean 4</div>
+  <h1>Completeness of Propositional Natural Deduction</h1>
+  <div class="sub">An oracle-free, internal proof via Kalmár's lemma — the mathematics, paired line-for-line with its machine-checked counterpart.</div>
+  <div class="byline"><strong>Rudik Rompich</strong> · Universidad del Valle de Guatemala · <code class="inl">rom19857@uvg.edu.gt</code></div>
+  <div class="links">
+    <a href="https://github.com/RudiksChess/lean_execution">Repository</a>
+    <a href="https://github.com/RudiksChess/lean_execution/releases">Thesis PDF</a>
+    <a href="./index.html">API documentation</a>
+  </div>
+</div></header>
+
+<main>
+
+<div class="note">
+<strong>How to read this page.</strong> Each box on the <em>left</em> is ordinary mathematics, in the
+notation you already use. The box on the <em>right</em> is the exact Lean&nbsp;4 text that a computer
+checked. You do not need to know Lean: the right column is there to show that every definition and
+every theorem on the left corresponds to a concrete, verified object — nothing is hand-waved, and
+nothing is assumed beyond the standard axioms named at the end.
+</div>
+
+<h2><span class="n">1.</span>Language and meaning</h2>
+<p class="lead">Formulas are built from atomic propositions using negation and implication. A
+<em>valuation</em> assigns a truth value to each atom, and that extends to every formula by the usual
+truth tables. A <em>tautology</em> is a formula true under every valuation.</p>
+
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    Formulas: $\quad \varphi ::= p \;\mid\; \neg\varphi \;\mid\; (\varphi \to \psi)$, where $p$ ranges over atoms.
+    <br><br>
+    Truth under a valuation $v$:
+    $$\llbracket p\rrbracket_v = v(p),\quad
+       \llbracket \neg\varphi\rrbracket_v = \neg\llbracket\varphi\rrbracket_v,\quad
+       \llbracket \varphi\to\psi\rrbracket_v = \llbracket\varphi\rrbracket_v \to \llbracket\psi\rrbracket_v.$$
+    Tautology: $\quad \mathrm{Taut}(\varphi) \;:\equiv\; \forall v,\ \llbracket\varphi\rrbracket_v.$
+  </div></div>
+  <div class="panel code"><div class="cap">Lean 4 — Syntax.lean</div>
+<pre><span class="kw">inductive</span> Formula
+| atom : String → Formula
+| neg  : Formula → Formula
+| impl : Formula → Formula → Formula
+
+<span class="kw">def</span> eval (v : Valuation) : Formula → Prop
+| .atom s   => v s
+| .neg p    => ¬ eval v p
+| .impl p q => eval v p → eval v q
+
+<span class="kw">def</span> IsTautology (φ : Formula) : Prop :=
+  ∀ v, eval v φ</pre>
+  </div>
+</div>
+
+<h2><span class="n">2.</span>The natural-deduction calculus</h2>
+<p class="lead">A judgment $\Gamma \vdash \varphi$ means "$\varphi$ is derivable from the set of
+assumptions $\Gamma$." The calculus is given by inference rules. Falsity $\bot$ is encoded inside the
+language as $\neg(p_0\to p_0)$. The last rule, <em>classical reductio</em>, is what makes the logic
+classical rather than intuitionistic.</p>
+
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics — inference rules</div><div class="body">
+    $$\dfrac{\varphi\in\Gamma}{\Gamma\vdash\varphi}\;(\text{hyp})
+      \qquad
+      \dfrac{\Gamma,\varphi\vdash\psi}{\Gamma\vdash\varphi\to\psi}\;({\to}\mathrm{I})$$
+    $$\dfrac{\Gamma\vdash\varphi\to\psi \quad \Gamma\vdash\varphi}{\Gamma\vdash\psi}\;({\to}\mathrm{E})
+      \qquad
+      \dfrac{\Gamma,\varphi\vdash\bot}{\Gamma\vdash\neg\varphi}\;({\neg}\mathrm{I})$$
+    $$\dfrac{\Gamma\vdash\neg\varphi \quad \Gamma\vdash\varphi}{\Gamma\vdash\bot}\;({\neg}\mathrm{E})
+      \qquad
+      \dfrac{\Gamma\vdash\bot}{\Gamma\vdash\varphi}\;({\bot}\mathrm{E})$$
+    $$\dfrac{\Gamma,\neg\varphi\vdash\bot}{\Gamma\vdash\varphi}\;(\text{classical})$$
+  </div></div>
+  <div class="panel code"><div class="cap">Lean 4 — NaturalDeduction.lean</div>
+<pre><span class="kw">def</span> Bot : Formula := ~(.atom "⊥" ⟶ .atom "⊥")
+
+<span class="kw">inductive</span> ND : Set Formula → Formula → Prop
+| hyp       : φ ∈ Γ → ND Γ φ
+| impI      : ND (insert φ Γ) ψ → ND Γ (φ ⟶ ψ)
+| impE      : ND Γ (φ ⟶ ψ) → ND Γ φ → ND Γ ψ
+| negI      : ND (insert φ Γ) Bot → ND Γ (~φ)
+| negE      : ND Γ (~φ) → ND Γ φ → ND Γ Bot
+| botE      : ND Γ Bot → ND Γ φ
+| classical : ND (insert (~φ) Γ) Bot → ND Γ φ</pre>
+  </div>
+</div>
+<div class="note">Each inference rule is one <em>constructor</em> of an inductive family. A derivation of
+$\Gamma\vdash\varphi$ is therefore literally a finite tree of these constructors — a value the
+computer can hold and check, not a paragraph of prose.</div>
+
+<h2><span class="n">3.</span>Soundness</h2>
+<p class="lead">Everything the calculus proves is actually true: if $\varphi$ is derivable from $\Gamma$,
+then $\varphi$ holds under every valuation that satisfies all of $\Gamma$. (Proof: induction on the
+derivation tree.) In particular, theorems of the empty context are tautologies, and $\bot$ is not
+derivable — the system is consistent.</p>
+
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    <strong>Soundness.</strong>
+    $$\Gamma\vdash\varphi \;\Longrightarrow\; \forall v,\ \big(\textstyle\bigwedge_{\psi\in\Gamma}\llbracket\psi\rrbracket_v\big)\to\llbracket\varphi\rrbracket_v.$$
+    <strong>Consequences.</strong> $\;\emptyset\vdash\varphi \Rightarrow \mathrm{Taut}(\varphi)$, and
+    $\;\emptyset\not\vdash\bot$ (consistency).
+  </div></div>
+  <div class="panel code"><div class="cap">Lean 4 — NaturalDeduction.lean</div>
+<pre><span class="kw">theorem</span> soundness (d : ND Γ φ) :
+    ∀ v, (∀ ψ ∈ Γ, eval v ψ) → eval v φ
+
+<span class="kw">theorem</span> isTautology_of_provable
+    (d : ND ∅ φ) : IsTautology φ
+
+<span class="kw">theorem</span> not_provable_Bot : ¬ ND ∅ Bot</pre>
+  </div>
+</div>
+
+<h2><span class="n">4.</span>Kalmár's lemma — the heart of completeness</h2>
+<p class="lead">Fix a valuation $v$. For an atom $p$, its <em>signed literal</em> is $p$ itself if
+$v(p)$ is true, and $\neg p$ if it is false. Collecting the signed literals of the atoms occurring in
+$\varphi$ gives a context $\Gamma_v$. Kalmár's lemma says this context decides $\varphi$ syntactically:
+it <em>derives</em> $\varphi$ when $v$ makes $\varphi$ true, and derives $\neg\varphi$ when $v$ makes it
+false. The proof is by induction on the structure of $\varphi$.</p>
+
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    Signed literal: $\quad \mathrm{lit}_v(p) = \begin{cases} p & \text{if } v(p)\\ \neg p & \text{otherwise.}\end{cases}$
+    <br><br>
+    Literal context $\Gamma_v$ = the signed literals of the atoms of $\varphi$.
+    <br><br>
+    <strong>Kalmár's lemma.</strong>
+    $$\big(\llbracket\varphi\rrbracket_v \Rightarrow \Gamma_v\vdash\varphi\big)\ \wedge\
+       \big(\neg\llbracket\varphi\rrbracket_v \Rightarrow \Gamma_v\vdash\neg\varphi\big).$$
+  </div></div>
+  <div class="panel code"><div class="cap">Lean 4 — Completeness.lean</div>
+<pre><span class="kw">def</span> lit (v : Valuation) (p : String) : Formula :=
+  <span class="kw">if</span> v p <span class="kw">then</span> .atom p <span class="kw">else</span> ~(.atom p)
+
+<span class="cm">-- literal context for the atoms of φ</span>
+<span class="kw">def</span> litCtx (v : Valuation) : List String → Set Formula
+
+<span class="kw">theorem</span> kalmar (v) (ats) (φ) (h : atoms φ ⊆ ats) :
+    (eval v φ → ND (litCtx v ats) φ) ∧
+    (¬ eval v φ → ND (litCtx v ats) (~φ))</pre>
+  </div>
+</div>
+
+<h2><span class="n">5.</span>Discharging the assumptions</h2>
+<p class="lead">Kalmár's lemma gives a derivation that still depends on the valuation, through the
+literal context. The discharge step removes those assumptions one atom at a time: if $\varphi$ is
+derivable from the literal context for <em>every</em> valuation, then it is derivable outright, from
+no assumptions. Each atom is eliminated by a classical case split (it is either true or false).</p>
+
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    <strong>Discharge.</strong> For a duplicate-free list of atoms,
+    $$\big(\forall v,\ \Gamma_v\vdash\varphi\big)\ \Longrightarrow\ \emptyset\vdash\varphi.$$
+    Proof: induction on the atom list; at each step combine the $v(p)=\text{true}$ and
+    $v(p)=\text{false}$ derivations with the derived rule of proof by cases.
+  </div></div>
+  <div class="panel code"><div class="cap">Lean 4 — Completeness.lean</div>
+<pre><span class="kw">theorem</span> discharge (ats : List String)
+    (hnd : ats.Nodup)
+    (H : ∀ v, ND (litCtx v ats) φ) :
+    ND ∅ φ</pre>
+  </div>
+</div>
+
+<h2><span class="n">6.</span>The completeness theorem</h2>
+<p class="lead">Putting the two pieces together: every tautology is derivable from the empty context.
+For a tautology, $\llbracket\varphi\rrbracket_v$ holds for every $v$, so Kalmár's lemma gives
+$\Gamma_v\vdash\varphi$ for every $v$; discharge then yields $\emptyset\vdash\varphi$. Combined with
+soundness, derivability and validity coincide exactly.</p>
+
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    <strong>Completeness.</strong> $\quad \mathrm{Taut}(\varphi)\ \Longrightarrow\ \emptyset\vdash\varphi.$
+    <br><br>
+    <strong>Adequacy</strong> (soundness + completeness):
+    $$\mathrm{Taut}(\varphi)\ \Longleftrightarrow\ \emptyset\vdash\varphi.$$
+  </div></div>
+  <div class="panel code"><div class="cap">Lean 4 — Completeness.lean</div>
+<pre><span class="kw">theorem</span> completeness_ND (φ) (h : IsTautology φ) :
+    ND ∅ φ :=
+  discharge (atoms φ).dedup _ (<span class="kw">fun</span> v =>
+    (kalmar v _ φ _).1 (h v))
+
+<span class="kw">theorem</span> soundComplete (φ) :
+    IsTautology φ ↔ ND ∅ φ</pre>
+  </div>
+</div>
+
+<h2><span class="n">7.</span>What "verified" means here</h2>
+<p class="lead">A derivation is a finite term whose type is checked by Lean's kernel; type-checking
+<em>is</em> the verification. To be sure nothing was smuggled in, Lean reports the complete list of
+axioms each theorem depends on. The main results rest only on the three standard classical axioms of
+the Lean/Mathlib foundation — there is no admitted gap (<code class="inl">sorry</code>) and no
+postulated "oracle" completeness rule.</p>
+
+<div class="pair">
+  <div class="panel math"><div class="cap">Generated certificate (audit.txt)</div><div class="body">
+    <table class="ax">
+      <tr><td><code class="inl">completeness_ND</code></td><td>propext, Classical.choice, Quot.sound</td></tr>
+      <tr><td><code class="inl">soundComplete</code></td><td>propext, Classical.choice, Quot.sound</td></tr>
+      <tr><td><code class="inl">ex_id</code>, <code class="inl">ex_dne</code></td><td>(no axioms)</td></tr>
+    </table>
+    These are exactly the axioms underlying all of classical mathematics in Lean — not anything
+    specific to this proof.
+  </div></div>
+  <div class="panel code"><div class="cap">How it is produced</div>
+<pre><span class="cm">-- Audit.lean, run on every CI build</span>
+<span class="kw">#print</span> axioms completeness_ND
+<span class="kw">#print</span> axioms soundComplete
+
+<span class="cm">-- a stray `sorry` would appear here as `sorryAx`</span>
+<span class="cm">-- and break the build.</span></pre>
+  </div>
+</div>
+
+<div class="note">
+<strong>Independent corroboration.</strong> Two further checks back the result. The notion of
+tautology was cross-validated against the external <em>Foundation</em> library; and an automated
+prover (Harmonic <em>Aristotle</em>), given the calculus but <em>not</em> the completeness argument,
+independently rediscovered Kalmár's method — its proof carries the same three-axiom footprint. Details
+are in the thesis report.
+</div>
+
+</main>
+
+<footer>
+  © 2026 Rudik Rompich, Universidad del Valle de Guatemala. Source, the machine-checked proofs, and the
+  full thesis report: <a href="https://github.com/RudiksChess/lean_execution">github.com/RudiksChess/lean_execution</a>.
+  Mathematics rendered with KaTeX.
+</footer>
+</body>
+</html>
