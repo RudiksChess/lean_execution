@@ -1,4 +1,4 @@
-.PHONY: build audit pdf check clean verify-aristotle
+.PHONY: build audit pdf check clean verify-aristotle docs
 
 # Build the verified Lean development (pulls the Mathlib cache first).
 build:
@@ -25,6 +25,12 @@ verify-aristotle:
 # Fails if a sorry (sorryAx) or rogue axiom sneaks in, or audit.txt drifts.
 check: build audit verify-aristotle
 	git diff --exit-code audit.txt
+
+# Browsable API docs (doc-gen4). Heavy: builds HTML for the full import closure.
+# Output: docbuild/.lake/build/doc/index.html
+docs:
+	cd docbuild && lake exe cache get && lake build Thesis:docs
+	@echo "Open docbuild/.lake/build/doc/index.html"
 
 clean:
 	latexmk -C ThesisReport_ND.tex

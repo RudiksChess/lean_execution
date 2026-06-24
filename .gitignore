@@ -1,5 +1,5 @@
 # Lean build output (re-fetch with `lake exe cache get`, rebuild with `lake build`)
-/.lake/
+.lake/
 
 # LaTeX build artifacts (regenerate with `make pdf`)
 *.aux
