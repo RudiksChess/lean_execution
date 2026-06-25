@@ -1,4 +1,4 @@
-.PHONY: build audit pdf pdf-quicksort check clean verify-aristotle docs
+.PHONY: build audit audit-quicksort pdf pdf-quicksort check clean verify-aristotle docs
 
 ND_DIR := reports/natural-deduction
 QS_DIR := reports/quicksort
@@ -14,12 +14,16 @@ build:
 audit:
 	lake env lean Thesis/Prop/Audit.lean > $(ND_DIR)/audit.txt
 
+# Regenerate the axiom certificate for the quicksort development.
+audit-quicksort:
+	lake env lean Thesis/Sort/Audit.lean > $(QS_DIR)/audit.txt
+
 # Build the natural-deduction thesis PDF (regenerating the audit first).
 pdf: audit
 	cd $(ND_DIR) && latexmk -pdf -interaction=nonstopmode ThesisReport_ND.tex
 
-# Build the quicksort report PDF.
-pdf-quicksort:
+# Build the quicksort report PDF (regenerating its audit first).
+pdf-quicksort: audit-quicksort
 	cd $(QS_DIR) && latexmk -pdf -interaction=nonstopmode QuicksortReport.tex
 
 # Type-check the standalone Aristotle case-study files (AI cross-validation).
@@ -27,12 +31,13 @@ pdf-quicksort:
 verify-aristotle:
 	lake env lean aristotle/NDCore.lean
 	lake env lean aristotle/NDFull.lean
+	lake env lean aristotle/QuicksortFull.lean
 
 # CI gate: both developments build, the committed audit still matches reality,
 # and the AI case-study proofs still compile.
 # Fails if a sorry (sorryAx) or rogue axiom sneaks in, or the audit drifts.
-check: build audit verify-aristotle
-	git diff --exit-code $(ND_DIR)/audit.txt
+check: build audit audit-quicksort verify-aristotle
+	git diff --exit-code $(ND_DIR)/audit.txt $(QS_DIR)/audit.txt
 
 # Browsable API docs (doc-gen4). Heavy: builds HTML for the full import closure.
 # Output: docbuild/.lake/build/doc/index.html

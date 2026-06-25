@@ -8,6 +8,8 @@
 \usepackage{listings}
 \usepackage{booktabs}
 \usepackage[T1]{fontenc}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
 
@@ -71,6 +73,16 @@
     {↑}{{$\uparrow$}}1
     {⊢}{{$\vdash$}}1
     {…}{{$\dots$}}1
+    {—}{{---}}1
+}
+
+% Pull listings straight from the verified .lean source via marker comments:
+% a snippet is delimited by `-- ANCHOR: name` / `-- ANCHOREND: name` and pulled
+% with \lstinputlisting[linerange=name-name]{..}; the marker lines are hidden.
+\lstset{
+  rangebeginprefix=--\ ANCHOR:\ ,
+  rangeendprefix=--\ ANCHOREND:\ ,
+  includerangemarker=false,
 }
 
 % --- Notation in the paper ---
@@ -84,8 +96,8 @@
 
 \title{\textbf{Verifying the Correctness of Quicksort in Lean~4}\\[2pt]
 \large A machine-checked proof that quicksort returns a sorted permutation}
-\author{}
-\date{}
+\author{\textbf{Rudik Rompich} \\ Universidad del Valle de Guatemala \\ \texttt{rom19857@uvg.edu.gt}}
+\date{June 2026}
 
 \begin{document}
 \maketitle
@@ -263,17 +275,7 @@ The Lean text below is the literal definition. The Boolean test \texttt{decide (
 the decidable proposition $x\leq p$ into a \texttt{Bool} so that it can drive \texttt{List.filter};
 its negation \texttt{!\,decide (x $\leq$ p)} selects the complementary half.
 
-\begin{lstlisting}
-def quicksort : List α → List α
-  | [] => []
-  | p :: rest =>
-      quicksort (rest.filter (fun x => decide (x ≤ p)))
-        ++ p :: quicksort (rest.filter (fun x => ! decide (x ≤ p)))
-  termination_by l => l.length
-  decreasing_by
-    all_goals simp_wf
-    all_goals exact le_trans (length_filter_le _ _) (le_of_eq (by simp))
-\end{lstlisting}
+\lstinputlisting[linerange=qsdef-qsdef]{../../Thesis/Sort/Quicksort.lean}
 
 \section{Termination}
 \label{sec:termination}
@@ -323,24 +325,14 @@ $\len{r.\mathtt{attach}}=\len{r}$).
 $\qs([])=[]$ and the unfolding for $p::r$ are not definitional; Lean provides them as rewrite
 lemmas, which we name for use in proofs:
 
-\begin{lstlisting}
-@[simp] theorem quicksort_nil : quicksort ([] : List α) = [] := by rw [quicksort]
-
-theorem quicksort_cons (p : α) (rest : List α) :
-    quicksort (p :: rest) =
-      quicksort (rest.filter (fun x => decide (x ≤ p)))
-        ++ p :: quicksort (rest.filter (fun x => ! decide (x ≤ p))) := by
-  rw [quicksort]
-\end{lstlisting}
+\lstinputlisting[linerange=qsequations-qsequations]{../../Thesis/Sort/Quicksort.lean}
 
 \section{The specification in Lean}
 \label{sec:spec-lean}
 
 We render Definition~\ref{def:sorted} directly: ``sorted'' is the pairwise-$\leq$ predicate.
 
-\begin{lstlisting}
-def Sorted (l : List α) : Prop := l.Pairwise (· ≤ ·)
-\end{lstlisting}
+\lstinputlisting[linerange=sortedDef-sortedDef]{../../Thesis/Sort/Quicksort.lean}
 
 \noindent The two conjuncts of Definition~\ref{def:spec} become \texttt{quicksort l \~{} l} (the
 permutation, using Lean's notation \texttt{\~{}} for \texttt{List.Perm}) and \texttt{Sorted
@@ -411,28 +403,7 @@ hypotheses (recursive calls on the shorter halves); \texttt{ih1.append (ih2.cons
 congruence step; \texttt{perm\_middle} pulls the pivot to the front; and
 \texttt{filter\_append\_perm} is Lemma~\ref{lem:filter-perm}.
 
-\begin{lstlisting}
-theorem quicksort_perm : ∀ l : List α, quicksort l ~ l
-  | [] => by simp
-  | p :: rest => by
-      rw [quicksort_cons]
-      -- the recursive calls permute the two partition halves
-      have ih1 : quicksort (rest.filter (fun x => decide (x ≤ p)))
-            ~ rest.filter (fun x => decide (x ≤ p)) := quicksort_perm _
-      have ih2 : quicksort (rest.filter (fun x => ! decide (x ≤ p)))
-            ~ rest.filter (fun x => ! decide (x ≤ p)) := quicksort_perm _
-      -- glue the halves around the pivot, then recombine the two filters
-      refine (ih1.append (ih2.cons p)).trans ?_
-      refine (perm_middle).trans ?_
-      exact (filter_append_perm (fun x => decide (x ≤ p)) rest).cons p
-  termination_by l => l.length
-  decreasing_by
-    all_goals simp_wf
-    all_goals exact le_trans (length_filter_le _ _) (le_of_eq (by simp))
-
-theorem mem_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l :=
-  (quicksort_perm l).mem_iff
-\end{lstlisting}
+\lstinputlisting[linerange=perm-perm]{../../Thesis/Sort/Quicksort.lean}
 
 \section{Correctness, part II: the output is sorted}
 \label{sec:sorted}
@@ -520,43 +491,7 @@ membership back through \texttt{mem\_quicksort} (Corollary~\ref{cor:mem}) and un
 test; \texttt{pairwise\_append} and \texttt{pairwise\_cons} are Lemma~\ref{lem:pairwise-append};
 and the final \texttt{le\_trans} is the transitivity step of obligation~(3).
 
-\begin{lstlisting}
-theorem quicksort_sorted : ∀ l : List α, Sorted (quicksort l)
-  | [] => by simp [Sorted]
-  | p :: rest => by
-      have ih1 : Sorted (quicksort (rest.filter (fun x => decide (x ≤ p)))) :=
-        quicksort_sorted _
-      have ih2 : Sorted (quicksort (rest.filter (fun x => ! decide (x ≤ p)))) :=
-        quicksort_sorted _
-      simp only [Sorted] at ih1 ih2 ⊢
-      rw [quicksort_cons]
-      -- every element of the "small" half is ≤ p
-      have hsmall : ∀ a ∈ quicksort (rest.filter (fun x => decide (x ≤ p))), a ≤ p := by
-        intro a ha
-        have hmem : a ∈ rest.filter (fun x => decide (x ≤ p)) := mem_quicksort.1 ha
-        simp only [mem_filter, decide_eq_true_eq] at hmem
-        exact hmem.2
-      -- every element of the "large" half is ≥ p (indeed > p)
-      have hlarge : ∀ b ∈ quicksort (rest.filter (fun x => ! decide (x ≤ p))), p ≤ b := by
-        intro b hb
-        have hmem : b ∈ rest.filter (fun x => ! decide (x ≤ p)) := mem_quicksort.1 hb
-        simp only [mem_filter, Bool.not_eq_true', decide_eq_false_iff_not] at hmem
-        exact le_of_lt (not_le.1 hmem.2)
-      rw [pairwise_append]
-      refine ⟨ih1, ?_, ?_⟩
-      · -- the right block `p :: large` is sorted
-        rw [pairwise_cons]
-        exact ⟨hlarge, ih2⟩
-      · -- cross condition: every small element ≤ everything in `p :: large`
-        intro a ha b hb
-        rcases List.mem_cons.1 hb with hbp | hb'
-        · subst hbp; exact hsmall a ha
-        · exact le_trans (hsmall a ha) (hlarge b hb')
-  termination_by l => l.length
-  decreasing_by
-    all_goals simp_wf
-    all_goals exact le_trans (length_filter_le _ _) (le_of_eq (by simp))
-\end{lstlisting}
+\lstinputlisting[linerange=sorted_thm-sorted_thm]{../../Thesis/Sort/Quicksort.lean}
 
 \section{Correctness}
 \label{sec:correct}
@@ -574,11 +509,7 @@ That is, quicksort returns a sorted permutation of its input.
 The first conjunct is Theorem~\ref{thm:perm}; the second is Theorem~\ref{thm:sorted}.
 \end{proof}
 
-\begin{lstlisting}
-theorem quicksort_correct (l : List α) :
-    quicksort l ~ l ∧ Sorted (quicksort l) :=
-  ⟨quicksort_perm l, quicksort_sorted l⟩
-\end{lstlisting}
+\lstinputlisting[linerange=correct-correct]{../../Thesis/Sort/Quicksort.lean}
 
 \section{Worked examples}
 \label{sec:examples}
@@ -587,21 +518,7 @@ Because $\qs$ is an ordinary computable function, we can both \emph{run} it and 
 facts about concrete inputs by specializing the general theorems---no recomputation or
 \texttt{decide} is required.
 
-\begin{lstlisting}
-open List
-
--- Running quicksort on concrete inputs (evaluated by the compiler).
-#eval quicksort [3, 1, 2]            -- [1, 2, 3]
-#eval quicksort [5, 5, 1, 4, 1, 3]   -- [1, 1, 3, 4, 5, 5]
-#eval quicksort ([] : List Nat)      -- []
-#eval quicksort [2, 1, 2, 1]         -- [1, 1, 2, 2]  (duplicates kept)
-
--- The general theorems specialise to any concrete list, with no extra work.
-example : quicksort [3, 1, 2] ~ [3, 1, 2] := quicksort_perm _
-example : Sorted (quicksort [5, 5, 1, 4, 1, 3]) := quicksort_sorted _
-example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Sorted (quicksort [1, 2, 3, 4]) :=
-  quicksort_correct _
-\end{lstlisting}
+\lstinputlisting[linerange=examples-examples]{../../Thesis/Sort/Examples.lean}
 
 \noindent The example \texttt{[2, 1, 2, 1]\,$\mapsto$\,[1, 1, 2, 2]} illustrates that quicksort is a
 \emph{permutation}, not a deduplication: both copies of each value survive, which is exactly what
@@ -615,14 +532,8 @@ excluded: an admitted gap (\texttt{sorry}, which surfaces as the pseudo-axiom \t
 and a silently postulated lemma. Lean's \texttt{\#print axioms} reports the complete transitive
 axiom dependency of a theorem. Running it on the main result yields:
 
-\begin{lstlisting}
-#print axioms quicksort_correct
--- 'quicksort_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms quicksort_perm
--- 'quicksort_perm' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms quicksort_sorted
--- 'quicksort_sorted' depends on axioms: [propext, Classical.choice, Quot.sound]
-\end{lstlisting}
+% Generated by `make audit-quicksort` from Thesis/Sort/Audit.lean — do not edit by hand.
+\lstinputlisting[language={},basicstyle=\ttfamily\footnotesize]{audit.txt}
 
 \noindent The three reported axioms---\texttt{propext} (propositional extensionality),
 \texttt{Classical.choice} (choice), and \texttt{Quot.sound} (soundness of quotients)---are the
@@ -630,6 +541,44 @@ standard classical foundations underlying all of Mathlib; they are not specific 
 development. Crucially, \texttt{sorryAx} does \emph{not} appear: there are no admitted gaps, and
 no postulated sorting or correctness lemma is used. This is the formal certificate that
 Theorem~\ref{thm:correct} is exactly what it claims to be.
+
+\section{Cross-validation by an automated prover (Harmonic Aristotle)}
+\label{sec:aristotle}
+As an independent check on the result, we asked Harmonic's automated theorem prover
+\emph{Aristotle}~\cite{Aristotle} to reconstruct the correctness proof \emph{cold}. Aristotle works
+inside Lean~4 and discharges every goal through the same kernel used here, so whatever it produces is
+verified to the identical standard---it is not an oracle, but a proof-search procedure whose output is
+a checkable Lean term.
+
+\paragraph{Protocol.} Aristotle was given only the definition of \texttt{Sorted}, the recursive
+definition of \texttt{quicksort}, and its unfolding equation \texttt{quicksort\_cons}; the correctness
+theorem was presented as a bare \texttt{sorry}, and the permutation and sortedness lemmas were
+\emph{withheld}. It was instructed to complete the proof introducing no axioms and no \texttt{sorry}.
+Every artifact below compiles under the same Lean~v4.29.0 toolchain as the rest of this development and
+passes the axiom audit of \S\ref{sec:axioms}.
+
+\paragraph{Result.} Aristotle rediscovered the same two-lemma decomposition---establish a permutation
+lemma and a sortedness lemma, then conjoin them---under the same names. Its \emph{sortedness} proof
+follows essentially our argument (\texttt{pairwise\_append}/\texttt{pairwise\_cons} together with the
+pivot's separation bounds). For \emph{permutation}, however, it took a genuinely different route: where
+our proof rearranges the partitions structurally (Lemma~\ref{lem:filter-perm} and \texttt{perm\_middle}),
+Aristotle reduced $\Perm$ to equality of element \emph{multiplicities} (\texttt{List.perm\_iff\_count})
+and closed the resulting counting goal by automation:
+
+\lstinputlisting[linerange=qaperm-qaperm]{../../aristotle/QuicksortFull.lean}
+
+\noindent It then assembled correctness exactly as we do:
+
+\lstinputlisting[linerange=qamain-qamain]{../../aristotle/QuicksortFull.lean}
+
+\paragraph{What differs, and what does not.} Mathematically the two developments agree: correctness is
+\emph{permutation $\wedge$ sortedness}, each proved by induction on length. They differ in idiom---the
+hand proof is structured and explicit, while Aristotle leans on Mathlib's general-purpose automation
+(\texttt{grind}, \texttt{aesop}, \texttt{simp\,+decide}) and on a counting characterization of
+permutation. Decisively, the axiom audit returns the identical verdict: \texttt{quicksort\_correct}
+depends only on \texttt{[propext, Classical.choice, Quot.sound]}, with no \texttt{sorryAx}. An
+independent agent, handed only the algorithm, converges on the same theorem carrying the same trust
+guarantee.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -651,6 +600,11 @@ recursion---adapts directly to other comparison sorts (insertion sort, merge sor
 the combinatorial gluing lemma.
 
 \begin{thebibliography}{9}
+
+\bibitem{Aristotle}
+Harmonic.
+\newblock \emph{Aristotle: an automated theorem-proving agent for Lean~4}.
+\newblock \url{https://aristotle.harmonic.fun}. Accessed June 2026.
 
 \bibitem{Hoare1961}
 C.~A.~R.~Hoare.
