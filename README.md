@@ -24,14 +24,22 @@ this verified source.
 > <https://rudikschess.github.io/lean_execution/> — see `Thesis/Prop/` for this
 > development. Built by doc-gen4 on each release.
 
-## What's here
+## Repository layout
+
+This repo holds **two independent, machine-checked developments**, both built by
+`lake build` and verified in CI:
 
 | Path | |
 |------|--|
-| `Thesis/Prop/` | the development: syntax, the ND calculus, soundness, Kalmár completeness |
-| `Thesis/Prop/Audit.lean` → `audit.txt` | the generated axiom certificate |
-| `aristotle/` | AI cross-validation: proofs reconstructed cold by Harmonic Aristotle |
-| `ThesisReport_ND.tex` | the thesis report (listings pulled from the source above) |
+| **`Thesis/Prop/`** | **Development 1 — propositional natural deduction:** syntax, semantics, the ND calculus, soundness, and Kalmár completeness |
+| **`Thesis/Sort/`** | **Development 2 — quicksort:** the recursive definition and proofs that it is a sorted permutation of its input |
+| `Thesis.lean` | library root; imports both developments |
+| `Thesis/Prop/Audit.lean` | emits the axiom certificate (→ `reports/natural-deduction/audit.txt`) |
+| `aristotle/` | AI cross-validation: ND proofs reconstructed cold by Harmonic Aristotle |
+| `reports/natural-deduction/` | the ND thesis report (`ThesisReport_ND.tex`, Spanish edition, generated `audit.txt`); listings are pulled from `Thesis/Prop/` |
+| `reports/quicksort/` | the quicksort report (`QuicksortReport.tex`) |
+| `web/` | hosted explainer pages (overview + step-by-step) |
+| `docbuild/` | doc-gen4 configuration for the API docs site |
 
 ## Reproduce it
 
@@ -66,8 +74,11 @@ no admitted gaps, no postulated rules:
 
 Regenerate with `make audit`.
 
-## Build the PDF
+## Build the PDFs
 
 ```sh
-make pdf   # regenerates audit.txt, then runs latexmk on ThesisReport_ND.tex
+make pdf            # natural-deduction report (regenerates audit.txt first)
+make pdf-quicksort  # quicksort report
 ```
+
+Each report lives under `reports/<topic>/` and compiles in place.

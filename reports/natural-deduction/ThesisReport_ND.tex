@@ -509,7 +509,7 @@ $\neg$ and $\to$ at the meta-level. This keeps \texttt{eval} definitionally tran
 \end{remark}
 
 \subsection{Lean code (as implemented)}
-\lstinputlisting{Thesis/Prop/Syntax.lean}
+\lstinputlisting{../../Thesis/Prop/Syntax.lean}
 
 \noindent The three constructors of \texttt{Formula} are the three grammar productions;
 \texttt{eval} is the recursion defining $\sem{\cdot}_v$; \texttt{IsTautology} is the universal
@@ -539,7 +539,7 @@ truth value). Hence $\sem{\Not(p_0\Imp p_0)}_v = \Not\,\mathrm{True} = \mathrm{F
 $\mathrm{False}$ implies anything.
 \end{proof}
 
-\lstinputlisting[linerange=bot-bot]{Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=bot-bot]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \subsection{Mathematics: the rules}
 The judgment is $\Gamma \Provnd \varphi$, where $\Gamma$ is a \emph{set} of formulas. We write
@@ -600,7 +600,7 @@ absurdum}, called \texttt{classical} in the code) is what makes the calculus cla
 exactly what is needed for completeness with respect to the classical truth-table semantics.
 
 \subsection{Lean code (as implemented)}
-\lstinputlisting[linerange=ndType-ndType]{Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=ndType-ndType]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \noindent Each constructor is one rule above, read top-to-bottom as ``premises $\to$ conclusion.''
 Hypothesis discharge is implicit in the use of \texttt{insert}: a premise \texttt{ND (insert
@@ -643,7 +643,7 @@ hypothesis to the extended inclusion, then reapply the rule.
 \end{itemize}
 \end{proof}
 
-\lstinputlisting[linerange=weakening-weakening]{Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=weakening-weakening]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \noindent The seven \texttt{|}-branches mirror the seven cases of the proof exactly;
 \texttt{insert\_subset\_insert} is the Mathlib lemma $\Gamma\subseteq\Delta \Rightarrow
@@ -672,7 +672,7 @@ weakening of the hypothesis $\Gamma\Provnd\varphi$, also $\Gamma,\Not\varphi \Pr
 Then $\Not\mathrm{E}$ yields $\bot$.
 \end{proof}
 
-\lstinputlisting[linerange=dni-dni]{Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=dni-dni]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \subsection{Classical proof by cases}
 The next lemma is the engine of the atom-discharge step (Section~\ref{sec:discharge}). It is the
@@ -700,7 +700,7 @@ Finally $\Not\mathrm{E}$ applied to (ii) and (i)---i.e.\ to $\Not\Not\varphi$ an
 $\Not\varphi$---yields $\Gamma,\Not\chi \Provnd \bot$, completing the reductio.
 \end{proof}
 
-\lstinputlisting[linerange=byCases-byCases]{Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=byCases-byCases]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \paragraph{Internal view (CIC).} \texttt{dni} and \texttt{byCases} are \emph{not} inductions: each
 directly assembles an \texttt{ND}-term from constructors. For instance \texttt{dni d} elaborates to
@@ -777,7 +777,7 @@ $\sem{\bot}_v=\mathrm{False}$ for any $v$ (Lemma~\ref{lem:evalBot}), a contradic
 \end{proof}
 
 \subsection{Lean code (as implemented)}
-\lstinputlisting[linerange=soundness-soundness]{Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=soundness-soundness]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \noindent The seven branches of \texttt{soundness} are the seven cases above;
 \texttt{(eval\_Bot v).1} and \texttt{.2} are the two directions of Lemma~\ref{lem:evalBot}; the
@@ -857,7 +857,7 @@ element; in the tail case apply the induction hypothesis and the inclusion
 $\Gamma_v(\mathit{rest})\subseteq \Gamma_v(p'::\mathit{rest})$.
 \end{proof}
 
-\lstinputlisting[linerange=atomsLits-atomsLits]{Thesis/Prop/Completeness.lean}
+\lstinputlisting[linerange=atomsLits-atomsLits]{../../Thesis/Prop/Completeness.lean}
 
 \noindent (\texttt{lit} and \texttt{litCtx} are \texttt{noncomputable} because the test ``$v\,p$''
 is a proposition; under the local \texttt{Classical.propDecidable} instance the \texttt{if} is
@@ -922,7 +922,7 @@ $\Imp\mathrm{E}$ gives $\Gamma,(p\Imp q)\Provnd q$. By weakening, $\Gamma,(p\Imp
 then $\Not\mathrm{E}$ gives $\bot$.
 \end{proof}
 
-\lstinputlisting[linerange=kalmar-kalmar]{Thesis/Prop/Completeness.lean}
+\lstinputlisting[linerange=kalmar-kalmar]{../../Thesis/Prop/Completeness.lean}
 
 \noindent The code follows the proof case-for-case: \texttt{not\_not.1} is the classical step in
 the negation case; \texttt{by\_cases hp : eval v p} is the split in the positive implication case;
@@ -958,7 +958,7 @@ otherwise. The second is induction on $\mathit{ats}$, applying the first claim t
 induction hypothesis to the tail.
 \end{proof}
 
-\lstinputlisting[linerange=congr-congr]{Thesis/Prop/Completeness.lean}
+\lstinputlisting[linerange=congr-congr]{../../Thesis/Prop/Completeness.lean}
 
 \subsection{Discharging the atoms}
 \label{sec:discharge}
@@ -990,7 +990,7 @@ By the derived case split (Lemma~\ref{lem:bycases}) applied to $d_1$ and $d_2$, 
 $\Gamma_v(\mathit{rest})\Provnd\varphi$, as required.
 \end{proof}
 
-\lstinputlisting[linerange=discharge-discharge]{Thesis/Prop/Completeness.lean}
+\lstinputlisting[linerange=discharge-discharge]{../../Thesis/Prop/Completeness.lean}
 
 \noindent \texttt{Function.update v p True} is $v[p{:=}\mathsf{T}]$; \texttt{hctx\_t}/\texttt{hctx\_f}
 are the applications of Lemma~\ref{lem:congr} (the side condition $x\neq p$ comes from
@@ -1011,7 +1011,7 @@ arbitrary, the hypothesis of the discharge lemma (Lemma~\ref{lem:discharge}) is 
 conclude $\emptyset\Provnd\varphi$.
 \end{proof}
 
-\lstinputlisting[linerange=completeness-completeness]{Thesis/Prop/Completeness.lean}
+\lstinputlisting[linerange=completeness-completeness]{../../Thesis/Prop/Completeness.lean}
 
 \subsection{Soundness and completeness together}
 \begin{theorem}[Adequacy]
@@ -1022,7 +1022,7 @@ For every formula $\varphi$, $\;\mathrm{Taut}(\varphi)\ \leftrightarrow\ \emptys
 Left-to-right is Theorem~\ref{thm:completeness}; right-to-left is Corollary~\ref{cor:taut}.
 \end{proof}
 
-\lstinputlisting[linerange=soundComplete-soundComplete]{Thesis/Prop/Completeness.lean}
+\lstinputlisting[linerange=soundComplete-soundComplete]{../../Thesis/Prop/Completeness.lean}
 
 \noindent Theorem~\ref{thm:adequacy} is the precise formal statement of the thesis goal:
 \emph{derivability in propositional natural deduction coincides exactly with semantic validity},
@@ -1045,7 +1045,7 @@ against the stated type---type-checking \emph{is} the verification of adequacy.
 This file exercises the system end-to-end and shows that the rules are genuinely usable by hand,
 not only through the completeness theorem.
 
-\lstinputlisting{Thesis/Prop/Main.lean}
+\lstinputlisting{../../Thesis/Prop/Main.lean}
 
 \noindent Two derivations of $P\Imp P$ are shown deliberately: \texttt{taut1\_complete\_ND}
 obtains it from the completeness theorem (the ``program'' of Section~\ref{sec:strategy} run on a
@@ -1133,7 +1133,7 @@ surface syntax using the classical identity $(\varphi\Imp\psi)\equiv(\Not\varphi
 t(p)=p,\qquad t(\Not\varphi)=\Not t(\varphi),\qquad t(\varphi\Imp\psi)=\Not t(\varphi)\Or t(\psi).
 \]
 
-\lstinputlisting[linerange=tr-tr]{Thesis/Prop/BridgeToFoundation.lean}
+\lstinputlisting[linerange=tr-tr]{../../Thesis/Prop/BridgeToFoundation.lean}
 
 \subsection{The bridge lemma}
 \begin{lemma}[Semantics preservation]\label{lem:bridge}
@@ -1146,7 +1146,7 @@ implication case reduces, after unfolding, to the classical tautology
 $(P\Imp Q)\leftrightarrow(\Not P\Or Q)$, discharged by \texttt{tauto}.
 \end{proof}
 
-\lstinputlisting[linerange=evalTr-evalTr]{Thesis/Prop/BridgeLemma.lean}
+\lstinputlisting[linerange=evalTr-evalTr]{../../Thesis/Prop/BridgeLemma.lean}
 
 \subsection{Importing Foundation's completeness}
 Composing the bridge lemma with the library's completeness theorem gives, for any surface
@@ -1154,7 +1154,7 @@ tautology $\varphi$, a Foundation proof of $t(\varphi)$ from the empty theory. T
 independent confirmation that our surface notion of tautology matches the library's, and hence an
 external corroboration of Theorem~\ref{thm:adequacy}.
 
-\lstinputlisting[linerange=provableTr-provableTr]{Thesis/Prop/CompletenessViaFoundation.lean}
+\lstinputlisting[linerange=provableTr-provableTr]{../../Thesis/Prop/CompletenessViaFoundation.lean}
 
 \section{Cross-validation by an automated prover (Harmonic Aristotle)}
 \label{sec:aristotle}
@@ -1189,16 +1189,16 @@ The headline experiment is more demanding: with the entire completeness argument
 agent \emph{rediscover} it? It can. Aristotle reintroduced precisely Kalm\'ar's method under its own
 names. It defined the signed literal of an atom, the (finite) set of atoms occurring in a formula,
 and the literal context of a valuation:
-\lstinputlisting[linerange=adefs-adefs]{aristotle/NDFull.lean}
+\lstinputlisting[linerange=adefs-adefs]{../../aristotle/NDFull.lean}
 \noindent These are our \texttt{lit}, \texttt{atoms}, and \texttt{litCtx} (Section~\ref{sec:axioms}
 collects the originals); the only structural divergence is that Aristotle gathers atoms in a
 \texttt{Finset} rather than a deduplicated \texttt{List}. It then stated the two halves of Kalm\'ar's
 lemma and the atom-elimination step with the signatures one would write by hand,
-\lstinputlisting[linerange=akalmarsig-akalmarsig]{aristotle/NDFull.lean}
-\lstinputlisting[linerange=aelimsig-aelimsig]{aristotle/NDFull.lean}
+\lstinputlisting[linerange=akalmarsig-akalmarsig]{../../aristotle/NDFull.lean}
+\lstinputlisting[linerange=aelimsig-aelimsig]{../../aristotle/NDFull.lean}
 \noindent and assembled them into completeness exactly as our \texttt{completeness\_ND} composes
 \texttt{kalmar} with \texttt{discharge}:
-\lstinputlisting[linerange=amain-amain]{aristotle/NDFull.lean}
+\lstinputlisting[linerange=amain-amain]{../../aristotle/NDFull.lean}
 
 \paragraph{What differs, and what does not.} Mathematically the two developments are the same proof:
 Kalm\'ar's lemma by induction on the formula, then discharge of the literal hypotheses one atom at a
