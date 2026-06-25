@@ -9,7 +9,8 @@ Completeness is proved *internally*, via Kalmár's lemma — no oracle, no
 this verified source.
 
 > **Read it:** both compiled reports — natural-deduction completeness and
-> quicksort — are attached to each
+> quicksort — plus an *AI-Reconstructed Proofs* reference (the full Aristotle
+> outputs) are attached to each
 > [release](https://github.com/RudiksChess/lean_execution/releases).
 >
 > **Mathematical overview** (no Lean needed): a side-by-side "maths ↔ code"
@@ -37,7 +38,8 @@ This repo holds **two independent, machine-checked developments**, both built by
 | **`Thesis/Sort/`** | **Development 2 — quicksort:** the recursive definition and proofs that it is a sorted permutation of its input |
 | `Thesis.lean` | library root; imports both developments |
 | `Thesis/Prop/Audit.lean` | emits the axiom certificate (→ `reports/natural-deduction/audit.txt`) |
-| `aristotle/` | AI cross-validation: ND proofs reconstructed cold by Harmonic Aristotle |
+| `aristotle/` | AI cross-validation: proofs reconstructed cold by Harmonic Aristotle (both developments) |
+| `reports/aristotle/` | the *AI-Reconstructed Proofs* reference report (`make pdf-aristotle`) |
 | `reports/natural-deduction/` | the ND thesis report (`ThesisReport_ND.tex`, Spanish edition, generated `audit.txt`); listings are pulled from `Thesis/Prop/` |
 | `reports/quicksort/` | the quicksort report (`QuicksortReport.tex`) |
 | `web/` | hosted explainer pages (overview + step-by-step) |

@@ -1,7 +1,8 @@
-.PHONY: build audit audit-quicksort pdf pdf-quicksort check clean verify-aristotle docs
+.PHONY: build audit audit-quicksort pdf pdf-quicksort pdf-aristotle check clean verify-aristotle docs
 
 ND_DIR := reports/natural-deduction
 QS_DIR := reports/quicksort
+AR_DIR := reports/aristotle
 
 # Build both verified developments — Thesis.Prop (completeness) and
 # Thesis.Sort (quicksort) — pulling the Mathlib cache first.
@@ -25,6 +26,15 @@ pdf: audit
 # Build the quicksort report PDF (regenerating its audit first).
 pdf-quicksort: audit-quicksort
 	cd $(QS_DIR) && latexmk -pdf -interaction=nonstopmode QuicksortReport.tex
+
+# Build the Aristotle proofs reference PDF. Strips the report-only anchor
+# comments so the listings show Aristotle's output verbatim.
+pdf-aristotle:
+	mkdir -p $(AR_DIR)/_src
+	for f in NDCore NDFull QuicksortFull; do \
+	  grep -v -- '-- ANCHOR' aristotle/$$f.lean > $(AR_DIR)/_src/$$f.lean; \
+	done
+	cd $(AR_DIR) && latexmk -pdf -interaction=nonstopmode AristotleProofs.tex
 
 # Type-check the standalone Aristotle case-study files (AI cross-validation).
 # Not part of the lake build (they re-declare the calculus in their own units).
