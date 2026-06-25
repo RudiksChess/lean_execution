@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Completeness of Propositional Natural Deduction — Mathematical Overview</title>
+<title>Two Verified Developments in Lean 4 — Mathematical Overview</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
@@ -55,8 +55,8 @@
 <body>
 <header><div class="wrap">
   <div class="sub">Undergraduate thesis · formal verification in Lean 4</div>
-  <h1>Completeness of Propositional Natural Deduction</h1>
-  <div class="sub">An oracle-free, internal proof via Kalmár's lemma — the mathematics, paired line-for-line with its machine-checked counterpart.</div>
+  <h1>Two Verified Developments in Lean 4</h1>
+  <div class="sub"><strong>Part I:</strong> completeness of propositional natural deduction, via Kalmár's lemma. <strong>Part II:</strong> correctness of quicksort. The mathematics, paired line-for-line with its machine-checked counterpart — no Lean background needed.</div>
   <div class="byline"><strong>Rudik Rompich</strong> · Universidad del Valle de Guatemala · <code class="inl">rom19857@uvg.edu.gt</code></div>
   <div class="links">
     <a href="./thesis.html">Detailed walkthrough →</a>
@@ -75,6 +75,8 @@ checked. You do not need to know Lean: the right column is there to show that ev
 every theorem on the left corresponds to a concrete, verified object — nothing is hand-waved, and
 nothing is assumed beyond the standard axioms named at the end.
 </div>
+
+<div style="font-size:1.5rem;font-weight:700;color:#2b5fb3;border-top:3px solid #2b5fb3;margin:2.4rem 0 .4rem;padding-top:1rem">Part I — Completeness of Propositional Natural Deduction</div>
 
 <h2><span class="n">1.</span>Language and meaning</h2>
 <p class="lead">Formulas are built from atomic propositions using negation and implication. A
@@ -276,6 +278,57 @@ prover (Harmonic <em>Aristotle</em>), given the calculus but <em>not</em> the co
 independently rediscovered Kalmár's method — its proof carries the same three-axiom footprint. Details
 are in the thesis report.
 </div>
+
+<div style="font-size:1.5rem;font-weight:700;color:#2b5fb3;border-top:3px solid #2b5fb3;margin:3rem 0 .4rem;padding-top:1rem">Part II — Correctness of Quicksort</div>
+<p style="color:var(--muted);margin:.2rem 0 1rem">The repository's second machine-checked development: the classical functional <em>quicksort</em> returns a sorted permutation of its input — proved internally, with the same axiom guarantee.</p>
+
+<h2><span class="n">8.</span>The algorithm and its specification</h2>
+<p>Quicksort takes the head as the <em>pivot</em>, splits the tail into the elements $\le$ it and those $>$ it, sorts each recursively, and concatenates them around the pivot. "Correct" means two things: the output is a <em>permutation</em> of the input (nothing lost or invented) and it is <em>sorted</em> (pairwise nondecreasing).</p>
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    Sorted: $\;\mathrm{Sorted}(\ell)$ iff $\ell$ is pairwise $(\le)$.<br><br>
+    $$\mathrm{qsort}(p::r)=\mathrm{qsort}(r_{\le p})\ {+}\!{+}\ p::\mathrm{qsort}(r_{>p}).$$
+    Specification: $\;\mathrm{qsort}(\ell)\sim\ell\ \wedge\ \mathrm{Sorted}(\mathrm{qsort}(\ell)).$
+  </div></div>
+  <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
+<pre><span class="kw">def</span> Sorted (l : List α) : Prop := l.Pairwise (· ≤ ·)
+
+<span class="kw">def</span> quicksort : List α → List α
+  | [] => []
+  | p :: rest =>
+      quicksort (rest.filter (fun x => decide (x ≤ p)))
+        ++ p :: quicksort (rest.filter (fun x => ! decide (x ≤ p)))
+  <span class="kw">termination_by</span> l => l.length</pre>
+  </div>
+</div>
+
+<h2><span class="n">9.</span>Correctness, and the same guarantee</h2>
+<p>Two lemmas, each by induction on the list's length — the output is a permutation, and the output is sorted — combine into the specification. The axiom audit returns the same verdict as Part&nbsp;I.</p>
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    <strong>Correctness.</strong>
+    $$\forall\ell,\ \ \mathrm{qsort}(\ell)\sim\ell\ \wedge\ \mathrm{Sorted}(\mathrm{qsort}(\ell)).$$
+    Quicksort returns a sorted permutation of its input — the full specification of a sorting algorithm.
+  </div></div>
+  <div class="panel code"><div class="cap">Lean — generated certificate</div>
+<pre><span class="kw">theorem</span> quicksort_correct (l : List α) :
+    quicksort l ~ l ∧ Sorted (quicksort l) :=
+  ⟨quicksort_perm l, quicksort_sorted l⟩
+
+<span class="cm">-- audit.txt: depends only on</span>
+<span class="cm">--   [propext, Classical.choice, Quot.sound]</span></pre>
+  </div>
+</div>
+
+<div class="note">
+<strong>Independent corroboration.</strong> Harmonic <em>Aristotle</em>, given the algorithm but
+<em>not</em> the proof, also reproved correctness cold — rediscovering the same two-lemma decomposition,
+though it reached the permutation lemma by counting element multiplicities rather than by structural
+rearrangement. Same three axioms, no <code class="inl">sorry</code>.
+</div>
+
+<p style="margin-top:1.5rem">For both developments in full — every case, with a primer on how Lean works —
+see the <a href="./thesis.html">detailed walkthrough</a>.</p>
 
 </main>
 
