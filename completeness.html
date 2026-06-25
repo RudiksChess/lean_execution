@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Completeness Theorem, in Detail — Propositional Natural Deduction in Lean 4</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  :root{
+    --bg:#fbfbfd; --fg:#1d1d1f; --muted:#6e6e73; --line:#e3e3e8;
+    --code-bg:#1e2330; --code-fg:#e6e6e6; --accent:#2b5fb3; --kw:#7fb3ff; --cm:#8ea3b0;
+    --maxw:1100px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  header{padding:3rem 1.25rem 2rem;border-bottom:1px solid var(--line);background:#fff}
+  header .wrap,main{max-width:var(--maxw);margin:0 auto;padding:0 1.25rem}
+  h1{font-size:1.85rem;line-height:1.2;margin:.2rem 0 .4rem}
+  .sub{color:var(--muted);font-size:1.02rem}
+  .byline{margin-top:1rem;font-size:.95rem;color:var(--muted)}
+  .links{margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap}
+  .links a{display:inline-block;padding:.4rem .8rem;border:1px solid var(--line);border-radius:8px;
+    text-decoration:none;color:var(--accent);background:#fff;font-size:.9rem}
+  .links a:hover{background:#f0f4fb}
+  main{padding-bottom:4rem}
+  h2{font-size:1.45rem;margin:2.8rem 0 .3rem;padding-top:1.2rem;border-top:1px solid var(--line)}
+  h2 .n{color:var(--muted);font-weight:600;margin-right:.5rem}
+  h3{font-size:1.12rem;margin:1.6rem 0 .3rem}
+  .lead{color:var(--muted);margin:.2rem 0 1rem}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:stretch;margin:1rem 0}
+  .panel{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .panel .cap{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    padding:.5rem .85rem;border-bottom:1px solid var(--line);background:#fafafc}
+  .math .body{padding:1rem .9rem;background:#fff}
+  pre{margin:0;background:var(--code-bg);color:var(--code-fg);padding:1rem;overflow:auto;
+    font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .code .cap{background:#171b26;color:#9fb0c3;border-bottom-color:#2a3142}
+  .kw{color:var(--kw)} .cm{color:var(--cm)}
+  .note{background:#f4f7fc;border:1px solid #dbe6f7;border-radius:10px;padding:.8rem 1rem;margin:1rem 0;
+    color:#2a3a52;font-size:.95rem}
+  .case{border-left:3px solid var(--accent);padding:.2rem 0 .2rem 1rem;margin:1.2rem 0}
+  .case h4{margin:.2rem 0 .4rem;font-size:1.02rem}
+  code.inl{background:#eef0f4;padding:.05rem .35rem;border-radius:5px;font-size:.92em}
+  ol.req{margin:.4rem 0 .4rem 1.1rem} ol.req li{margin:.3rem 0}
+  .toc{columns:2;font-size:.95rem;margin:1rem 0;color:var(--accent)}
+  .toc a{color:var(--accent);text-decoration:none} .toc a:hover{text-decoration:underline}
+  footer{border-top:1px solid var(--line);color:var(--muted);font-size:.88rem;
+    max-width:var(--maxw);margin:2rem auto 0;padding:1.5rem 1.25rem 3rem}
+  @media (max-width:760px){.pair{grid-template-columns:1fr}.toc{columns:1}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="sub">Undergraduate thesis · formal verification in Lean 4 · companion to the <a href="./overview.html">overview</a></div>
+  <h1>The Completeness Theorem, in Detail</h1>
+  <div class="sub">Every case of Kalmár's lemma and the atom-discharge argument, step by step — with a primer on how Lean works so the verified code is readable without prior Lean experience.</div>
+  <div class="byline"><strong>Rudik Rompich</strong> · Universidad del Valle de Guatemala · <code class="inl">rom19857@uvg.edu.gt</code></div>
+  <div class="links">
+    <a href="./overview.html">← Overview</a>
+    <a href="https://github.com/RudiksChess/lean_execution">Repository</a>
+    <a href="https://github.com/RudiksChess/lean_execution/releases">Thesis PDF</a>
+    <a href="./index.html">API docs</a>
+  </div>
+</div></header>
+
+<main>
+
+<div class="toc">
+  <a href="#prereq">0 · What you need to know</a><br>
+  <a href="#lean">1 · How Lean works (a primer)</a><br>
+  <a href="#setup">2 · The objects in play</a><br>
+  <a href="#arch">3 · Architecture of the proof</a><br>
+  <a href="#literals">4 · Signed literals &amp; literal context</a><br>
+  <a href="#kalmar">5 · Kalmár's lemma, case by case</a><br>
+  <a href="#congr">6 · The context depends only on truth values</a><br>
+  <a href="#discharge">7 · Discharging the atoms</a><br>
+  <a href="#main">8 · Assembling completeness</a><br>
+  <a href="#trust">9 · What "verified" guarantees</a>
+</div>
+
+<h2 id="prereq"><span class="n">0.</span>What you need to know</h2>
+<p class="lead">The mathematics assumes only an undergraduate logic background. Concretely, the reader
+should be comfortable with:</p>
+<ol class="req">
+  <li><strong>Propositional formulas</strong> built from atoms with the connectives $\neg$ (not) and $\to$ (implies).</li>
+  <li><strong>Truth-table semantics</strong>: a valuation assigns true/false to atoms, and that determines the truth value of any formula.</li>
+  <li><strong>Natural deduction</strong>: deriving a formula from assumptions using inference rules, including hypothesis discharge (as in $\to$-introduction) and a classical rule (reductio ad absurdum).</li>
+  <li><strong>Structural induction</strong> on the shape of a formula, and induction on a list.</li>
+</ol>
+<p>That is the whole prerequisite for the <em>mathematics</em>. To read the <em>code</em>, you need a
+little about how Lean represents proofs — Section&nbsp;1.</p>
+
+<h2 id="lean"><span class="n">1.</span>How Lean works (a primer)</h2>
+<p class="lead">Lean 4 is both a programming language and a proof assistant. Five ideas are enough to read
+everything below.</p>
+
+<h3>1.1 Propositions are types; proofs are terms (Curry–Howard)</h3>
+<p>In Lean a proposition $P$ is a <em>type</em>, and a proof of $P$ is a <em>term</em> (a value) of that
+type. Writing <code class="inl">theorem foo : P := e</code> means "<code class="inl">e</code> is a term
+whose type is <code class="inl">P</code>." There is nothing else to "trust": to have a proof <em>is</em>
+to have such a term, and the kernel checks the term has the claimed type.</p>
+
+<h3>1.2 Inductive types are inference systems</h3>
+<p>An inductive type is declared by its <em>constructors</em> — the only ways to build its values. When
+the type lives in <code class="inl">Prop</code>, its constructors read exactly as inference rules, and a
+value of the type is a <em>derivation tree</em>. Our calculus is declared this way:</p>
+<div class="pair">
+  <div class="panel math"><div class="cap">As inference rules</div><div class="body">
+    $$\dfrac{\Gamma,\varphi\vdash\psi}{\Gamma\vdash\varphi\to\psi}\;({\to}\mathrm{I})
+      \qquad
+      \dfrac{\Gamma\vdash\varphi\to\psi\quad\Gamma\vdash\varphi}{\Gamma\vdash\psi}\;({\to}\mathrm{E})$$
+    A proof of $\Gamma\vdash\psi$ by ${\to}\mathrm{E}$ is a <em>pair</em> of subproofs.
+  </div></div>
+  <div class="panel code"><div class="cap">As constructors of an inductive family</div>
+<pre><span class="kw">inductive</span> ND : Set Formula → Formula → Prop
+| impI : ND (insert φ Γ) ψ → ND Γ (φ ⟶ ψ)
+| impE : ND Γ (φ ⟶ ψ) → ND Γ φ → ND Γ ψ
+<span class="cm">-- a term `d : ND Γ ψ` IS a derivation tree</span></pre>
+  </div>
+</div>
+<p>So "by induction on the derivation" is just recursion on this tree (Lean writes it
+<code class="inl">induction d with | impI .. | impE .. | ...</code>): one branch per rule.</p>
+
+<h3>1.3 <code class="inl">Prop</code> vs <code class="inl">Type</code>, and sets as predicates</h3>
+<p><code class="inl">Type</code> holds data (e.g. <code class="inl">Formula</code> is data — a tree of
+constructors). <code class="inl">Prop</code> holds propositions. A set of formulas is just a predicate:
+<code class="inl">Set Formula := Formula → Prop</code>, so <code class="inl">φ ∈ Γ</code> is literally
+"<code class="inl">Γ φ</code> holds," and <code class="inl">insert φ Γ</code> is the set with $\varphi$
+added.</p>
+
+<h3>1.4 Tactics build the term for you</h3>
+<p>A block <code class="inl">by ...</code> is a small program whose job is to <em>construct</em> the proof
+term. <code class="inl">intro h</code> assumes a hypothesis, <code class="inl">apply r</code> uses rule
+<code class="inl">r</code> and leaves its premises as new goals, <code class="inl">exact e</code> supplies a
+finished term, <code class="inl">induction</code> recurses, <code class="inl">by_cases h : P</code> splits on
+whether $P$ holds (classically). Whatever the tactics do, the <em>output</em> is a term the kernel
+re-checks — the tactics are never themselves trusted.</p>
+
+<h3>1.5 The kernel and the axiom audit</h3>
+<p>After elaboration, Lean's small trusted <em>kernel</em> independently verifies the final term against
+its type. The command <code class="inl">#print axioms t</code> then lists every axiom <code class="inl">t</code>
+transitively uses. If a proof had an unfilled gap (<code class="inl">sorry</code>), it would show up as the
+pseudo-axiom <code class="inl">sorryAx</code>; a smuggled-in "oracle" would appear by name. Our results show
+only the three standard classical axioms (Section&nbsp;9).</p>
+
+<h2 id="setup"><span class="n">2.</span>The objects in play</h2>
+<p class="lead">A compact recap (full treatment in the <a href="./overview.html">overview</a>). Falsity is
+encoded inside the $\{\neg,\to\}$ language as $\bot := \neg(p_0\to p_0)$, which is false under every
+valuation.</p>
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    Semantics: $\llbracket p\rrbracket_v=v(p)$, $\llbracket\neg\varphi\rrbracket_v=\neg\llbracket\varphi\rrbracket_v$,
+    $\llbracket\varphi\to\psi\rrbracket_v=\llbracket\varphi\rrbracket_v\to\llbracket\psi\rrbracket_v$.<br><br>
+    Tautology: $\forall v,\ \llbracket\varphi\rrbracket_v$.<br>
+    Goal: $\mathrm{Taut}(\varphi)\Rightarrow\emptyset\vdash\varphi$.
+  </div></div>
+  <div class="panel code"><div class="cap">Lean — Syntax.lean / NaturalDeduction.lean</div>
+<pre><span class="kw">def</span> eval (v) : Formula → Prop
+| .atom s => v s | .neg p => ¬ eval v p
+| .impl p q => eval v p → eval v q
+
+<span class="kw">def</span> IsTautology (φ) := ∀ v, eval v φ
+<span class="kw">def</span> Bot := ~(.atom "⊥" ⟶ .atom "⊥")</pre>
+  </div>
+</div>
+
+<h2 id="arch"><span class="n">3.</span>Architecture of the proof</h2>
+<p class="lead">Completeness is built in two movements, then composed:</p>
+<ol class="req">
+  <li><strong>Kalmár's lemma</strong> (Section&nbsp;5): for a <em>fixed</em> valuation $v$, the signed
+  literals of the atoms of $\varphi$ syntactically <em>decide</em> $\varphi$ — they derive $\varphi$ if
+  $v\models\varphi$, and derive $\neg\varphi$ otherwise. Proved by induction on $\varphi$.</li>
+  <li><strong>Discharge</strong> (Section&nbsp;7): if $\varphi$ is derivable from the literal context for
+  <em>every</em> $v$, then it is derivable from no assumptions. Proved by induction on the list of atoms,
+  eliminating one atom at a time with a classical case split.</li>
+</ol>
+<p>For a tautology, the first gives the hypotheses the second needs, and the composition yields
+$\emptyset\vdash\varphi$. The only "classical" ingredients are the reductio rule of the calculus and a
+case split on each atom's truth value — there is no appeal to a completeness theorem from outside.</p>
+
+<h2 id="literals"><span class="n">4.</span>Signed literals and the literal context</h2>
+<p class="lead">Fix a valuation $v$. The <em>signed literal</em> of an atom $p$ records what $v$ says about
+$p$, as a formula: $p$ itself when $v(p)$ is true, $\neg p$ when false. The <em>literal context</em>
+$\Gamma_v$ over a list of atoms collects these.</p>
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    $$\mathrm{lit}_v(p)=\begin{cases}p&v(p)\\ \neg p&\text{otherwise}\end{cases}$$
+    $$\Gamma_v(\,[\,]\,)=\emptyset,\quad \Gamma_v(p::\mathit{rest})=\{\mathrm{lit}_v(p)\}\cup\Gamma_v(\mathit{rest}).$$
+    A key fact used repeatedly: if $p$ is among the atoms, then $\mathrm{lit}_v(p)\in\Gamma_v$, so it can
+    be used as a hypothesis.
+  </div></div>
+  <div class="panel code"><div class="cap">Lean — Completeness.lean</div>
+<pre><span class="kw">def</span> lit (v) (p : String) : Formula :=
+  <span class="kw">if</span> v p <span class="kw">then</span> .atom p <span class="kw">else</span> ~(.atom p)
+
+<span class="kw">def</span> litCtx (v) : List String → Set Formula
+| []        => ∅
+| p :: rest => insert (lit v p) (litCtx v rest)
+
+<span class="kw">theorem</span> lit_mem (h : p ∈ ats) :
+    lit v p ∈ litCtx v ats</pre>
+  </div>
+</div>
+
+<h2 id="kalmar"><span class="n">5.</span>Kalmár's lemma, case by case</h2>
+<p class="lead"><strong>Statement.</strong> For a valuation $v$ and a list of atoms $\mathit{ats}$ covering
+$\varphi$ (i.e. $\mathrm{atoms}(\varphi)\subseteq\mathit{ats}$):
+$$\big(\llbracket\varphi\rrbracket_v\Rightarrow \Gamma_v\vdash\varphi\big)\ \wedge\
+\big(\neg\llbracket\varphi\rrbracket_v\Rightarrow \Gamma_v\vdash\neg\varphi\big).$$
+The proof is by structural induction on $\varphi$. Note the statement carries <em>both</em> halves at once;
+that is what makes the induction go through (the negation case feeds the two halves into each other).</p>
+<div class="panel code" style="margin:1rem 0"><div class="cap">Lean — the statement</div>
+<pre><span class="kw">theorem</span> kalmar (v) (ats) :
+    ∀ φ, atoms φ ⊆ ats →
+      (eval v φ → ND (litCtx v ats) φ) ∧
+      (¬ eval v φ → ND (litCtx v ats) (~φ)) := <span class="kw">by</span>
+  intro φ; induction φ with
+  | atom s => ...
+  | neg p ih => ...
+  | impl p q ihp ihq => ...</pre>
+</div>
+
+<div class="case">
+<h4>Case $\varphi = p$ (an atom)</h4>
+<p>Since $p\in\mathit{ats}$, the literal $\mathrm{lit}_v(p)$ is in $\Gamma_v$ and is available as a
+hypothesis. Two sub-cases by the value of $v(p)$:</p>
+<ul>
+  <li><em>Positive half.</em> If $\llbracket p\rrbracket_v$, i.e. $v(p)$ is true, then
+  $\mathrm{lit}_v(p)=p$, so the hypothesis rule gives $\Gamma_v\vdash p$.</li>
+  <li><em>Negative half.</em> If $\neg\llbracket p\rrbracket_v$, then $\mathrm{lit}_v(p)=\neg p$, and the
+  hypothesis rule gives $\Gamma_v\vdash\neg p$.</li>
+</ul>
+<p>In Lean this is exactly "rewrite <code class="inl">lit</code> using whether <code class="inl">v p</code> holds,
+then <code class="inl">exact ND.hyp ‹membership›</code>."</p>
+</div>
+
+<div class="case">
+<h4>Case $\varphi = \neg p$</h4>
+<p>Here $\llbracket\neg p\rrbracket_v = \neg\llbracket p\rrbracket_v$, so the two halves swap roles and
+use the induction hypothesis for $p$.</p>
+<ul>
+  <li><em>Positive half</em> ($\llbracket\neg p\rrbracket_v$, i.e. $\neg\llbracket p\rrbracket_v$): the
+  <em>negative</em> half of the IH for $p$ already gives $\Gamma_v\vdash\neg p$, which is the goal.</li>
+  <li><em>Negative half</em> ($\neg\llbracket\neg p\rrbracket_v$, i.e. $\neg\neg\llbracket p\rrbracket_v$):
+  classically $\llbracket p\rrbracket_v$ holds, so the <em>positive</em> half of the IH gives
+  $\Gamma_v\vdash p$; then double-negation introduction (<code class="inl">dni</code>, a derived rule) gives
+  $\Gamma_v\vdash\neg\neg p$, which is $\Gamma_v\vdash\neg\varphi$.</li>
+</ul>
+<pre><span class="cm">-- positive half just reuses ihneg; negative half:</span>
+fun h' => dni ((ih ..).1 (not_not.1 h'))   <span class="cm">-- ⊢ ~~p</span></pre>
+</div>
+
+<div class="case">
+<h4>Case $\varphi = p \to q$</h4>
+<p>From $\mathrm{atoms}(p\to q)=\mathrm{atoms}(p)\,{+}\!{+}\,\mathrm{atoms}(q)\subseteq\mathit{ats}$ we get
+covering hypotheses for both $p$ and $q$, hence both induction hypotheses.</p>
+<p><strong>Positive half:</strong> assume $\llbracket p\to q\rrbracket_v$; split on $\llbracket p\rrbracket_v$.</p>
+<ul>
+  <li>If $\llbracket p\rrbracket_v$: then $\llbracket q\rrbracket_v$ (apply the implication). The positive
+  IH for $q$ gives $\Gamma_v\vdash q$; weaken to $\Gamma_v,p$ and apply ${\to}\mathrm{I}$ to conclude
+  $\Gamma_v\vdash p\to q$.</li>
+  <li>If $\neg\llbracket p\rrbracket_v$: the negative IH for $p$ gives $\Gamma_v\vdash\neg p$. Apply
+  ${\to}\mathrm{I}$; we must derive $\Gamma_v,p\vdash q$. By weakening $\Gamma_v,p\vdash\neg p$ and by
+  hypothesis $\Gamma_v,p\vdash p$; then ${\neg}\mathrm{E}$ gives $\bot$ and ${\bot}\mathrm{E}$ gives $q$.</li>
+</ul>
+<p><strong>Negative half:</strong> assume $\neg\llbracket p\to q\rrbracket_v$. Classically this forces
+$\llbracket p\rrbracket_v$ (else the implication would be vacuously true) and $\neg\llbracket q\rrbracket_v$
+(else it would hold). The positive IH for $p$ gives $\Gamma_v\vdash p$; the negative IH for $q$ gives
+$\Gamma_v\vdash\neg q$. Apply ${\neg}\mathrm{I}$; we must derive $\Gamma_v,(p\to q)\vdash\bot$: by
+hypothesis $\Gamma_v,(p\to q)\vdash p\to q$, by weakening $\Gamma_v,(p\to q)\vdash p$, so ${\to}\mathrm{E}$
+gives $q$; by weakening $\Gamma_v,(p\to q)\vdash\neg q$, and ${\neg}\mathrm{E}$ gives $\bot$.</p>
+</div>
+
+<div class="note"><strong>Why it is a program.</strong> The induction here is on the <em>syntax</em> of
+$\varphi$ (Lean's <code class="inl">Formula.rec</code>), not on a derivation. A single run of that recursion
+turns the truth value of $\varphi$ under $v$ into an actual derivation tree built from the constructors
+${\to}\mathrm{I}$, ${\neg}\mathrm{I}$, ${\bot}\mathrm{E}$, ${\neg}\mathrm{E}$ and the derived rule
+<code class="inl">dni</code>. "Completeness as a program," made literal.</p></div>
+
+<h2 id="congr"><span class="n">6.</span>The context depends only on truth values</h2>
+<p class="lead">The discharge step will perturb the valuation at a single atom. We must know this does not
+disturb the part of the context built from the <em>other</em> atoms. That is a small congruence lemma:
+valuations agreeing on a list of atoms produce the same literal context.</p>
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    If $w_1(x)\leftrightarrow w_2(x)$ then $\mathrm{lit}_{w_1}(x)=\mathrm{lit}_{w_2}(x)$.<br><br>
+    Hence if $w_1,w_2$ agree on every atom of $\mathit{ats}$,
+    $$\Gamma_{w_1}(\mathit{ats})=\Gamma_{w_2}(\mathit{ats}).$$
+    (Induction on $\mathit{ats}$: head by the first fact, tail by the IH.)
+  </div></div>
+  <div class="panel code"><div class="cap">Lean — Completeness.lean</div>
+<pre><span class="kw">theorem</span> lit_congr (h : w1 x ↔ w2 x) :
+    lit w1 x = lit w2 x
+
+<span class="kw">theorem</span> litCtx_congr (ats) :
+    (∀ x ∈ ats, (w1 x ↔ w2 x)) →
+    litCtx w1 ats = litCtx w2 ats</pre>
+  </div>
+</div>
+
+<h2 id="discharge"><span class="n">7.</span>Discharging the atoms</h2>
+<p class="lead"><strong>Statement.</strong> For a duplicate-free list $\mathit{ats}$, if
+$\Gamma_v(\mathit{ats})\vdash\varphi$ for every valuation $v$, then $\emptyset\vdash\varphi$. The proof is
+by induction on $\mathit{ats}$, removing one atom per step.</p>
+<div class="case">
+<h4>Base case $\mathit{ats}=[\,]$</h4>
+<p>$\Gamma_v(\,[\,]\,)=\emptyset$ for any $v$, so the hypothesis at (say) the all-true valuation already
+gives $\emptyset\vdash\varphi$.</p>
+</div>
+<div class="case">
+<h4>Step case $\mathit{ats}=p::\mathit{rest}$</h4>
+<p>We invoke the induction hypothesis on $\mathit{rest}$, so it suffices to show
+$\Gamma_v(\mathit{rest})\vdash\varphi$ for an arbitrary $v$. Build two perturbed valuations,
+$v_{\mathsf{T}}$ and $v_{\mathsf{F}}$, that agree with $v$ everywhere except they pin $p$ to true / false
+respectively. Because $\mathit{rest}$ is duplicate-free and does not contain $p$, the congruence lemma
+gives $\Gamma_{v_{\mathsf T}}(\mathit{rest})=\Gamma_{v_{\mathsf F}}(\mathit{rest})=\Gamma_v(\mathit{rest})$.
+Now:</p>
+<ul>
+  <li>The hypothesis at $v_{\mathsf T}$ gives $\;\Gamma_v(\mathit{rest}),\,p\ \vdash\ \varphi$ (since
+  $\mathrm{lit}_{v_{\mathsf T}}(p)=p$).</li>
+  <li>The hypothesis at $v_{\mathsf F}$ gives $\;\Gamma_v(\mathit{rest}),\,\neg p\ \vdash\ \varphi$ (since
+  $\mathrm{lit}_{v_{\mathsf F}}(p)=\neg p$).</li>
+</ul>
+<p>These are exactly the two premises of the derived rule of <em>proof by cases</em>
+(<code class="inl">byCases</code>), which is itself built from the classical reductio rule. Combining them
+discharges $p$ and yields $\Gamma_v(\mathit{rest})\vdash\varphi$, closing the step.</p>
+</div>
+<div class="pair">
+  <div class="panel math"><div class="cap">The derived rule used</div><div class="body">
+    $$\dfrac{\Gamma,\varphi\vdash\chi \qquad \Gamma,\neg\varphi\vdash\chi}{\Gamma\vdash\chi}\;(\text{by cases})$$
+    Derivable from <code class="inl">classical</code>, <code class="inl">negI</code>, <code class="inl">negE</code>
+    and weakening.
+  </div></div>
+  <div class="panel code"><div class="cap">Lean — Completeness.lean</div>
+<pre><span class="kw">theorem</span> discharge (ats : List String)
+    (hnd : ats.Nodup)
+    (H : ∀ v, ND (litCtx v ats) φ) : ND ∅ φ
+<span class="cm">-- step: combine H vt and H vf via</span>
+<span class="cm">--   byCases : ND (insert p Γ) χ →</span>
+<span class="cm">--             ND (insert (~p) Γ) χ → ND Γ χ</span></pre>
+  </div>
+</div>
+
+<h2 id="main"><span class="n">8.</span>Assembling completeness</h2>
+<p class="lead">Take $\mathit{ats}$ to be the atoms of $\varphi$ with duplicates removed — repetition-free
+and still covering $\varphi$. Fix any $v$. Since $\varphi$ is a tautology, $\llbracket\varphi\rrbracket_v$
+holds, so the positive half of Kalmár's lemma gives $\Gamma_v(\mathit{ats})\vdash\varphi$. As $v$ was
+arbitrary, the hypothesis of discharge is met, and we conclude $\emptyset\vdash\varphi$.</p>
+<div class="pair">
+  <div class="panel math"><div class="cap">Mathematics</div><div class="body">
+    <strong>Completeness.</strong> $\mathrm{Taut}(\varphi)\Rightarrow\emptyset\vdash\varphi$.<br><br>
+    With soundness, <strong>adequacy</strong>:
+    $$\mathrm{Taut}(\varphi)\ \Longleftrightarrow\ \emptyset\vdash\varphi.$$
+  </div></div>
+  <div class="panel code"><div class="cap">Lean — Completeness.lean</div>
+<pre><span class="kw">theorem</span> completeness_ND (φ) (h : IsTautology φ) :
+    ND ∅ φ :=
+  discharge (atoms φ).dedup (List.nodup_dedup _)
+    (<span class="kw">fun</span> v =>
+      (kalmar v (atoms φ).dedup φ
+        (<span class="kw">fun</span> a ha => List.mem_dedup.2 ha)).1 (h v))
+
+<span class="kw">theorem</span> soundComplete (φ) :
+    IsTautology φ ↔ ND ∅ φ :=
+  ⟨completeness_ND φ, isTautology_of_provable⟩</pre>
+  </div>
+</div>
+<p>Reading the Lean: <code class="inl">discharge</code> is applied to the dedup'd atom list (with its
+no-duplicates proof) and to a function that, for each <code class="inl">v</code>, hands back the Kalmár
+derivation — <code class="inl">.1</code> selects the positive half, applied to <code class="inl">h v</code>
+(the tautology at $v$). The whole expression is a single term inhabiting
+<code class="inl">ND ∅ φ</code>.</p>
+
+<h2 id="trust"><span class="n">9.</span>What "verified" guarantees</h2>
+<p class="lead">Because a derivation is a term and the kernel checks it, there is no separate "is the proof
+correct?" question. The remaining question is what the term <em>assumes</em>, answered by the axiom audit:</p>
+<div class="panel math" style="margin:1rem 0"><div class="cap">Generated certificate</div><div class="body">
+  <code class="inl">completeness_ND</code> and <code class="inl">soundComplete</code> depend only on
+  <code class="inl">propext</code>, <code class="inl">Classical.choice</code>, <code class="inl">Quot.sound</code>
+  — the standard classical foundation shared by all of Mathlib. No <code class="inl">sorryAx</code> (no
+  admitted gaps) and no postulated completeness rule appear. The hand-built example derivations depend on
+  <em>no</em> axioms at all, being finite proof terms.
+</div></div>
+<p>This is the precise sense in which the theorem is "machine-checked": every inference rule is a
+constructor, every proof is a term the kernel re-verified, and the only assumptions are the three named
+axioms — nothing specific to this development.</p>
+
+</main>
+
+<footer>
+  © 2026 Rudik Rompich, Universidad del Valle de Guatemala. Companion to the
+  <a href="./overview.html">overview</a>; full treatment in the
+  <a href="https://github.com/RudiksChess/lean_execution/releases">thesis report</a>. Source:
+  <a href="https://github.com/RudiksChess/lean_execution">github.com/RudiksChess/lean_execution</a>.
+  Mathematics rendered with KaTeX.
+</footer>
+</body>
+</html>
