@@ -12,7 +12,7 @@ this verified source.
 > [release](https://github.com/RudiksChess/lean_execution/releases).
 >
 > **Mathematical overview** (no Lean needed): a side-by-side "maths ↔ code"
-> walkthrough of the whole proof is at
+> tour of **both developments** is at
 > <https://rudikschess.github.io/lean_execution/overview.html> — written for
 > readers who want the mathematics, with the verified code shown alongside. A
 > deeper, step-by-step companion covering **both developments** (prerequisites,
