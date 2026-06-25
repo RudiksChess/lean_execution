@@ -2,8 +2,8 @@ name: Docs
 
 # Browsable API docs (doc-gen4), published to the `gh-pages` branch.
 # Heavy: regenerates HTML for the full Mathlib import closure. So it runs ONLY
-# when the Lean code changes (or on release / manual dispatch) — never on edits
-# to the static pages in web/, which are handled by site.yml in seconds.
+# when the Lean code changes (or via manual dispatch) — never on edits to the
+# static pages in web/ (handled by site.yml in seconds) nor on PDF releases.
 on:
   push:
     branches: [main]
@@ -14,10 +14,10 @@ on:
       - 'lean-toolchain'
       - 'lake-manifest.json'
       - 'docbuild/**'
-      - '.github/workflows/docs.yml'
-  release:
-    types: [published]
   workflow_dispatch:
+  # Note: not triggered by releases — cutting a PDF release should not rebuild
+  # the (heavy) API docs. Docs rebuild only on Lean/lakefile/docbuild changes
+  # or manual dispatch.
 
 permissions:
   contents: write
