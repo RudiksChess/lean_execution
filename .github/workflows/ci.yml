@@ -18,8 +18,8 @@ jobs:
       # committed audit.txt — i.e. if a sorry or a rogue axiom appears.
       - name: Axiom audit
         run: |
-          lake env lean Thesis/Prop/Audit.lean > audit.txt
-          git diff --exit-code audit.txt
+          lake env lean Thesis/Prop/Audit.lean > reports/natural-deduction/audit.txt
+          git diff --exit-code reports/natural-deduction/audit.txt
 
       # The AI cross-validation case study: these standalone proofs must still
       # compile (they are not part of the lake build).
