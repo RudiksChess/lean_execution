@@ -8,7 +8,8 @@ Completeness is proved *internally*, via Kalmár's lemma — no oracle, no
 `sorry`. The accompanying thesis report renders its code listings directly from
 this verified source.
 
-> **Read it:** the latest compiled PDF is attached to each
+> **Read it:** both compiled reports — natural-deduction completeness and
+> quicksort — are attached to each
 > [release](https://github.com/RudiksChess/lean_execution/releases).
 >
 > **Mathematical overview** (no Lean needed): a side-by-side "maths ↔ code"
