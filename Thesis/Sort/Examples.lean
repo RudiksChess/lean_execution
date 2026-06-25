@@ -10,6 +10,7 @@ and *prove* facts about concrete inputs using the general correctness theorems
 
 namespace Thesis.Sort
 
+-- ANCHOR: examples
 open List
 
 -- Running quicksort on concrete inputs (evaluated by the compiler).
@@ -25,5 +26,6 @@ example : Sorted (quicksort [5, 5, 1, 4, 1, 3]) := quicksort_sorted _
 -- Both halves of the specification at once, on an already-sorted input.
 example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Sorted (quicksort [1, 2, 3, 4]) :=
   quicksort_correct _
+-- ANCHOREND: examples
 
 end Thesis.Sort

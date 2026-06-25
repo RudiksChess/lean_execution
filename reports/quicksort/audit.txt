@@ -1,0 +1,3 @@
+'Thesis.Sort.quicksort_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Sort.quicksort_perm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Sort.quicksort_sorted' depends on axioms: [propext, Classical.choice, Quot.sound]

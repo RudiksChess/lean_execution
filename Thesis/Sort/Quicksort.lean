@@ -22,7 +22,9 @@ variable {α : Type _} [LinearOrder α]
 
 /-- A list is **sorted** when its elements appear in pairwise nondecreasing order.
 This is exactly `List.Pairwise (· ≤ ·)`: every earlier element is `≤` every later one. -/
+-- ANCHOR: sortedDef
 def Sorted (l : List α) : Prop := l.Pairwise (· ≤ ·)
+-- ANCHOREND: sortedDef
 
 /--
 Functional quicksort. The head `p` of a nonempty list is the **pivot**; the tail is
@@ -32,6 +34,7 @@ each recursively sorted, and the results concatenated around the pivot.
 Termination is by the length of the list: each `filter` cannot increase the length, and
 the tail is strictly shorter than `p :: rest`.
 -/
+-- ANCHOR: qsdef
 def quicksort : List α → List α
   | [] => []
   | p :: rest =>
@@ -41,7 +44,9 @@ def quicksort : List α → List α
   decreasing_by
     all_goals simp_wf
     all_goals exact le_trans (length_filter_le _ _) (le_of_eq (by simp))
+-- ANCHOREND: qsdef
 
+-- ANCHOR: qsequations
 @[simp] theorem quicksort_nil : quicksort ([] : List α) = [] := by rw [quicksort]
 
 /-- The defining equation for a nonempty list, with the pivot exposed. -/
@@ -50,8 +55,10 @@ theorem quicksort_cons (p : α) (rest : List α) :
       quicksort (rest.filter (fun x => decide (x ≤ p)))
         ++ p :: quicksort (rest.filter (fun x => ! decide (x ≤ p))) := by
   rw [quicksort]
+-- ANCHOREND: qsequations
 
 /-- **Permutation.** Quicksort outputs a rearrangement of its input. -/
+-- ANCHOR: perm
 theorem quicksort_perm : ∀ l : List α, quicksort l ~ l
   | [] => by simp
   | p :: rest => by
@@ -73,8 +80,10 @@ theorem quicksort_perm : ∀ l : List α, quicksort l ~ l
 /-- Membership is preserved (an immediate corollary of the permutation). -/
 theorem mem_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l :=
   (quicksort_perm l).mem_iff
+-- ANCHOREND: perm
 
 /-- **Sortedness.** Quicksort outputs a nondecreasing list. -/
+-- ANCHOR: sorted_thm
 theorem quicksort_sorted : ∀ l : List α, Sorted (quicksort l)
   | [] => by simp [Sorted]
   | p :: rest => by
@@ -110,11 +119,14 @@ theorem quicksort_sorted : ∀ l : List α, Sorted (quicksort l)
   decreasing_by
     all_goals simp_wf
     all_goals exact le_trans (length_filter_le _ _) (le_of_eq (by simp))
+-- ANCHOREND: sorted_thm
 
 /-- **Correctness of quicksort.** The output is a sorted permutation of the input —
 i.e. quicksort meets the specification of a sorting algorithm. -/
+-- ANCHOR: correct
 theorem quicksort_correct (l : List α) :
     quicksort l ~ l ∧ Sorted (quicksort l) :=
   ⟨quicksort_perm l, quicksort_sorted l⟩
+-- ANCHOREND: correct
 
 end Thesis.Sort

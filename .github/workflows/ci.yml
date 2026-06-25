@@ -19,7 +19,8 @@ jobs:
       - name: Axiom audit
         run: |
           lake env lean Thesis/Prop/Audit.lean > reports/natural-deduction/audit.txt
-          git diff --exit-code reports/natural-deduction/audit.txt
+          lake env lean Thesis/Sort/Audit.lean  > reports/quicksort/audit.txt
+          git diff --exit-code reports/natural-deduction/audit.txt reports/quicksort/audit.txt
 
       # The AI cross-validation case study: these standalone proofs must still
       # compile (they are not part of the lake build).
@@ -27,3 +28,4 @@ jobs:
         run: |
           lake env lean aristotle/NDCore.lean
           lake env lean aristotle/NDFull.lean
+          lake env lean aristotle/QuicksortFull.lean
