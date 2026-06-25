@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{hyperref}
+\setlength{\emergencystretch}{3em}
+
+% --- Listings setup for Lean (shared with the main reports) ---
+\lstdefinelanguage{Lean}{
+  morekeywords={
+    import, namespace, end, inductive, def, theorem, lemma, abbrev, by, intro,
+    apply, exact, simp, simp_all, simp_wf, constructor, cases, rcases, with, match,
+    open, have, let, refine, refine', induction, induction', noncomputable, attribute,
+    instance, obtain, by_cases, by_contra, fun, variable, termination_by, decreasing_by,
+    return, if, then, else, unfold, aesop, grind, convert, all_goals, generalizing, using, set
+  },
+  sensitive=true,
+  morecomment=[l]{--},
+  morecomment=[s]{/-}{-/},
+  morestring=[b]"
+}
+\lstset{
+  language=Lean,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!60!black},
+  commentstyle=\color{green!45!black},
+  stringstyle=\color{red!50!black},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  mathescape=true,
+  literate=
+    {Γ}{{$\Gamma$}}1 {Δ}{{$\Delta$}}1 {φ}{{$\varphi$}}1 {ψ}{{$\psi$}}1 {χ}{{$\chi$}}1
+    {α}{{$\alpha$}}1 {β}{{$\beta$}}1
+    {→}{{$\to$}}1 {⟶}{{$\to$}}1 {↔}{{$\leftrightarrow$}}1 {←}{{$\leftarrow$}}1
+    {·}{{$\cdot$}}1 {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {∈}{{$\in$}}1 {∉}{{$\notin$}}1
+    {⊆}{{$\subseteq$}}1 {∪}{{$\cup$}}1 {∧}{{$\land$}}1 {∨}{{$\lor$}}1 {¬}{{$\neg$}}1
+    {⊥}{{$\bot$}}1 {⊢}{{$\vdash$}}1 {∅}{{$\emptyset$}}1 {≤}{{$\leq$}}1 {≥}{{$\geq$}}1
+    {≠}{{$\neq$}}1 {~}{{$\sim$}}1 {⟨}{{$\langle$}}1 {⟩}{{$\rangle$}}1
+    {‹}{{\guilsinglleft}}1 {›}{{\guilsinglright}}1
+    {₁}{{$_1$}}1 {₂}{{$_2$}}1
+    {á}{{\'a}}1 {…}{{$\dots$}}1 {—}{{---}}1
+}
+
+\title{\textbf{AI-Reconstructed Proofs: A Reference}\\[2pt]
+\large Complete Lean~4 proofs produced cold by Harmonic Aristotle}
+\author{\textbf{Rudik Rompich} \\ Universidad del Valle de Guatemala \\ \texttt{rom19857@uvg.edu.gt}}
+\date{June 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document collects, for reference, the complete Lean~4 proofs that the automated theorem-proving
+agent \emph{Harmonic Aristotle} produced when asked to reconstruct the main results \emph{cold} ---
+given only the definitions and statements, with the human proofs withheld. They are reproduced here
+verbatim (only the report's anchor comments are removed). Each was verified under the same
+Lean~v4.29.0 toolchain as the rest of the project, compiles with no \texttt{sorry}, and depends only on
+the standard classical axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+Discussion of how these compare to the hand proofs is in the two main reports
+(\emph{Completeness of Propositional Natural Deduction} and \emph{Verifying the Correctness of
+Quicksort}); this document is just the raw, machine-checked evidence.
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+\section{Derived rule: \texttt{byCases} (natural deduction)}
+Given the calculus and the structural lemma \texttt{weakening}, Aristotle was asked to fill the proof
+of the classical proof-by-cases rule. The complete file it returned:
+\lstinputlisting{_src/NDCore.lean}
+
+\section{Completeness of natural deduction}
+Given only the syntax, semantics, the calculus, and the elementary metatheory --- with Kalm\'ar's
+lemma and the discharge construction withheld --- Aristotle reconstructed the entire completeness
+proof, rediscovering Kalm\'ar's method under its own names:
+\lstinputlisting{_src/NDFull.lean}
+
+\section{Correctness of quicksort}
+Given only the definition of \texttt{quicksort} and its unfolding equation --- with the permutation
+and sortedness lemmas withheld --- Aristotle reconstructed the correctness proof, reaching the
+permutation lemma by a counting argument (\texttt{List.perm\_iff\_count}) rather than the structural
+route of the hand proof:
+\lstinputlisting{_src/QuicksortFull.lean}
+
+\end{document}
