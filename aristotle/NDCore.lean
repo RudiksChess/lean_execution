@@ -38,6 +38,7 @@ theorem weakening {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := b
 /-- Classical proof by cases on an arbitrary formula `φ` (no disjunction needed):
     if `χ` follows both from `φ` and from `¬φ`, then `χ` holds outright.
     TASK: replace the `sorry` with a complete proof. -/
+-- ANCHOR: bycases
 theorem byCases {Γ φ χ} (d1 : ND (insert φ Γ) χ) (d2 : ND (insert (~φ) Γ) χ) :
     ND Γ χ := by
   apply ND.classical
@@ -56,5 +57,6 @@ theorem byCases {Γ φ χ} (d1 : ND (insert φ Γ) χ) (d2 : ND (insert (~φ) Γ
       ND.hyp (mem_insert_of_mem _ (mem_insert _ _))
     exact ND.negE hnχ hχ
   exact ND.negE hnnφ hnegφ
+-- ANCHOREND: bycases
 
 end Thesis.Prop

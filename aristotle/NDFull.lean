@@ -142,6 +142,7 @@ lemma kalmar (v : Valuation) :
     ∀ (φ : Formula) (Γ : Set Formula), (∀ s ∈ occ φ, sat v s ∈ Γ) →
       (eval v φ → ND Γ φ) ∧ (¬ eval v φ → ND Γ (~φ)) := by
 -- ANCHOREND: akalmarsig
+-- ANCHOR: kalmarBody
   -- Consider the case where $\phi$ is an atom $p$.
   intro φ
   induction' φ with p ih generalizing v;
@@ -175,6 +176,7 @@ lemma kalmar (v : Valuation) :
         exact Set.mem_insert_of_mem _ ( hΓ s ( Or.inr hs ) ) ) |>.2 hq_false using 1;
       exact by apply ND.impE; exact ND.hyp ( Set.mem_insert _ _ ) ; exact hp v ( insert ( p.impl q ) Γ ) ( fun s hs => by
         exact Set.mem_insert_of_mem _ ( hΓ s ( Or.inl hs ) ) ) |>.1 hp_true;
+-- ANCHOREND: kalmarBody
 
 /-
 Eliminate the signed-literal hypotheses one atom at a time using the law of
@@ -185,6 +187,7 @@ lemma elim (φ : Formula) :
     ∀ (L : List String), L.Nodup →
       ∀ (Γ : Set Formula), (∀ v, ND (Γ ∪ litset v L) φ) → ND Γ φ := by
 -- ANCHOREND: aelimsig
+-- ANCHOR: elimBody
   intro L hL Γ hΓ
   induction' L with s rest ih generalizing Γ;
   · simpa [ litset ] using hΓ ( fun _ => True );
@@ -208,6 +211,7 @@ lemma elim (φ : Formula) :
     · convert hΓ vf using 1;
       simp +decide [ ← h_litset_vf, litset ];
       simp +decide [ sat, vf ]
+-- ANCHOREND: elimBody
 
 /-! ## TASK
 

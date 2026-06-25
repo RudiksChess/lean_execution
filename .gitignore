@@ -11,8 +11,5 @@
 *.synctex.gz
 *.pdf
 
-# Generated marker-stripped Lean copies for the Aristotle reference PDF
-reports/aristotle/_src/
-
 # macOS
 .DS_Store

@@ -27,13 +27,10 @@ pdf: audit
 pdf-quicksort: audit-quicksort
 	cd $(QS_DIR) && latexmk -pdf -interaction=nonstopmode QuicksortReport.tex
 
-# Build the Aristotle proofs reference PDF. Strips the report-only anchor
-# comments so the listings show Aristotle's output verbatim.
+# Build the Aristotle proofs reference PDF. Listings are pulled from the
+# aristotle/ source by anchor range; the markers are hidden, so the chunks show
+# Aristotle's output verbatim.
 pdf-aristotle:
-	mkdir -p $(AR_DIR)/_src
-	for f in NDCore NDFull QuicksortFull; do \
-	  grep -v -- '-- ANCHOR' aristotle/$$f.lean > $(AR_DIR)/_src/$$f.lean; \
-	done
 	cd $(AR_DIR) && latexmk -pdf -interaction=nonstopmode AristotleProofs.tex
 
 # Type-check the standalone Aristotle case-study files (AI cross-validation).

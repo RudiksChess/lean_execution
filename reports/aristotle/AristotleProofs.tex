@@ -1,7 +1,7 @@
 \documentclass[11pt]{article}
 
 \usepackage[a4paper,margin=1in]{geometry}
-\usepackage{amssymb}
+\usepackage{amsmath,amssymb}
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage[T1]{fontenc}
@@ -9,7 +9,7 @@
 \usepackage{hyperref}
 \setlength{\emergencystretch}{3em}
 
-% --- Listings setup for Lean (shared with the main reports) ---
+% --- Listings setup for Lean ---
 \lstdefinelanguage{Lean}{
   morekeywords={
     import, namespace, end, inductive, def, theorem, lemma, abbrev, by, intro,
@@ -34,6 +34,10 @@
   frame=single,
   columns=fullflexible,
   mathescape=true,
+  % pull chunks straight from the .lean source; hide the anchor markers
+  rangebeginprefix=--\ ANCHOR:\ ,
+  rangeendprefix=--\ ANCHOREND:\ ,
+  includerangemarker=false,
   literate=
     {Γ}{{$\Gamma$}}1 {Δ}{{$\Delta$}}1 {φ}{{$\varphi$}}1 {ψ}{{$\psi$}}1 {χ}{{$\chi$}}1
     {α}{{$\alpha$}}1 {β}{{$\beta$}}1
@@ -47,8 +51,13 @@
     {á}{{\'a}}1 {…}{{$\dots$}}1 {—}{{---}}1
 }
 
+\newcommand{\Imp}{\rightarrow}
+\newcommand{\Not}{\neg}
+\newcommand{\Prov}{\vdash}
+\newcommand{\Perm}{\sim}
+
 \title{\textbf{AI-Reconstructed Proofs: A Reference}\\[2pt]
-\large Complete Lean~4 proofs produced cold by Harmonic Aristotle}
+\large Complete Lean~4 proofs produced cold by Harmonic Aristotle, in chunks}
 \author{\textbf{Rudik Rompich} \\ Universidad del Valle de Guatemala \\ \texttt{rom19857@uvg.edu.gt}}
 \date{June 2026}
 
@@ -56,36 +65,89 @@
 \maketitle
 
 \begin{abstract}
-This document collects, for reference, the complete Lean~4 proofs that the automated theorem-proving
-agent \emph{Harmonic Aristotle} produced when asked to reconstruct the main results \emph{cold} ---
-given only the definitions and statements, with the human proofs withheld. They are reproduced here
-verbatim (only the report's anchor comments are removed). Each was verified under the same
-Lean~v4.29.0 toolchain as the rest of the project, compiles with no \texttt{sorry}, and depends only on
-the standard classical axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
-Discussion of how these compare to the hand proofs is in the two main reports
-(\emph{Completeness of Propositional Natural Deduction} and \emph{Verifying the Correctness of
-Quicksort}); this document is just the raw, machine-checked evidence.
+For reference, this document presents the complete Lean~4 proofs that the automated theorem-proving
+agent \emph{Harmonic Aristotle} produced when asked to reconstruct the project's main results
+\emph{cold} --- given only the definitions and statements, with the human proofs withheld. Rather than
+a raw dump, each proof is broken into chunks, and every chunk is paired with the mathematics it
+realizes. The code is pulled verbatim from the verified source files in \texttt{aristotle/}; only the
+listing anchors are suppressed. Each proof was checked under Lean~v4.29.0, compiles with no
+\texttt{sorry}, and depends only on \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}.
+How these compare to the hand proofs is discussed in the two main reports; here we record the
+machine-checked evidence.
 \end{abstract}
 
 \tableofcontents
 \bigskip
 
-\section{Derived rule: \texttt{byCases} (natural deduction)}
-Given the calculus and the structural lemma \texttt{weakening}, Aristotle was asked to fill the proof
-of the classical proof-by-cases rule. The complete file it returned:
-\lstinputlisting{_src/NDCore.lean}
+%==================================================================
+\section{A derived rule: classical proof by cases}
+Given the natural-deduction calculus and the structural lemma \texttt{weakening}, Aristotle was asked
+to prove the classical \emph{proof-by-cases} rule:
+\[
+  \frac{\Gamma,\varphi \Prov \chi \qquad \Gamma,\Not\varphi \Prov \chi}{\Gamma \Prov \chi}.
+\]
+Its strategy is a classical \emph{reductio}: to derive $\chi$, assume $\Not\chi$ and reach $\bot$.
+From the first branch it builds $\Gamma,\Not\chi \Prov \Not\varphi$ (if $\varphi$ held, branch~1 would
+give $\chi$, contradicting $\Not\chi$); from the second, symmetrically, $\Gamma,\Not\chi \Prov
+\Not\Not\varphi$. Then $\Not$-elimination on $\Not\Not\varphi$ and $\Not\varphi$ yields $\bot$.
+\lstinputlisting[linerange=bycases-bycases]{../../aristotle/NDCore.lean}
 
+%==================================================================
 \section{Completeness of natural deduction}
-Given only the syntax, semantics, the calculus, and the elementary metatheory --- with Kalm\'ar's
-lemma and the discharge construction withheld --- Aristotle reconstructed the entire completeness
-proof, rediscovering Kalm\'ar's method under its own names:
-\lstinputlisting{_src/NDFull.lean}
+Given the syntax, semantics, the calculus, and the elementary metatheory --- but \emph{not} Kalmár's
+lemma or the discharge construction --- Aristotle reconstructed the whole completeness theorem,
+rediscovering Kalmár's method under its own names.
 
+\subsection{Signed literals and the literal context}
+For a fixed valuation $v$ it introduces the \emph{signed literal} of an atom ($p$ if $v(p)$, else
+$\Not p$), the finite set of atoms occurring in a formula, and the \emph{literal context}
+$\Gamma_v$ collecting the signed literals over a list of atoms.
+\lstinputlisting[linerange=adefs-adefs]{../../aristotle/NDFull.lean}
+
+\subsection{Kalmár's lemma}
+The key lemma: for atoms covering $\varphi$, the literal context $\Gamma_v$ \emph{decides} $\varphi$
+syntactically --- it derives $\varphi$ when $v\models\varphi$ and $\Not\varphi$ otherwise. Both halves
+are carried together so the induction on $\varphi$ goes through (the negation case feeds them into
+each other). The statement:
+\lstinputlisting[linerange=akalmarsig-akalmarsig]{../../aristotle/NDFull.lean}
+\noindent and the proof, by induction on $\varphi$ (atom / negation / implication), built from the
+ND constructors and closed with Mathlib automation:
+\lstinputlisting[linerange=kalmarBody-kalmarBody]{../../aristotle/NDFull.lean}
+
+\subsection{Discharging the atoms}
+The literal hypotheses are removed one atom at a time: if $\varphi$ is derivable from $\Gamma_v$ for
+\emph{every} valuation $v$, it is derivable from $\emptyset$. The step perturbs $v$ at a single atom
+(forcing it true, then false) and combines the two derivations with the proof-by-cases rule. The
+statement:
+\lstinputlisting[linerange=aelimsig-aelimsig]{../../aristotle/NDFull.lean}
+\noindent and the proof:
+\lstinputlisting[linerange=elimBody-elimBody]{../../aristotle/NDFull.lean}
+
+\subsection{Assembling completeness}
+For a tautology $\varphi$, Kalmár's lemma gives $\Gamma_v \Prov \varphi$ for every $v$; discharge then
+yields $\emptyset \Prov \varphi$.
+\lstinputlisting[linerange=amain-amain]{../../aristotle/NDFull.lean}
+
+%==================================================================
 \section{Correctness of quicksort}
 Given only the definition of \texttt{quicksort} and its unfolding equation --- with the permutation
-and sortedness lemmas withheld --- Aristotle reconstructed the correctness proof, reaching the
-permutation lemma by a counting argument (\texttt{List.perm\_iff\_count}) rather than the structural
-route of the hand proof:
-\lstinputlisting{_src/QuicksortFull.lean}
+and sortedness lemmas withheld --- Aristotle reconstructed correctness.
+
+\subsection{The output is a permutation}
+Here it diverged from the hand proof: instead of rearranging the partitions structurally, it reduced
+$\Perm$ to equality of element \emph{multiplicities}, $a \Perm b \iff \forall x,\ \mathrm{count}(x,a)
+= \mathrm{count}(x,b)$, and discharged the resulting counting goal by automation
+(\texttt{simp}/\texttt{grind}).
+\lstinputlisting[linerange=qaperm-qaperm]{../../aristotle/QuicksortFull.lean}
+
+\subsection{The output is sorted}
+Sortedness follows the familiar shape: by strong induction on length, both recursive results are
+sorted, every element of the small half is $\leq$ the pivot and every element of the large half is
+$\geq$ it, and \texttt{pairwise\_append}/\texttt{pairwise\_cons} assemble the concatenation.
+\lstinputlisting[linerange=qasorted-qasorted]{../../aristotle/QuicksortFull.lean}
+
+\subsection{Correctness}
+The two lemmas conjoin into the specification of a sorting function.
+\lstinputlisting[linerange=qamain-qamain]{../../aristotle/QuicksortFull.lean}
 
 \end{document}
