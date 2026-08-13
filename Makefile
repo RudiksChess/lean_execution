@@ -1,4 +1,4 @@
-.PHONY: build audit audit-quicksort pdf pdf-quicksort pdf-aristotle check clean verify-aristotle docs
+.PHONY: build audit audit-quicksort pdf pdf-quicksort pdf-aristotle check clean verify-foundation verify-aristotle docs
 
 ND_DIR := reports/natural-deduction
 QS_DIR := reports/quicksort
@@ -40,10 +40,16 @@ verify-aristotle:
 	lake env lean aristotle/NDFull.lean
 	lake env lean aristotle/QuicksortFull.lean
 
-# CI gate: both developments build, the committed audit still matches reality,
-# and the AI case-study proofs still compile.
+# Build the independent Foundation cross-validation as a separate root. It
+# cannot share one root module with the full Mathlib closure (both define
+# Matrix.map), but it is still part of the public verification gate.
+verify-foundation:
+	lake build Thesis.Prop.CompletenessViaFoundation
+
+# CI gate: both developments and both cross-validations build, and the
+# committed audit still matches reality.
 # Fails if a sorry (sorryAx) or rogue axiom sneaks in, or the audit drifts.
-check: build audit audit-quicksort verify-aristotle
+check: build audit audit-quicksort verify-foundation verify-aristotle
 	git diff --exit-code $(ND_DIR)/audit.txt $(QS_DIR)/audit.txt
 
 # Browsable API docs (doc-gen4). Heavy: builds HTML for the full import closure.

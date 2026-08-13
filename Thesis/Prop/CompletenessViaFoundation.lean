@@ -12,9 +12,9 @@ theorem provable_tr_of_tautology (φ : Formula) :
     IsTautology φ → Provable (∅ : Theory) (tr φ) := by
   intro hTaut
   -- Foundation completeness: semantic consequence ⇒ provability.
-  -- This theorem is in Foundation/Propositional/ClassicalSemantics/Tait.lean.
+  -- This theorem is in Foundation/Propositional/Boolean/Tait.lean.
   -- 
-  apply LO.Propositional.ClassicalSemantics.completeness!
+  apply LO.Propositional.Boolean.completeness!
   intro v hvT
   have : eval v φ := hTaut v
   exact (eval_tr v φ).1 this

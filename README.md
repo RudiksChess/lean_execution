@@ -26,6 +26,11 @@ this verified source.
 > definitions) are published at
 > <https://rudikschess.github.io/lean_execution/> — see `Thesis/Prop/` for this
 > development. Built by doc-gen4 on each release.
+>
+> **Verify the result:** the public
+> [verification page](https://rudikschess.github.io/lean_execution/verification.html)
+> explains the CI checks, axiom certificates, trust boundary, and exact local
+> reproduction commands.
 
 ## Repository layout
 
@@ -42,28 +47,40 @@ This repo holds **two independent, machine-checked developments**, both built by
 | `reports/aristotle/` | the *AI-Reconstructed Proofs* reference report (`make pdf-aristotle`) |
 | `reports/natural-deduction/` | the ND thesis report (`ThesisReport_ND.tex`, Spanish edition, generated `audit.txt`); listings are pulled from `Thesis/Prop/` |
 | `reports/quicksort/` | the quicksort report (`QuicksortReport.tex`) |
-| `web/` | hosted explainer pages (overview + step-by-step) |
+| `web/` | hosted overview, step-by-step walkthrough, and verification guide |
 | `docbuild/` | doc-gen4 configuration for the API docs site |
 
 ## Reproduce it
 
-**In the cloud, no install** — open the repo in a GitHub Codespace
-(**Code ▸ Codespaces ▸ Create**). The devcontainer installs the toolchain and
-primes the Mathlib cache automatically; then in the terminal run `lake build`
-(or `make check`). Already compiled? CI does exactly this on every push — the
-badge above is the proof.
+**Public evidence** — the [CI workflow](https://github.com/RudiksChess/lean_execution/actions/workflows/ci.yml)
+runs on every push and pull request. A green badge means GitHub built the Lean
+sources, regenerated and compared both axiom certificates, and compiled the
+Foundation bridge plus the three standalone Aristotle reconstructions. See the
+[verification guide](https://rudikschess.github.io/lean_execution/verification.html)
+for what each check establishes and the limits of the claim.
 
-**Locally** — requires [`elan`](https://github.com/leanprover/elan) (the
-toolchain version is pinned in `lean-toolchain`).
+**Independent local reproduction** — requires
+[`elan`](https://github.com/leanprover/elan). The Lean toolchain is pinned in
+`lean-toolchain`, and package revisions are locked in `lake-manifest.json`.
 
 ```sh
 lake exe cache get   # fetch the prebuilt Mathlib (skips a multi-hour build)
 lake build           # kernel-checks every proof
-make check           # build + regenerate the axiom audit + verify the Aristotle proofs
+make check           # build + audits + Foundation and Aristotle cross-checks
 ```
 
-`make check` is exactly what CI runs. It fails if any proof breaks, if a
-`sorry` sneaks in (it would surface as `sorryAx`), or if `audit.txt` drifts.
+`make check` mirrors the substantive CI checks. It fails if a proof no longer
+type-checks or either committed audit changes. An admitted gap or a newly
+postulated axiom used by an audited result would appear in its transitive axiom
+list (for example as `sorryAx`) and make that comparison fail.
+
+**Optional interactive exploration** — GitHub Codespaces can provide the same
+toolchain without a local Lean installation. It is not the fastest way to see
+whether the proofs pass: the first launch must provision and unpack the pinned
+Mathlib dependency cache, which can consume several gigabytes and take a while.
+Use **Code ▸ Codespaces ▸ Create codespace** if you want to edit and inspect the
+proofs interactively; repository maintainers can enable a Codespaces prebuild
+to move most of that first-use setup out of a visitor's session.
 
 ## The axiom certificate
 

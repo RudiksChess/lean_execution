@@ -1,18 +1,30 @@
-name: CI
+name: Lean proof verification
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   verify:
+    name: Kernel-check proofs and audit axioms
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the exact commit
+        uses: actions/checkout@v4
 
       # Installs the toolchain from lean-toolchain, fetches the Mathlib cache,
       # and runs `lake build` (kernel-checks every proof).
-      - uses: leanprover/lean-action@v1
+      - name: Build and kernel-check all Lean proofs
+        uses: leanprover/lean-action@v1
+
+      # This bridge is a separate root because Foundation and the full Mathlib
+      # closure both define Matrix.map and therefore cannot share one module.
+      - name: Verify Foundation cross-validation
+        run: lake build Thesis.Prop.CompletenessViaFoundation
 
       # Reproduce the axiom certificate and fail if it drifts from the
       # committed audit.txt — i.e. if a sorry or a rogue axiom appears.
@@ -29,3 +41,34 @@ jobs:
           lake env lean aristotle/NDCore.lean
           lake env lean aristotle/NDFull.lean
           lake env lean aristotle/QuicksortFull.lean
+
+      # Publish a compact, self-contained certificate in the run summary. This
+      # step runs only after every verification step above has succeeded.
+      - name: Publish verification certificate
+        shell: bash
+        run: |
+          checked_commit="$(git rev-parse HEAD)"
+          lean_toolchain="$(tr -d '\r\n' < lean-toolchain)"
+          foundation_rev="$(jq -er '.packages[] | select(.name == "Foundation") | .rev' lake-manifest.json)"
+          mathlib_rev="$(jq -er '.packages[] | select(.name == "mathlib") | .rev' lake-manifest.json)"
+
+          # Markdown code spans are intentionally literal in the printf strings.
+          # shellcheck disable=SC2016
+          {
+            printf '## Lean formal verification passed\n\n'
+            printf 'Every repository proof was kernel-checked, both axiom audits matched their committed certificates, and all standalone Aristotle reconstructions compiled.\n\n'
+            printf '| Reproducibility context | Pinned value |\n'
+            printf '| --- | --- |\n'
+            printf '| Repository commit | [`%s`](%s/%s/commit/%s) |\n' "$checked_commit" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$checked_commit"
+            printf '| Lean toolchain | `%s` |\n' "$lean_toolchain"
+            printf '| Foundation revision | `%s` |\n' "$foundation_rev"
+            printf '| Mathlib revision | `%s` |\n\n' "$mathlib_rev"
+            printf '### Checks completed\n\n'
+            printf '%s\n' '- `lake build` (all default-target proofs)' '- Foundation cross-validation (`Thesis.Prop.CompletenessViaFoundation`)' '- natural-deduction and quicksort axiom-certificate comparison' '- `aristotle/NDCore.lean`' '- `aristotle/NDFull.lean`' '- `aristotle/QuicksortFull.lean`'
+            printf '\n### Axiom audit (actual output)\n\n'
+            printf '#### Natural deduction\n\n```text\n'
+            cat reports/natural-deduction/audit.txt
+            printf '```\n\n#### Quicksort\n\n```text\n'
+            cat reports/quicksort/audit.txt
+            printf '```\n'
+          } >> "$GITHUB_STEP_SUMMARY"

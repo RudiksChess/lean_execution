@@ -1121,10 +1121,10 @@ The completeness theorem of Section~\ref{sec:completeness} stands on its own. In
 verified the same semantic adequacy through the \emph{Foundation} library
 (\texttt{FormalizedFormalLogic})~\cite{FoundationRepo}, which already contains a completeness
 theorem for a classical propositional calculus. This appendix records that cross-check. It is
-deliberately \emph{not} imported by the main development: the full Mathlib closure used by our core
-and the full closure used by Foundation clash on a duplicate \texttt{Matrix.map} declaration, so
-the appendix builds as a separate Lake target (\texttt{Thesis.Prop.CompletenessViaFoundation}).
-Nothing in Sections~\ref{sec:syntax}--\ref{sec:axioms} depends on it.
+compiled by CI as the separate Lake target
+\texttt{Thesis.Prop.CompletenessViaFoundation}: Foundation and the full Mathlib closure both
+define \texttt{Matrix.map}, so they cannot share one root module. It remains logically
+independent: nothing in Sections~\ref{sec:syntax}--\ref{sec:axioms} depends on it.
 
 \subsection{Translation into Foundation syntax}
 Foundation's classical calculus is presented over negation-normal formulas, so we translate our

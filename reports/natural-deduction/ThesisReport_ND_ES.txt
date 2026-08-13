@@ -1368,11 +1368,11 @@ El teorema de completitud de la Sección~\ref{sec:completeness} se sostiene por 
 independiente, verificamos la misma adecuación semántica a través de la biblioteca
 \emph{Foundation} (\texttt{FormalizedFormalLogic})~\cite{FoundationRepo}, que ya contiene un
 teorema de completitud para un cálculo proposicional clásico. Esta sección registra esa
-verificación cruzada. Deliberadamente \emph{no} se importa en el desarrollo principal: la clausura
-completa de Mathlib usada por nuestro núcleo y la clausura completa usada por Foundation chocan en
-una declaración duplicada de \texttt{Matrix.map}, de modo que el apéndice se compila como un
-objetivo separado de Lake (\texttt{Thesis.Prop.CompletenessViaFoundation}). Nada en las
-Secciones~\ref{sec:syntax}--\ref{sec:axioms} depende de él.
+verificación cruzada. La integración continua la compila como el objetivo separado
+\texttt{Thesis.Prop.CompletenessViaFoundation}: Foundation y la clausura completa de Mathlib
+definen \texttt{Matrix.map}, por lo que no pueden compartir un mismo módulo raíz. No obstante,
+sigue siendo lógicamente independiente: nada en las
+Secciones~\ref{sec:syntax}--\ref{sec:axioms} depende de ella.
 
 \subsection{Traducción a la sintaxis de Foundation}
 El cálculo clásico de Foundation se presenta sobre fórmulas en forma normal de negación, así que
@@ -1424,7 +1424,7 @@ Teorema~\ref{thm:adequacy}.
 theorem provable_tr_of_tautology (φ : Formula) :
     IsTautology φ → Provable (∅ : Theory) (tr φ) := by
   intro hTaut
-  apply LO.Propositional.ClassicalSemantics.completeness!
+  apply LO.Propositional.Boolean.completeness!
   intro v hvT
   have : eval v φ := hTaut v
   exact (eval_tr v φ).1 this

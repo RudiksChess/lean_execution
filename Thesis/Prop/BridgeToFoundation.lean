@@ -1,4 +1,4 @@
-import Foundation.Propositional.ClassicalSemantics.Tait
+import Foundation.Propositional.Boolean.Tait
 import Thesis.Prop.Syntax
 
 open Classical
