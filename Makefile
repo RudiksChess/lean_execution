@@ -1,8 +1,9 @@
-.PHONY: build audit audit-quicksort pdf pdf-quicksort pdf-aristotle check clean verify-foundation verify-aristotle docs
+.PHONY: build audit audit-quicksort verification-output pdf pdf-quicksort pdf-aristotle check clean verify-foundation verify-aristotle docs
 
 ND_DIR := reports/natural-deduction
 QS_DIR := reports/quicksort
 AR_DIR := reports/aristotle
+VERIFY_OUTPUT := web/lean-output.txt
 
 # Build both verified developments — Thesis.Prop (completeness) and
 # Thesis.Sort (quicksort) — pulling the Mathlib cache first.
@@ -18,6 +19,20 @@ audit:
 # Regenerate the axiom certificate for the quicksort development.
 audit-quicksort:
 	lake env lean Thesis/Sort/Audit.lean > $(QS_DIR)/audit.txt
+
+# Generate the public, plain-text Lean transcript shown on the verification
+# page. The theorem types, evaluations, and axiom lists are emitted by Lean.
+verification-output:
+	@{ \
+		echo 'Lean 4 public verification transcript'; \
+		echo '====================================='; \
+		echo; \
+		echo '$$ cat lean-toolchain'; \
+		cat lean-toolchain; \
+		echo; \
+		echo '$$ lake env lean Thesis/VerificationOutput.lean'; \
+		lake env lean Thesis/VerificationOutput.lean; \
+	} > $(VERIFY_OUTPUT)
 
 # Build the natural-deduction thesis PDF (regenerating the audit first).
 pdf: audit
@@ -49,8 +64,8 @@ verify-foundation:
 # CI gate: both developments and both cross-validations build, and the
 # committed audit still matches reality.
 # Fails if a sorry (sorryAx) or rogue axiom sneaks in, or the audit drifts.
-check: build audit audit-quicksort verify-foundation verify-aristotle
-	git diff --exit-code $(ND_DIR)/audit.txt $(QS_DIR)/audit.txt
+check: build audit audit-quicksort verification-output verify-foundation verify-aristotle
+	git diff --exit-code $(ND_DIR)/audit.txt $(QS_DIR)/audit.txt $(VERIFY_OUTPUT)
 
 # Browsable API docs (doc-gen4). Heavy: builds HTML for the full import closure.
 # Output: docbuild/.lake/build/doc/index.html

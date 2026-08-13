@@ -29,8 +29,8 @@ this verified source.
 >
 > **Verify the result:** the public
 > [verification page](https://rudikschess.github.io/lean_execution/verification.html)
-> explains the CI checks, axiom certificates, trust boundary, and exact local
-> reproduction commands.
+> shows the literal Lean theorem/evaluation transcript and explains the CI
+> checks, axiom certificates, trust boundary, and exact local reproduction commands.
 
 ## Repository layout
 
@@ -42,6 +42,7 @@ This repo holds **two independent, machine-checked developments**, both built by
 | **`Thesis/Prop/`** | **Development 1 — propositional natural deduction:** syntax, semantics, the ND calculus, soundness, and Kalmár completeness |
 | **`Thesis/Sort/`** | **Development 2 — quicksort:** the recursive definition and proofs that it is a sorted permutation of its input |
 | `Thesis.lean` | library root; imports both developments |
+| `Thesis/VerificationOutput.lean` | emits the public theorem signatures, evaluated examples, and axiom transcript |
 | `Thesis/Prop/Audit.lean` | emits the axiom certificate (→ `reports/natural-deduction/audit.txt`) |
 | `aristotle/` | AI cross-validation: proofs reconstructed cold by Harmonic Aristotle (both developments) |
 | `reports/aristotle/` | the *AI-Reconstructed Proofs* reference report (`make pdf-aristotle`) |
@@ -70,7 +71,9 @@ make check           # build + audits + Foundation and Aristotle cross-checks
 ```
 
 `make check` mirrors the substantive CI checks. It fails if a proof no longer
-type-checks or either committed audit changes. An admitted gap or a newly
+type-checks, either committed audit changes, or the published
+[Lean transcript](https://rudikschess.github.io/lean_execution/lean-output.txt)
+drifts. An admitted gap or a newly
 postulated axiom used by an audited result would appear in its transitive axiom
 list (for example as `sorryAx`) and make that comparison fail.
 
