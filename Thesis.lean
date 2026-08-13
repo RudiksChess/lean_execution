@@ -27,7 +27,6 @@ Both are `sorry`-free and depend only on Lean/Mathlib's standard classical axiom
 Repository and compiled reports (PDF): <https://github.com/RudiksChess/lean_execution>.
 -/
 
--- Appendix (cross-validation against the Foundation library) builds as a
--- separate target `Thesis.Prop.CompletenessViaFoundation`; it is intentionally
--- not imported here because the full Mathlib + Foundation closures clash on a
--- duplicate `Matrix.map` declaration.
+-- The Foundation cross-validation builds as the separate target
+-- `Thesis.Prop.CompletenessViaFoundation`. It cannot share one root module
+-- with the full Mathlib closure because both dependencies define Matrix.map.
