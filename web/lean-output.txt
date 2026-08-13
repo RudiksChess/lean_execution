@@ -1,0 +1,27 @@
+Lean 4 public verification transcript
+=====================================
+
+$ cat lean-toolchain
+leanprover/lean4:v4.29.0
+$ lake env lean Thesis/VerificationOutput.lean
+Thesis.Prop.soundness {Γ : Set Thesis.Prop.Formula} {φ : Thesis.Prop.Formula} (d : Thesis.Prop.ND Γ φ)
+  (v : Thesis.Prop.Valuation) : (∀ ψ ∈ Γ, Thesis.Prop.eval v ψ) → Thesis.Prop.eval v φ
+Thesis.Prop.completeness_ND (φ : Thesis.Prop.Formula) (h : Thesis.Prop.IsTautology φ) : Thesis.Prop.ND ∅ φ
+Thesis.Prop.soundComplete (φ : Thesis.Prop.Formula) : Thesis.Prop.IsTautology φ ↔ Thesis.Prop.ND ∅ φ
+Thesis.Sort.quicksort_perm.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) : (Thesis.Sort.quicksort l).Perm l
+Thesis.Sort.quicksort_sorted.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) :
+  Thesis.Sort.Sorted (Thesis.Sort.quicksort l)
+Thesis.Sort.quicksort_correct.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) :
+  (Thesis.Sort.quicksort l).Perm l ∧ Thesis.Sort.Sorted (Thesis.Sort.quicksort l)
+[1, 2, 3]
+[1, 1, 3, 4, 5, 5]
+[]
+[1, 1, 2, 2]
+'Thesis.Prop.soundness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.completeness_ND' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.soundComplete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.ex_id' does not depend on any axioms
+'Thesis.Prop.ex_dne' does not depend on any axioms
+'Thesis.Sort.quicksort_perm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Sort.quicksort_sorted' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Sort.quicksort_correct' depends on axioms: [propext, Classical.choice, Quot.sound]

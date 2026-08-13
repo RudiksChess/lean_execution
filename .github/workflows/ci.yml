@@ -34,6 +34,13 @@ jobs:
           lake env lean Thesis/Sort/Audit.lean  > reports/quicksort/audit.txt
           git diff --exit-code reports/natural-deduction/audit.txt reports/quicksort/audit.txt
 
+      # Produce the literal theorem types, evaluations, and axiom output shown
+      # on the public verification page. Drift makes the workflow fail.
+      - name: Generate public Lean transcript
+        run: |
+          make verification-output
+          git diff --exit-code web/lean-output.txt
+
       # The AI cross-validation case study: these standalone proofs must still
       # compile (they are not part of the lake build).
       - name: Verify Aristotle case-study proofs
@@ -41,6 +48,14 @@ jobs:
           lake env lean aristotle/NDCore.lean
           lake env lean aristotle/NDFull.lean
           lake env lean aristotle/QuicksortFull.lean
+
+      - name: Upload exact Lean transcript
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-verification-transcript-${{ github.sha }}
+          path: web/lean-output.txt
+          if-no-files-found: error
+          retention-days: 90
 
       # Publish a compact, self-contained certificate in the run summary. This
       # step runs only after every verification step above has succeeded.
@@ -64,11 +79,8 @@ jobs:
             printf '| Foundation revision | `%s` |\n' "$foundation_rev"
             printf '| Mathlib revision | `%s` |\n\n' "$mathlib_rev"
             printf '### Checks completed\n\n'
-            printf '%s\n' '- `lake build` (all default-target proofs)' '- Foundation cross-validation (`Thesis.Prop.CompletenessViaFoundation`)' '- natural-deduction and quicksort axiom-certificate comparison' '- `aristotle/NDCore.lean`' '- `aristotle/NDFull.lean`' '- `aristotle/QuicksortFull.lean`'
-            printf '\n### Axiom audit (actual output)\n\n'
-            printf '#### Natural deduction\n\n```text\n'
-            cat reports/natural-deduction/audit.txt
-            printf '```\n\n#### Quicksort\n\n```text\n'
-            cat reports/quicksort/audit.txt
+            printf '%s\n' '- `lake build` (all default-target proofs)' '- Foundation cross-validation (`Thesis.Prop.CompletenessViaFoundation`)' '- natural-deduction and quicksort axiom-certificate comparison' '- public theorem/evaluation transcript comparison' '- `aristotle/NDCore.lean`' '- `aristotle/NDFull.lean`' '- `aristotle/QuicksortFull.lean`'
+            printf '\n### Lean transcript (actual output)\n\n```text\n'
+            cat web/lean-output.txt
             printf '```\n'
           } >> "$GITHUB_STEP_SUMMARY"
