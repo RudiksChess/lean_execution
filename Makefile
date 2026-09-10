@@ -65,6 +65,8 @@ verify-foundation:
 # committed audit still matches reality.
 # Fails if a sorry (sorryAx) or rogue axiom sneaks in, or the audit drifts.
 check: build audit audit-quicksort verification-output verify-foundation verify-aristotle
+	python3 -m unittest discover -s tools -p 'test_*.py'
+	python3 tools/check_axioms.py
 	git diff --exit-code $(ND_DIR)/audit.txt $(QS_DIR)/audit.txt $(VERIFY_OUTPUT)
 
 # Browsable API docs (doc-gen4). Heavy: builds HTML for the full import closure.
