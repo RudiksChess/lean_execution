@@ -26,10 +26,12 @@ jobs:
       - name: Verify Foundation cross-validation
         run: lake build Thesis.Prop.CompletenessViaFoundation
 
-      # Reproduce the axiom certificate and fail if it drifts from the
-      # committed audit.txt — i.e. if a sorry or a rogue axiom appears.
+      # Enforce the policy independently of the committed certificates, then
+      # reproduce those certificates and reject drift.
       - name: Axiom audit
         run: |
+          python3 -m unittest discover -s tools -p 'test_*.py'
+          python3 tools/check_axioms.py
           lake env lean Thesis/Prop/Audit.lean > reports/natural-deduction/audit.txt
           lake env lean Thesis/Sort/Audit.lean  > reports/quicksort/audit.txt
           git diff --exit-code reports/natural-deduction/audit.txt reports/quicksort/audit.txt

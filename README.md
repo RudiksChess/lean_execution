@@ -87,6 +87,12 @@ to move most of that first-use setup out of a visitor's session.
 
 ## The axiom certificate
 
+`python3 tools/check_axioms.py` runs both Lean audits and independently rejects
+any dependency outside `propext`, `Classical.choice`, and `Quot.sound`, including
+`sorryAx`. It also rejects missing targets and unexpected output. Both CI and
+`make check` enforce this policy as well as comparing the committed certificates;
+updating a certificate alone cannot authorize a new axiom.
+
 The main results depend only on Lean/Mathlib's three standard classical axioms —
 no admitted gaps, no postulated rules:
 
