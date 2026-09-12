@@ -8,17 +8,23 @@ open Set
 
 -- ANCHOR: bot
 /--
-We encode ⊥ *inside* the {¬, →}-only surface language as ¬(P → P).
+Falsity ⊥ is encoded *inside* the {¬, →}-only surface language as ¬(P → P).
 This is semantically always false (for any valuation), so it behaves as falsity.
 -/
 def Bot : Formula := ~(.atom "⊥" ⟶ .atom "⊥")
 
 theorem eval_Bot (v : Valuation) : eval v Bot ↔ False := by
+  -- A probar: las dos implicaciones de eval v Bot ↔ False.
+  -- Método: desplegar la semántica y aplicar la identidad P → P.
   constructor
   · intro h
-    have hp : eval v (.atom "⊥" ⟶ .atom "⊥") := by intro hP; exact hP
-    exact h hp
-  · intro h; exact False.elim h
+    have hNotIdentity : ¬ (v "⊥" → v "⊥") := h
+    have hIdentity : v "⊥" → v "⊥" := by
+      intro hAtom
+      exact hAtom
+    exact hNotIdentity hIdentity
+  · intro hFalse
+    exact False.elim hFalse
 -- ANCHOREND: bot
 
 -- ANCHOR: ndType
@@ -43,14 +49,44 @@ inductive ND : Set Formula → Formula → Prop
 
 -- ANCHOR: weakening
 theorem weakening {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := by
+  -- A probar: la misma conclusión bajo cualquier contexto mayor Δ.
+  -- Método: inducción sobre d; Δ permanece cuantificado en cada hipótesis inductiva.
   induction d with
-  | hyp hmem => intro Δ hsub; exact ND.hyp (hsub hmem)
-  | impI _ ih => intro Δ hsub; exact ND.impI (ih (insert_subset_insert hsub))
-  | impE _ _ ih1 ih2 => intro Δ hsub; exact ND.impE (ih1 hsub) (ih2 hsub)
-  | negI _ ih => intro Δ hsub; exact ND.negI (ih (insert_subset_insert hsub))
-  | negE _ _ ih1 ih2 => intro Δ hsub; exact ND.negE (ih1 hsub) (ih2 hsub)
-  | botE _ ih => intro Δ hsub; exact ND.botE (ih hsub)
-  | classical _ ih => intro Δ hsub; exact ND.classical (ih (insert_subset_insert hsub))
+  | @hyp Γ φ hmem =>
+      intro Δ hsub
+      have hInDelta : φ ∈ Δ := hsub hmem
+      exact ND.hyp hInDelta
+  | @impI Γ φ ψ _ ih =>
+      intro Δ hsub
+      have hExtended : insert φ Γ ⊆ insert φ Δ := insert_subset_insert hsub
+      have dBody : ND (insert φ Δ) ψ := ih hExtended
+      -- impI descarga φ; las fórmulas de Δ permanecen.
+      exact ND.impI dBody
+  | @impE Γ φ ψ _ _ ihImp ihArg =>
+      intro Δ hsub
+      have dImp : ND Δ (φ ⟶ ψ) := ihImp hsub
+      have dArg : ND Δ φ := ihArg hsub
+      exact ND.impE dImp dArg
+  | @negI Γ φ _ ih =>
+      intro Δ hsub
+      have hExtended : insert φ Γ ⊆ insert φ Δ := insert_subset_insert hsub
+      have dFalse : ND (insert φ Δ) Bot := ih hExtended
+      exact ND.negI dFalse
+  | @negE Γ φ _ _ ihNeg ihPos =>
+      intro Δ hsub
+      have dNeg : ND Δ (~φ) := ihNeg hsub
+      have dPos : ND Δ φ := ihPos hsub
+      exact ND.negE dNeg dPos
+  | @botE Γ φ _ ih =>
+      intro Δ hsub
+      have dFalse : ND Δ Bot := ih hsub
+      exact ND.botE dFalse
+  | @classical Γ φ _ ih =>
+      intro Δ hsub
+      have hExtended : insert (~φ) Γ ⊆ insert (~φ) Δ := insert_subset_insert hsub
+      have dFalse : ND (insert (~φ) Δ) Bot := ih hExtended
+      -- Por RAA objeto, se descarga ~φ y se concluye φ bajo Δ.
+      exact ND.classical dFalse
 -- ANCHOREND: weakening
 
 /-! ### Derived rules -/
@@ -58,8 +94,15 @@ theorem weakening {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := b
 -- ANCHOR: dni
 /-- Double negation introduction: `Γ ⊢ φ` ⟹ `Γ ⊢ ¬¬φ`. -/
 theorem dni {Γ φ} (d : ND Γ φ) : ND Γ (~~φ) := by
-  apply ND.negI
-  exact ND.negE (ND.hyp (Set.mem_insert _ _)) (weakening d (Set.subset_insert _ _))
+  -- A probar: ND Γ (~~φ). Método: introducción de negación, no RAA.
+  let Δ := insert (~φ) Γ
+  have hNeg : (~φ) ∈ Δ := Set.mem_insert _ _
+  have hSubset : Γ ⊆ Δ := Set.subset_insert _ _
+  have dNeg : ND Δ (~φ) := ND.hyp hNeg
+  have dPos : ND Δ φ := weakening d hSubset
+  have dFalse : ND Δ Bot := ND.negE dNeg dPos
+  -- negI descarga el supuesto ~φ, no la premisa d.
+  exact ND.negI dFalse
 -- ANCHOREND: dni
 
 -- ANCHOR: byCases
@@ -67,18 +110,33 @@ theorem dni {Γ φ} (d : ND Γ φ) : ND Γ (~~φ) := by
     if `χ` follows both from `φ` and from `¬φ`, then `χ` holds outright. -/
 theorem byCases {Γ φ χ} (d1 : ND (insert φ Γ) χ) (d2 : ND (insert (~φ) Γ) χ) :
     ND Γ χ := by
-  apply ND.classical
-  have e1 : ND (insert (~χ) Γ) (~φ) := by
-    apply ND.negI
-    refine ND.negE (ND.hyp ?_) (weakening d1 ?_)
-    · exact Set.mem_insert_of_mem _ (Set.mem_insert _ _)
-    · exact Set.insert_subset_insert (Set.subset_insert _ _)
-  have e2 : ND (insert (~χ) Γ) (~~φ) := by
-    apply ND.negI
-    refine ND.negE (ND.hyp ?_) (weakening d2 ?_)
-    · exact Set.mem_insert_of_mem _ (Set.mem_insert _ _)
-    · exact Set.insert_subset_insert (Set.subset_insert _ _)
-  exact ND.negE e2 e1
+  -- A probar: ND Γ χ. Método: Por RAA objeto, basta Bot bajo Γ, ~χ.
+  let Δ := insert (~χ) Γ
+  have dNeg : ND Δ (~φ) := by
+    let Θ := insert φ Δ
+    have hNotChi : (~χ) ∈ Θ :=
+      Set.mem_insert_of_mem _ (Set.mem_insert _ _)
+    have hSubset : insert φ Γ ⊆ Θ :=
+      Set.insert_subset_insert (Set.subset_insert _ _)
+    have dNotChi : ND Θ (~χ) := ND.hyp hNotChi
+    have dChi : ND Θ χ := weakening d1 hSubset
+    have dFalse : ND Θ Bot := ND.negE dNotChi dChi
+    -- Se descarga φ; ~χ permanece en Δ.
+    exact ND.negI dFalse
+  have dDoubleNeg : ND Δ (~~φ) := by
+    let Θ := insert (~φ) Δ
+    have hNotChi : (~χ) ∈ Θ :=
+      Set.mem_insert_of_mem _ (Set.mem_insert _ _)
+    have hSubset : insert (~φ) Γ ⊆ Θ :=
+      Set.insert_subset_insert (Set.subset_insert _ _)
+    have dNotChi : ND Θ (~χ) := ND.hyp hNotChi
+    have dChi : ND Θ χ := weakening d2 hSubset
+    have dFalse : ND Θ Bot := ND.negE dNotChi dChi
+    -- Se descarga ~φ; ~χ permanece en Δ.
+    exact ND.negI dFalse
+  have dFalse : ND Δ Bot := ND.negE dDoubleNeg dNeg
+  -- Por RAA, se descarga únicamente el supuesto adicional ~χ.
+  exact ND.classical dFalse
 -- ANCHOREND: byCases
 
 /-! ### Soundness and consistency -/
@@ -88,34 +146,83 @@ theorem byCases {Γ φ χ} (d1 : ND (insert φ Γ) χ) (d2 : ND (insert (~φ) Γ
 theorem sat_insert {v : Valuation} {Γ : Set Formula} {χ : Formula}
     (hχ : eval v χ) (hΓ : ∀ ψ ∈ Γ, eval v ψ) :
     ∀ ψ ∈ insert χ Γ, eval v ψ := by
+  -- A probar: cada fórmula del contexto extendido es verdadera bajo v.
+  -- Método: casos de pertenencia; ψ = χ o ψ ∈ Γ.
   intro ψ hψ
-  rcases Set.mem_insert_iff.1 hψ with h | h
-  · subst h; exact hχ
-  · exact hΓ ψ h
+  have hCases : ψ = χ ∨ ψ ∈ Γ := Set.mem_insert_iff.mp hψ
+  rcases hCases with hEq | hInGamma
+  · subst ψ
+    exact hχ
+  · exact hΓ ψ hInGamma
 
 /-- **Soundness.** Every ND derivation is semantically valid. -/
 theorem soundness {Γ φ} (d : ND Γ φ) :
     ∀ v, (∀ ψ ∈ Γ, eval v ψ) → eval v φ := by
+  -- A probar: verdad semántica de la conclusión bajo toda valuación del contexto.
+  -- Método: inducción sobre d, con v y la satisfacción aún cuantificados.
   induction d with
-  | hyp hmem => intro v hv; exact hv _ hmem
-  | impI _ ih => intro v hv hp; exact ih v (sat_insert hp hv)
-  | impE _ _ ih1 ih2 => intro v hv; exact (ih1 v hv) (ih2 v hv)
-  | negI _ ih => intro v hv hp; exact (eval_Bot v).1 (ih v (sat_insert hp hv))
-  | negE _ _ ih1 ih2 => intro v hv; exact (eval_Bot v).2 ((ih1 v hv) (ih2 v hv))
-  | botE _ ih => intro v hv; exact ((eval_Bot v).1 (ih v hv)).elim
-  | classical _ ih =>
+  | @hyp Γ φ hmem =>
       intro v hv
+      exact hv φ hmem
+  | @impI Γ φ ψ _ ih =>
+      intro v hv
+      change eval v φ → eval v ψ
+      intro hPhi
+      have hExtended : ∀ θ ∈ insert φ Γ, eval v θ := sat_insert hPhi hv
+      have hPsi : eval v ψ := ih v hExtended
+      exact hPsi
+  | @impE Γ φ ψ _ _ ihImp ihArg =>
+      intro v hv
+      have hImp : eval v φ → eval v ψ := ihImp v hv
+      have hPhi : eval v φ := ihArg v hv
+      exact hImp hPhi
+  | @negI Γ φ _ ih =>
+      intro v hv
+      change ¬ eval v φ
+      intro hPhi
+      have hExtended : ∀ θ ∈ insert φ Γ, eval v θ := sat_insert hPhi hv
+      have hBot : eval v Bot := ih v hExtended
+      exact (eval_Bot v).mp hBot
+  | @negE Γ φ _ _ ihNeg ihPos =>
+      intro v hv
+      have hNeg : ¬ eval v φ := ihNeg v hv
+      have hPos : eval v φ := ihPos v hv
+      have hFalse : False := hNeg hPos
+      -- Dirección inversa: False → eval v Bot.
+      exact (eval_Bot v).mpr hFalse
+  | @botE Γ φ _ ih =>
+      intro v hv
+      have hBot : eval v Bot := ih v hv
+      have hFalse : False := (eval_Bot v).mp hBot
+      exact False.elim hFalse
+  | @classical Γ φ _ ih =>
+      intro v hv
+      -- Por RAA metateórica, se supone ¬ eval v φ, no ND Γ (~φ).
       by_contra hnp
-      exact (eval_Bot v).1 (ih v (sat_insert hnp hv))
+      have hNeg : eval v (~φ) := hnp
+      have hExtended : ∀ θ ∈ insert (~φ) Γ, eval v θ := sat_insert hNeg hv
+      have hBot : eval v Bot := ih v hExtended
+      exact (eval_Bot v).mp hBot
 
 /-- Soundness specialized to the empty context: theorems are tautologies. -/
 theorem isTautology_of_provable {φ} (d : ND (∅ : Set Formula) φ) : IsTautology φ := by
-  intro v; refine soundness d v ?_; intro ψ hψ; simp at hψ
+  -- A probar: ∀ v, eval v φ. Método: corrección con contexto vacío.
+  intro v
+  have hEmpty : ∀ ψ ∈ (∅ : Set Formula), eval v ψ := by
+    intro ψ hψ
+    have hFalse : False := hψ
+    exact False.elim hFalse
+  exact soundness d v hEmpty
 
 /-- **Consistency.** `⊥` is not derivable from no assumptions. -/
 theorem not_provable_Bot : ¬ ND (∅ : Set Formula) Bot := by
+  -- A probar: la inexistencia de una derivación cerrada de Bot.
+  -- Método: introducción de negación; una tautología no puede ser siempre falsa.
   intro d
-  exact (eval_Bot (fun _ => True)).1 (isTautology_of_provable d (fun _ => True))
+  let v : Valuation := fun _ => True
+  have hTaut : IsTautology Bot := isTautology_of_provable d
+  have hBot : eval v Bot := hTaut v
+  exact (eval_Bot v).mp hBot
 -- ANCHOREND: soundness
 
 end Thesis.Prop

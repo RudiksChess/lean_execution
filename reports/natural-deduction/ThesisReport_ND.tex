@@ -57,6 +57,13 @@
   columns=fullflexible,
   mathescape=true,
   literate=
+    {é}{{\'{e}}}1
+    {í}{{\'{i}}}1
+    {ó}{{\'{o}}}1
+    {ú}{{\'{u}}}1
+    {ñ}{{\~{n}}}1
+    {Θ}{{$\Theta$}}1
+    {θ}{{$\theta$}}1
     {⟶}{{$\to$}}1
     {~}{{$\neg$}}1
     {∅}{{$\emptyset$}}1
@@ -708,8 +715,8 @@ directly assembles an \texttt{ND}-term from constructors. For instance \texttt{d
 \texttt{ND.negI}\ \big(\texttt{ND.negE}\ (\texttt{ND.hyp}\ \dots)\ (\texttt{weakening } d\ \dots)\big),
 \]
 a constructor tree whose leaves are \texttt{hyp} and the (recursively built) weakening of $d$. The
-\texttt{have e1 \dots := by \dots} blocks in \texttt{byCases} build the two subderivations as named
-subterms, and \texttt{exact ND.negE e2 e1} plugs them into the $\Not\mathrm{E}$ constructor. Thus
+\texttt{have dNeg} and \texttt{have dDoubleNeg} blocks in \texttt{byCases} build the two subderivations as named
+subterms, and \texttt{ND.negE dDoubleNeg dNeg} plugs them into the $\Not\mathrm{E}$ constructor. Thus
 these ``derived rules'' are admissible \emph{by construction}: each is a function returning a
 genuine derivation, not a new primitive of the calculus.
 
