@@ -9,7 +9,7 @@ attribute [local instance] Classical.propDecidable
 /-! ## Internal completeness of ND via Kalmár's lemma
 
 This file proves `IsTautology φ → ND ∅ φ` *without* any oracle, using the
-classical finitary argument: for a fixed valuation `v` we build a derivation
+classical finitary argument: for a fixed valuation `v` a derivation is built
 from the literal context determined by `v`, then discharge the (finitely many)
 atoms by classical case analysis. -/
 
@@ -188,7 +188,7 @@ theorem litCtx_congr {w1 w2 : Valuation} :
 
 -- ANCHOR: discharge
 /-- If `φ` is provable from the literal context for *every* valuation over `ats`,
-then `φ` is provable outright. We discharge one atom at a time by classical cases. -/
+then `φ` is provable outright. One atom is discharged at a time by classical cases. -/
 theorem discharge {φ : Formula} :
     ∀ (ats : List String), ats.Nodup → (∀ v, ND (litCtx v ats) φ) → ND (∅ : Set Formula) φ := by
   -- A probar: ND ∅ φ. Método: inducción en ats con Nodup y la premisa universal.

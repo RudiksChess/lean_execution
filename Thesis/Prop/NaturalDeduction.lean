@@ -8,7 +8,7 @@ open Set
 
 -- ANCHOR: bot
 /--
-We encode ⊥ *inside* the {¬, →}-only surface language as ¬(P → P).
+Falsity ⊥ is encoded *inside* the {¬, →}-only surface language as ¬(P → P).
 This is semantically always false (for any valuation), so it behaves as falsity.
 -/
 def Bot : Formula := ~(.atom "⊥" ⟶ .atom "⊥")
