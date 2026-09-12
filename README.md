@@ -93,8 +93,10 @@ any dependency outside `propext`, `Classical.choice`, and `Quot.sound`, includin
 `make check` enforce this policy as well as comparing the committed certificates;
 updating a certificate alone cannot authorize a new axiom.
 
-The main results depend only on Lean/Mathlib's three standard classical axioms —
-no admitted gaps, no postulated rules:
+The completeness results use `propext`, `Classical.choice`, and `Quot.sound`.
+The Quicksort results use only `propext` and `Quot.sound` after making the
+termination proof explicit. Both satisfy the same allowed-axiom policy, with
+no admitted gaps or postulated correctness rules:
 
 ```
 'completeness_ND' depends on axioms: [propext, Classical.choice, Quot.sound]

@@ -2,16 +2,15 @@ import Mathlib.Data.List.Sort
 import Mathlib.Tactic
 
 /-!
-# Correctness of Quicksort
+# Corrección de Quicksort
 
-We define functional quicksort over a linearly ordered type and prove it correct:
-
-* `quicksort_perm`   : the output is a permutation of the input (nothing lost or invented);
-* `quicksort_sorted` : the output is sorted in nondecreasing order;
-* `quicksort_correct`: the conjunction — the specification of a sorting function.
-
-Everything is proved internally from the recursive definition, with no `sorry` and no
-postulated lemma.  The only axioms used are Lean's standard classical foundations.
+Se prueban permutación, ordenamiento y su conjunción para un tipo con orden lineal.
+Las pruebas siguen la definición recursiva, sin `sorry` ni axiomas añadidos.
+Se reutilizan propiedades de biblioteca ya demostradas:
+* `length_filter_le`: el filtro no aumenta la longitud;
+* `filter_append_perm`: los filtros complementarios forman una permutación;
+* `pairwise_cons` y `pairwise_append`: descomposición de la relación por pares.
+No se importa un teorema de corrección de Quicksort.
 -/
 
 namespace Thesis.Sort
@@ -20,20 +19,28 @@ open List
 
 variable {α : Type _} [LinearOrder α]
 
-/-- A list is **sorted** when its elements appear in pairwise nondecreasing order.
-This is exactly `List.Pairwise (· ≤ ·)`: every earlier element is `≤` every later one. -/
+/-- Cada elemento anterior es menor o igual que cada elemento posterior. -/
 -- ANCHOR: sortedDef
 def Sorted (l : List α) : Prop := l.Pairwise (· ≤ ·)
 -- ANCHOREND: sortedDef
 
-/--
-Functional quicksort. The head `p` of a nonempty list is the **pivot**; the tail is
-partitioned into the elements `≤ p` and the elements `> p` (encoded as `¬ (· ≤ p)`),
-each recursively sorted, and the results concatenated around the pivot.
+-- ANCHOR: filterDecrease
+omit [LinearOrder α] in
+/-- Obligación común a las dos llamadas recursivas. -/
+theorem filter_length_lt_cons (q : α → Bool) (p : α) (rest : List α) :
+    (rest.filter q).length < (p :: rest).length := by
+  -- A probar: longitud del filtro < longitud de la lista con pivote.
+  -- Método: cota del filtro, seguida de n < n + 1.
+  have hfilter : (rest.filter q).length ≤ rest.length :=
+    List.length_filter_le q rest
+  have htail : rest.length < (p :: rest).length := by
+    -- La longitud de p :: rest es rest.length + 1.
+    change rest.length < rest.length + 1
+    exact Nat.lt_succ_self rest.length
+  exact lt_of_le_of_lt hfilter htail
+-- ANCHOREND: filterDecrease
 
-Termination is by the length of the list: each `filter` cannot increase the length, and
-the tail is strictly shorter than `p :: rest`.
--/
+/-- El pivote es la cabeza; las particiones contienen los elementos ≤ p y > p. -/
 -- ANCHOR: qsdef
 def quicksort : List α → List α
   | [] => []
@@ -42,14 +49,26 @@ def quicksort : List α → List α
         ++ p :: quicksort (rest.filter (fun x => ! decide (x ≤ p)))
   termination_by l => l.length
   decreasing_by
-    all_goals simp_wf
-    all_goals exact le_trans (length_filter_le _ _) (le_of_eq (by simp))
+    -- Cada meta compara una partición con p :: rest, no con rest.
+    -- Lean añade pruebas de pertenencia con attach; se eliminan de las listas.
+    · rw [List.unattach_filter (l := rest.attach)
+          (f := fun x => decide (x.val ≤ p))
+          (g := fun x => decide (x ≤ p)) (hf := fun _ _ => rfl),
+          List.unattach_attach]
+      exact filter_length_lt_cons (fun x => decide (x ≤ p)) p rest
+    · rw [List.unattach_filter (l := rest.attach)
+          (f := fun x => ! decide (x.val ≤ p))
+          (g := fun x => ! decide (x ≤ p)) (hf := fun _ _ => rfl),
+          List.unattach_attach]
+      exact filter_length_lt_cons (fun x => ! decide (x ≤ p)) p rest
 -- ANCHOREND: qsdef
 
 -- ANCHOR: qsequations
-@[simp] theorem quicksort_nil : quicksort ([] : List α) = [] := by rw [quicksort]
+@[simp] theorem quicksort_nil : quicksort ([] : List α) = [] := by
+  -- A probar: la ecuación del caso vacío. Se despliega quicksort.
+  rw [quicksort]
 
-/-- The defining equation for a nonempty list, with the pivot exposed. -/
+/-- Ecuación de reescritura para la lista no vacía. -/
 theorem quicksort_cons (p : α) (rest : List α) :
     quicksort (p :: rest) =
       quicksort (rest.filter (fun x => decide (x ≤ p)))
@@ -57,76 +76,141 @@ theorem quicksort_cons (p : α) (rest : List α) :
   rw [quicksort]
 -- ANCHOREND: qsequations
 
-/-- **Permutation.** Quicksort outputs a rearrangement of its input. -/
+/-- La salida conserva los elementos y sus multiplicidades. -/
 -- ANCHOR: perm
 theorem quicksort_perm : ∀ l : List α, quicksort l ~ l
-  | [] => by simp
+  | [] => by
+      -- A probar: quicksort [] ~ []. Reescritura y reflexividad.
+      simpa only [quicksort_nil] using (List.Perm.refl ([] : List α))
   | p :: rest => by
+      -- A probar: quicksort (p :: rest) ~ p :: rest.
+      -- Método: inducción por longitud; las particiones son menores.
+      let small := rest.filter (fun x => decide (x ≤ p))
+      let large := rest.filter (fun x => ! decide (x ≤ p))
+      -- Estas llamadas son las hipótesis inductivas sobre small y large.
+      -- Su legitimidad se comprueba al final en decreasing_by.
+      have ihSmall : quicksort small ~ small := quicksort_perm small
+      have ihLarge : quicksort large ~ large := quicksort_perm large
+      -- 1. Añadir el mismo pivote conserva la permutación derecha.
+      have hRight : p :: quicksort large ~ p :: large := ihLarge.cons p
+      -- 2. Concatenar las dos permutaciones conserva ambas listas.
+      have hAppend : quicksort small ++ (p :: quicksort large)
+          ~ small ++ (p :: large) := ihSmall.append hRight
+      -- 3. perm_middle desplaza el pivote al principio.
+      have hPivot : small ++ (p :: large) ~ p :: (small ++ large) :=
+        List.perm_middle
+      -- 4. Se aplica filter_append_perm a x ≤ p y su complemento.
+      have hPartition : small ++ large ~ rest :=
+        List.filter_append_perm (fun x => decide (x ≤ p)) rest
+      have hCons : p :: (small ++ large) ~ p :: rest := hPartition.cons p
+      -- Reescritura de quicksort, seguida de las tres permutaciones.
       rw [quicksort_cons]
-      -- the recursive calls permute the two partition halves
-      have ih1 : quicksort (rest.filter (fun x => decide (x ≤ p)))
-            ~ rest.filter (fun x => decide (x ≤ p)) := quicksort_perm _
-      have ih2 : quicksort (rest.filter (fun x => ! decide (x ≤ p)))
-            ~ rest.filter (fun x => ! decide (x ≤ p)) := quicksort_perm _
-      -- glue the halves around the pivot, then recombine the two filters
-      refine (ih1.append (ih2.cons p)).trans ?_
-      refine (perm_middle).trans ?_
-      exact (filter_append_perm (fun x => decide (x ≤ p)) rest).cons p
+      change quicksort small ++ (p :: quicksort large) ~ p :: rest
+      calc
+        quicksort small ++ (p :: quicksort large)
+            ~ small ++ (p :: large) := hAppend
+        _ ~ p :: (small ++ large) := hPivot
+        _ ~ p :: rest := hCons
   termination_by l => l.length
   decreasing_by
-    all_goals simp_wf
-    all_goals exact le_trans (length_filter_le _ _) (le_of_eq (by simp))
+    · exact filter_length_lt_cons (fun x => decide (x ≤ p)) p rest
+    · exact filter_length_lt_cons (fun x => ! decide (x ≤ p)) p rest
 
-/-- Membership is preserved (an immediate corollary of the permutation). -/
-theorem mem_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l :=
-  (quicksort_perm l).mem_iff
+/-- La pertenencia es invariante bajo la permutación ya demostrada. -/
+theorem mem_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l := by
+  -- A probar: las dos direcciones de la equivalencia de pertenencia.
+  -- Método: aplicar mem_iff a quicksort_perm, sin nueva inducción.
+  have hPerm : quicksort l ~ l := quicksort_perm l
+  have hMembership : a ∈ quicksort l ↔ a ∈ l := hPerm.mem_iff
+  constructor
+  · intro hInOutput
+    exact hMembership.mp hInOutput
+  · intro hInInput
+    exact hMembership.mpr hInInput
 -- ANCHOREND: perm
 
-/-- **Sortedness.** Quicksort outputs a nondecreasing list. -/
+/-- La salida está ordenada de forma no decreciente. -/
 -- ANCHOR: sorted_thm
 theorem quicksort_sorted : ∀ l : List α, Sorted (quicksort l)
-  | [] => by simp [Sorted]
+  | [] => by
+      -- A probar: Sorted (quicksort []). La lista vacía no tiene pares.
+      rw [quicksort_nil]
+      change List.Pairwise (· ≤ ·) ([] : List α)
+      exact List.Pairwise.nil
   | p :: rest => by
-      have ih1 : Sorted (quicksort (rest.filter (fun x => decide (x ≤ p)))) :=
-        quicksort_sorted _
-      have ih2 : Sorted (quicksort (rest.filter (fun x => ! decide (x ≤ p)))) :=
-        quicksort_sorted _
-      simp only [Sorted] at ih1 ih2 ⊢
+      -- A probar: Sorted (quicksort (p :: rest)).
+      -- Método: inducción por longitud, cotas del pivote y concatenación.
+      let small := rest.filter (fun x => decide (x ≤ p))
+      let large := rest.filter (fun x => ! decide (x ≤ p))
+      have ihSmall : Sorted (quicksort small) := quicksort_sorted small
+      have ihLarge : Sorted (quicksort large) := quicksort_sorted large
+      -- Cota izquierda: pertenencia en la salida → filtro → a ≤ p.
+      have hSmallBound : ∀ a ∈ quicksort small, a ≤ p := by
+        intro a hInOutput
+        have hInFilter : a ∈ small := mem_quicksort.mp hInOutput
+        have hParts : a ∈ rest ∧ decide (a ≤ p) = true :=
+          List.mem_filter.mp hInFilter
+        have hDecision : decide (a ≤ p) = true := hParts.right
+        exact of_decide_eq_true hDecision
+      -- Cota derecha: pertenencia → ¬(b ≤ p) → p < b → p ≤ b.
+      have hLargeBound : ∀ b ∈ quicksort large, p ≤ b := by
+        intro b hInOutput
+        have hInFilter : b ∈ large := mem_quicksort.mp hInOutput
+        have hParts : b ∈ rest ∧ (! decide (b ≤ p)) = true :=
+          List.mem_filter.mp hInFilter
+        have hNegated : (! decide (b ≤ p)) = true := hParts.right
+        have hFalse : decide (b ≤ p) = false := by
+          simpa only [Bool.not_eq_true'] using hNegated
+        have hNotLe : ¬ (b ≤ p) := of_decide_eq_false hFalse
+        have hStrict : p < b := lt_of_not_ge hNotLe
+        exact le_of_lt hStrict
+      -- Sorted se despliega para cambiar a su predicado Pairwise.
+      have hSmallPairs : List.Pairwise (· ≤ ·) (quicksort small) := ihSmall
+      have hLargePairs : List.Pairwise (· ≤ ·) (quicksort large) := ihLarge
+      -- pairwise_cons: cabeza ≤ cada elemento de la cola, y cola ordenada.
+      -- Se usa la dirección que construye Pairwise para p :: quicksort large.
+      have hRightPairs : List.Pairwise (· ≤ ·) (p :: quicksort large) := by
+        apply List.pairwise_cons.mpr
+        constructor
+        · exact hLargeBound
+        · exact hLargePairs
+      -- Condición cruzada: salida izquierda frente a todo el bloque derecho.
+      have hCross : ∀ a ∈ quicksort small,
+          ∀ b ∈ p :: quicksort large, a ≤ b := by
+        intro a hInSmall b hInRight
+        have hCases : b = p ∨ b ∈ quicksort large := List.mem_cons.mp hInRight
+        rcases hCases with hIsPivot | hInLarge
+        · -- b es el pivote: se sustituye b por p en la meta.
+          subst b
+          exact hSmallBound a hInSmall
+        · -- b está en la salida derecha: a ≤ p y p ≤ b.
+          have hAP : a ≤ p := hSmallBound a hInSmall
+          have hPB : p ≤ b := hLargeBound b hInLarge
+          exact le_trans hAP hPB
+      -- pairwise_append exige tres pruebas: izquierda, derecha y cruce.
+      have hAllPairs : List.Pairwise (· ≤ ·)
+          (quicksort small ++ (p :: quicksort large)) := by
+        apply List.pairwise_append.mpr
+        exact ⟨hSmallPairs, hRightPairs, hCross⟩
+      -- La ecuación de quicksort identifica esta concatenación con la salida.
       rw [quicksort_cons]
-      -- every element of the "small" half is ≤ p
-      have hsmall : ∀ a ∈ quicksort (rest.filter (fun x => decide (x ≤ p))), a ≤ p := by
-        intro a ha
-        have hmem : a ∈ rest.filter (fun x => decide (x ≤ p)) := mem_quicksort.1 ha
-        simp only [mem_filter, decide_eq_true_eq] at hmem
-        exact hmem.2
-      -- every element of the "large" half is ≥ p (indeed > p)
-      have hlarge : ∀ b ∈ quicksort (rest.filter (fun x => ! decide (x ≤ p))), p ≤ b := by
-        intro b hb
-        have hmem : b ∈ rest.filter (fun x => ! decide (x ≤ p)) := mem_quicksort.1 hb
-        simp only [mem_filter, Bool.not_eq_true', decide_eq_false_iff_not] at hmem
-        exact le_of_lt (not_le.1 hmem.2)
-      rw [pairwise_append]
-      refine ⟨ih1, ?_, ?_⟩
-      · -- the right block `p :: large` is sorted
-        rw [pairwise_cons]
-        exact ⟨hlarge, ih2⟩
-      · -- cross condition: every small element ≤ everything in `p :: large`
-        intro a ha b hb
-        rcases List.mem_cons.1 hb with hbp | hb'
-        · subst hbp; exact hsmall a ha
-        · exact le_trans (hsmall a ha) (hlarge b hb')
+      change List.Pairwise (· ≤ ·) (quicksort small ++ (p :: quicksort large))
+      exact hAllPairs
   termination_by l => l.length
   decreasing_by
-    all_goals simp_wf
-    all_goals exact le_trans (length_filter_le _ _) (le_of_eq (by simp))
+    · exact filter_length_lt_cons (fun x => decide (x ≤ p)) p rest
+    · exact filter_length_lt_cons (fun x => ! decide (x ≤ p)) p rest
 -- ANCHOREND: sorted_thm
 
-/-- **Correctness of quicksort.** The output is a sorted permutation of the input —
-i.e. quicksort meets the specification of a sorting algorithm. -/
+/-- La salida satisface simultáneamente permutación y ordenamiento. -/
 -- ANCHOR: correct
 theorem quicksort_correct (l : List α) :
-    quicksort l ~ l ∧ Sorted (quicksort l) :=
-  ⟨quicksort_perm l, quicksort_sorted l⟩
+    quicksort l ~ l ∧ Sorted (quicksort l) := by
+  -- A probar: permutación ∧ ordenamiento para la misma lista l.
+  -- Método: introducción de la conjunción a partir de los dos teoremas.
+  have hPerm : quicksort l ~ l := quicksort_perm l
+  have hSorted : Sorted (quicksort l) := quicksort_sorted l
+  exact And.intro hPerm hSorted
 -- ANCHOREND: correct
 
 end Thesis.Sort
