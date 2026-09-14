@@ -99,6 +99,20 @@ TARGETS = [
     },
 ]
 
+# All remaining results in the two practical chapters, including the two parts
+# of Lemma 11.19 and the helper/definition obligations of Proposition 12.6.
+for module, declarations in [
+    ("Thesis.Prop.NaturalDeduction", ["eval_Bot", "dni", "byCases", "sat_insert", "soundness", "isTautology_of_provable", "not_provable_Bot"]),
+    ("Thesis.Prop.Completeness", ["lit_mem", "kalmar", "lit_congr", "litCtx_congr", "discharge", "completeness_ND", "soundComplete"]),
+    ("Thesis.Prop.BridgeLemma", ["eval_tr"]),
+    ("Thesis.Prop.CompletenessViaFoundation", ["provable_tr_of_tautology"]),
+    ("Thesis.Sort.Quicksort", ["filter_length_le", "filter_length_lt_cons", "quicksort", "filter_partition_perm", "mem_quicksort", "pairwise_cons_iff", "pairwise_append_iff", "quicksort_sorted", "quicksort_correct"]),
+]:
+    for declaration in declarations:
+        TARGETS.append({"id": declaration, "module": module,
+                        "declaration": module.rsplit(".", 1)[0] + "." + declaration,
+                        "shortDeclaration": declaration, "path": module.replace(".", "/") + ".lean"})
+
 
 class ExportError(RuntimeError):
     pass
@@ -155,6 +169,8 @@ def raw_export(module: str, declaration: str) -> dict[str, Any]:
 
 
 def normalized_steps(proof_id: str, raw: dict[str, Any]) -> list[dict[str, Any]]:
+    if proof_id not in EXPECTED:
+        return general_steps(proof_id, raw)
     tactics = [
         tactic
         for tactic in raw["proof"]["tactics"]
@@ -214,6 +230,55 @@ def normalized_steps(proof_id: str, raw: dict[str, Any]) -> list[dict[str, Any]]
     return steps
 
 
+def general_steps(proof_id: str, raw: dict[str, Any]) -> list[dict[str, Any]]:
+    """Leaf source tactics only, never wrapper snapshots that run whole subproofs.
+
+    All goal text is supplied by Lean. IDs hash source text, not line positions;
+    repeated identical tactics receive a stable occurrence suffix. Nested proof
+    blocks retain Lean's goal names; their local closure is not global closure.
+    """
+    candidates = []
+    for tactic in raw["proof"]["tactics"]:
+        kind = tactic["syntaxKind"]
+        if not (kind.startswith("Lean.Parser.Tactic.") or kind in {
+            "Batteries.Tactic.byContra", "«tacticBy_cases_:_»", "Lean.calcTactic"
+        }) or "tacticSeq" in kind:
+            continue
+        if not tactic["before"]:
+            continue
+        candidates.append(tactic)
+    # SubVerso can record both a macro and its expansion at the same range.
+    unique = {}
+    for tactic in candidates:
+        r = tactic["range"]
+        key = (r["startByte"], r["endByte"])
+        unique.setdefault(key, tactic)
+    leaves = [(span, tactic) for span, tactic in unique.items()
+              if not any(span[0] <= other[0] and other[1] <= span[1] and other != span
+                         for other in unique)]
+    leaves.sort(key=lambda item: item[0])
+    if not leaves:
+        raise ExportError(f"{proof_id}: no real source tactic states")
+    counts: dict[str, int] = {}
+    result = []
+    for _, tactic in leaves:
+        digest = sha256(tactic["sourceText"].encode())[:12]
+        counts[digest] = counts.get(digest, 0) + 1
+        step_id = f"{proof_id}.{digest}.{counts[digest]}"
+        goal_name = tactic["before"][0].get("id", "principal")
+        for phase in ("before", "after"):
+            for index, goal in enumerate(tactic[phase], 1):
+                goal.setdefault("id", f"{step_id}.{phase}.goal-{index}")
+        result.append({"id": step_id, "branch": f"{proof_id}.{goal_name}",
+                       "label": tactic["sourceText"].splitlines()[0],
+                       "startLine": tactic["range"]["start"]["line"],
+                       "endLine": tactic["range"]["end"]["line"],
+                       "before": tactic["before"], "after": tactic["after"],
+                       "kind": "closure" if not tactic["after"] else "continuation",
+                       "sourceText": tactic["sourceText"]})
+    return result
+
+
 def make_proof(target: dict[str, str]) -> dict[str, Any]:
     source_bytes = assert_source_unchanged(target["path"])
     raw = raw_export(target["module"], target["shortDeclaration"])
@@ -241,6 +306,9 @@ def make_proof(target: dict[str, str]) -> dict[str, Any]:
 
 def generate() -> bytes:
     assert_pins()
+    # Foundation is a separate root; ensure its imported .olean files exist
+    # even on a fresh CI checkout before the dynamic frontend loads them.
+    run(["lake", "build", *sorted({target["module"] for target in TARGETS})])
     proofs = [make_proof(target) for target in TARGETS]
     exporter_hash = sha256((ROOT / "ProofExplorerExport.lean").read_bytes())
     document = {
