@@ -174,13 +174,13 @@ theorem litCtx_congr {w1 w2 : Valuation} :
       intro h
       have hHead : a ∈ a :: rest := List.mem_cons.mpr (Or.inl rfl)
       have ha : w1 a ↔ w2 a := h a hHead
+      have hLiteral : lit w1 a = lit w2 a := lit_congr ha
       have hTail : ∀ x ∈ rest, w1 x ↔ w2 x := by
         intro x hx
         have hInList : x ∈ a :: rest := List.mem_cons.mpr (Or.inr hx)
         exact h x hInList
       have hr : litCtx w1 rest = litCtx w2 rest :=
         ih hTail
-      have hLiteral : lit w1 a = lit w2 a := lit_congr ha
       -- Las igualdades de la cabeza y de la cola se sustituyen en insert.
       change insert (lit w1 a) (litCtx w1 rest) = insert (lit w2 a) (litCtx w2 rest)
       rw [hLiteral, hr]
@@ -205,45 +205,47 @@ theorem discharge {φ : Formula} :
       have hpr : p ∉ rest := hParts.left
       have hrest : rest.Nodup := hParts.right
       -- La hipótesis inductiva exige una derivación para TODA valuación de rest.
-      suffices hAll : ∀ v, ND (litCtx v rest) φ from ih hrest hAll
-      intro v
-      have hp_true : (Function.update v p True) p := by simp
-      have hp_false : ¬ (Function.update v p False) p := by simp
-      have hlit_t : lit (Function.update v p True) p = Formula.atom p := by
-        rw [lit, if_pos hp_true]
-      have hlit_f : lit (Function.update v p False) p = ~(Formula.atom p) := by
-        rw [lit, if_neg hp_false]
-      have hctx_t : litCtx (Function.update v p True) rest = litCtx v rest := by
-        apply litCtx_congr
-        intro x hx
-        have hxp : x ≠ p := by
-          intro hEq
-          have hpInRest : p ∈ rest := hEq ▸ hx
-          exact hpr hpInRest
-        -- Fuera de p, Function.update conserva v x.
-        simp only [Function.update_of_ne hxp]
-      have hctx_f : litCtx (Function.update v p False) rest = litCtx v rest := by
-        apply litCtx_congr
-        intro x hx
-        have hxp : x ≠ p := by
-          intro hEq
-          have hpInRest : p ∈ rest := hEq ▸ hx
-          exact hpr hpInRest
-        simp only [Function.update_of_ne hxp]
-      have d1 : ND (insert (Formula.atom p) (litCtx v rest)) φ := by
-        have h : ND (litCtx (Function.update v p True) (p :: rest)) φ :=
-          H (Function.update v p True)
-        -- Se reescribe primero la cabeza y después el contexto de rest.
-        rw [litCtx, hlit_t, hctx_t] at h
-        exact h
-      have d2 : ND (insert (~(Formula.atom p)) (litCtx v rest)) φ := by
-        have h : ND (litCtx (Function.update v p False) (p :: rest)) φ :=
-          H (Function.update v p False)
-        rw [litCtx, hlit_f, hctx_f] at h
-        exact h
-      -- byCases se instancia con Γ := litCtx v rest, fórmula := atom p, conclusión := φ.
-      -- Su RAA interno descarga ~φ; el resultado no contiene el literal de p.
-      exact byCases (Γ := litCtx v rest) (φ := Formula.atom p) (χ := φ) d1 d2
+      have hAll : ∀ v, ND (litCtx v rest) φ := by
+        intro v
+        have hp_true : (Function.update v p True) p := by simp
+        have hp_false : ¬ (Function.update v p False) p := by simp
+        have hlit_t : lit (Function.update v p True) p = Formula.atom p := by
+          rw [lit, if_pos hp_true]
+        have hlit_f : lit (Function.update v p False) p = ~(Formula.atom p) := by
+          rw [lit, if_neg hp_false]
+        have hctx_t : litCtx (Function.update v p True) rest = litCtx v rest := by
+          apply litCtx_congr
+          intro x hx
+          have hxp : x ≠ p := by
+            intro hEq
+            have hpInRest : p ∈ rest := hEq ▸ hx
+            exact hpr hpInRest
+          -- Fuera de p, Function.update conserva v x.
+          simp only [Function.update_of_ne hxp]
+        have hctx_f : litCtx (Function.update v p False) rest = litCtx v rest := by
+          apply litCtx_congr
+          intro x hx
+          have hxp : x ≠ p := by
+            intro hEq
+            have hpInRest : p ∈ rest := hEq ▸ hx
+            exact hpr hpInRest
+          simp only [Function.update_of_ne hxp]
+        have d1 : ND (insert (Formula.atom p) (litCtx v rest)) φ := by
+          have h : ND (litCtx (Function.update v p True) (p :: rest)) φ :=
+            H (Function.update v p True)
+          -- Se reescribe primero la cabeza y después el contexto de rest.
+          rw [litCtx, hlit_t, hctx_t] at h
+          exact h
+        have d2 : ND (insert (~(Formula.atom p)) (litCtx v rest)) φ := by
+          have h : ND (litCtx (Function.update v p False) (p :: rest)) φ :=
+            H (Function.update v p False)
+          rw [litCtx, hlit_f, hctx_f] at h
+          exact h
+        -- byCases se instancia con Γ := litCtx v rest, fórmula := atom p, conclusión := φ.
+        -- Su RAA interno descarga ~φ; el resultado no contiene el literal de p.
+        exact byCases (Γ := litCtx v rest) (φ := Formula.atom p) (χ := φ) d1 d2
+      -- Se aplica la hipótesis inductiva después de construir su premisa universal.
+      exact ih hrest hAll
 -- ANCHOREND: discharge
 
 /-! ## Internal completeness theorem -/
