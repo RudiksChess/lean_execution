@@ -1,0 +1,3945 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "repositoryCommit": "9c0d16cc9f662de8a0b0bad69f3b3a3359c47b77",
+    "leanToolchain": "leanprover/lean4:v4.29.0",
+    "subversoRevision": "52b9dfbd2658408e37ae6e8b72601ddeaaa25a0c",
+    "exporterSourceHash": "4cbd903d7becde577c0683f00c102b3b5bb90816114a316e9230c067cfddf8f9"
+  },
+  "proofs": [
+    {
+      "id": "weakening",
+      "declaration": "Thesis.Prop.weakening",
+      "source": {
+        "commit": "9c0d16cc9f662de8a0b0bad69f3b3a3359c47b77",
+        "path": "Thesis/Prop/NaturalDeduction.lean",
+        "sha256": "9606cf9f1be1373970d0ca638b8d01da16869c195e53865a67c3a2847afb0af7",
+        "codeSha256": "c8e7955ee907835de5bc3ad5c526586250f4dba05439a273e4b5941f0e882258",
+        "code": "theorem weakening {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := by\n  -- A probar: la misma conclusión bajo cualquier contexto mayor Δ.\n  -- Método: inducción sobre d; Δ permanece cuantificado en cada hipótesis inductiva.\n  induction d with\n  | @hyp Γ φ hmem =>\n      intro Δ hsub\n      have hInDelta : φ ∈ Δ := hsub hmem\n      exact ND.hyp hInDelta\n  | @impI Γ φ ψ _ ih =>\n      intro Δ hsub\n      have hExtended : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub\n      have dBody : ND (insert φ Δ) ψ := ih hExtended\n      -- impI descarga φ; las fórmulas de Δ permanecen.\n      exact ND.impI dBody\n  | @impE Γ φ ψ _ _ ihImp ihArg =>\n      intro Δ hsub\n      have dImp : ND Δ (φ ⟶ ψ) := ihImp hsub\n      have dArg : ND Δ φ := ihArg hsub\n      exact ND.impE dImp dArg\n  | @negI Γ φ _ ih =>\n      intro Δ hsub\n      have hExtended : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub\n      have dFalse : ND (insert φ Δ) Bot := ih hExtended\n      exact ND.negI dFalse\n  | @negE Γ φ _ _ ihNeg ihPos =>\n      intro Δ hsub\n      have dNeg : ND Δ (~φ) := ihNeg hsub\n      have dPos : ND Δ φ := ihPos hsub\n      exact ND.negE dNeg dPos\n  | @botE Γ φ _ ih =>\n      intro Δ hsub\n      have dFalse : ND Δ Bot := ih hsub\n      exact ND.botE dFalse\n  | @classical Γ φ _ ih =>\n      intro Δ hsub\n      have hExtended : insert (~φ) Γ ⊆ insert (~φ) Δ := Set.insert_subset_insert hsub\n      have dFalse : ND (insert (~φ) Δ) Bot := ih hExtended\n      -- Por RAA objeto, se descarga ~φ y se concluye φ bajo Δ.\n      exact ND.classical dFalse",
+        "startLine": 51,
+        "endLine": 89
+      },
+      "leanVersion": "4.29.0",
+      "steps": [
+        {
+          "id": "weakening.hyp.intro",
+          "branch": "weakening.hyp",
+          "label": "intro Δ hsub",
+          "startLine": 56,
+          "endLine": 56,
+          "before": [
+            {
+              "target": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+              "id": "hyp",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "φ ∈ Γ",
+                  "name": "hmem"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ φ",
+              "id": "hyp",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "φ ∈ Γ",
+                  "name": "hmem"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "kind": "case",
+          "sourceText": "intro Δ hsub"
+        },
+        {
+          "id": "weakening.hyp.membership",
+          "branch": "weakening.hyp",
+          "label": "have hInDelta : φ ∈ Δ := hsub hmem",
+          "startLine": 57,
+          "endLine": 57,
+          "before": [
+            {
+              "target": "ND Δ φ",
+              "id": "hyp",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "φ ∈ Γ",
+                  "name": "hmem"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ φ",
+              "id": "hyp",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "φ ∈ Γ",
+                  "name": "hmem"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "φ ∈ Δ",
+                  "name": "hInDelta"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hInDelta : φ ∈ Δ := hsub hmem"
+        },
+        {
+          "id": "weakening.hyp.close",
+          "branch": "weakening.hyp",
+          "label": "exact ND.hyp hInDelta",
+          "startLine": 58,
+          "endLine": 58,
+          "before": [
+            {
+              "target": "ND Δ φ",
+              "id": "hyp",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "φ ∈ Γ",
+                  "name": "hmem"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "φ ∈ Δ",
+                  "name": "hInDelta"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact ND.hyp hInDelta"
+        },
+        {
+          "id": "weakening.impI.intro",
+          "branch": "weakening.impI",
+          "label": "intro Δ hsub",
+          "startLine": 60,
+          "endLine": 60,
+          "before": [
+            {
+              "target": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)",
+              "id": "impI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND (insert φ Γ) ψ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ ψ",
+                  "name": "ih"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ (φ ⟶ ψ)",
+              "id": "impI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND (insert φ Γ) ψ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ ψ",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "kind": "case",
+          "sourceText": "intro Δ hsub"
+        },
+        {
+          "id": "weakening.impI.extend-context",
+          "branch": "weakening.impI",
+          "label": "have hExtended : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub",
+          "startLine": 61,
+          "endLine": 61,
+          "before": [
+            {
+              "target": "ND Δ (φ ⟶ ψ)",
+              "id": "impI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND (insert φ Γ) ψ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ ψ",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ (φ ⟶ ψ)",
+              "id": "impI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND (insert φ Γ) ψ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ ψ",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert φ Γ ⊆ insert φ Δ",
+                  "name": "hExtended"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hExtended : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub"
+        },
+        {
+          "id": "weakening.impI.induction",
+          "branch": "weakening.impI",
+          "label": "have dBody : ND (insert φ Δ) ψ := ih hExtended",
+          "startLine": 62,
+          "endLine": 62,
+          "before": [
+            {
+              "target": "ND Δ (φ ⟶ ψ)",
+              "id": "impI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND (insert φ Γ) ψ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ ψ",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert φ Γ ⊆ insert φ Δ",
+                  "name": "hExtended"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ (φ ⟶ ψ)",
+              "id": "impI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND (insert φ Γ) ψ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ ψ",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert φ Γ ⊆ insert φ Δ",
+                  "name": "hExtended"
+                },
+                {
+                  "type": "ND (insert φ Δ) ψ",
+                  "name": "dBody"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have dBody : ND (insert φ Δ) ψ := ih hExtended"
+        },
+        {
+          "id": "weakening.impI.close",
+          "branch": "weakening.impI",
+          "label": "exact ND.impI dBody",
+          "startLine": 64,
+          "endLine": 64,
+          "before": [
+            {
+              "target": "ND Δ (φ ⟶ ψ)",
+              "id": "impI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND (insert φ Γ) ψ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ ψ",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert φ Γ ⊆ insert φ Δ",
+                  "name": "hExtended"
+                },
+                {
+                  "type": "ND (insert φ Δ) ψ",
+                  "name": "dBody"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact ND.impI dBody"
+        },
+        {
+          "id": "weakening.impE.intro",
+          "branch": "weakening.impE",
+          "label": "intro Δ hsub",
+          "startLine": 66,
+          "endLine": 66,
+          "before": [
+            {
+              "target": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ ψ",
+              "id": "impE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND Γ (φ ⟶ ψ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)",
+                  "name": "ihImp"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihArg"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ ψ",
+              "id": "impE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND Γ (φ ⟶ ψ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)",
+                  "name": "ihImp"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihArg"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "kind": "case",
+          "sourceText": "intro Δ hsub"
+        },
+        {
+          "id": "weakening.impE.implication",
+          "branch": "weakening.impE",
+          "label": "have dImp : ND Δ (φ ⟶ ψ) := ihImp hsub",
+          "startLine": 67,
+          "endLine": 67,
+          "before": [
+            {
+              "target": "ND Δ ψ",
+              "id": "impE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND Γ (φ ⟶ ψ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)",
+                  "name": "ihImp"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihArg"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ ψ",
+              "id": "impE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND Γ (φ ⟶ ψ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)",
+                  "name": "ihImp"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihArg"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ (φ ⟶ ψ)",
+                  "name": "dImp"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have dImp : ND Δ (φ ⟶ ψ) := ihImp hsub"
+        },
+        {
+          "id": "weakening.impE.argument",
+          "branch": "weakening.impE",
+          "label": "have dArg : ND Δ φ := ihArg hsub",
+          "startLine": 68,
+          "endLine": 68,
+          "before": [
+            {
+              "target": "ND Δ ψ",
+              "id": "impE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND Γ (φ ⟶ ψ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)",
+                  "name": "ihImp"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihArg"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ (φ ⟶ ψ)",
+                  "name": "dImp"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ ψ",
+              "id": "impE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND Γ (φ ⟶ ψ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)",
+                  "name": "ihImp"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihArg"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ (φ ⟶ ψ)",
+                  "name": "dImp"
+                },
+                {
+                  "type": "ND Δ φ",
+                  "name": "dArg"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have dArg : ND Δ φ := ihArg hsub"
+        },
+        {
+          "id": "weakening.impE.close",
+          "branch": "weakening.impE",
+          "label": "exact ND.impE dImp dArg",
+          "startLine": 69,
+          "endLine": 69,
+          "before": [
+            {
+              "target": "ND Δ ψ",
+              "id": "impE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "ψ"
+                },
+                {
+                  "type": "ND Γ (φ ⟶ ψ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)",
+                  "name": "ihImp"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihArg"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ (φ ⟶ ψ)",
+                  "name": "dImp"
+                },
+                {
+                  "type": "ND Δ φ",
+                  "name": "dArg"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact ND.impE dImp dArg"
+        },
+        {
+          "id": "weakening.negI.intro",
+          "branch": "weakening.negI",
+          "label": "intro Δ hsub",
+          "startLine": 71,
+          "endLine": 71,
+          "before": [
+            {
+              "target": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (~φ)",
+              "id": "negI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert φ Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ (~φ)",
+              "id": "negI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert φ Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "kind": "case",
+          "sourceText": "intro Δ hsub"
+        },
+        {
+          "id": "weakening.negI.extend-context",
+          "branch": "weakening.negI",
+          "label": "have hExtended : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub",
+          "startLine": 72,
+          "endLine": 72,
+          "before": [
+            {
+              "target": "ND Δ (~φ)",
+              "id": "negI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert φ Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ (~φ)",
+              "id": "negI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert φ Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert φ Γ ⊆ insert φ Δ",
+                  "name": "hExtended"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hExtended : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub"
+        },
+        {
+          "id": "weakening.negI.induction",
+          "branch": "weakening.negI",
+          "label": "have dFalse : ND (insert φ Δ) Bot := ih hExtended",
+          "startLine": 73,
+          "endLine": 73,
+          "before": [
+            {
+              "target": "ND Δ (~φ)",
+              "id": "negI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert φ Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert φ Γ ⊆ insert φ Δ",
+                  "name": "hExtended"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ (~φ)",
+              "id": "negI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert φ Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert φ Γ ⊆ insert φ Δ",
+                  "name": "hExtended"
+                },
+                {
+                  "type": "ND (insert φ Δ) Bot",
+                  "name": "dFalse"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have dFalse : ND (insert φ Δ) Bot := ih hExtended"
+        },
+        {
+          "id": "weakening.negI.close",
+          "branch": "weakening.negI",
+          "label": "exact ND.negI dFalse",
+          "startLine": 74,
+          "endLine": 74,
+          "before": [
+            {
+              "target": "ND Δ (~φ)",
+              "id": "negI",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert φ Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert φ Γ ⊆ insert φ Δ",
+                  "name": "hExtended"
+                },
+                {
+                  "type": "ND (insert φ Δ) Bot",
+                  "name": "dFalse"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact ND.negI dFalse"
+        },
+        {
+          "id": "weakening.negE.intro",
+          "branch": "weakening.negE",
+          "label": "intro Δ hsub",
+          "startLine": 76,
+          "endLine": 76,
+          "before": [
+            {
+              "target": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ Bot",
+              "id": "negE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ (~φ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (~φ)",
+                  "name": "ihNeg"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihPos"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ Bot",
+              "id": "negE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ (~φ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (~φ)",
+                  "name": "ihNeg"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihPos"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "kind": "case",
+          "sourceText": "intro Δ hsub"
+        },
+        {
+          "id": "weakening.negE.negative",
+          "branch": "weakening.negE",
+          "label": "have dNeg : ND Δ (~φ) := ihNeg hsub",
+          "startLine": 77,
+          "endLine": 77,
+          "before": [
+            {
+              "target": "ND Δ Bot",
+              "id": "negE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ (~φ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (~φ)",
+                  "name": "ihNeg"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihPos"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ Bot",
+              "id": "negE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ (~φ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (~φ)",
+                  "name": "ihNeg"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihPos"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ (~φ)",
+                  "name": "dNeg"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have dNeg : ND Δ (~φ) := ihNeg hsub"
+        },
+        {
+          "id": "weakening.negE.positive",
+          "branch": "weakening.negE",
+          "label": "have dPos : ND Δ φ := ihPos hsub",
+          "startLine": 78,
+          "endLine": 78,
+          "before": [
+            {
+              "target": "ND Δ Bot",
+              "id": "negE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ (~φ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (~φ)",
+                  "name": "ihNeg"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihPos"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ (~φ)",
+                  "name": "dNeg"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ Bot",
+              "id": "negE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ (~φ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (~φ)",
+                  "name": "ihNeg"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihPos"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ (~φ)",
+                  "name": "dNeg"
+                },
+                {
+                  "type": "ND Δ φ",
+                  "name": "dPos"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have dPos : ND Δ φ := ihPos hsub"
+        },
+        {
+          "id": "weakening.negE.close",
+          "branch": "weakening.negE",
+          "label": "exact ND.negE dNeg dPos",
+          "startLine": 79,
+          "endLine": 79,
+          "before": [
+            {
+              "target": "ND Δ Bot",
+              "id": "negE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ (~φ)",
+                  "name": "a✝¹"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ (~φ)",
+                  "name": "ihNeg"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+                  "name": "ihPos"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ (~φ)",
+                  "name": "dNeg"
+                },
+                {
+                  "type": "ND Δ φ",
+                  "name": "dPos"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact ND.negE dNeg dPos"
+        },
+        {
+          "id": "weakening.botE.intro",
+          "branch": "weakening.botE",
+          "label": "intro Δ hsub",
+          "startLine": 81,
+          "endLine": 81,
+          "before": [
+            {
+              "target": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+              "id": "botE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ φ",
+              "id": "botE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "kind": "case",
+          "sourceText": "intro Δ hsub"
+        },
+        {
+          "id": "weakening.botE.induction",
+          "branch": "weakening.botE",
+          "label": "have dFalse : ND Δ Bot := ih hsub",
+          "startLine": 82,
+          "endLine": 82,
+          "before": [
+            {
+              "target": "ND Δ φ",
+              "id": "botE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ φ",
+              "id": "botE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ Bot",
+                  "name": "dFalse"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have dFalse : ND Δ Bot := ih hsub"
+        },
+        {
+          "id": "weakening.botE.close",
+          "branch": "weakening.botE",
+          "label": "exact ND.botE dFalse",
+          "startLine": 83,
+          "endLine": 83,
+          "before": [
+            {
+              "target": "ND Δ φ",
+              "id": "botE",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "ND Δ Bot",
+                  "name": "dFalse"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact ND.botE dFalse"
+        },
+        {
+          "id": "weakening.classical.intro",
+          "branch": "weakening.classical",
+          "label": "intro Δ hsub",
+          "startLine": 85,
+          "endLine": 85,
+          "before": [
+            {
+              "target": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+              "id": "classical",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert (~φ) Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ φ",
+              "id": "classical",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert (~φ) Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "kind": "case",
+          "sourceText": "intro Δ hsub"
+        },
+        {
+          "id": "weakening.classical.extend-context",
+          "branch": "weakening.classical",
+          "label": "have hExtended : insert (~φ) Γ ⊆ insert (~φ) Δ := Set.insert_subset_insert hsub",
+          "startLine": 86,
+          "endLine": 86,
+          "before": [
+            {
+              "target": "ND Δ φ",
+              "id": "classical",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert (~φ) Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ φ",
+              "id": "classical",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert (~φ) Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert (~φ) Γ ⊆ insert (~φ) Δ",
+                  "name": "hExtended"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hExtended : insert (~φ) Γ ⊆ insert (~φ) Δ := Set.insert_subset_insert hsub"
+        },
+        {
+          "id": "weakening.classical.induction",
+          "branch": "weakening.classical",
+          "label": "have dFalse : ND (insert (~φ) Δ) Bot := ih hExtended",
+          "startLine": 87,
+          "endLine": 87,
+          "before": [
+            {
+              "target": "ND Δ φ",
+              "id": "classical",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert (~φ) Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert (~φ) Γ ⊆ insert (~φ) Δ",
+                  "name": "hExtended"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Δ φ",
+              "id": "classical",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert (~φ) Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert (~φ) Γ ⊆ insert (~φ) Δ",
+                  "name": "hExtended"
+                },
+                {
+                  "type": "ND (insert (~φ) Δ) Bot",
+                  "name": "dFalse"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have dFalse : ND (insert (~φ) Δ) Bot := ih hExtended"
+        },
+        {
+          "id": "weakening.classical.close",
+          "branch": "weakening.classical",
+          "label": "exact ND.classical dFalse",
+          "startLine": 89,
+          "endLine": 89,
+          "before": [
+            {
+              "target": "ND Δ φ",
+              "id": "classical",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ✝"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ✝"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) Bot",
+                  "name": "a✝"
+                },
+                {
+                  "type": "∀ {Δ : Set Formula}, insert (~φ) Γ ⊆ Δ → ND Δ Bot",
+                  "name": "ih"
+                },
+                {
+                  "type": "Set Formula",
+                  "name": "Δ"
+                },
+                {
+                  "type": "Γ ⊆ Δ",
+                  "name": "hsub"
+                },
+                {
+                  "type": "insert (~φ) Γ ⊆ insert (~φ) Δ",
+                  "name": "hExtended"
+                },
+                {
+                  "type": "ND (insert (~φ) Δ) Bot",
+                  "name": "dFalse"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact ND.classical dFalse"
+        }
+      ]
+    },
+    {
+      "id": "quicksort_perm",
+      "declaration": "Thesis.Sort.quicksort_perm",
+      "source": {
+        "commit": "9c0d16cc9f662de8a0b0bad69f3b3a3359c47b77",
+        "path": "Thesis/Sort/Quicksort.lean",
+        "sha256": "e7910c46302d6d85571735c531847d781c0a54ded7f0f00beb63227edc201e1e",
+        "codeSha256": "0d909c42cf0adcb73b2ebc0ecbc82002bf2f2a108c22a6be42dc5d1420777c65",
+        "code": "/-- La salida conserva los elementos y sus multiplicidades. -/\n-- ANCHOR: perm\ntheorem quicksort_perm : ∀ l : List α, quicksort l ~ l\n  | [] => by\n      -- A probar: quicksort [] ~ []. Reescritura y reflexividad.\n      simpa only [quicksort_nil] using (List.Perm.refl ([] : List α))\n  | p :: rest => by\n      -- A probar: quicksort (p :: rest) ~ p :: rest.\n      -- Método: inducción por longitud; las particiones son menores.\n      let small := rest.filter (fun x => decide (x ≤ p))\n      let large := rest.filter (fun x => ! decide (x ≤ p))\n      have hSmallLt : small.length < (p :: rest).length :=\n        filter_length_lt_cons (fun x => decide (x ≤ p)) p rest\n      have hLargeLt : large.length < (p :: rest).length :=\n        filter_length_lt_cons (fun x => ! decide (x ≤ p)) p rest\n      -- Las cotas anteriores legitiman estas dos instancias inductivas.\n      have ihSmall : quicksort small ~ small := quicksort_perm small\n      have ihLarge : quicksort large ~ large := quicksort_perm large\n      have hPartition : small ++ large ~ rest :=\n        filter_partition_perm (fun x => decide (x ≤ p)) rest\n      -- 1. Añadir el mismo pivote conserva la permutación derecha.\n      have hRight : p :: quicksort large ~ p :: large := ihLarge.cons p\n      -- 2. Concatenar las dos permutaciones conserva ambas listas.\n      have hAppend : quicksort small ++ (p :: quicksort large)\n          ~ small ++ (p :: large) := ihSmall.append hRight\n      -- 3. perm_middle desplaza el pivote al principio.\n      have hPivot : small ++ (p :: large) ~ p :: (small ++ large) :=\n        List.perm_middle\n      -- 4. La congruencia de :: se aplica a la partición anterior.\n      have hCons : p :: (small ++ large) ~ p :: rest := hPartition.cons p\n      -- Reescritura de quicksort, seguida de las tres permutaciones.\n      rw [quicksort_cons]\n      change quicksort small ++ (p :: quicksort large) ~ p :: rest\n      calc\n        quicksort small ++ (p :: quicksort large)\n            ~ small ++ (p :: large) := hAppend\n        _ ~ p :: (small ++ large) := hPivot\n        _ ~ p :: rest := hCons\n  termination_by l => l.length\n  decreasing_by\n    · exact hSmallLt\n    · exact hLargeLt",
+        "startLine": 193,
+        "endLine": 234
+      },
+      "leanVersion": "4.29.0",
+      "steps": [
+        {
+          "id": "quicksort_perm.nil.close",
+          "branch": "quicksort_perm.nil",
+          "label": "simpa only [quicksort_nil] using (List.Perm.refl ([] : List α))",
+          "startLine": 198,
+          "endLine": 198,
+          "before": [
+            {
+              "target": "quicksort [] ~ []",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                }
+              ],
+              "id": "quicksort_perm.nil.close.before.goal-1"
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "simpa only [quicksort_nil] using (List.Perm.refl ([] : List α))"
+        },
+        {
+          "id": "quicksort_perm.cons.small",
+          "branch": "quicksort_perm.cons",
+          "label": "let small := rest.filter (fun x => decide (x ≤ p))",
+          "startLine": 202,
+          "endLine": 202,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                }
+              ],
+              "id": "quicksort_perm.cons.small.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                }
+              ],
+              "id": "quicksort_perm.cons.small.after.goal-1"
+            }
+          ],
+          "kind": "case",
+          "sourceText": "let small := rest.filter (fun x => decide (x ≤ p))"
+        },
+        {
+          "id": "quicksort_perm.cons.large",
+          "branch": "quicksort_perm.cons",
+          "label": "let large := rest.filter (fun x => ! decide (x ≤ p))",
+          "startLine": 203,
+          "endLine": 203,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                }
+              ],
+              "id": "quicksort_perm.cons.large.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                }
+              ],
+              "id": "quicksort_perm.cons.large.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "let large := rest.filter (fun x => ! decide (x ≤ p))"
+        },
+        {
+          "id": "quicksort_perm.cons.small-decrease",
+          "branch": "quicksort_perm.cons",
+          "label": "have hSmallLt : small.length < (p :: rest).length :=",
+          "startLine": 204,
+          "endLine": 205,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                }
+              ],
+              "id": "quicksort_perm.cons.small-decrease.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                }
+              ],
+              "id": "quicksort_perm.cons.small-decrease.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hSmallLt : small.length < (p :: rest).length :=\n        filter_length_lt_cons (fun x => decide (x ≤ p)) p rest"
+        },
+        {
+          "id": "quicksort_perm.cons.large-decrease",
+          "branch": "quicksort_perm.cons",
+          "label": "have hLargeLt : large.length < (p :: rest).length :=",
+          "startLine": 206,
+          "endLine": 207,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                }
+              ],
+              "id": "quicksort_perm.cons.large-decrease.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                }
+              ],
+              "id": "quicksort_perm.cons.large-decrease.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hLargeLt : large.length < (p :: rest).length :=\n        filter_length_lt_cons (fun x => ! decide (x ≤ p)) p rest"
+        },
+        {
+          "id": "quicksort_perm.cons.recurse-small",
+          "branch": "quicksort_perm.cons",
+          "label": "have ihSmall : quicksort small ~ small := quicksort_perm small",
+          "startLine": 209,
+          "endLine": 209,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                }
+              ],
+              "id": "quicksort_perm.cons.recurse-small.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                }
+              ],
+              "id": "quicksort_perm.cons.recurse-small.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have ihSmall : quicksort small ~ small := quicksort_perm small"
+        },
+        {
+          "id": "quicksort_perm.cons.recurse-large",
+          "branch": "quicksort_perm.cons",
+          "label": "have ihLarge : quicksort large ~ large := quicksort_perm large",
+          "startLine": 210,
+          "endLine": 210,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                }
+              ],
+              "id": "quicksort_perm.cons.recurse-large.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                }
+              ],
+              "id": "quicksort_perm.cons.recurse-large.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have ihLarge : quicksort large ~ large := quicksort_perm large"
+        },
+        {
+          "id": "quicksort_perm.cons.partition",
+          "branch": "quicksort_perm.cons",
+          "label": "have hPartition : small ++ large ~ rest :=",
+          "startLine": 211,
+          "endLine": 212,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                }
+              ],
+              "id": "quicksort_perm.cons.partition.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                }
+              ],
+              "id": "quicksort_perm.cons.partition.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hPartition : small ++ large ~ rest :=\n        filter_partition_perm (fun x => decide (x ≤ p)) rest"
+        },
+        {
+          "id": "quicksort_perm.cons.right",
+          "branch": "quicksort_perm.cons",
+          "label": "have hRight : p :: quicksort large ~ p :: large := ihLarge.cons p",
+          "startLine": 214,
+          "endLine": 214,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                }
+              ],
+              "id": "quicksort_perm.cons.right.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                }
+              ],
+              "id": "quicksort_perm.cons.right.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hRight : p :: quicksort large ~ p :: large := ihLarge.cons p"
+        },
+        {
+          "id": "quicksort_perm.cons.append",
+          "branch": "quicksort_perm.cons",
+          "label": "have hAppend : quicksort small ++ (p :: quicksort large)",
+          "startLine": 216,
+          "endLine": 217,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                }
+              ],
+              "id": "quicksort_perm.cons.append.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                }
+              ],
+              "id": "quicksort_perm.cons.append.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hAppend : quicksort small ++ (p :: quicksort large)\n          ~ small ++ (p :: large) := ihSmall.append hRight"
+        },
+        {
+          "id": "quicksort_perm.cons.pivot",
+          "branch": "quicksort_perm.cons",
+          "label": "have hPivot : small ++ (p :: large) ~ p :: (small ++ large) :=",
+          "startLine": 219,
+          "endLine": 220,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                }
+              ],
+              "id": "quicksort_perm.cons.pivot.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                },
+                {
+                  "type": "small ++ p :: large ~ p :: (small ++ large)",
+                  "name": "hPivot"
+                }
+              ],
+              "id": "quicksort_perm.cons.pivot.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hPivot : small ++ (p :: large) ~ p :: (small ++ large) :=\n        List.perm_middle"
+        },
+        {
+          "id": "quicksort_perm.cons.partition-cons",
+          "branch": "quicksort_perm.cons",
+          "label": "have hCons : p :: (small ++ large) ~ p :: rest := hPartition.cons p",
+          "startLine": 222,
+          "endLine": 222,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                },
+                {
+                  "type": "small ++ p :: large ~ p :: (small ++ large)",
+                  "name": "hPivot"
+                }
+              ],
+              "id": "quicksort_perm.cons.partition-cons.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                },
+                {
+                  "type": "small ++ p :: large ~ p :: (small ++ large)",
+                  "name": "hPivot"
+                },
+                {
+                  "type": "p :: (small ++ large) ~ p :: rest",
+                  "name": "hCons"
+                }
+              ],
+              "id": "quicksort_perm.cons.partition-cons.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hCons : p :: (small ++ large) ~ p :: rest := hPartition.cons p"
+        },
+        {
+          "id": "quicksort_perm.cons.unfold",
+          "branch": "quicksort_perm.cons",
+          "label": "rw [quicksort_cons]",
+          "startLine": 224,
+          "endLine": 224,
+          "before": [
+            {
+              "target": "quicksort (p :: rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                },
+                {
+                  "type": "small ++ p :: large ~ p :: (small ++ large)",
+                  "name": "hPivot"
+                },
+                {
+                  "type": "p :: (small ++ large) ~ p :: rest",
+                  "name": "hCons"
+                }
+              ],
+              "id": "quicksort_perm.cons.unfold.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort (filter (fun x => decide (x ≤ p)) rest) ++ p :: quicksort (filter (fun x => !decide (x ≤ p)) rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                },
+                {
+                  "type": "small ++ p :: large ~ p :: (small ++ large)",
+                  "name": "hPivot"
+                },
+                {
+                  "type": "p :: (small ++ large) ~ p :: rest",
+                  "name": "hCons"
+                }
+              ],
+              "id": "quicksort_perm.cons.unfold.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "rw [quicksort_cons]"
+        },
+        {
+          "id": "quicksort_perm.cons.normalize-goal",
+          "branch": "quicksort_perm.cons",
+          "label": "change quicksort small ++ (p :: quicksort large) ~ p :: rest",
+          "startLine": 225,
+          "endLine": 225,
+          "before": [
+            {
+              "target": "quicksort (filter (fun x => decide (x ≤ p)) rest) ++ p :: quicksort (filter (fun x => !decide (x ≤ p)) rest) ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                },
+                {
+                  "type": "small ++ p :: large ~ p :: (small ++ large)",
+                  "name": "hPivot"
+                },
+                {
+                  "type": "p :: (small ++ large) ~ p :: rest",
+                  "name": "hCons"
+                }
+              ],
+              "id": "quicksort_perm.cons.normalize-goal.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "quicksort small ++ p :: quicksort large ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                },
+                {
+                  "type": "small ++ p :: large ~ p :: (small ++ large)",
+                  "name": "hPivot"
+                },
+                {
+                  "type": "p :: (small ++ large) ~ p :: rest",
+                  "name": "hCons"
+                }
+              ],
+              "id": "quicksort_perm.cons.normalize-goal.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "change quicksort small ++ (p :: quicksort large) ~ p :: rest"
+        },
+        {
+          "id": "quicksort_perm.cons.close",
+          "branch": "quicksort_perm.cons",
+          "label": "calc",
+          "startLine": 226,
+          "endLine": 230,
+          "before": [
+            {
+              "target": "quicksort small ++ p :: quicksort large ~ p :: rest",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                },
+                {
+                  "type": "quicksort large ~ large",
+                  "name": "ihLarge"
+                },
+                {
+                  "type": "small ++ large ~ rest",
+                  "name": "hPartition"
+                },
+                {
+                  "type": "p :: quicksort large ~ p :: large",
+                  "name": "hRight"
+                },
+                {
+                  "type": "quicksort small ++ p :: quicksort large ~ small ++ p :: large",
+                  "name": "hAppend"
+                },
+                {
+                  "type": "small ++ p :: large ~ p :: (small ++ large)",
+                  "name": "hPivot"
+                },
+                {
+                  "type": "p :: (small ++ large) ~ p :: rest",
+                  "name": "hCons"
+                }
+              ],
+              "id": "quicksort_perm.cons.close.before.goal-1"
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "calc\n        quicksort small ++ (p :: quicksort large)\n            ~ small ++ (p :: large) := hAppend\n        _ ~ p :: (small ++ large) := hPivot\n        _ ~ p :: rest := hCons"
+        },
+        {
+          "id": "quicksort_perm.decrease-small.close",
+          "branch": "quicksort_perm.decrease-small",
+          "label": "exact hSmallLt",
+          "startLine": 233,
+          "endLine": 233,
+          "before": [
+            {
+              "target": "(filter (fun x => decide (x ≤ p)) rest).length < (p :: rest).length",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "List α",
+                  "name": "l"
+                },
+                {
+                  "type": "∀ (y : List α), InvImage (fun x1 x2 => x1 < x2) (fun x => x.length) y l → quicksort y ~ y",
+                  "name": "a✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "∀ (y : List α), InvImage (fun x1 x2 => x1 < x2) (fun x => x.length) y (p :: rest) → quicksort y ~ y",
+                  "name": "x✝"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                }
+              ],
+              "id": "quicksort_perm.decrease-small.close.before.goal-1"
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact hSmallLt"
+        },
+        {
+          "id": "quicksort_perm.decrease-large.close",
+          "branch": "quicksort_perm.decrease-large",
+          "label": "exact hLargeLt",
+          "startLine": 234,
+          "endLine": 234,
+          "before": [
+            {
+              "target": "(filter (fun x => !decide (x ≤ p)) rest).length < (p :: rest).length",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "List α",
+                  "name": "l"
+                },
+                {
+                  "type": "∀ (y : List α), InvImage (fun x1 x2 => x1 < x2) (fun x => x.length) y l → quicksort y ~ y",
+                  "name": "a✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "rest"
+                },
+                {
+                  "type": "∀ (y : List α), InvImage (fun x1 x2 => x1 < x2) (fun x => x.length) y (p :: rest) → quicksort y ~ y",
+                  "name": "x✝"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) rest",
+                  "name": "small"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) rest",
+                  "name": "large"
+                },
+                {
+                  "type": "small.length < (p :: rest).length",
+                  "name": "hSmallLt"
+                },
+                {
+                  "type": "large.length < (p :: rest).length",
+                  "name": "hLargeLt"
+                },
+                {
+                  "type": "quicksort small ~ small",
+                  "name": "ihSmall"
+                }
+              ],
+              "id": "quicksort_perm.decrease-large.close.before.goal-1"
+            }
+          ],
+          "after": [],
+          "kind": "closure",
+          "sourceText": "exact hLargeLt"
+        }
+      ]
+    }
+  ]
+}

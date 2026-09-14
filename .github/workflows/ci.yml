@@ -15,11 +15,18 @@ jobs:
     steps:
       - name: Check out the exact commit
         uses: actions/checkout@v4
+        with:
+          # The proof explorer verifies its source against a pinned public
+          # commit, which must remain available after this PR is merged.
+          fetch-depth: 0
 
       # Installs the toolchain from lean-toolchain, fetches the Mathlib cache,
       # and runs `lake build` (kernel-checks every proof).
       - name: Build and kernel-check all Lean proofs
         uses: leanprover/lean-action@v1
+
+      - name: Reproduce real proof-explorer states
+        run: make proof-explorer-check
 
       # This bridge is a separate root because Foundation and the full Mathlib
       # closure both define Matrix.map and therefore cannot share one module.

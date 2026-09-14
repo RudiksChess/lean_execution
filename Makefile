@@ -1,4 +1,4 @@
-.PHONY: build audit audit-quicksort verification-output pdf pdf-quicksort pdf-aristotle check clean verify-foundation verify-aristotle docs
+.PHONY: build audit audit-quicksort verification-output proof-explorer proof-explorer-check pdf pdf-quicksort pdf-aristotle check clean verify-foundation verify-aristotle docs
 
 ND_DIR := reports/natural-deduction
 QS_DIR := reports/quicksort
@@ -34,6 +34,15 @@ verification-output:
 		lake env lean Thesis/VerificationOutput.lean; \
 	} > $(VERIFY_OUTPUT)
 
+# Generate real tactic states for the public proof explorer. The Lean adapter is
+# a separate executable and is not imported by the core Thesis library.
+proof-explorer:
+	python3 tools/generate_proof_explorer.py
+
+# Fresh elaboration must reproduce the tracked artifact byte-for-byte.
+proof-explorer-check:
+	python3 tools/generate_proof_explorer.py --check
+
 # Build the natural-deduction thesis PDF (regenerating the audit first).
 pdf: audit
 	cd $(ND_DIR) && latexmk -pdf -interaction=nonstopmode ThesisReport_ND.tex
@@ -64,7 +73,7 @@ verify-foundation:
 # CI gate: both developments and both cross-validations build, and the
 # committed audit still matches reality.
 # Fails if a sorry (sorryAx) or rogue axiom sneaks in, or the audit drifts.
-check: build audit audit-quicksort verification-output verify-foundation verify-aristotle
+check: build audit audit-quicksort verification-output proof-explorer-check verify-foundation verify-aristotle
 	python3 -m unittest discover -s tools -p 'test_*.py'
 	python3 tools/check_axioms.py
 	git diff --exit-code $(ND_DIR)/audit.txt $(QS_DIR)/audit.txt $(VERIFY_OUTPUT)
