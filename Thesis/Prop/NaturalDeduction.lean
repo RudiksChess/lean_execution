@@ -16,12 +16,12 @@ def Bot : Formula := ~(.atom "⊥" ⟶ .atom "⊥")
 theorem eval_Bot (v : Valuation) : eval v Bot ↔ False := by
   -- A probar: las dos implicaciones de eval v Bot ↔ False.
   -- Método: desplegar la semántica y aplicar la identidad P → P.
+  have hIdentity : v "⊥" → v "⊥" := by
+    intro hAtom
+    exact hAtom
   constructor
   · intro h
     have hNotIdentity : ¬ (v "⊥" → v "⊥") := h
-    have hIdentity : v "⊥" → v "⊥" := by
-      intro hAtom
-      exact hAtom
     exact hNotIdentity hIdentity
   · intro hFalse
     exact False.elim hFalse
@@ -58,7 +58,7 @@ theorem weakening {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := b
       exact ND.hyp hInDelta
   | @impI Γ φ ψ _ ih =>
       intro Δ hsub
-      have hExtended : insert φ Γ ⊆ insert φ Δ := insert_subset_insert hsub
+      have hExtended : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub
       have dBody : ND (insert φ Δ) ψ := ih hExtended
       -- impI descarga φ; las fórmulas de Δ permanecen.
       exact ND.impI dBody
@@ -69,7 +69,7 @@ theorem weakening {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := b
       exact ND.impE dImp dArg
   | @negI Γ φ _ ih =>
       intro Δ hsub
-      have hExtended : insert φ Γ ⊆ insert φ Δ := insert_subset_insert hsub
+      have hExtended : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub
       have dFalse : ND (insert φ Δ) Bot := ih hExtended
       exact ND.negI dFalse
   | @negE Γ φ _ _ ihNeg ihPos =>
@@ -83,7 +83,7 @@ theorem weakening {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := b
       exact ND.botE dFalse
   | @classical Γ φ _ ih =>
       intro Δ hsub
-      have hExtended : insert (~φ) Γ ⊆ insert (~φ) Δ := insert_subset_insert hsub
+      have hExtended : insert (~φ) Γ ⊆ insert (~φ) Δ := Set.insert_subset_insert hsub
       have dFalse : ND (insert (~φ) Δ) Bot := ih hExtended
       -- Por RAA objeto, se descarga ~φ y se concluye φ bajo Δ.
       exact ND.classical dFalse
