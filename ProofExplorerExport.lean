@@ -81,12 +81,13 @@ def tacticJson (fm : FileMap) (contents : String) (trees : PersistentArray InfoT
 def extractCommand (declaration : String) (contents : String) (fm : FileMap)
     (res : SubVerso.Compat.Frontend.FrontendResult) (trees : PersistentArray InfoTree) :
     TermElabM Json := do
-  let marker := "theorem " ++ declaration
   let some item := res.items.find? fun item =>
       match item.commandSyntax.getRange? (canonicalOnly := true) with
       | none => false
       | some ⟨startPos, endPos⟩ =>
-        (SubVerso.Compat.String.Pos.extract contents startPos endPos).contains marker
+        let source := SubVerso.Compat.String.Pos.extract contents startPos endPos
+        ["theorem ", "lemma ", "def "].any fun keyword =>
+          [" ", "\n", ":"].any fun boundary => source.contains (keyword ++ declaration ++ boundary)
     | throwError "declaration '{declaration}' was not found in elaborated commands"
   let some ⟨declStart, declEnd⟩ := item.commandSyntax.getRange? (canonicalOnly := true)
     | throwError "declaration '{declaration}' has no canonical source range"
