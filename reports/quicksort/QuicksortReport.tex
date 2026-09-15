@@ -98,7 +98,7 @@
 \newcommand{\qs}{\operatorname{\mathsf{qsort}}}  % quicksort
 \newcommand{\filt}{\operatorname{\mathsf{filter}}}
 \newcommand{\len}[1]{\lvert #1 \rvert}
-\newcommand{\Sorted}{\operatorname{\mathsf{Sorted}}}
+\newcommand{\Sorted}{\operatorname{\mathsf{Ordenada}}}
 \DeclareMathOperator{\Pairwise}{Pairwise}
 
 \title{\textbf{Verifying the Correctness of Quicksort in Lean~4}\\[2pt]
@@ -159,7 +159,7 @@ order''. Our goal is to prove that quicksort satisfies both conjuncts.
 We take the order-theoretic definition that is easiest to reason about inductively: a list is
 sorted when \emph{every element precedes (or equals) every later element}.
 
-\begin{definition}[Sorted]\label{def:sorted}
+\begin{definition}[Ordenada]\label{def:sorted}
 A list $\ell=[a_0,a_1,\dots,a_{n-1}]$ is \emph{sorted} if $a_i\leq a_j$ whenever $i\leq j$.
 Equivalently, writing the predicate as a pairwise relation,
 \[
@@ -314,7 +314,7 @@ measure) is therefore justified.
 
 \subsection{Lean: discharging the termination obligations}
 After \texttt{termination\_by l => l.length}, each recursive argument must be shorter than
-the input. The helper \texttt{filter\_length\_lt\_cons} combines the two bounds
+the input. The helper \texttt{longitud\_filtro\_lt\_cons} combines the two bounds
 \[
   \len{\filt(q)(r)}\ \leq\ \len{r}<\len{p::r}.
 \]
@@ -337,7 +337,7 @@ We render Definition~\ref{def:sorted} directly: ``sorted'' is the pairwise-$\leq
 \lstinputlisting[linerange=sortedDef-sortedDef]{../../Thesis/Sort/Quicksort.lean}
 
 \noindent The two conjuncts of Definition~\ref{def:spec} become \texttt{quicksort l \~{} l} (the
-permutation, using Lean's notation \texttt{\~{}} for \texttt{List.Perm}) and \texttt{Sorted
+permutation, using Lean's notation \texttt{\~{}} for \texttt{List.Perm}) and \texttt{Ordenada
 (quicksort l)}. We prove them separately (\S\ref{sec:perm} and \S\ref{sec:sorted}) and then
 combine them (\S\ref{sec:correct}).
 
@@ -400,9 +400,9 @@ Immediate from Theorem~\ref{thm:perm}, since permutations have the same members.
 \end{proof}
 
 \subsection{Lean}
-The hypotheses \texttt{ihSmall} and \texttt{ihLarge} are recursive calls on the shorter
-partitions. The named steps \texttt{hRight}, \texttt{hAppend}, \texttt{hPivot}, and
-\texttt{hPartition} expose the congruence and partition arguments; the final
+The hypotheses \texttt{hipIndMenoresIguales} and \texttt{hipIndMayores} are recursive calls on the shorter
+partitions. The named steps \texttt{hDerecha}, \texttt{hConcatenacion}, \texttt{hPivote}, and
+\texttt{hParticion} expose the congruence and partition arguments; the final
 \texttt{calc} displays the intermediate lists explicitly.
 
 \lstinputlisting[linerange=perm-perm]{../../Thesis/Sort/Quicksort.lean}
@@ -430,7 +430,7 @@ Standard, by induction on $\ell_1$ (resp.\ unfolding the cons case). These are l
 \end{proof}
 
 The decisive observation is the \emph{separation} guaranteed by the partition: every element of
-the small half is $\leq p$ and every element of the large half is $>p$ (hence $\geq p$). Combined
+the menoresIguales half is $\leq p$ and every element of the mayores half is $>p$ (hence $\geq p$). Combined
 with transitivity of $\leq$, this gives the cross-bound needed to glue the recursively sorted
 halves.
 
@@ -487,9 +487,9 @@ holds by the partition bounds $(\ast)$; and the long-range bound $A$-to-$B$ foll
 through $p$. These are precisely obligations (1)--(3).
 
 \subsection{Lean}
-The Lean proof names the same pieces: \texttt{ihSmall}, \texttt{ihLarge} are $\Sorted(A)$, $\Sorted(B)$;
-\texttt{hSmallBound}, \texttt{hLargeBound} are the two halves of $(\ast)$, each obtained by transporting
-membership back through \texttt{mem\_quicksort} (Corollary~\ref{cor:mem}) and unfolding the filter
+The Lean proof names the same pieces: \texttt{hipIndMenoresIguales}, \texttt{hipIndMayores} are $\Sorted(A)$, $\Sorted(B)$;
+\texttt{hCotaMenoresIguales}, \texttt{hCotaMayores} are the two halves of $(\ast)$, each obtained by transporting
+membership back through \texttt{pertenencia\_quicksort} (Corollary~\ref{cor:mem}) and unfolding the filter
 test; \texttt{pairwise\_append} and \texttt{pairwise\_cons} are Lemma~\ref{lem:pairwise-append};
 and the final \texttt{le\_trans} is the transitivity step of obligation~(3).
 
@@ -538,7 +538,7 @@ axiom dependency of a theorem. Running it on the main result yields:
 \lstinputlisting[language={},basicstyle=\ttfamily\footnotesize]{audit.txt}
 
 \noindent The reported axioms are \texttt{propext} (propositional extensionality) and
-\texttt{Quot.sound} (soundness of quotients). The explicit termination proof no longer
+\texttt{Quot.sound} (correccion of quotients). The explicit termination proof no longer
 introduces a dependency on \texttt{Classical.choice}. This reports the dependencies of these
 terms, not a minimal foundation for the theorem. Crucially, \texttt{sorryAx} does \emph{not} appear: there are no admitted gaps, and
 no postulated sorting or correctness lemma is used. This is the formal certificate that
@@ -552,11 +552,11 @@ inside Lean~4 and discharges every goal through the same kernel used here, so wh
 verified to the identical standard---it is not an oracle, but a proof-search procedure whose output is
 a checkable Lean term.
 
-\paragraph{Protocol.} Aristotle was given only the definition of \texttt{Sorted}, the recursive
+\paragraph{Protocol.} Aristotle was given only the definition of \texttt{Ordenada}, the recursive
 definition of \texttt{quicksort}, and its unfolding equation \texttt{quicksort\_cons}; the correctness
 theorem was presented as a bare \texttt{sorry}, and the permutation and sortedness lemmas were
 \emph{withheld}. It was instructed to complete the proof introducing no axioms and no \texttt{sorry}.
-Every artifact below compiles under the same Lean~v4.29.0 toolchain as the rest of this development and
+Every artifact below compiles under the same Lean~v4.29.0 toolchain as the cola of this development and
 passes the axiom audit of \S\ref{sec:axioms}.
 
 \paragraph{Result.} Aristotle rediscovered the same two-lemma decomposition---establish a permutation

@@ -115,15 +115,15 @@
   <div class="grid">
     <div class="card">
       <h3>Natural deduction</h3>
-      <p><code>soundness</code>: derivability preserves semantic truth.</p>
-      <p><code>completeness_ND</code>: every tautology is derivable from the empty context.</p>
-      <p><code>soundComplete</code>: tautology and empty-context derivability are equivalent.</p>
+      <p><code>correccion</code>: derivability preserves semantic truth.</p>
+      <p><code>completitud_ND</code>: every tautology is derivable from the empty context.</p>
+      <p><code>correccion_completitud</code>: tautology and empty-context derivability are equivalent.</p>
     </div>
     <div class="card">
       <h3>Quicksort</h3>
-      <p><code>quicksort_perm</code>: the result is a permutation of the input.</p>
-      <p><code>quicksort_sorted</code>: the result is sorted.</p>
-      <p><code>quicksort_correct</code>: both properties hold together.</p>
+      <p><code>quicksort_permutacion</code>: the result is a permutation of the input.</p>
+      <p><code>quicksort_ordenada</code>: the result is sorted.</p>
+      <p><code>quicksort_correcto</code>: both properties hold together.</p>
     </div>
   </div>
 
@@ -155,11 +155,11 @@
   <table>
     <thead><tr><th>Audited results</th><th>Reported dependencies</th></tr></thead>
     <tbody>
-      <tr><td><code>completeness_ND</code>, <code>soundComplete</code>, <code>soundness</code></td>
+      <tr><td><code>completitud_ND</code>, <code>correccion_completitud</code>, <code>correccion</code></td>
           <td><code>propext</code>, <code>Classical.choice</code>, <code>Quot.sound</code></td></tr>
-      <tr><td><code>quicksort_correct</code>, <code>quicksort_perm</code>, <code>quicksort_sorted</code></td>
+      <tr><td><code>quicksort_correcto</code>, <code>quicksort_permutacion</code>, <code>quicksort_ordenada</code></td>
           <td><code>propext</code>, <code>Classical.choice</code>, <code>Quot.sound</code></td></tr>
-      <tr><td><code>ex_id</code>, <code>ex_dne</code></td><td>No axioms</td></tr>
+      <tr><td><code>ej_identidad</code>, <code>ej_eliminacion_doble_negacion</code></td><td>No axioms</td></tr>
     </tbody>
   </table>
 

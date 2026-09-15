@@ -171,12 +171,12 @@ valuation.</p>
     Goal: $\mathrm{Taut}(\varphi)\Rightarrow\emptyset\vdash\varphi$.
   </div></div>
   <div class="panel code"><div class="cap">Lean — Syntax.lean / NaturalDeduction.lean</div>
-<pre><span class="kw">def</span> eval (v) : Formula → Prop
-| .atom s => v s | .neg p => ¬ eval v p
-| .impl p q => eval v p → eval v q
+<pre><span class="kw">def</span> evaluar (v) : Formula → Prop
+| .atom s => v s | .neg p => ¬ evaluar v p
+| .impl p q => evaluar v p → evaluar v q
 
-<span class="kw">def</span> IsTautology (φ) := ∀ v, eval v φ
-<span class="kw">def</span> Bot := ~(.atom "⊥" ⟶ .atom "⊥")</pre>
+<span class="kw">def</span> EsTautologia (φ) := ∀ v, evaluar v φ
+<span class="kw">def</span> Falsedad := ~(.atom "⊥" ⟶ .atom "⊥")</pre>
   </div>
 </div>
 
@@ -206,15 +206,15 @@ $\Gamma_v$ over a list of atoms collects these.</p>
     be used as a hypothesis.
   </div></div>
   <div class="panel code"><div class="cap">Lean — Completeness.lean</div>
-<pre><span class="kw">def</span> lit (v) (p : String) : Formula :=
+<pre><span class="kw">def</span> literal (v) (p : String) : Formula :=
   <span class="kw">if</span> v p <span class="kw">then</span> .atom p <span class="kw">else</span> ~(.atom p)
 
-<span class="kw">def</span> litCtx (v) : List String → Set Formula
+<span class="kw">def</span> contextoLiterales (v) : List String → Set Formula
 | []        => ∅
-| p :: rest => insert (lit v p) (litCtx v rest)
+| p :: cola => insert (literal v p) (contextoLiterales v cola)
 
-<span class="kw">theorem</span> lit_mem (h : p ∈ ats) :
-    lit v p ∈ litCtx v ats</pre>
+<span class="kw">theorem</span> pertenencia_literal (h : p ∈ listaAtomos) :
+    literal v p ∈ contextoLiterales v listaAtomos</pre>
   </div>
 </div>
 
@@ -226,14 +226,14 @@ $$\big(\llbracket\varphi\rrbracket_v\Rightarrow \Gamma_v\vdash\varphi\big)\ \wed
 The proof is by structural induction on $\varphi$. Note the statement carries <em>both</em> halves at once;
 that is what makes the induction go through (the negation case feeds the two halves into each other).</p>
 <div class="panel code" style="margin:1rem 0"><div class="cap">Lean — the statement</div>
-<pre><span class="kw">theorem</span> kalmar (v) (ats) :
-    ∀ φ, atoms φ ⊆ ats →
-      (eval v φ → ND (litCtx v ats) φ) ∧
-      (¬ eval v φ → ND (litCtx v ats) (~φ)) := <span class="kw">by</span>
+<pre><span class="kw">theorem</span> kalmar (v) (listaAtomos) :
+    ∀ φ, atomos φ ⊆ listaAtomos →
+      (evaluar v φ → ND (contextoLiterales v listaAtomos) φ) ∧
+      (¬ evaluar v φ → ND (contextoLiterales v listaAtomos) (~φ)) := <span class="kw">by</span>
   intro φ; induction φ with
   | atom s => ...
-  | neg p ih => ...
-  | impl p q ihp ihq => ...</pre>
+  | neg p hipInd => ...
+  | impl p q hipIndP hipIndQ => ...</pre>
 </div>
 
 <div class="case">
@@ -246,7 +246,7 @@ hypothesis. Two sub-cases by the value of $v(p)$:</p>
   <li><em>Negative half.</em> If $\neg\llbracket p\rrbracket_v$, then $\mathrm{lit}_v(p)=\neg p$, and the
   hypothesis rule gives $\Gamma_v\vdash\neg p$.</li>
 </ul>
-<p>In Lean this is exactly "rewrite <code class="inl">lit</code> using whether <code class="inl">v p</code> holds,
+<p>In Lean this is exactly "rewrite <code class="inl">literal</code> using whether <code class="inl">v p</code> holds,
 then <code class="inl">exact ND.hyp ‹membership›</code>."</p>
 </div>
 
@@ -259,11 +259,11 @@ use the induction hypothesis for $p$.</p>
   <em>negative</em> half of the IH for $p$ already gives $\Gamma_v\vdash\neg p$, which is the goal.</li>
   <li><em>Negative half</em> ($\neg\llbracket\neg p\rrbracket_v$, i.e. $\neg\neg\llbracket p\rrbracket_v$):
   classically $\llbracket p\rrbracket_v$ holds, so the <em>positive</em> half of the IH gives
-  $\Gamma_v\vdash p$; then double-negation introduction (<code class="inl">dni</code>, a derived rule) gives
+  $\Gamma_v\vdash p$; then double-negation introduction (<code class="inl">introduccion_doble_negacion</code>, a derived rule) gives
   $\Gamma_v\vdash\neg\neg p$, which is $\Gamma_v\vdash\neg\varphi$.</li>
 </ul>
-<pre><span class="cm">-- positive half just reuses ihneg; negative half:</span>
-fun h' => dni ((ih ..).1 (not_not.1 h'))   <span class="cm">-- ⊢ ~~p</span></pre>
+<pre><span class="cm">-- positive half just reuses hipIndNeg; negative half:</span>
+fun h' => introduccion_doble_negacion ((hipInd ..).1 (not_not.1 h'))   <span class="cm">-- ⊢ ~~p</span></pre>
 </div>
 
 <div class="case">
@@ -291,7 +291,7 @@ gives $q$; by weakening $\Gamma_v,(p\to q)\vdash\neg q$, and ${\neg}\mathrm{E}$ 
 $\varphi$ (Lean's <code class="inl">Formula.rec</code>), not on a derivation. A single run of that recursion
 turns the truth value of $\varphi$ under $v$ into an actual derivation tree built from the constructors
 ${\to}\mathrm{I}$, ${\neg}\mathrm{I}$, ${\bot}\mathrm{E}$, ${\neg}\mathrm{E}$ and the derived rule
-<code class="inl">dni</code>. "Completeness as a program," made literal.</p></div>
+<code class="inl">introduccion_doble_negacion</code>. "Completeness as a program," made literal.</p></div>
 
 <h2 id="congr"><span class="n">6.</span>The context depends only on truth values</h2>
 <p class="lead">The discharge step will perturb the valuation at a single atom. We must know this does not
@@ -305,12 +305,12 @@ valuations agreeing on a list of atoms produce the same literal context.</p>
     (Induction on $\mathit{ats}$: head by the first fact, tail by the IH.)
   </div></div>
   <div class="panel code"><div class="cap">Lean — Completeness.lean</div>
-<pre><span class="kw">theorem</span> lit_congr (h : w1 x ↔ w2 x) :
-    lit w1 x = lit w2 x
+<pre><span class="kw">theorem</span> congruencia_literal (h : w1 x ↔ w2 x) :
+    literal w1 x = literal w2 x
 
-<span class="kw">theorem</span> litCtx_congr (ats) :
-    (∀ x ∈ ats, (w1 x ↔ w2 x)) →
-    litCtx w1 ats = litCtx w2 ats</pre>
+<span class="kw">theorem</span> congruencia_contextoLiterales (listaAtomos) :
+    (∀ x ∈ listaAtomos, (w1 x ↔ w2 x)) →
+    contextoLiterales w1 listaAtomos = contextoLiterales w2 listaAtomos</pre>
   </div>
 </div>
 
@@ -338,7 +338,7 @@ Now:</p>
   $\mathrm{lit}_{v_{\mathsf F}}(p)=\neg p$).</li>
 </ul>
 <p>These are exactly the two premises of the derived rule of <em>proof by cases</em>
-(<code class="inl">byCases</code>), which is itself built from the classical reductio rule. Combining them
+(<code class="inl">analisis_por_casos</code>), which is itself built from the classical reductio rule. Combining them
 discharges $p$ and yields $\Gamma_v(\mathit{rest})\vdash\varphi$, closing the step.</p>
 </div>
 <div class="pair">
@@ -348,11 +348,11 @@ discharges $p$ and yields $\Gamma_v(\mathit{rest})\vdash\varphi$, closing the st
     and weakening.
   </div></div>
   <div class="panel code"><div class="cap">Lean — Completeness.lean</div>
-<pre><span class="kw">theorem</span> discharge (ats : List String)
-    (hnd : ats.Nodup)
-    (H : ∀ v, ND (litCtx v ats) φ) : ND ∅ φ
+<pre><span class="kw">theorem</span> descarga (listaAtomos : List String)
+    (hnd : listaAtomos.Nodup)
+    (H : ∀ v, ND (contextoLiterales v listaAtomos) φ) : ND ∅ φ
 <span class="cm">-- step: combine H vt and H vf via</span>
-<span class="cm">--   byCases : ND (insert p Γ) χ →</span>
+<span class="cm">--   analisis_por_casos : ND (insert p Γ) χ →</span>
 <span class="cm">--             ND (insert (~p) Γ) χ → ND Γ χ</span></pre>
   </div>
 </div>
@@ -369,19 +369,19 @@ arbitrary, the hypothesis of discharge is met, and we conclude $\emptyset\vdash\
     $$\mathrm{Taut}(\varphi)\ \Longleftrightarrow\ \emptyset\vdash\varphi.$$
   </div></div>
   <div class="panel code"><div class="cap">Lean — Completeness.lean</div>
-<pre><span class="kw">theorem</span> completeness_ND (φ) (h : IsTautology φ) :
+<pre><span class="kw">theorem</span> completitud_ND (φ) (h : EsTautologia φ) :
     ND ∅ φ :=
-  discharge (atoms φ).dedup (List.nodup_dedup _)
+  descarga (atomos φ).dedup (List.nodup_dedup _)
     (<span class="kw">fun</span> v =>
-      (kalmar v (atoms φ).dedup φ
+      (kalmar v (atomos φ).dedup φ
         (<span class="kw">fun</span> a ha => List.mem_dedup.2 ha)).1 (h v))
 
-<span class="kw">theorem</span> soundComplete (φ) :
-    IsTautology φ ↔ ND ∅ φ :=
-  ⟨completeness_ND φ, isTautology_of_provable⟩</pre>
+<span class="kw">theorem</span> correccion_completitud (φ) :
+    EsTautologia φ ↔ ND ∅ φ :=
+  ⟨completitud_ND φ, tautologia_de_derivable⟩</pre>
   </div>
 </div>
-<p>Reading the Lean: <code class="inl">discharge</code> is applied to the dedup'd atom list (with its
+<p>Reading the Lean: <code class="inl">descarga</code> is applied to the dedup'd atom list (with its
 no-duplicates proof) and to a function that, for each <code class="inl">v</code>, hands back the Kalmár
 derivation — <code class="inl">.1</code> selects the positive half, applied to <code class="inl">h v</code>
 (the tautology at $v$). The whole expression is a single term inhabiting
@@ -391,7 +391,7 @@ derivation — <code class="inl">.1</code> selects the positive half, applied to
 <p class="lead">Because a derivation is a term and the kernel checks it, there is no separate "is the proof
 correct?" question. The remaining question is what the term <em>assumes</em>, answered by the axiom audit:</p>
 <div class="panel math" style="margin:1rem 0"><div class="cap">Generated certificate</div><div class="body">
-  <code class="inl">completeness_ND</code> and <code class="inl">soundComplete</code> depend only on
+  <code class="inl">completitud_ND</code> and <code class="inl">correccion_completitud</code> depend only on
   <code class="inl">propext</code>, <code class="inl">Classical.choice</code>, <code class="inl">Quot.sound</code>
   — the standard classical foundation shared by all of Mathlib. No <code class="inl">sorryAx</code> (no
   admitted gaps) and no postulated completeness rule appear. The hand-built example derivations depend on
@@ -419,7 +419,7 @@ $\le$ every later one.</p>
     Specification: $\;\mathrm{qsort}(\ell)\sim\ell \ \wedge\ \mathrm{Sorted}(\mathrm{qsort}(\ell)).$
   </div></div>
   <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
-<pre><span class="kw">def</span> Sorted (l : List α) : Prop :=
+<pre><span class="kw">def</span> Ordenada (l : List α) : Prop :=
   l.Pairwise (· ≤ ·)</pre>
   </div>
 </div>
@@ -441,9 +441,9 @@ recursive call is strictly shorter.</p>
   <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
 <pre><span class="kw">def</span> quicksort : List α → List α
   | [] => []
-  | p :: rest =>
-      quicksort (rest.filter (fun x => decide (x ≤ p)))
-        ++ p :: quicksort (rest.filter (fun x => ! decide (x ≤ p)))
+  | p :: cola =>
+      quicksort (cola.filter (fun x => decide (x ≤ p)))
+        ++ p :: quicksort (cola.filter (fun x => ! decide (x ≤ p)))
   <span class="kw">termination_by</span> l => l.length
   <span class="kw">decreasing_by</span>
     all_goals simp_wf
@@ -466,16 +466,16 @@ halves recovers $p::r$.</p>
     <em>Corollary.</em> membership is preserved: $a\in\mathrm{qsort}(\ell)\iff a\in\ell$.
   </div></div>
   <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
-<pre><span class="kw">theorem</span> quicksort_perm :
+<pre><span class="kw">theorem</span> quicksort_permutacion :
     ∀ l : List α, quicksort l ~ l
   | [] => by simp
-  | p :: rest => by
+  | p :: cola => by
       rw [quicksort_cons]
-      have ih1 := quicksort_perm (rest.filter _)
-      have ih2 := quicksort_perm (rest.filter _)
+      have ih1 := quicksort_permutacion (cola.filter _)
+      have ih2 := quicksort_permutacion (cola.filter _)
       refine (ih1.append (ih2.cons p)).trans ?_
       refine (perm_middle).trans ?_
-      exact (filter_append_perm _ rest).cons p</pre>
+      exact (filter_append_perm _ cola).cons p</pre>
   </div>
 </div>
 
@@ -493,10 +493,10 @@ bounds supply.</p>
     cross-bound (every $a\in A$ is $\le$ everything in $p::B$, by transitivity through $p$).
   </div></div>
   <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
-<pre><span class="kw">theorem</span> quicksort_sorted :
-    ∀ l : List α, Sorted (quicksort l)
-  | [] => by simp [Sorted]
-  | p :: rest => by
+<pre><span class="kw">theorem</span> quicksort_ordenada :
+    ∀ l : List α, Ordenada (quicksort l)
+  | [] => by simp [Ordenada]
+  | p :: cola => by
       -- IHs: both halves sorted
       -- hsmall: every elt of the ≤-half is ≤ p
       -- hlarge: every elt of the >-half is ≥ p
@@ -521,12 +521,12 @@ rests only on the standard classical axioms.</p>
     algorithm.
   </div></div>
   <div class="panel code"><div class="cap">Lean — generated certificate</div>
-<pre><span class="kw">theorem</span> quicksort_correct (l : List α) :
-    quicksort l ~ l ∧ Sorted (quicksort l) :=
-  ⟨quicksort_perm l, quicksort_sorted l⟩
+<pre><span class="kw">theorem</span> quicksort_correcto (l : List α) :
+    quicksort l ~ l ∧ Ordenada (quicksort l) :=
+  ⟨quicksort_permutacion l, quicksort_ordenada l⟩
 
 <span class="cm">-- audit.txt:</span>
-<span class="cm">-- quicksort_correct depends on axioms:</span>
+<span class="cm">-- quicksort_correcto depends on axioms:</span>
 <span class="cm">--   [propext, Classical.choice, Quot.sound]</span></pre>
   </div>
 </div>
@@ -537,7 +537,7 @@ identical three-axiom footprint as the completeness theorem of Part&nbsp;I.</p>
 <p class="lead">As with Part&nbsp;I, we gave the automated prover <strong>Harmonic Aristotle</strong> the
 algorithm <em>cold</em> — the definition of <code class="inl">quicksort</code> and its unfolding
 equation, with the correctness proof and both lemmas withheld — and asked it to prove
-<code class="inl">quicksort_correct</code>. It works inside Lean, so its output is kernel-checked to
+<code class="inl">quicksort_correcto</code>. It works inside Lean, so its output is kernel-checked to
 the same standard.</p>
 <p>It rediscovered the same decomposition (a permutation lemma and a sortedness lemma, conjoined). The
 sortedness proof tracks ours. For <em>permutation</em>, though, it found a different route: where the
@@ -553,10 +553,10 @@ hand proof rearranges the partitions structurally, Aristotle reduced "is a permu
     <code class="inl">sorry</code>.
   </div></div>
   <div class="panel code"><div class="cap">Lean — aristotle/QuicksortFull.lean</div>
-<pre><span class="kw">theorem</span> quicksort_perm (l : List α) :
+<pre><span class="kw">theorem</span> quicksort_permutacion (l : List α) :
     quicksort l ~ l := <span class="kw">by</span>
   induction' n : l.length
-    using Nat.strong_induction_on with n ih generalizing l
+    using Nat.strong_induction_on with n hipInd generalizing l
   rcases l with _ | ⟨p, l⟩ <span class="cm">&lt;;&gt;</span>
     simp_all +decide [List.perm_iff_count]
   · unfold quicksort; aesop
