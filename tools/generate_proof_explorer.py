@@ -10,14 +10,16 @@ from pathlib import Path
 import subprocess
 import sys
 from typing import Any
+from spanish_migration import CONFIG as SPANISH_CONFIG, translate
 
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "artifacts/explorer/proofs.json"
-SOURCE_COMMIT = "9c0d16cc9f662de8a0b0bad69f3b3a3359c47b77"
+SOURCE_COMMIT = "6eecf5afeba4af39280bd98d2667f295baa94973"
 LEAN_TOOLCHAIN = "leanprover/lean4:v4.29.0"
 LEAN_VERSION = "4.29.0"
 SUBVERSO_REVISION = "52b9dfbd2658408e37ae6e8b72601ddeaaa25a0c"
+LEGACY_STEPS: dict[str, list[dict[str, Any]]] = {}
 
 ALLOWED_TACTICS = {
     "Lean.Parser.Tactic.intro",
@@ -112,6 +114,13 @@ for module, declarations in [
         TARGETS.append({"id": declaration, "module": module,
                         "declaration": module.rsplit(".", 1)[0] + "." + declaration,
                         "shortDeclaration": declaration, "path": module.replace(".", "/") + ".lean"})
+
+
+# Los identificadores públicos de navegación no se traducen. La declaración
+# y todos sus estados proceden del módulo original con nombres españoles.
+for target in TARGETS:
+    target['shortDeclaration'] = SPANISH_CONFIG['public'].get(target['shortDeclaration'], target['shortDeclaration'])
+    target['declaration'] = target['declaration'].rsplit('.', 1)[0] + '.' + target['shortDeclaration']
 
 
 class ExportError(RuntimeError):
@@ -265,6 +274,14 @@ def general_steps(proof_id: str, raw: dict[str, Any]) -> list[dict[str, Any]]:
         digest = sha256(tactic["sourceText"].encode())[:12]
         counts[digest] = counts.get(digest, 0) + 1
         step_id = f"{proof_id}.{digest}.{counts[digest]}"
+        # Conserva enlaces compartidos solo si el mismo paso difiere exactamente
+        # por el renombrado autorizado. No reutiliza estados de la versión antigua.
+        matches = [old for old in LEGACY_STEPS.get(proof_id, [])
+                   if old['startLine'] == tactic['range']['start']['line']
+                   and old['endLine'] == tactic['range']['end']['line']
+                   and translate(old['sourceText']) == tactic['sourceText']]
+        if len(matches) == 1:
+            step_id = matches[0]['id']
         goal_name = tactic["before"][0].get("id", "principal")
         for phase in ("before", "after"):
             for index, goal in enumerate(tactic[phase], 1):
@@ -306,6 +323,8 @@ def make_proof(target: dict[str, str]) -> dict[str, Any]:
 
 def generate() -> bytes:
     assert_pins()
+    legacy = json.loads(run(['git', 'show', f"{SPANISH_CONFIG['baseCommit']}:artifacts/explorer/proofs.json"], text=True).stdout)
+    LEGACY_STEPS.update({proof['id']: proof['steps'] for proof in legacy['proofs']})
     # Foundation is a separate root; ensure its imported .olean files exist
     # even on a fresh CI checkout before the dynamic frontend loads them.
     run(["lake", "build", *sorted({target["module"] for target in TARGETS})])

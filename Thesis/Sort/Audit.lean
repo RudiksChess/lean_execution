@@ -1,18 +1,18 @@
 import Thesis.Sort.Quicksort
 
-/-!
-# Axiom audit (quicksort)
+/-! # Auditoría de axiomas de Quicksort
 
-Reproducible certificate for the quicksort report. Running this file with
-`lake env lean Thesis/Sort/Audit.lean` prints the axioms each correctness result
-transitively depends on. Regenerate `reports/quicksort/audit.txt` with
-`make audit-quicksort`; CI fails if the committed copy drifts.
--/
+Se ejecuta lake env lean Thesis/Sort/Audit.lean para obtener los axiomas
+de los resultados de corrección. make audit-quicksort regenera el certificado.
+
+
+
+La integración continua comprueba que coincide con la salida de Lean. -/
 
 namespace Thesis.Sort
 
-#print axioms quicksort_correct
-#print axioms quicksort_perm
-#print axioms quicksort_sorted
+#print axioms quicksort_correcto
+#print axioms quicksort_permutacion
+#print axioms quicksort_ordenada
 
 end Thesis.Sort

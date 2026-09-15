@@ -1,5 +1,5 @@
-'Thesis.Prop.completeness_ND' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Thesis.Prop.soundComplete' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Thesis.Prop.soundness' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Thesis.Prop.ex_id' does not depend on any axioms
-'Thesis.Prop.ex_dne' does not depend on any axioms
+'Thesis.Prop.completitud_ND' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.correccion_completitud' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.correccion' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.ej_identidad' does not depend on any axioms
+'Thesis.Prop.ej_eliminacion_doble_negacion' does not depend on any axioms

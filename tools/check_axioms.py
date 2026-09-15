@@ -8,11 +8,11 @@ ALLOWED = {"propext", "Classical.choice", "Quot.sound"}
 AUDITS = {
     "Thesis/Prop/Audit.lean": {
         "Thesis.Prop." + name
-        for name in ("completeness_ND", "soundComplete", "soundness", "ex_id", "ex_dne")
+        for name in ("completitud_ND", "correccion_completitud", "correccion", "ej_identidad", "ej_eliminacion_doble_negacion")
     },
     "Thesis/Sort/Audit.lean": {
         "Thesis.Sort." + name
-        for name in ("quicksort_correct", "quicksort_perm", "quicksort_sorted")
+        for name in ("quicksort_correcto", "quicksort_permutacion", "quicksort_ordenada")
     },
 }
 LINE = re.compile(

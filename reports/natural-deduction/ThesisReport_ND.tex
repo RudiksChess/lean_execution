@@ -135,14 +135,14 @@ An Oracle-Free Internal Proof via Kalm\'ar's Lemma}
 This chapter presents a complete, machine-checked proof of the completeness theorem for
 classical propositional natural deduction, formalized in Lean~4 and verified to depend on
 \emph{no} unproved assumptions beyond the standard classical foundations of the Lean/Mathlib
-ecosystem. We fix a surface language with atoms, negation, and implication; equip it with the
+ecosystem. We fix a surface language with atomos, negation, and implication; equip it with the
 standard classical (truth-table) semantics; and define a genuine natural-deduction calculus
-$\Gamma \Provnd \varphi$ with contexts, hypothesis discharge, and a classical reductio rule.
-We then prove \emph{soundness} (every derivable formula is a tautology) and \emph{completeness}
+$\Gamma \Provnd \varphi$ with contexts, hypothesis descarga, and a classical reductio rule.
+We then prove \emph{correccion} (every derivable formula is a tautology) and \emph{completeness}
 (every tautology is derivable from the empty context). Completeness is established
 \emph{internally}, by a constructive realization of \emph{Kalm\'ar's lemma}: for each fixed
 valuation we build a derivation from the literal context determined by that valuation, and we
-then discharge the finitely many atoms one at a time by a classical case split. No external
+then descarga the finitely many atomos one at a time by a classical case split. No external
 ``oracle'' and no library completeness theorem is used in the proof; the role of the
 \emph{Foundation} library is relegated to an independent cross-validation appendix. The
 exposition is organized so that every step appears first as ordinary mathematics with a full
@@ -169,7 +169,7 @@ foundation appears throughout proof theory and type theory: \emph{proof objects 
 artifacts} and can be manipulated systematically.
 
 Lean provides a setting where this slogan is made precise: proofs are typed terms, and the
-verification of correctness is delegated to a small trusted kernel. This chapter adopts
+verification of correctness is delegated to a menoresIguales trusted kernel. This chapter adopts
 Stansifer's conceptual perspective but in the setting of \emph{natural deduction} rather than a
 Hilbert calculus, and it carries out the completeness argument \emph{internally}: the derivation
 of each tautology is built from the genuine introduction/elimination rules, with no appeal to an
@@ -204,7 +204,7 @@ Pierce~\cite{PierceTAPL2002}.
 It is essential to keep two layers separate throughout this chapter.
 \begin{itemize}
 \item The \emph{meta-level} (or ambient) logic is Lean's own type theory. When we \emph{prove a
-theorem about} our calculus---for instance, ``soundness holds''---we reason in this ambient logic,
+theorem about} our calculus---for instance, ``correccion holds''---we reason in this ambient logic,
 and Lean's built-in connectives ($\land,\lor,\to,\neg,\forall$) and tactics live here.
 \item The \emph{object-level} logic is the propositional calculus we are studying. Its formulas
 are data (an inductive type \texttt{Formula}), and its provability relation
@@ -232,7 +232,7 @@ exactly this generated recursor.
 \subsection{Computation inside proofs}
 Lean definitions are computational: they can be unfolded and reduced. The \texttt{simp} tactic
 performs definitional unfolding and rewriting with registered lemmas. In this chapter \texttt{simp}
-is used mainly to expand the recursive definition of \texttt{eval} and to discharge elementary
+is used mainly to expand the recursive definition of \texttt{evaluar} and to descarga elementary
 membership facts about finite sets; the logically substantive steps are always written out
 explicitly with named rules.
 
@@ -278,7 +278,7 @@ the syntax \texttt{Formula} and the provability relation \texttt{ND} directly.
 \item \textbf{Lean-specific refinements.} $\mathsf{Prop}$ is \emph{definitionally proof-irrelevant}
 (any two proofs of one proposition are interchangeable), there is definitional $\eta$, and the
 kernel supports quotient types. The classical principles we use---excluded middle in case splits,
-and the choice implicit in defining \texttt{lit} by a proposition-valued test---are justified by
+and the choice implicit in defining \texttt{literal} by a proposition-valued test---are justified by
 three axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}); these, and only
 these, are reported by the audit in \S\ref{sec:axioms}.
 \end{itemize}
@@ -307,14 +307,14 @@ only closed inhabitants of \texttt{ND $\Gamma$ $\varphi$} are finite trees of co
 applications. Hence establishing the motive $C$ for every constructor establishes it for
 \emph{all} derivations: there are no others. This is the formal content of rule induction.
 \item \textbf{Elimination into $\mathsf{Prop}$.} All our motives are themselves $\mathsf{Prop}$-valued
-(soundness's $\forall v,\ (\dots)\to\sem{\varphi}_v$; Kalm\'ar's pair of implications), and
+(correccion's $\forall v,\ (\dots)\to\sem{\varphi}_v$; Kalm\'ar's pair of implications), and
 eliminating a $\mathsf{Prop}$-inductive into $\mathsf{Prop}$ is always permitted. Whenever the text
 says ``by induction on the derivation,'' Lean applies \texttt{ND.rec} with the stated motive; the
 surface syntax \texttt{induction d with | hyp \dots | impI \dots} is sugar for precisely this.
 \end{itemize}
 The same story holds for syntax: \texttt{Formula} is an inductive type with recursor
 \texttt{Formula.rec}; ``induction on $\varphi$'' in Kalm\'ar's lemma is \texttt{Formula.rec}, and
-the recursive definitions \texttt{eval}, \texttt{atoms}, \texttt{tr} are compiled to it.
+the recursive definitions \texttt{evaluar}, \texttt{atomos}, \texttt{traducir} are compiled to it.
 
 \subsection{The dictionary: object logic versus ambient type theory}
 \label{sec:cic-dict}
@@ -331,7 +331,7 @@ Context $\Gamma$ & term of \texttt{Set Formula} $=$ \texttt{Formula $\to$ Prop} 
 Derivability judgment $\Gamma\Provnd\varphi$ & the proposition \texttt{ND $\Gamma$ $\varphi$} (in $\mathsf{Prop}$) \\
 A particular derivation & a \emph{term} \texttt{d : ND $\Gamma$ $\varphi$} (a constructor tree) \\
 An inference rule & a constructor ($\Pi$-type returning \texttt{ND \dots}) \\
-A meta-theorem (lemma, soundness, completeness) & a $\Pi$-type, e.g.\ $\forall\varphi,\ \texttt{IsTautology }\varphi \to \texttt{ND }\emptyset\,\varphi$ \\
+A meta-theorem (lemma, correccion, completeness) & a $\Pi$-type, e.g.\ $\forall\varphi,\ \texttt{EsTautologia }\varphi \to \texttt{ND }\emptyset\,\varphi$ \\
 A proof of a meta-theorem & a term inhabiting that $\Pi$-type \\
 ``Induction on a derivation'' & application of the eliminator \texttt{ND.rec} \\
 ``Induction on a formula'' & application of \texttt{Formula.rec} \\
@@ -347,7 +347,7 @@ not described, asserted, or imported---it is built, as a finite data structure, 
 checks it has the claimed type. A meta-theorem such as completeness is likewise a term, of the
 displayed $\Pi$-type; constructing and type-checking that term \emph{is} proving the theorem.
 
-\subsection{How to read the rest of this chapter}
+\subsection{How to read the cola of this chapter}
 Each subsequent section carries a short \emph{Internal view (CIC)} note naming the mechanism the
 Lean code uses---constructor application, \texttt{ND.rec}, \texttt{Formula.rec}, or the inhabiting
 $\Pi$-term. These notes let the reader verify, at every step, that the code constructs exactly the
@@ -367,7 +367,7 @@ are only $\neg$ and $\to$.
 Informal mathematical reasoning is organized into reusable patterns: ``if $\dots$ then $\dots$,''
 ``either $\dots$ or $\dots$,'' ``assume $\dots$ and derive a contradiction.'' Symbolic logic
 isolates these patterns by replacing content-rich statements with propositional variables and
-English connectives by formal connectives. Inference then becomes the study of a small number of
+English connectives by formal connectives. Inference then becomes the study of a menoresIguales number of
 \emph{rules}, drawn as proof trees: if $C$ is derivable from $A$ and $B$, we write
 \[
 \frac{A \qquad B}{C}.
@@ -443,7 +443,7 @@ falsity---reappear as constructors of our object-level calculus in Section~\ref{
 Proof trees appear in two tightly related ways.
 \paragraph{(1) As inductive objects.} The constructors of \texttt{ND} \emph{are} the object-level
 inference rules; a term \texttt{d : ND $\Gamma$ $\varphi$} is an object-level derivation tree.
-\paragraph{(2) As terms built by tactics.} When we prove a \emph{meta-theorem} (soundness,
+\paragraph{(2) As terms built by tactics.} When we prove a \emph{meta-theorem} (correccion,
 completeness, a structural lemma) with \texttt{by \dots}, Lean's tactic mode constructs a
 meta-level proof term. The tactic script is a readable recipe for that term.
 
@@ -456,22 +456,22 @@ meta-level proof term. The tactic script is a readable recipe for that term.
 \textbf{Lean notation / identifier} & \textbf{Mathematical meaning} \\
 \midrule
 \texttt{Formula} & Object syntax $\varphi ::= p \mid \Not\varphi \mid (\varphi\Imp\psi)$ \\
-\texttt{Valuation := String $\to$ Prop} & Classical valuation $v : \mathsf{Var} \to \{\mathsf{T},\mathsf{F}\}$ \\
-\texttt{eval v $\varphi$} & Truth value $\sem{\varphi}_v$ \\
-\texttt{IsTautology $\varphi$} & $\forall v,\ \sem{\varphi}_v$ \\
-\texttt{Bot} & The object falsity $\bot := \Not(p_0 \Imp p_0)$ \\
+\texttt{Valuacion := String $\to$ Prop} & Classical valuation $v : \mathsf{Var} \to \{\mathsf{T},\mathsf{F}\}$ \\
+\texttt{evaluar v $\varphi$} & Truth value $\sem{\varphi}_v$ \\
+\texttt{EsTautologia $\varphi$} & $\forall v,\ \sem{\varphi}_v$ \\
+\texttt{Falsedad} & The object falsity $\bot := \Not(p_0 \Imp p_0)$ \\
 \texttt{ND $\Gamma$ $\varphi$} & Derivability judgment $\Gamma \Provnd \varphi$ \\
-\texttt{weakening} & Monotonicity: $\Gamma \Provnd \varphi$ and $\Gamma\subseteq\Delta$ give $\Delta\Provnd\varphi$ \\
-\texttt{dni} & Double-negation introduction $\Gamma\Provnd\varphi \Rightarrow \Gamma\Provnd\Not\Not\varphi$ \\
-\texttt{byCases} & Derived classical case split on a formula \\
-\texttt{soundness} & $\Gamma\Provnd\varphi \Rightarrow (\forall v\models\Gamma,\ \sem{\varphi}_v)$ \\
-\texttt{atoms $\varphi$} & List of atoms occurring in $\varphi$ \\
-\texttt{lit v p} & Literal of $p$ under $v$: $p$ if $v(p)$, else $\Not p$ \\
-\texttt{litCtx v ats} & Literal context $\{\,\mathrm{lit}\,v\,p : p \in \mathit{ats}\,\}$ \\
+\texttt{debilitamiento} & Monotonicity: $\Gamma \Provnd \varphi$ and $\Gamma\subseteq\Delta$ give $\Delta\Provnd\varphi$ \\
+\texttt{introduccion\_doble\_negacion} & Double-negation introduction $\Gamma\Provnd\varphi \Rightarrow \Gamma\Provnd\Not\Not\varphi$ \\
+\texttt{analisis\_por\_casos} & Derived classical case split on a formula \\
+\texttt{correccion} & $\Gamma\Provnd\varphi \Rightarrow (\forall v\models\Gamma,\ \sem{\varphi}_v)$ \\
+\texttt{atomos $\varphi$} & List of atomos occurring in $\varphi$ \\
+\texttt{literal v p} & Literal of $p$ under $v$: $p$ if $v(p)$, else $\Not p$ \\
+\texttt{contextoLiterales v listaAtomos} & Literal context $\{\,\mathrm{literal}\,v\,p : p \in \mathit{listaAtomos}\,\}$ \\
 \texttt{kalmar} & Kalm\'ar's lemma (Lemma~\ref{lem:kalmar}) \\
-\texttt{discharge} & Eliminates atoms by classical case analysis (Lemma~\ref{lem:discharge}) \\
-\texttt{completeness\_ND} & $\mathrm{Taut}(\varphi)\Rightarrow \emptyset\Provnd\varphi$ \\
-\texttt{soundComplete} & $\mathrm{Taut}(\varphi) \leftrightarrow \emptyset\Provnd\varphi$ \\
+\texttt{descarga} & Eliminates atomos by classical case analysis (Lemma~\ref{lem:discharge}) \\
+\texttt{completitud\_ND} & $\mathrm{Taut}(\varphi)\Rightarrow \emptyset\Provnd\varphi$ \\
+\texttt{correccion\_completitud} & $\mathrm{Taut}(\varphi) \leftrightarrow \emptyset\Provnd\varphi$ \\
 \texttt{induction d} & Rule induction on a derivation \\
 \bottomrule
 \end{tabularx}
@@ -492,7 +492,7 @@ We use only $\Not$ and $\Imp$ as primitive; this is the same minimal fragment as
 Stansifer~\cite{Stansifer2001}, and it suffices for classical propositional logic since the other
 connectives are definable.
 
-\begin{definition}[Valuation and evaluation]
+\begin{definition}[Valuacion and evaluation]
 A \emph{valuation} is a function $v : \mathsf{Var} \to \{\mathsf{T},\mathsf{F}\}$ (in Lean, a
 function into \texttt{Prop}). Evaluation $\sem{\cdot}_v$ is defined by recursion on syntax:
 \[
@@ -508,10 +508,10 @@ every valuation $v$.
 \end{definition}
 
 \begin{remark}[On encoding truth values as \texttt{Prop}]
-We take \texttt{Valuation := String $\to$ Prop}, so an atom's value is a Lean proposition rather
+We take \texttt{Valuacion := String $\to$ Prop}, so an atom's value is a Lean proposition rather
 than a Boolean. The two presentations agree under classical logic, which we enable locally with
 \texttt{Classical.propDecidable}; the recursive clauses for $\Not$ and $\Imp$ then use Lean's own
-$\neg$ and $\to$ at the meta-level. This keeps \texttt{eval} definitionally transparent to
+$\neg$ and $\to$ at the meta-level. This keeps \texttt{evaluar} definitionally transparent to
 \texttt{simp}.
 \end{remark}
 
@@ -519,7 +519,7 @@ $\neg$ and $\to$ at the meta-level. This keeps \texttt{eval} definitionally tran
 \lstinputlisting{../../Thesis/Prop/Syntax.lean}
 
 \noindent The three constructors of \texttt{Formula} are the three grammar productions;
-\texttt{eval} is the recursion defining $\sem{\cdot}_v$; \texttt{IsTautology} is the universal
+\texttt{evaluar} is the recursion defining $\sem{\cdot}_v$; \texttt{EsTautologia} is the universal
 quantifier over valuations.
 
 \section{The natural-deduction calculus (\texttt{NaturalDeduction.lean})}
@@ -610,7 +610,7 @@ exactly what is needed for completeness with respect to the classical truth-tabl
 \lstinputlisting[linerange=ndType-ndType]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \noindent Each constructor is one rule above, read top-to-bottom as ``premises $\to$ conclusion.''
-Hypothesis discharge is implicit in the use of \texttt{insert}: a premise \texttt{ND (insert
+Hypothesis descarga is implicit in the use of \texttt{insert}: a premise \texttt{ND (insert
 $\varphi$ $\Gamma$) \dots} is a subderivation in which $\varphi$ is available as an assumption, and
 forming the conclusion removes it from the context. Crucially, there is \textbf{no oracle
 constructor}: every way of forming a derivation is one of these seven genuine rules.
@@ -626,7 +626,7 @@ the type: nothing can inhabit \texttt{ND $\Gamma$ $\varphi$} except a genuine de
 \section{Structural and derived rules}
 \label{sec:derived}
 
-Before soundness and completeness we record three lemmas used repeatedly. Each is a meta-theorem
+Before correccion and completeness we record three lemmas used repeatedly. Each is a meta-theorem
 proved by rule induction or by exhibiting a derivation.
 
 \subsection{Weakening (monotonicity in the context)}
@@ -650,11 +650,11 @@ hypothesis to the extended inclusion, then reapply the rule.
 \end{itemize}
 \end{proof}
 
-\lstinputlisting[linerange=weakening-weakening]{../../Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=debilitamiento-debilitamiento]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \noindent The seven \texttt{|}-branches mirror the seven cases of the proof exactly;
 \texttt{insert\_subset\_insert} is the Mathlib lemma $\Gamma\subseteq\Delta \Rightarrow
-(\Gamma,\chi)\subseteq(\Delta,\chi)$ used in the three discharge cases.
+(\Gamma,\chi)\subseteq(\Delta,\chi)$ used in the three descarga cases.
 
 \paragraph{Internal view (CIC).} \texttt{induction d} elaborates to \texttt{ND.rec} applied with
 the motive
@@ -663,7 +663,7 @@ C\,\Gamma\,\varphi\,(\_ : \texttt{ND }\Gamma\,\varphi)\ :=\ \forall\,\{\Delta\},
 \]
 Note that the motive is itself a $\Pi$-type (it quantifies over $\Delta$); this is why the proof
 ``generalizes over $\Delta$'' before inducting. Each branch supplies the corresponding minor
-premise of \texttt{ND.rec}, and---being able to use the induction hypotheses \texttt{ih}---rebuilds
+premise of \texttt{ND.rec}, and---being able to use the induction hypotheses \texttt{hipInd}---rebuilds
 the conclusion with the same constructor over the larger context. The whole tactic block
 elaborates to a single closed term of type \texttt{$\forall$\,\{$\Gamma$ $\varphi$\}, ND $\Gamma$ $\varphi$ $\to$ $\forall$\,\{$\Delta$\}, $\Gamma\subseteq\Delta$ $\to$ ND $\Delta$ $\varphi$}.
 
@@ -675,14 +675,14 @@ If $\Gamma \Provnd \varphi$ then $\Gamma \Provnd \Not\Not\varphi$.
 \begin{proof}
 To prove $\Gamma\Provnd\Not(\Not\varphi)$ apply $\Not\mathrm{I}$; it suffices to derive
 $\Gamma,\Not\varphi \Provnd \bot$. By \texttt{hyp}, $\Gamma,\Not\varphi \Provnd \Not\varphi$; by
-weakening of the hypothesis $\Gamma\Provnd\varphi$, also $\Gamma,\Not\varphi \Provnd \varphi$.
+debilitamiento of the hypothesis $\Gamma\Provnd\varphi$, also $\Gamma,\Not\varphi \Provnd \varphi$.
 Then $\Not\mathrm{E}$ yields $\bot$.
 \end{proof}
 
-\lstinputlisting[linerange=dni-dni]{../../Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=introduccion\_doble\_negacion-introduccion\_doble\_negacion]{../../Thesis/Prop/NaturalDeduction.lean}
 
 \subsection{Classical proof by cases}
-The next lemma is the engine of the atom-discharge step (Section~\ref{sec:discharge}). It is the
+The next lemma is the engine of the atom-descarga step (Section~\ref{sec:discharge}). It is the
 ``law of excluded middle, used silently'': we never form a disjunction object, we just split the
 proof.
 
@@ -694,12 +694,12 @@ If $\Gamma,\varphi \Provnd \chi$ and $\Gamma,\Not\varphi \Provnd \chi$, then $\G
 Apply RAA: it suffices to derive $\Gamma,\Not\chi \Provnd \bot$. We build two subderivations.
 
 \emph{(i)} $\Gamma,\Not\chi \Provnd \Not\varphi$. Apply $\Not\mathrm{I}$; we need
-$\Gamma,\Not\chi,\varphi \Provnd \bot$. By weakening of the first hypothesis,
+$\Gamma,\Not\chi,\varphi \Provnd \bot$. By debilitamiento of the first hypothesis,
 $\Gamma,\Not\chi,\varphi \Provnd \chi$; by \texttt{hyp}, $\Gamma,\Not\chi,\varphi \Provnd \Not\chi$.
 Then $\Not\mathrm{E}$ gives $\bot$.
 
 \emph{(ii)} $\Gamma,\Not\chi \Provnd \Not\Not\varphi$. Apply $\Not\mathrm{I}$; we need
-$\Gamma,\Not\chi,\Not\varphi \Provnd \bot$. By weakening of the second hypothesis,
+$\Gamma,\Not\chi,\Not\varphi \Provnd \bot$. By debilitamiento of the second hypothesis,
 $\Gamma,\Not\chi,\Not\varphi \Provnd \chi$; by \texttt{hyp}, the same context proves $\Not\chi$.
 Then $\Not\mathrm{E}$ gives $\bot$.
 
@@ -707,16 +707,16 @@ Finally $\Not\mathrm{E}$ applied to (ii) and (i)---i.e.\ to $\Not\Not\varphi$ an
 $\Not\varphi$---yields $\Gamma,\Not\chi \Provnd \bot$, completing the reductio.
 \end{proof}
 
-\lstinputlisting[linerange=byCases-byCases]{../../Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=analisis\_por\_casos-analisis\_por\_casos]{../../Thesis/Prop/NaturalDeduction.lean}
 
-\paragraph{Internal view (CIC).} \texttt{dni} and \texttt{byCases} are \emph{not} inductions: each
-directly assembles an \texttt{ND}-term from constructors. For instance \texttt{dni d} elaborates to
+\paragraph{Internal view (CIC).} \texttt{introduccion\_doble\_negacion} and \texttt{analisis\_por\_casos} are \emph{not} inductions: each
+directly assembles an \texttt{ND}-term from constructors. For instance \texttt{introduccion\_doble\_negacion d} elaborates to
 \[
-\texttt{ND.negI}\ \big(\texttt{ND.negE}\ (\texttt{ND.hyp}\ \dots)\ (\texttt{weakening } d\ \dots)\big),
+\texttt{ND.negI}\ \big(\texttt{ND.negE}\ (\texttt{ND.hyp}\ \dots)\ (\texttt{debilitamiento } d\ \dots)\big),
 \]
-a constructor tree whose leaves are \texttt{hyp} and the (recursively built) weakening of $d$. The
-\texttt{have dNeg} and \texttt{have dDoubleNeg} blocks in \texttt{byCases} build the two subderivations as named
-subterms, and \texttt{ND.negE dDoubleNeg dNeg} plugs them into the $\Not\mathrm{E}$ constructor. Thus
+a constructor tree whose leaves are \texttt{hyp} and the (recursively built) debilitamiento of $d$. The
+\texttt{have dNeg} and \texttt{have dDobleNeg} blocks in \texttt{analisis\_por\_casos} build the two subderivations as named
+subterms, and \texttt{ND.negE dDobleNeg dNeg} plugs them into the $\Not\mathrm{E}$ constructor. Thus
 these ``derived rules'' are admissible \emph{by construction}: each is a function returning a
 genuine derivation, not a new primitive of the calculus.
 
@@ -784,22 +784,22 @@ $\sem{\bot}_v=\mathrm{False}$ for any $v$ (Lemma~\ref{lem:evalBot}), a contradic
 \end{proof}
 
 \subsection{Lean code (as implemented)}
-\lstinputlisting[linerange=soundness-soundness]{../../Thesis/Prop/NaturalDeduction.lean}
+\lstinputlisting[linerange=correccion-correccion]{../../Thesis/Prop/NaturalDeduction.lean}
 
-\noindent The seven branches of \texttt{soundness} are the seven cases above;
-\texttt{(eval\_Bot v).1} and \texttt{.2} are the two directions of Lemma~\ref{lem:evalBot}; the
+\noindent The seven branches of \texttt{correccion} are the seven cases above;
+\texttt{(evaluar\_falsedad v).1} and \texttt{.2} are the two directions of Lemma~\ref{lem:evalBot}; the
 \texttt{by\_contra} in the \texttt{classical} branch is the single classical step.
 
 \paragraph{Internal view (CIC).} Again \texttt{induction d} is \texttt{ND.rec}, now with the
 $\mathsf{Prop}$-valued motive
 \[
-C\,\Gamma\,\varphi\,(\_) \ :=\ \forall v,\ (\forall \psi\in\Gamma,\ \texttt{eval } v\,\psi)\ \to\ \texttt{eval } v\,\varphi .
+C\,\Gamma\,\varphi\,(\_) \ :=\ \forall v,\ (\forall \psi\in\Gamma,\ \texttt{evaluar } v\,\psi)\ \to\ \texttt{evaluar } v\,\varphi .
 \]
 Soundness and completeness eliminate the \emph{same} inductive \texttt{ND} into two different
 $\mathsf{Prop}$ motives---semantic validity here, and (inside Kalm\'ar) provability of literals
 there. Both eliminations are legal because the targets are propositions
 (\S\ref{sec:cic-elim}). The \texttt{by\_contra} step is where the meta-level uses
-\texttt{Classical.choice}/\texttt{propext}, which is why \texttt{soundness} appears in the axiom
+\texttt{Classical.choice}/\texttt{propext}, which is why \texttt{correccion} appears in the axiom
 audit with those constants.
 
 \section{Completeness via Kalm\'ar's lemma (\texttt{Completeness.lean})}
@@ -816,85 +816,85 @@ $\Gamma_v$ be the \emph{literal context} of $v$: for each atom $p$ relevant to $
 the literal $p$ if $v(p)=\mathsf{T}$ and $\Not p$ if $v(p)=\mathsf{F}$. We show, by induction on
 $\varphi$, that $\Gamma_v$ \emph{proves} $\varphi$ when $\sem{\varphi}_v$ is true, and proves
 $\Not\varphi$ when it is false. Intuitively, the derivation ``follows the truth table row $v$.''
-\item \textbf{Discharging the atoms.} If $\varphi$ is a tautology, then $\sem{\varphi}_v$ is true
+\item \textbf{Discharging the atomos.} If $\varphi$ is a tautology, then $\sem{\varphi}_v$ is true
 for every $v$, so by stage~1, \emph{every} literal context proves $\varphi$. We then eliminate the
-atoms one at a time: for a fixed atom $p$, the two contexts that differ only in containing $p$
+atomos one at a time: for a fixed atom $p$, the two contexts that differ only in containing $p$
 versus $\Not p$ both prove $\varphi$, so by the derived case split (Lemma~\ref{lem:bycases}) the
-context \emph{without} any assumption about $p$ proves $\varphi$. Iterating over all atoms
+context \emph{without} any assumption about $p$ proves $\varphi$. Iterating over all atomos
 collapses the context to $\emptyset$.
 \end{enumerate}
 
 No maximal-consistent-set / Lindenbaum machinery is needed: the argument is finitary, driven by
-the finite list of atoms occurring in $\varphi$.
+the finite list of atomos occurring in $\varphi$.
 
 \subsection{Atoms, literals, and literal contexts}
 \begin{definition}[Atoms of a formula]
-$\mathrm{atoms}(\varphi)$ is the list of atoms occurring in $\varphi$ (with repetition):
+$\mathrm{atomos}(\varphi)$ is the list of atomos occurring in $\varphi$ (with repetition):
 \[
-\mathrm{atoms}(p)=[p],\quad
-\mathrm{atoms}(\Not\varphi)=\mathrm{atoms}(\varphi),\quad
-\mathrm{atoms}(\varphi\Imp\psi)=\mathrm{atoms}(\varphi)\,{+}\!{+}\,\mathrm{atoms}(\psi).
+\mathrm{atomos}(p)=[p],\quad
+\mathrm{atomos}(\Not\varphi)=\mathrm{atomos}(\varphi),\quad
+\mathrm{atomos}(\varphi\Imp\psi)=\mathrm{atomos}(\varphi)\,{+}\!{+}\,\mathrm{atomos}(\psi).
 \]
 \end{definition}
 
 \begin{definition}[Literal and literal context]
 For a valuation $v$ and atom $p$,
 \[
-\mathrm{lit}_v(p) \;=\;
+\mathrm{literal}_v(p) \;=\;
 \begin{cases}
 p & \text{if } v(p)=\mathsf{T},\\
 \Not p & \text{if } v(p)=\mathsf{F}.
 \end{cases}
 \]
-For a list of atoms $\mathit{ats}$, the \emph{literal context} is
+For a list of atomos $\mathit{listaAtomos}$, the \emph{literal context} is
 \[
-\Gamma_v(\mathit{ats}) \;=\; \{\, \mathrm{lit}_v(p) : p \in \mathit{ats} \,\},
+\Gamma_v(\mathit{listaAtomos}) \;=\; \{\, \mathrm{literal}_v(p) : p \in \mathit{listaAtomos} \,\},
 \]
 defined by recursion: $\Gamma_v([])=\emptyset$ and
-$\Gamma_v(p::\mathit{rest}) = \{\mathrm{lit}_v(p)\}\cup \Gamma_v(\mathit{rest})$.
+$\Gamma_v(p::\mathit{cola}) = \{\mathrm{literal}_v(p)\}\cup \Gamma_v(\mathit{cola})$.
 \end{definition}
 
 \begin{lemma}[Literal membership]
 \label{lem:litmem}
-If $p \in \mathit{ats}$ then $\mathrm{lit}_v(p)\in\Gamma_v(\mathit{ats})$.
+If $p \in \mathit{listaAtomos}$ then $\mathrm{literal}_v(p)\in\Gamma_v(\mathit{listaAtomos})$.
 \end{lemma}
 \begin{proof}
-Induction on $\mathit{ats}$: in the head case $p$ is the head and its literal is the inserted
+Induction on $\mathit{listaAtomos}$: in the head case $p$ is the head and its literal is the inserted
 element; in the tail case apply the induction hypothesis and the inclusion
-$\Gamma_v(\mathit{rest})\subseteq \Gamma_v(p'::\mathit{rest})$.
+$\Gamma_v(\mathit{cola})\subseteq \Gamma_v(p'::\mathit{cola})$.
 \end{proof}
 
 \lstinputlisting[linerange=atomsLits-atomsLits]{../../Thesis/Prop/Completeness.lean}
 
-\noindent (\texttt{lit} and \texttt{litCtx} are \texttt{noncomputable} because the test ``$v\,p$''
+\noindent (\texttt{literal} and \texttt{contextoLiterales} are \texttt{noncomputable} because the test ``$v\,p$''
 is a proposition; under the local \texttt{Classical.propDecidable} instance the \texttt{if} is
 well defined.)
 
 \subsection{Kalm\'ar's lemma}
 \begin{lemma}[Kalm\'ar]
 \label{lem:kalmar}
-Fix a valuation $v$ and a list $\mathit{ats}$ with $\mathrm{atoms}(\varphi)\subseteq\mathit{ats}$.
+Fix a valuation $v$ and a list $\mathit{listaAtomos}$ with $\mathrm{atomos}(\varphi)\subseteq\mathit{listaAtomos}$.
 Then
 \[
-\big(\sem{\varphi}_v \Rightarrow \Gamma_v(\mathit{ats})\Provnd\varphi\big)
+\big(\sem{\varphi}_v \Rightarrow \Gamma_v(\mathit{listaAtomos})\Provnd\varphi\big)
 \quad\text{and}\quad
-\big(\Not\sem{\varphi}_v \Rightarrow \Gamma_v(\mathit{ats})\Provnd\Not\varphi\big).
+\big(\Not\sem{\varphi}_v \Rightarrow \Gamma_v(\mathit{listaAtomos})\Provnd\Not\varphi\big).
 \]
 \end{lemma}
 \begin{proof}
-By induction on $\varphi$. Throughout write $\Gamma := \Gamma_v(\mathit{ats})$.
+By induction on $\varphi$. Throughout write $\Gamma := \Gamma_v(\mathit{listaAtomos})$.
 
-\paragraph{Atom $\varphi=s$.} Here $\mathrm{atoms}(s)=[s]\subseteq\mathit{ats}$, so
-$s\in\mathit{ats}$ and $\mathrm{lit}_v(s)\in\Gamma$ by Lemma~\ref{lem:litmem}.
+\paragraph{Atom $\varphi=s$.} Here $\mathrm{atomos}(s)=[s]\subseteq\mathit{listaAtomos}$, so
+$s\in\mathit{listaAtomos}$ and $\mathrm{literal}_v(s)\in\Gamma$ by Lemma~\ref{lem:litmem}.
 \begin{itemize}
-\item If $\sem{s}_v$ (i.e.\ $v(s)=\mathsf{T}$): then $\mathrm{lit}_v(s)=s$, so $s\in\Gamma$ and
+\item If $\sem{s}_v$ (i.e.\ $v(s)=\mathsf{T}$): then $\mathrm{literal}_v(s)=s$, so $s\in\Gamma$ and
 \texttt{hyp} gives $\Gamma\Provnd s$.
-\item If $\Not\sem{s}_v$: then $\mathrm{lit}_v(s)=\Not s\in\Gamma$, and \texttt{hyp} gives
+\item If $\Not\sem{s}_v$: then $\mathrm{literal}_v(s)=\Not s\in\Gamma$, and \texttt{hyp} gives
 $\Gamma\Provnd\Not s$.
 \end{itemize}
 
-\paragraph{Negation $\varphi=\Not p$.} Here $\mathrm{atoms}(\Not p)=\mathrm{atoms}(p)\subseteq
-\mathit{ats}$, and the induction hypothesis for $p$ gives both implications.
+\paragraph{Negation $\varphi=\Not p$.} Here $\mathrm{atomos}(\Not p)=\mathrm{atomos}(p)\subseteq
+\mathit{listaAtomos}$, and the induction hypothesis for $p$ gives both implications.
 \begin{itemize}
 \item If $\sem{\Not p}_v$, i.e.\ $\Not\sem{p}_v$: the negative half of the induction hypothesis
 yields $\Gamma\Provnd\Not p$, which is the goal.
@@ -904,8 +904,8 @@ $\Gamma\Provnd\Not\Not p$, the goal.
 \end{itemize}
 
 \paragraph{Implication $\varphi=p\Imp q$.} Here
-$\mathrm{atoms}(p\Imp q)=\mathrm{atoms}(p)\,{+}\!{+}\,\mathrm{atoms}(q)\subseteq\mathit{ats}$, so
-both $\mathrm{atoms}(p)\subseteq\mathit{ats}$ and $\mathrm{atoms}(q)\subseteq\mathit{ats}$, and we
+$\mathrm{atomos}(p\Imp q)=\mathrm{atomos}(p)\,{+}\!{+}\,\mathrm{atomos}(q)\subseteq\mathit{listaAtomos}$, so
+both $\mathrm{atomos}(p)\subseteq\mathit{listaAtomos}$ and $\mathrm{atomos}(q)\subseteq\mathit{listaAtomos}$, and we
 have induction hypotheses for $p$ and $q$.
 
 \emph{Positive half: $\sem{p\Imp q}_v \Rightarrow \Gamma\Provnd p\Imp q$.} Split on $\sem{p}_v$.
@@ -914,7 +914,7 @@ have induction hypotheses for $p$ and $q$.
 positive half for $q$ gives $\Gamma\Provnd q$; weaken to $\Gamma,p\Provnd q$ and apply
 $\Imp\mathrm{I}$ to get $\Gamma\Provnd p\Imp q$.
 \item If $\Not\sem{p}_v$: the negative half for $p$ gives $\Gamma\Provnd\Not p$. Apply
-$\Imp\mathrm{I}$; we must derive $\Gamma,p\Provnd q$. By weakening, $\Gamma,p\Provnd\Not p$, and by
+$\Imp\mathrm{I}$; we must derive $\Gamma,p\Provnd q$. By debilitamiento, $\Gamma,p\Provnd\Not p$, and by
 \texttt{hyp}, $\Gamma,p\Provnd p$; then $\Not\mathrm{E}$ gives $\Gamma,p\Provnd\bot$ and
 $\bot\mathrm{E}$ gives $\Gamma,p\Provnd q$.
 \end{itemize}
@@ -924,84 +924,84 @@ $\Not(\sem{p}_v\Imp\sem{q}_v)$ we obtain classically that $\sem{p}_v$ holds (oth
 implication would be vacuously true) and $\sem{q}_v$ fails (otherwise the implication would hold).
 The positive half for $p$ gives $\Gamma\Provnd p$; the negative half for $q$ gives
 $\Gamma\Provnd\Not q$. Apply $\Not\mathrm{I}$; we must derive $\Gamma,(p\Imp q)\Provnd\bot$. By
-\texttt{hyp}, $\Gamma,(p\Imp q)\Provnd p\Imp q$; by weakening, $\Gamma,(p\Imp q)\Provnd p$; then
-$\Imp\mathrm{E}$ gives $\Gamma,(p\Imp q)\Provnd q$. By weakening, $\Gamma,(p\Imp q)\Provnd\Not q$;
+\texttt{hyp}, $\Gamma,(p\Imp q)\Provnd p\Imp q$; by debilitamiento, $\Gamma,(p\Imp q)\Provnd p$; then
+$\Imp\mathrm{E}$ gives $\Gamma,(p\Imp q)\Provnd q$. By debilitamiento, $\Gamma,(p\Imp q)\Provnd\Not q$;
 then $\Not\mathrm{E}$ gives $\bot$.
 \end{proof}
 
 \lstinputlisting[linerange=kalmar-kalmar]{../../Thesis/Prop/Completeness.lean}
 
 \noindent The code follows the proof case-for-case: \texttt{not\_not.1} is the classical step in
-the negation case; \texttt{by\_cases hp : eval v p} is the split in the positive implication case;
+the negation case; \texttt{by\_cases hp : evaluar v p} is the split in the positive implication case;
 the two \texttt{by\_contra}/\texttt{absurd} lines extract $\sem{p}_v$ and $\Not\sem{q}_v$ in the
 negative implication case.
 
 \paragraph{Internal view (CIC).} Here \texttt{induction $\varphi$} is \texttt{Formula.rec} (not
 \texttt{ND.rec}): we recurse on the \emph{syntax}, with motive
 \[
-C\,\varphi \ :=\ \texttt{atoms } \varphi \subseteq \mathit{ats}\ \to\ \big(\texttt{eval } v\,\varphi \to \texttt{ND } \Gamma\,\varphi\big)\ \wedge\ \big(\neg\,\texttt{eval } v\,\varphi \to \texttt{ND } \Gamma\,(\Not\varphi)\big).
+C\,\varphi \ :=\ \texttt{atomos } \varphi \subseteq \mathit{listaAtomos}\ \to\ \big(\texttt{evaluar } v\,\varphi \to \texttt{ND } \Gamma\,\varphi\big)\ \wedge\ \big(\neg\,\texttt{evaluar } v\,\varphi \to \texttt{ND } \Gamma\,(\Not\varphi)\big).
 \]
 In the \texttt{neg} and \texttt{impl} branches the recursor supplies the induction hypotheses
-\texttt{ih}, \texttt{ihp}, \texttt{ihq} for the immediate subformulas; the proof \emph{consumes}
+\texttt{hipInd}, \texttt{hipIndP}, \texttt{hipIndQ} for the immediate subformulas; the proof \emph{consumes}
 those (meta-level) hypotheses and \emph{produces} \texttt{ND}-terms with constructors
 (\texttt{ND.impI}, \texttt{ND.negI}, \texttt{ND.botE}, \texttt{ND.negE}, \dots) and the derived
-rule \texttt{dni}. So a single run of \texttt{Formula.rec} turns the truth value of $\varphi$ under
+rule \texttt{introduccion\_doble\_negacion}. So a single run of \texttt{Formula.rec} turns the truth value of $\varphi$ under
 $v$ into an actual derivation tree---this is the ``completeness as a program'' content of
 Lemma~\ref{lem:kalmar} made literal.
 
 \subsection{The literal context depends only on truth values}
-To discharge an atom we will perturb the valuation at that atom; we must know this does not
-disturb the context built from the \emph{other} atoms.
+To descarga an atom we will perturb the valuation at that atom; we must know this does not
+disturb the context built from the \emph{other} atomos.
 
 \begin{lemma}[Congruence of literals and contexts]
 \label{lem:congr}
 If two valuations $w_1,w_2$ agree on an atom $x$ (i.e.\ $w_1(x)\leftrightarrow w_2(x)$), then
-$\mathrm{lit}_{w_1}(x)=\mathrm{lit}_{w_2}(x)$. Consequently, if $w_1,w_2$ agree on every atom of a
-list $\mathit{ats}$, then $\Gamma_{w_1}(\mathit{ats})=\Gamma_{w_2}(\mathit{ats})$.
+$\mathrm{literal}_{w_1}(x)=\mathrm{literal}_{w_2}(x)$. Consequently, if $w_1,w_2$ agree on every atom of a
+list $\mathit{listaAtomos}$, then $\Gamma_{w_1}(\mathit{listaAtomos})=\Gamma_{w_2}(\mathit{listaAtomos})$.
 \end{lemma}
 \begin{proof}
 For the first claim, both literals are $x$ if the common value is $\mathsf{T}$ and $\Not x$
-otherwise. The second is induction on $\mathit{ats}$, applying the first claim to the head and the
+otherwise. The second is induction on $\mathit{listaAtomos}$, applying the first claim to the head and the
 induction hypothesis to the tail.
 \end{proof}
 
 \lstinputlisting[linerange=congr-congr]{../../Thesis/Prop/Completeness.lean}
 
-\subsection{Discharging the atoms}
+\subsection{Discharging the atomos}
 \label{sec:discharge}
 \begin{lemma}[Discharge]
 \label{lem:discharge}
-Let $\mathit{ats}$ be a list of atoms with no repetitions. If $\Gamma_v(\mathit{ats})\Provnd\varphi$
+Let $\mathit{listaAtomos}$ be a list of atomos with no repetitions. If $\Gamma_v(\mathit{listaAtomos})\Provnd\varphi$
 holds for \emph{every} valuation $v$, then $\emptyset\Provnd\varphi$.
 \end{lemma}
 \begin{proof}
-By induction on $\mathit{ats}$.
+By induction on $\mathit{listaAtomos}$.
 
 \paragraph{Empty list.} $\Gamma_v([])=\emptyset$ for every $v$, so the hypothesis instantiated at
 any valuation already gives $\emptyset\Provnd\varphi$.
 
-\paragraph{Cons $p::\mathit{rest}$} (with $p\notin\mathit{rest}$ and $\mathit{rest}$ repetition-free).
-It suffices, by the induction hypothesis for $\mathit{rest}$, to show
-$\Gamma_v(\mathit{rest})\Provnd\varphi$ for an arbitrary $v$. Consider the two valuations
+\paragraph{Cons $p::\mathit{cola}$} (with $p\notin\mathit{cola}$ and $\mathit{cola}$ repetition-free).
+It suffices, by the induction hypothesis for $\mathit{cola}$, to show
+$\Gamma_v(\mathit{cola})\Provnd\varphi$ for an arbitrary $v$. Consider the two valuations
 $v[p{:=}\mathsf{T}]$ and $v[p{:=}\mathsf{F}]$ obtained from $v$ by overriding the value at $p$.
 \begin{itemize}
 \item Under $v[p{:=}\mathsf{T}]$ the literal of $p$ is $p$; and since $v[p{:=}\mathsf{T}]$ agrees
-with $v$ on every atom of $\mathit{rest}$ (as $p\notin\mathit{rest}$),
-Lemma~\ref{lem:congr} gives $\Gamma_{v[p:=\mathsf{T}]}(\mathit{rest})=\Gamma_v(\mathit{rest})$.
+with $v$ on every atom of $\mathit{cola}$ (as $p\notin\mathit{cola}$),
+Lemma~\ref{lem:congr} gives $\Gamma_{v[p:=\mathsf{T}]}(\mathit{cola})=\Gamma_v(\mathit{cola})$.
 Hence the hypothesis at $v[p{:=}\mathsf{T}]$ reads
-$\{p\}\cup\Gamma_v(\mathit{rest})\Provnd\varphi$; call this $d_1$.
+$\{p\}\cup\Gamma_v(\mathit{cola})\Provnd\varphi$; call this $d_1$.
 \item Symmetrically, under $v[p{:=}\mathsf{F}]$ the literal is $\Not p$, and the hypothesis reads
-$\{\Not p\}\cup\Gamma_v(\mathit{rest})\Provnd\varphi$; call this $d_2$.
+$\{\Not p\}\cup\Gamma_v(\mathit{cola})\Provnd\varphi$; call this $d_2$.
 \end{itemize}
 By the derived case split (Lemma~\ref{lem:bycases}) applied to $d_1$ and $d_2$, we obtain
-$\Gamma_v(\mathit{rest})\Provnd\varphi$, as required.
+$\Gamma_v(\mathit{cola})\Provnd\varphi$, as required.
 \end{proof}
 
-\lstinputlisting[linerange=discharge-discharge]{../../Thesis/Prop/Completeness.lean}
+\lstinputlisting[linerange=descarga-descarga]{../../Thesis/Prop/Completeness.lean}
 
-\noindent \texttt{Function.update v p True} is $v[p{:=}\mathsf{T}]$; \texttt{hctx\_t}/\texttt{hctx\_f}
+\noindent \texttt{Function.update v p True} is $v[p{:=}\mathsf{T}]$; \texttt{hContextoVerdadero}/\texttt{hContextoFalso}
 are the applications of Lemma~\ref{lem:congr} (the side condition $x\neq p$ comes from
-$p\notin\mathit{rest}$, i.e.\ \texttt{hpr}); the final \texttt{byCases d1 d2} is the case split.
+$p\notin\mathit{cola}$, i.e.\ \texttt{hpr}); the final \texttt{analisis\_por\_casos d1 d2} is the case split.
 
 \subsection{The completeness theorem}
 \begin{theorem}[Completeness of ND]
@@ -1010,11 +1010,11 @@ Every tautology is derivable from the empty context:
 $\;\mathrm{Taut}(\varphi)\Rightarrow \emptyset\Provnd\varphi$.
 \end{theorem}
 \begin{proof}
-Let $\mathit{ats}$ be $\mathrm{atoms}(\varphi)$ with duplicates removed; then $\mathit{ats}$ is
-repetition-free and still satisfies $\mathrm{atoms}(\varphi)\subseteq\mathit{ats}$. Fix any
+Let $\mathit{listaAtomos}$ be $\mathrm{atomos}(\varphi)$ with duplicates removed; then $\mathit{listaAtomos}$ is
+repetition-free and still satisfies $\mathrm{atomos}(\varphi)\subseteq\mathit{listaAtomos}$. Fix any
 valuation $v$. Since $\varphi$ is a tautology, $\sem{\varphi}_v$ holds, so the positive half of
-Kalm\'ar's lemma (Lemma~\ref{lem:kalmar}) gives $\Gamma_v(\mathit{ats})\Provnd\varphi$. As $v$ was
-arbitrary, the hypothesis of the discharge lemma (Lemma~\ref{lem:discharge}) is met, and we
+Kalm\'ar's lemma (Lemma~\ref{lem:kalmar}) gives $\Gamma_v(\mathit{listaAtomos})\Provnd\varphi$. As $v$ was
+arbitrary, the hypothesis of the descarga lemma (Lemma~\ref{lem:discharge}) is met, and we
 conclude $\emptyset\Provnd\varphi$.
 \end{proof}
 
@@ -1029,19 +1029,19 @@ For every formula $\varphi$, $\;\mathrm{Taut}(\varphi)\ \leftrightarrow\ \emptys
 Left-to-right is Theorem~\ref{thm:completeness}; right-to-left is Corollary~\ref{cor:taut}.
 \end{proof}
 
-\lstinputlisting[linerange=soundComplete-soundComplete]{../../Thesis/Prop/Completeness.lean}
+\lstinputlisting[linerange=correccion\_completitud-correccion\_completitud]{../../Thesis/Prop/Completeness.lean}
 
 \noindent Theorem~\ref{thm:adequacy} is the precise formal statement of the thesis goal:
 \emph{derivability in propositional natural deduction coincides exactly with semantic validity},
 proved in Lean from the genuine inference rules.
 
-\paragraph{Internal view (CIC).} \texttt{completeness\_ND} is a closed term of the $\Pi$-type
+\paragraph{Internal view (CIC).} \texttt{completitud\_ND} is a closed term of the $\Pi$-type
 \[
-\forall (\varphi : \texttt{Formula}),\ \texttt{IsTautology } \varphi\ \to\ \texttt{ND } \emptyset\ \varphi,
+\forall (\varphi : \texttt{Formula}),\ \texttt{EsTautologia } \varphi\ \to\ \texttt{ND } \emptyset\ \varphi,
 \]
-obtained by composing \texttt{discharge}, \texttt{kalmar}, and lemmas on \texttt{dedup}. The
-biconditional \texttt{soundComplete} is the term \texttt{$\langle$completeness\_ND $\varphi$,
-isTautology\_of\_provable$\rangle$}: in CIC, \texttt{Iff} is a structure with two fields
+obtained by composing \texttt{descarga}, \texttt{kalmar}, and lemmas on \texttt{dedup}. The
+biconditional \texttt{correccion\_completitud} is the term \texttt{$\langle$completitud\_ND $\varphi$,
+tautologia\_de\_derivable$\rangle$}: in CIC, \texttt{Iff} is a structure with two fields
 (the two implications), and the anonymous-constructor notation $\langle\cdot,\cdot\rangle$ builds
 its inhabitant. There is no remaining proof obligation once the kernel type-checks this term
 against the stated type---type-checking \emph{is} the verification of adequacy.
@@ -1054,22 +1054,22 @@ not only through the completeness theorem.
 
 \lstinputlisting{../../Thesis/Prop/Main.lean}
 
-\noindent Two derivations of $P\Imp P$ are shown deliberately: \texttt{taut1\_complete\_ND}
+\noindent Two derivations of $P\Imp P$ are shown deliberately: \texttt{identidad\_por\_completitud}
 obtains it from the completeness theorem (the ``program'' of Section~\ref{sec:strategy} run on a
-tautology), while \texttt{ex\_id} builds the same proof tree directly with $\Imp\mathrm{I}$ and
-\texttt{hyp}. The example \texttt{ex\_dne} ($\Not\Not P\Imp P$) shows the classical rule in action:
+tautology), while \texttt{ej\_identidad} builds the same proof tree directly with $\Imp\mathrm{I}$ and
+\texttt{hyp}. The example \texttt{ej\_eliminacion\_doble\_negacion} ($\Not\Not P\Imp P$) shows the classical rule in action:
 it is exactly the non-intuitionistic direction, and its derivation uses RAA.
 
-\paragraph{Internal view (CIC).} \texttt{ex\_id} is the clearest illustration of the whole
+\paragraph{Internal view (CIC).} \texttt{ej\_identidad} is the clearest illustration of the whole
 chapter's thesis: it is literally the closed term
 \[
-\texttt{ex\_id}\ =\ \texttt{ND.impI}\ (\texttt{ND.hyp}\ (\texttt{Set.mem\_insert}\ \_\ \_)),
+\texttt{ej\_identidad}\ =\ \texttt{ND.impI}\ (\texttt{ND.hyp}\ (\texttt{Set.mem\_insert}\ \_\ \_)),
 \]
 a two-node constructor tree inhabiting \texttt{ND $\emptyset$ (P $\to$ P)}. It is data, not a
-script. Accordingly the axiom audit (\S\ref{sec:axioms}) reports that \texttt{ex\_id} and
-\texttt{ex\_dne} depend on \emph{no} axioms whatsoever: a finite tree of constructors needs no
+script. Accordingly the axiom audit (\S\ref{sec:axioms}) reports that \texttt{ej\_identidad} and
+\texttt{ej\_eliminacion\_doble\_negacion} depend on \emph{no} axioms whatsoever: a finite tree of constructors needs no
 classical principle to exist. The same object \texttt{ND $\emptyset$ (P $\to$ P)} is inhabited two
-ways here---by hand (\texttt{ex\_id}) and by the completeness program (\texttt{taut1\_complete\_ND}),
+ways here---by hand (\texttt{ej\_identidad}) and by the completeness program (\texttt{identidad\_por\_completitud}),
 both type-checked against the identical type.
 
 \section{Verification: the axiom audit}
@@ -1085,14 +1085,14 @@ constant would appear by name. Running it on the main results yields:
 \lstinputlisting[language={},basicstyle=\ttfamily\footnotesize]{audit.txt}
 
 The three axioms reported---\texttt{propext} (propositional extensionality),
-\texttt{Classical.choice} (the axiom of choice), and \texttt{Quot.sound} (soundness of
+\texttt{Classical.choice} (the axiom of choice), and \texttt{Quot.sound} (correccion of
 quotients)---are precisely the standard classical foundations on which all of Lean's Mathlib is
 built; they are not specific to this development. In particular:
 \begin{itemize}
 \item No \texttt{sorryAx} appears: there are no admitted gaps.
 \item No constructor or constant named \texttt{oracle} (or any library completeness theorem)
 appears: completeness is genuinely internal.
-\item The hand-built derivations \texttt{ex\_id} and \texttt{ex\_dne} depend on \emph{no} axioms at
+\item The hand-built derivations \texttt{ej\_identidad} and \texttt{ej\_eliminacion\_doble\_negacion} depend on \emph{no} axioms at
 all, since they are finite proof terms in the inductive type \texttt{ND}.
 \end{itemize}
 This is the formal certificate that Theorem~\ref{thm:adequacy} is exactly what it claims to be.
@@ -1108,13 +1108,13 @@ deduction:
 Soundness is a routine rule induction (Theorem~\ref{thm:soundness}); completeness is the
 Kalm\'ar argument carried out entirely with the system's own inference rules
 (Theorem~\ref{thm:completeness}), via a per-valuation construction (Lemma~\ref{lem:kalmar}) and a
-finite atom-discharge step (Lemma~\ref{lem:discharge}) powered by a derived classical case split
+finite atom-descarga step (Lemma~\ref{lem:discharge}) powered by a derived classical case split
 (Lemma~\ref{lem:bycases}). The axiom audit (Section~\ref{sec:axioms}) certifies the proof is free
 of admitted gaps and of any postulated completeness rule.
 
 Conceptually, the development realizes Stansifer's slogan---``completeness as a program''---in the
 natural-deduction setting: the proof of Lemma~\ref{lem:kalmar} is an effective procedure that,
-given the truth table of $\varphi$, assembles a concrete derivation, which the discharge step then
+given the truth table of $\varphi$, assembles a concrete derivation, which the descarga step then
 folds into a derivation from the empty context. Appendix~\ref{app:foundation} provides an
 \emph{independent} cross-check of the same metatheorem through the \emph{Foundation} library,
 strengthening confidence that the surface semantics is the intended one.
@@ -1140,12 +1140,12 @@ surface syntax using the classical identity $(\varphi\Imp\psi)\equiv(\Not\varphi
 t(p)=p,\qquad t(\Not\varphi)=\Not t(\varphi),\qquad t(\varphi\Imp\psi)=\Not t(\varphi)\Or t(\psi).
 \]
 
-\lstinputlisting[linerange=tr-tr]{../../Thesis/Prop/BridgeToFoundation.lean}
+\lstinputlisting[linerange=traducir-traducir]{../../Thesis/Prop/BridgeToFoundation.lean}
 
 \subsection{The bridge lemma}
 \begin{lemma}[Semantics preservation]\label{lem:bridge}
 For every valuation $v$ and surface formula $\varphi$, $\;\sem{\varphi}_v \leftrightarrow
-\mathrm{Sat}(v, t(\varphi))$.
+\mathrm{Satisface}(v, t(\varphi))$.
 \end{lemma}
 \begin{proof}
 Structural induction on $\varphi$. The atom and negation cases unfold definitionally; the
@@ -1172,20 +1172,20 @@ this thesis, so whatever it produces is verified to the identical standard: it i
 whose word we take on trust, but a proof-search procedure whose output is a checkable Lean term.
 
 \paragraph{Protocol.} We supplied Aristotle with only the surface syntax, the semantics, the
-natural-deduction calculus, and the elementary metatheory (weakening, the derived rules,
-soundness)---exactly the contents of \texttt{Syntax.lean} and \texttt{NaturalDeduction.lean}. We
-\emph{withheld} \texttt{Completeness.lean} entirely: Kalm\'ar's lemma and the atom-discharge
+natural-deduction calculus, and the elementary metatheory (debilitamiento, the derived rules,
+correccion)---exactly the contents of \texttt{Syntax.lean} and \texttt{NaturalDeduction.lean}. We
+\emph{withheld} \texttt{Completeness.lean} entirely: Kalm\'ar's lemma and the atom-descarga
 construction were removed, and the target was presented as a bare stub,
 \begin{lstlisting}
-theorem completeness_ND (φ : Formula) (h : IsTautology φ) : ND (∅ : Set Formula) φ := by
+theorem completitud_ND (φ : Formula) (h : EsTautologia φ) : ND (∅ : Set Formula) φ := by
   sorry
 \end{lstlisting}
 with the instruction to complete it introducing no axioms and no \texttt{sorry}. Every artifact
-reported below compiles under the same Lean~v4.29.0 toolchain as the rest of this development and
+reported below compiles under the same Lean~v4.29.0 toolchain as the cola of this development and
 was passed through the axiom audit of Section~\ref{sec:axioms}.
 
-\subsection{A derived rule: \texttt{byCases}}
-Given the derived rule \texttt{byCases} with its proof replaced by \texttt{sorry}, Aristotle
+\subsection{A derived rule: \texttt{analisis\_por\_casos}}
+Given the derived rule \texttt{analisis\_por\_casos} with its proof replaced by \texttt{sorry}, Aristotle
 returned a proof with the \emph{same} structure as ours: classical \emph{reductio}, deriving
 $\Not\varphi$ and $\Not\Not\varphi$ from the two branches and closing with $\Not$-elimination. It
 differs only in surface idiom---explicit named hypotheses where our proof uses \texttt{refine} with
@@ -1194,27 +1194,27 @@ anonymous holes---and depends on the same three axioms.
 \subsection{The completeness theorem}
 The headline experiment is more demanding: with the entire completeness argument withheld, can the
 agent \emph{rediscover} it? It can. Aristotle reintroduced precisely Kalm\'ar's method under its own
-names. It defined the signed literal of an atom, the (finite) set of atoms occurring in a formula,
+names. It defined the signed literal of an atom, the (finite) set of atomos occurring in a formula,
 and the literal context of a valuation:
 \lstinputlisting[linerange=adefs-adefs]{../../aristotle/NDFull.lean}
-\noindent These are our \texttt{lit}, \texttt{atoms}, and \texttt{litCtx} (Section~\ref{sec:axioms}
-collects the originals); the only structural divergence is that Aristotle gathers atoms in a
+\noindent These are our \texttt{literal}, \texttt{atomos}, and \texttt{contextoLiterales} (Section~\ref{sec:axioms}
+collects the originals); the only structural divergence is that Aristotle gathers atomos in a
 \texttt{Finset} rather than a deduplicated \texttt{List}. It then stated the two halves of Kalm\'ar's
 lemma and the atom-elimination step with the signatures one would write by hand,
 \lstinputlisting[linerange=akalmarsig-akalmarsig]{../../aristotle/NDFull.lean}
 \lstinputlisting[linerange=aelimsig-aelimsig]{../../aristotle/NDFull.lean}
-\noindent and assembled them into completeness exactly as our \texttt{completeness\_ND} composes
-\texttt{kalmar} with \texttt{discharge}:
+\noindent and assembled them into completeness exactly as our \texttt{completitud\_ND} composes
+\texttt{kalmar} with \texttt{descarga}:
 \lstinputlisting[linerange=amain-amain]{../../aristotle/NDFull.lean}
 
 \paragraph{What differs, and what does not.} Mathematically the two developments are the same proof:
-Kalm\'ar's lemma by induction on the formula, then discharge of the literal hypotheses one atom at a
+Kalm\'ar's lemma by induction on the formula, then descarga of the literal hypotheses one atom at a
 time by excluded middle. They differ in \emph{idiom}. The hand proof is written for a human
 reader---structured term-mode applications with explicit membership witnesses. Aristotle's proof
 leans on Mathlib's general-purpose automation (\texttt{grind}, \texttt{aesop}, \texttt{simp~+decide},
 \texttt{convert}), which closes many steps opaquely: it is correct and machine-checked but less
 transparent. Decisively, the axiom audit returns the identical verdict---%
-\texttt{completeness\_ND} depends on \texttt{[propext, Classical.choice, Quot.sound]}, with no
+\texttt{completitud\_ND} depends on \texttt{[propext, Classical.choice, Quot.sound]}, with no
 \texttt{sorryAx} and no postulated rule.
 
 \paragraph{Interpretation.} This is evidence of a kind the Foundation cross-validation
@@ -1255,7 +1255,7 @@ Thierry Coquand and Christine Paulin-Mohring.
 
 \bibitem{Carneiro2019}
 Mario Carneiro.
-\newblock \emph{The Type Theory of Lean}.
+\newblock \emph{The Type Teoria of Lean}.
 \newblock M.Sc.\ thesis, Carnegie Mellon University, 2019.
 
 \bibitem{Gentzen1935}
@@ -1270,7 +1270,7 @@ Dag Prawitz.
 
 \bibitem{TroelstraSchwichtenberg1996}
 A.~S. Troelstra and H.~Schwichtenberg.
-\newblock \emph{Basic Proof Theory}.
+\newblock \emph{Basic Proof Teoria}.
 \newblock Cambridge Tracts in Theoretical Computer Science 43, Cambridge University Press, 1996.
 
 \bibitem{SorensenUrzyczyn2006}

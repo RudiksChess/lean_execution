@@ -1,6 +1,6 @@
--- Two developments, built and verified together:
---   Thesis.Prop.*  — completeness of propositional natural deduction (oracle-free)
---   Thesis.Sort.*  — correctness of quicksort
+-- Dos desarrollos compilados y verificados conjuntamente:
+--   Thesis.Prop.* — completitud de la deducción natural proposicional.
+--   Thesis.Sort.* — corrección de Quicksort.
 import Thesis.Prop.Syntax
 import Thesis.Prop.NaturalDeduction
 import Thesis.Prop.Completeness
@@ -8,25 +8,25 @@ import Thesis.Prop.Main
 import Thesis.Sort.Quicksort
 import Thesis.Sort.Examples
 
-/-!
-# Verified developments — Rudik Rompich (UVG)
+/-! # Desarrollos verificados — Rudik Rompich (UVG)
 
-This Lean library bundles two independent, machine-checked developments:
+La biblioteca contiene dos desarrollos comprobados por Lean:
 
-* **`Thesis.Prop`** — an oracle-free, internal proof that classical propositional
-  natural deduction (over `{¬, →}`) is **complete**: every tautology is derivable
-  from the empty context, via Kalmár's lemma.
-* **`Thesis.Sort`** — a proof that **quicksort** is correct: its output is a sorted
-  permutation of its input.
+* Thesis.Prop: completitud de la deducción natural proposicional clásica
+  sobre {¬, →}, mediante Kalmár y descarga de literales.
+* Thesis.Sort: Quicksort produce una permutación ordenada de la entrada.
 
-Both are `sorry`-free and depend only on Lean/Mathlib's standard classical axioms.
+No se emplea sorry ni se postulan reglas de corrección.
+La auditoría registra por separado los axiomas de ambos desarrollos.
 
-**Author:** Rudik Rompich, Universidad del Valle de Guatemala
-(`rom19857@uvg.edu.gt`). Undergraduate thesis.
+Autor: Rudik Rompich, Universidad del Valle de Guatemala.
+Tesis de licenciatura. Contacto: rom19857@uvg.edu.gt.
 
-Repository and compiled reports (PDF): <https://github.com/RudiksChess/lean_execution>.
--/
 
--- The Foundation cross-validation builds as the separate target
--- `Thesis.Prop.CompletenessViaFoundation`. It cannot share one root module
--- with the full Mathlib closure because both dependencies define Matrix.map.
+
+
+Repositorio e informes: https://github.com/RudiksChess/lean_execution. -/
+
+-- La validación con Foundation se compila como un objetivo separado:
+-- Thesis.Prop.CompletenessViaFoundation no comparte el módulo raíz
+-- con Mathlib, porque ambas dependencias definen Matrix.map.

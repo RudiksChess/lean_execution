@@ -9,14 +9,14 @@ deriving DecidableEq, Repr
 prefix:60 "~" => Formula.neg
 infixr:55 " ⟶ " => Formula.impl
 
-abbrev Valuation : Type := String → Prop
+abbrev Valuacion : Type := String → Prop
 
-def eval (v : Valuation) : Formula → Prop
+def evaluar (v : Valuacion) : Formula → Prop
 | .atom s   => v s
-| .neg p    => ¬ eval v p
-| .impl p q => eval v p → eval v q
+| .neg p    => ¬ evaluar v p
+| .impl p q => evaluar v p → evaluar v q
 
-def IsTautology (φ : Formula) : Prop :=
-  ∀ v : Valuation, eval v φ
+def EsTautologia (φ : Formula) : Prop :=
+  ∀ v : Valuacion, evaluar v φ
 
 end Thesis.Prop
