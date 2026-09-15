@@ -6,31 +6,31 @@ open Set
 
 def P : Formula := .atom "P"
 def Q : Formula := .atom "Q"
-def taut1 : Formula := P ⟶ P
+def tautologiaIdentidad : Formula := P ⟶ P
 
-theorem taut1_is_taut : IsTautology taut1 := by
+theorem identidad_es_tautologia : EsTautologia tautologiaIdentidad := by
   -- A probar: P → P bajo toda valuación. Método: introducción de →.
   intro v
-  change eval v P → eval v P
+  change evaluar v P → evaluar v P
   intro hP
   exact hP
 
-/-- Completeness gives a derivation of `P → P` from the empty context,
-    proved internally via Kalmár's lemma (no oracle). -/
-theorem taut1_complete_ND : ND (∅ : Set Formula) taut1 :=
-  completeness_ND taut1 taut1_is_taut
+/-- La completitud proporciona una derivación de P → P desde el contexto vacío.
+Se aplica el teorema demostrado mediante Kalmár. -/
+theorem identidad_por_completitud : ND (∅ : Set Formula) tautologiaIdentidad :=
+  completitud_ND tautologiaIdentidad identidad_es_tautologia
 
-/-! ### The genuine rules are usable: hand-built derivations -/
+/-! ### Derivaciones construidas directamente con las reglas -/
 
-/-- `⊢ P → P` built directly with `impI` and `hyp` (not via completeness). -/
-theorem ex_id : ND (∅ : Set Formula) (P ⟶ P) := by
+/-- ⊢ P → P, por impI e hyp, sin recurrir a completitud. -/
+theorem ej_identidad : ND (∅ : Set Formula) (P ⟶ P) := by
   -- A probar: ⊢ P → P. Método: hipótesis y descarga por impI.
   have hP : P ∈ insert P (∅ : Set Formula) := Set.mem_insert _ _
   have dP : ND (insert P (∅ : Set Formula)) P := ND.hyp hP
   exact ND.impI dP
 
-/-- `⊢ P → (Q → P)` (a K-combinator style tautology), built by hand. -/
-theorem ex_k : ND (∅ : Set Formula) (P ⟶ (Q ⟶ P)) := by
+/-- ⊢ P → (Q → P), correspondiente al combinador K, por dos introducciones de →. -/
+theorem ej_k : ND (∅ : Set Formula) (P ⟶ (Q ⟶ P)) := by
   -- A probar: ⊢ P → (Q → P). Método: dos introducciones de →.
   let Γ := insert P (∅ : Set Formula)
   let Δ := insert Q Γ
@@ -41,8 +41,8 @@ theorem ex_k : ND (∅ : Set Formula) (P ⟶ (Q ⟶ P)) := by
   -- Se descarga Q primero, y P después.
   exact ND.impI dQP
 
-/-- Double-negation elimination `⊢ ¬¬P → P`, using the classical rule. -/
-theorem ex_dne : ND (∅ : Set Formula) ((~~P) ⟶ P) := by
+/-- Eliminación de doble negación: ⊢ ¬¬P → P, mediante RAA. -/
+theorem ej_eliminacion_doble_negacion : ND (∅ : Set Formula) ((~~P) ⟶ P) := by
   -- A probar: ⊢ ~~P → P. Método: impI y RAA objeto bajo ~~P.
   let Γ := insert (~~P) (∅ : Set Formula)
   let Δ := insert (~P) Γ
@@ -51,8 +51,8 @@ theorem ex_dne : ND (∅ : Set Formula) ((~~P) ⟶ P) := by
   have hNeg : (~P) ∈ Δ := Set.mem_insert _ _
   have dDouble : ND Δ (~~P) := ND.hyp hDoubleDelta
   have dNeg : ND Δ (~P) := ND.hyp hNeg
-  have dFalse : ND Δ Bot := ND.negE dDouble dNeg
-  have dP : ND Γ P := ND.classical dFalse
+  have dFalsedad : ND Δ Falsedad := ND.negE dDouble dNeg
+  have dP : ND Γ P := ND.classical dFalsedad
   -- RAA descarga ~P; impI descarga después ~~P.
   exact ND.impI dP
 

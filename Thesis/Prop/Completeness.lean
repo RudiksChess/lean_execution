@@ -6,279 +6,279 @@ open Set Classical
 
 attribute [local instance] Classical.propDecidable
 
-/-! ## Internal completeness of ND via Kalmár's lemma
+/-! ## Completitud de ND mediante el lema de Kalmár
 
-This file proves `IsTautology φ → ND ∅ φ` *without* any oracle, using the
-classical finitary argument: for a fixed valuation `v` a derivation is built
-from the literal context determined by `v`, then discharge the (finitely many)
-atoms by classical case analysis. -/
+Se demuestra EsTautologia φ → ND ∅ φ sin postular la conclusión.
+Para cada valuación se construye una derivación desde su contexto de literales.
+
+Los átomos se descargan uno por uno mediante análisis clásico por casos. -/
 
 -- ANCHOR: atomsLits
-/-- The list of atoms occurring in a formula (with possible repetitions). -/
-def atoms : Formula → List String
+/-- The list of atomos occurring in a formula (with possible repetitions). -/
+def atomos : Formula → List String
 | .atom s   => [s]
-| .neg p    => atoms p
-| .impl p q => atoms p ++ atoms q
+| .neg p    => atomos p
+| .impl p q => atomos p ++ atomos q
 
-/-- The literal chosen for atom `p` under valuation `v`: `p` if true, `¬p` if false. -/
-noncomputable def lit (v : Valuation) (p : String) : Formula :=
+/-- Literal del átomo p bajo v: p si v(p), y ¬p en caso contrario. -/
+noncomputable def literal (v : Valuacion) (p : String) : Formula :=
   if v p then .atom p else ~(.atom p)
 
-/-- The literal context for `v` over a list of atoms. -/
-noncomputable def litCtx (v : Valuation) : List String → Set Formula
+/-- Contexto de literales determinado por v y una lista de átomos. -/
+noncomputable def contextoLiterales (v : Valuacion) : List String → Set Formula
 | []        => ∅
-| p :: rest => insert (lit v p) (litCtx v rest)
+| p :: cola => insert (literal v p) (contextoLiterales v cola)
 
-theorem lit_mem {v : Valuation} {p : String} {ats : List String}
-    (h : p ∈ ats) : lit v p ∈ litCtx v ats := by
+theorem pertenencia_literal {v : Valuacion} {p : String} {listaAtomos : List String}
+    (h : p ∈ listaAtomos) : literal v p ∈ contextoLiterales v listaAtomos := by
   -- A probar: pertenencia del literal correspondiente al átomo p.
-  -- Método: inducción en ats; la premisa p ∈ ats se conserva en la hipótesis inductiva.
-  induction ats with
+  -- Método: inducción en listaAtomos; la premisa p ∈ listaAtomos se conserva en la hipótesis inductiva.
+  induction listaAtomos with
   | nil =>
-      have hFalse : False := List.not_mem_nil h
-      exact False.elim hFalse
-  | cons a rest ih =>
-      have hCases : p = a ∨ p ∈ rest := List.mem_cons.mp h
-      rcases hCases with hEq | hTail
+      have hFalso : False := List.not_mem_nil h
+      exact False.elim hFalso
+  | cons a cola hipInd =>
+      have hCasos : p = a ∨ p ∈ cola := List.mem_cons.mp h
+      rcases hCasos with hIgualdad | hCola
       · subst p
         exact Set.mem_insert _ _
-      · have hLiteralTail : lit v p ∈ litCtx v rest := ih hTail
-        exact Set.mem_insert_of_mem (lit v a) hLiteralTail
+      · have hLiteralCola : literal v p ∈ contextoLiterales v cola := hipInd hCola
+        exact Set.mem_insert_of_mem (literal v a) hLiteralCola
 -- ANCHOREND: atomsLits
 
 -- ANCHOR: kalmar
-/-- **Kalmár's lemma.** For a fixed valuation `v` and an atom list `ats` covering
-`φ`, the literal context proves `φ` if `v ⊨ φ`, and proves `¬φ` otherwise. -/
-theorem kalmar (v : Valuation) (ats : List String) :
-    ∀ φ : Formula, atoms φ ⊆ ats →
-      (eval v φ → ND (litCtx v ats) φ) ∧ (¬ eval v φ → ND (litCtx v ats) (~φ)) := by
+/-- Lema de Kalmár: para v fija y una lista que contiene los átomos de φ,
+el contexto de literales deriva φ si v ⊨ φ, y ¬φ si v ⊭ φ. -/
+theorem kalmar (v : Valuacion) (listaAtomos : List String) :
+    ∀ φ : Formula, atomos φ ⊆ listaAtomos →
+      (evaluar v φ → ND (contextoLiterales v listaAtomos) φ) ∧ (¬ evaluar v φ → ND (contextoLiterales v listaAtomos) (~φ)) := by
   -- A probar: las conclusiones positiva y negativa, bajo cobertura de átomos.
-  -- Método: inducción en la fórmula; v y ats están fijos, la cobertura no.
+  -- Método: inducción en la fórmula; v y listaAtomos están fijos, la cobertura no.
   intro φ
   induction φ with
   | atom s =>
       intro hsub
-      have hAtom : s ∈ atoms (.atom s) := List.mem_singleton_self s
-      have hs : s ∈ ats := hsub hAtom
+      have hAtomo : s ∈ atomos (.atom s) := List.mem_singleton_self s
+      have hs : s ∈ listaAtomos := hsub hAtomo
       refine ⟨?_, ?_⟩
       · intro hev
         have hvs : v s := hev
-        have hmem : lit v s ∈ litCtx v ats := lit_mem (v := v) hs
-        rw [lit, if_pos hvs] at hmem
+        have hmem : literal v s ∈ contextoLiterales v listaAtomos := pertenencia_literal (v := v) hs
+        rw [literal, if_pos hvs] at hmem
         exact ND.hyp hmem
       · intro hev
         have hvs : ¬ v s := hev
-        have hmem : lit v s ∈ litCtx v ats := lit_mem (v := v) hs
-        rw [lit, if_neg hvs] at hmem
+        have hmem : literal v s ∈ contextoLiterales v listaAtomos := pertenencia_literal (v := v) hs
+        rw [literal, if_neg hvs] at hmem
         exact ND.hyp hmem
-  | neg p ih =>
+  | neg p hipInd =>
       intro hsub
-      have hsub' : atoms p ⊆ ats := hsub
-      obtain ⟨ihpos, ihneg⟩ := ih hsub'
+      have hsub' : atomos p ⊆ listaAtomos := hsub
+      obtain ⟨hipIndPos, hipIndNeg⟩ := hipInd hsub'
       refine ⟨?_, ?_⟩
       · intro hev
-        have hNotP : ¬ eval v p := hev
-        exact ihneg hNotP
+        have hNoP : ¬ evaluar v p := hev
+        exact hipIndNeg hNoP
       · intro hev
-        have hDoubleNeg : ¬ ¬ eval v p := hev
+        have hDobleNeg : ¬ ¬ evaluar v p := hev
         -- Eliminación de doble negación metateórica, mediante lógica clásica.
-        have hP : eval v p := Classical.byContradiction hDoubleNeg
-        have dP : ND (litCtx v ats) p := ihpos hP
+        have hP : evaluar v p := Classical.byContradiction hDobleNeg
+        have dP : ND (contextoLiterales v listaAtomos) p := hipIndPos hP
         -- Introducción de doble negación objeto; no es la eliminación anterior.
-        exact dni dP
-  | impl p q ihp ihq =>
+        exact introduccion_doble_negacion dP
+  | impl p q hipIndP hipIndQ =>
       intro hsub
-      have hsp : atoms p ⊆ ats := by
+      have hsp : atomos p ⊆ listaAtomos := by
         intro a ha
-        have hUnion : a ∈ atoms p ++ atoms q := List.mem_append.mpr (Or.inl ha)
+        have hUnion : a ∈ atomos p ++ atomos q := List.mem_append.mpr (Or.inl ha)
         exact hsub hUnion
-      have hsq : atoms q ⊆ ats := by
+      have hsq : atomos q ⊆ listaAtomos := by
         intro a ha
-        have hUnion : a ∈ atoms p ++ atoms q := List.mem_append.mpr (Or.inr ha)
+        have hUnion : a ∈ atomos p ++ atomos q := List.mem_append.mpr (Or.inr ha)
         exact hsub hUnion
-      obtain ⟨ihp_pos, ihp_neg⟩ := ihp hsp
-      obtain ⟨ihq_pos, ihq_neg⟩ := ihq hsq
+      obtain ⟨hipIndPPos, hipIndPNeg⟩ := hipIndP hsp
+      obtain ⟨hipIndQPos, hipIndQNeg⟩ := hipIndQ hsq
       refine ⟨?_, ?_⟩
       · intro hev
-        -- Casos semánticos sobre eval v p; no se usa el lema objeto byCases.
-        by_cases hp : eval v p
-        · have hq : eval v q := hev hp
-          have dQ : ND (litCtx v ats) q := ihq_pos hq
-          have hSubset : litCtx v ats ⊆ insert p (litCtx v ats) := Set.subset_insert _ _
-          have dQExtended : ND (insert p (litCtx v ats)) q := weakening dQ hSubset
+        -- Casos semánticos sobre evaluar v p; no se usa el lema objeto analisis_por_casos.
+        by_cases hp : evaluar v p
+        · have hq : evaluar v q := hev hp
+          have dQ : ND (contextoLiterales v listaAtomos) q := hipIndQPos hq
+          have hInclusion : contextoLiterales v listaAtomos ⊆ insert p (contextoLiterales v listaAtomos) := Set.subset_insert _ _
+          have dQAmpliada : ND (insert p (contextoLiterales v listaAtomos)) q := debilitamiento dQ hInclusion
           -- Se descarga p, aunque esta rama no necesita usarlo.
-          exact ND.impI dQExtended
-        · have dNotP : ND (litCtx v ats) (~p) := ihp_neg hp
-          have hSubset : litCtx v ats ⊆ insert p (litCtx v ats) := Set.subset_insert _ _
-          have h1 : ND (insert p (litCtx v ats)) (~p) :=
-            weakening dNotP hSubset
-          have h2 : ND (insert p (litCtx v ats)) p := ND.hyp (Set.mem_insert _ _)
-          have dFalse : ND (insert p (litCtx v ats)) Bot := ND.negE h1 h2
-          have dQ : ND (insert p (litCtx v ats)) q := ND.botE dFalse
+          exact ND.impI dQAmpliada
+        · have dNoP : ND (contextoLiterales v listaAtomos) (~p) := hipIndPNeg hp
+          have hInclusion : contextoLiterales v listaAtomos ⊆ insert p (contextoLiterales v listaAtomos) := Set.subset_insert _ _
+          have h1 : ND (insert p (contextoLiterales v listaAtomos)) (~p) :=
+            debilitamiento dNoP hInclusion
+          have h2 : ND (insert p (contextoLiterales v listaAtomos)) p := ND.hyp (Set.mem_insert _ _)
+          have dFalsedad : ND (insert p (contextoLiterales v listaAtomos)) Falsedad := ND.negE h1 h2
+          have dQ : ND (insert p (contextoLiterales v listaAtomos)) q := ND.botE dFalsedad
           exact ND.impI dQ
       · intro hev
-        have hNotImp : ¬ (eval v p → eval v q) := hev
-        have hp : eval v p := by
-          -- Por RAA metateórica, se supone que eval v p es falsa.
-          by_contra hNotP
-          have hImp : eval v p → eval v q := by
+        have hNoImp : ¬ (evaluar v p → evaluar v q) := hev
+        have hp : evaluar v p := by
+          -- Por RAA metateórica, se supone que evaluar v p es falsa.
+          by_contra hNoP
+          have hImp : evaluar v p → evaluar v q := by
             intro hP
-            have hFalse : False := hNotP hP
-            exact False.elim hFalse
-          exact hNotImp hImp
-        have hq : ¬ eval v q := by
+            have hFalso : False := hNoP hP
+            exact False.elim hFalso
+          exact hNoImp hImp
+        have hq : ¬ evaluar v q := by
           intro hQ
-          have hImp : eval v p → eval v q := by
+          have hImp : evaluar v p → evaluar v q := by
             intro _
             exact hQ
-          exact hNotImp hImp
-        have dP : ND (litCtx v ats) p := ihp_pos hp
-        have dNotQ : ND (litCtx v ats) (~q) := ihq_neg hq
-        have hSubset : litCtx v ats ⊆ insert (p ⟶ q) (litCtx v ats) :=
+          exact hNoImp hImp
+        have dP : ND (contextoLiterales v listaAtomos) p := hipIndPPos hp
+        have dNoQ : ND (contextoLiterales v listaAtomos) (~q) := hipIndQNeg hq
+        have hInclusion : contextoLiterales v listaAtomos ⊆ insert (p ⟶ q) (contextoLiterales v listaAtomos) :=
           Set.subset_insert _ _
-        have hpq : ND (insert (p ⟶ q) (litCtx v ats)) (p ⟶ q) := ND.hyp (Set.mem_insert _ _)
-        have hpp : ND (insert (p ⟶ q) (litCtx v ats)) p :=
-          weakening dP hSubset
-        have hnq : ND (insert (p ⟶ q) (litCtx v ats)) (~q) :=
-          weakening dNotQ hSubset
-        have dQ : ND (insert (p ⟶ q) (litCtx v ats)) q := ND.impE hpq hpp
-        have dFalse : ND (insert (p ⟶ q) (litCtx v ats)) Bot := ND.negE hnq dQ
+        have hpq : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) (p ⟶ q) := ND.hyp (Set.mem_insert _ _)
+        have hpp : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) p :=
+          debilitamiento dP hInclusion
+        have hnq : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) (~q) :=
+          debilitamiento dNoQ hInclusion
+        have dQ : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) q := ND.impE hpq hpp
+        have dFalsedad : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) Falsedad := ND.negE hnq dQ
         -- negI descarga p ⟶ q y concluye su negación bajo el contexto original.
-        exact ND.negI dFalse
+        exact ND.negI dFalsedad
 -- ANCHOREND: kalmar
 
-/-! ## Discharging the atoms -/
+/-! ## Discharging the atomos -/
 
 -- ANCHOR: congr
-/-- Literals depend only on the truth value, so valuations that agree on `ats`
-yield the same literal context. -/
-theorem lit_congr {w1 w2 : Valuation} {x : String} (h : w1 x ↔ w2 x) :
-    lit w1 x = lit w2 x := by
+/-- El literal de x depende solo de su valor de verdad.
+El acuerdo de las valuaciones sobre una lista implica igualdad de sus contextos. -/
+theorem congruencia_literal {w1 w2 : Valuacion} {x : String} (h : w1 x ↔ w2 x) :
+    literal w1 x = literal w2 x := by
   -- A probar: igualdad de literales. Método: casos sobre w1 x.
   by_cases hx : w1 x
   · have hx2 : w2 x := h.mp hx
-    rw [lit, lit, if_pos hx, if_pos hx2]
+    rw [literal, literal, if_pos hx, if_pos hx2]
   · have hx2 : ¬ w2 x := by
-      intro hTrue
-      have hx1 : w1 x := h.mpr hTrue
+      intro hVerdadero
+      have hx1 : w1 x := h.mpr hVerdadero
       exact hx hx1
-    rw [lit, lit, if_neg hx, if_neg hx2]
+    rw [literal, literal, if_neg hx, if_neg hx2]
 
-theorem litCtx_congr {w1 w2 : Valuation} :
-    ∀ (ats : List String), (∀ x ∈ ats, (w1 x ↔ w2 x)) → litCtx w1 ats = litCtx w2 ats := by
-  -- A probar: igualdad de contextos. Método: inducción sobre ats.
-  intro ats
-  induction ats with
+theorem congruencia_contextoLiterales {w1 w2 : Valuacion} :
+    ∀ (listaAtomos : List String), (∀ x ∈ listaAtomos, (w1 x ↔ w2 x)) → contextoLiterales w1 listaAtomos = contextoLiterales w2 listaAtomos := by
+  -- A probar: igualdad de contextos. Método: inducción sobre listaAtomos.
+  intro listaAtomos
+  induction listaAtomos with
   | nil => intro _; rfl
-  | cons a rest ih =>
+  | cons a cola hipInd =>
       intro h
-      have hHead : a ∈ a :: rest := List.mem_cons.mpr (Or.inl rfl)
-      have ha : w1 a ↔ w2 a := h a hHead
-      have hLiteral : lit w1 a = lit w2 a := lit_congr ha
-      have hTail : ∀ x ∈ rest, w1 x ↔ w2 x := by
+      have hCabeza : a ∈ a :: cola := List.mem_cons.mpr (Or.inl rfl)
+      have ha : w1 a ↔ w2 a := h a hCabeza
+      have hLiteral : literal w1 a = literal w2 a := congruencia_literal ha
+      have hCola : ∀ x ∈ cola, w1 x ↔ w2 x := by
         intro x hx
-        have hInList : x ∈ a :: rest := List.mem_cons.mpr (Or.inr hx)
-        exact h x hInList
-      have hr : litCtx w1 rest = litCtx w2 rest :=
-        ih hTail
+        have hEnLista : x ∈ a :: cola := List.mem_cons.mpr (Or.inr hx)
+        exact h x hEnLista
+      have hr : contextoLiterales w1 cola = contextoLiterales w2 cola :=
+        hipInd hCola
       -- Las igualdades de la cabeza y de la cola se sustituyen en insert.
-      change insert (lit w1 a) (litCtx w1 rest) = insert (lit w2 a) (litCtx w2 rest)
+      change insert (literal w1 a) (contextoLiterales w1 cola) = insert (literal w2 a) (contextoLiterales w2 cola)
       rw [hLiteral, hr]
 -- ANCHOREND: congr
 
 -- ANCHOR: discharge
-/-- If `φ` is provable from the literal context for *every* valuation over `ats`,
-then `φ` is provable outright. One atom is discharged at a time by classical cases. -/
-theorem discharge {φ : Formula} :
-    ∀ (ats : List String), ats.Nodup → (∀ v, ND (litCtx v ats) φ) → ND (∅ : Set Formula) φ := by
-  -- A probar: ND ∅ φ. Método: inducción en ats con Nodup y la premisa universal.
-  intro ats
-  induction ats with
+/-- Si la lista no tiene repeticiones y todo contexto de literales deriva φ,
+entonces ∅ ⊢ φ. Se descarga un átomo por vez mediante análisis clásico por casos. -/
+theorem descarga {φ : Formula} :
+    ∀ (listaAtomos : List String), listaAtomos.Nodup → (∀ v, ND (contextoLiterales v listaAtomos) φ) → ND (∅ : Set Formula) φ := by
+  -- A probar: ND ∅ φ. Método: inducción en listaAtomos con Nodup y la premisa universal.
+  intro listaAtomos
+  induction listaAtomos with
   | nil =>
       intro _ H
-      let v : Valuation := fun _ => True
-      have h : ND (litCtx v []) φ := H v
-      simpa only [litCtx] using h
-  | cons p rest ih =>
+      let v : Valuacion := fun _ => True
+      have h : ND (contextoLiterales v []) φ := H v
+      simpa only [contextoLiterales] using h
+  | cons p cola hipInd =>
       intro hnd H
-      have hParts : p ∉ rest ∧ rest.Nodup := List.nodup_cons.mp hnd
-      have hpr : p ∉ rest := hParts.left
-      have hrest : rest.Nodup := hParts.right
-      -- La hipótesis inductiva exige una derivación para TODA valuación de rest.
-      have hAll : ∀ v, ND (litCtx v rest) φ := by
+      have hPartes : p ∉ cola ∧ cola.Nodup := List.nodup_cons.mp hnd
+      have hpr : p ∉ cola := hPartes.left
+      have hColaSinRepeticiones : cola.Nodup := hPartes.right
+      -- La hipótesis inductiva exige una derivación para TODA valuación de cola.
+      have hUniversal : ∀ v, ND (contextoLiterales v cola) φ := by
         intro v
-        have hp_true : (Function.update v p True) p := by simp
-        have hp_false : ¬ (Function.update v p False) p := by simp
-        have hlit_t : lit (Function.update v p True) p = Formula.atom p := by
-          rw [lit, if_pos hp_true]
-        have hlit_f : lit (Function.update v p False) p = ~(Formula.atom p) := by
-          rw [lit, if_neg hp_false]
-        have hctx_t : litCtx (Function.update v p True) rest = litCtx v rest := by
-          apply litCtx_congr
+        have hp_verdadero : (Function.update v p True) p := by simp
+        have hp_falso : ¬ (Function.update v p False) p := by simp
+        have hLiteralVerdadero : literal (Function.update v p True) p = Formula.atom p := by
+          rw [literal, if_pos hp_verdadero]
+        have hLiteralFalso : literal (Function.update v p False) p = ~(Formula.atom p) := by
+          rw [literal, if_neg hp_falso]
+        have hContextoVerdadero : contextoLiterales (Function.update v p True) cola = contextoLiterales v cola := by
+          apply congruencia_contextoLiterales
           intro x hx
           have hxp : x ≠ p := by
-            intro hEq
-            have hpInRest : p ∈ rest := hEq ▸ hx
-            exact hpr hpInRest
+            intro hIgualdad
+            have hpEnCola : p ∈ cola := hIgualdad ▸ hx
+            exact hpr hpEnCola
           -- Fuera de p, Function.update conserva v x.
           simp only [Function.update_of_ne hxp]
-        have hctx_f : litCtx (Function.update v p False) rest = litCtx v rest := by
-          apply litCtx_congr
+        have hContextoFalso : contextoLiterales (Function.update v p False) cola = contextoLiterales v cola := by
+          apply congruencia_contextoLiterales
           intro x hx
           have hxp : x ≠ p := by
-            intro hEq
-            have hpInRest : p ∈ rest := hEq ▸ hx
-            exact hpr hpInRest
+            intro hIgualdad
+            have hpEnCola : p ∈ cola := hIgualdad ▸ hx
+            exact hpr hpEnCola
           simp only [Function.update_of_ne hxp]
-        have d1 : ND (insert (Formula.atom p) (litCtx v rest)) φ := by
-          have h : ND (litCtx (Function.update v p True) (p :: rest)) φ :=
+        have d1 : ND (insert (Formula.atom p) (contextoLiterales v cola)) φ := by
+          have h : ND (contextoLiterales (Function.update v p True) (p :: cola)) φ :=
             H (Function.update v p True)
-          -- Se reescribe primero la cabeza y después el contexto de rest.
-          rw [litCtx, hlit_t, hctx_t] at h
+          -- Se reescribe primero la cabeza y después el contexto de cola.
+          rw [contextoLiterales, hLiteralVerdadero, hContextoVerdadero] at h
           exact h
-        have d2 : ND (insert (~(Formula.atom p)) (litCtx v rest)) φ := by
-          have h : ND (litCtx (Function.update v p False) (p :: rest)) φ :=
+        have d2 : ND (insert (~(Formula.atom p)) (contextoLiterales v cola)) φ := by
+          have h : ND (contextoLiterales (Function.update v p False) (p :: cola)) φ :=
             H (Function.update v p False)
-          rw [litCtx, hlit_f, hctx_f] at h
+          rw [contextoLiterales, hLiteralFalso, hContextoFalso] at h
           exact h
-        -- byCases se instancia con Γ := litCtx v rest, fórmula := atom p, conclusión := φ.
+        -- analisis_por_casos se instancia con Γ := contextoLiterales v cola, fórmula := atom p, conclusión := φ.
         -- Su RAA interno descarga ~φ; el resultado no contiene el literal de p.
-        exact byCases (Γ := litCtx v rest) (φ := Formula.atom p) (χ := φ) d1 d2
+        exact analisis_por_casos (Γ := contextoLiterales v cola) (φ := Formula.atom p) (χ := φ) d1 d2
       -- Se aplica la hipótesis inductiva después de construir su premisa universal.
-      exact ih hrest hAll
+      exact hipInd hColaSinRepeticiones hUniversal
 -- ANCHOREND: discharge
 
-/-! ## Internal completeness theorem -/
+/-! ## Teorema de completitud -/
 
 -- ANCHOR: completeness
-/-- **Completeness of ND** (internal, no oracle): every tautology is derivable
-from the empty context. -/
-theorem completeness_ND (φ : Formula) (h : IsTautology φ) : ND (∅ : Set Formula) φ := by
+/-- Completitud de ND: toda tautología se deriva desde el contexto vacío.
+La demostración usa Kalmár y descarga, sin postular un oráculo. -/
+theorem completitud_ND (φ : Formula) (h : EsTautologia φ) : ND (∅ : Set Formula) φ := by
   -- A probar: ND ∅ φ. Método: Kalmár para cada valuación, seguido de descarga.
-  let ats := (atoms φ).dedup
-  have hNoDup : ats.Nodup := List.nodup_dedup _
-  have hCover : atoms φ ⊆ ats := by
+  let listaAtomos := (atomos φ).dedup
+  have hSinRepeticiones : listaAtomos.Nodup := List.nodup_dedup _
+  have hCobertura : atomos φ ⊆ listaAtomos := by
     intro a ha
     exact List.mem_dedup.mpr ha
-  have hAll : ∀ v, ND (litCtx v ats) φ := by
+  have hUniversal : ∀ v, ND (contextoLiterales v listaAtomos) φ := by
     intro v
-    have hTrue : eval v φ := h v
-    have hPositive : eval v φ → ND (litCtx v ats) φ :=
-      (kalmar v ats φ hCover).left
-    exact hPositive hTrue
-  exact discharge ats hNoDup hAll
+    have hVerdadero : evaluar v φ := h v
+    have hPositiva : evaluar v φ → ND (contextoLiterales v listaAtomos) φ :=
+      (kalmar v listaAtomos φ hCobertura).left
+    exact hPositiva hVerdadero
+  exact descarga listaAtomos hSinRepeticiones hUniversal
 -- ANCHOREND: completeness
 
 -- ANCHOR: soundComplete
-/-- **Soundness + completeness.** Derivability from the empty context coincides
-exactly with being a tautology. -/
-theorem soundComplete (φ : Formula) : IsTautology φ ↔ ND (∅ : Set Formula) φ := by
+/-- Corrección y completitud: una fórmula es derivable desde el contexto vacío
+si y solo si es una tautología. -/
+theorem correccion_completitud (φ : Formula) : EsTautologia φ ↔ ND (∅ : Set Formula) φ := by
   -- A probar: ambas direcciones. Método: introducción del bicondicional.
   constructor
-  · intro hTaut
-    exact completeness_ND φ hTaut
+  · intro hTautologia
+    exact completitud_ND φ hTautologia
   · intro d
-    exact isTautology_of_provable d
+    exact tautologia_de_derivable d
 -- ANCHOREND: soundComplete
 
 end Thesis.Prop

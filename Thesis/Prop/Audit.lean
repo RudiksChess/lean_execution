@@ -1,23 +1,23 @@
 import Thesis.Prop.Main
 
-/-!
-# Axiom audit
+/-! # Auditoría de axiomas
 
-Reproducible certificate for the thesis. Running this file with
-`lake env lean Thesis/Prop/Audit.lean` prints the complete set of axioms each
-main result transitively depends on. Regenerate `audit.txt` with `make audit`
-(see Makefile); CI fails if the committed `audit.txt` drifts.
+Se ejecuta lake env lean Thesis/Prop/Audit.lean para obtener los axiomas
+de cada resultado. make audit regenera audit.txt.
+La integración continua compara el certificado con la salida de Lean.
 
-A `sorryAx` here would mean an admitted gap; a postulated `oracle` constant
-would mean completeness was smuggled in. Neither appears.
--/
+sorryAx indicaría una prueba admitida. La política rechaza ese axioma
+
+
+
+y cualquier dependencia ajena a los axiomas permitidos. -/
 
 namespace Thesis.Prop
 
-#print axioms completeness_ND
-#print axioms soundComplete
-#print axioms soundness
-#print axioms ex_id
-#print axioms ex_dne
+#print axioms completitud_ND
+#print axioms correccion_completitud
+#print axioms correccion
+#print axioms ej_identidad
+#print axioms ej_eliminacion_doble_negacion
 
 end Thesis.Prop

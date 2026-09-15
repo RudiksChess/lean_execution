@@ -1,134 +1,105 @@
-# Completeness of Propositional Natural Deduction in Lean 4
+# Deducción natural y Quicksort verificados en Lean 4
 
 [![CI](https://github.com/RudiksChess/lean_execution/actions/workflows/ci.yml/badge.svg)](https://github.com/RudiksChess/lean_execution/actions/workflows/ci.yml)
 
-A machine-checked proof that classical propositional natural deduction (over
-`{¬, →}`) is **complete**: every tautology is derivable from the empty context.
-Completeness is proved *internally*, via Kalmár's lemma — no oracle, no
-`sorry`. The accompanying thesis report renders its code listings directly from
-this verified source.
+Dos desarrollos comprobados por el núcleo de Lean:
 
-> **Read it:** both compiled reports — natural-deduction completeness and
-> quicksort — plus an *AI-Reconstructed Proofs* reference (the full Aristotle
-> outputs) are attached to each
-> [release](https://github.com/RudiksChess/lean_execution/releases).
->
-> **Mathematical overview** (no Lean needed): a side-by-side "maths ↔ code"
-> tour of **both developments** is at
-> <https://rudikschess.github.io/lean_execution/overview.html> — written for
-> readers who want the mathematics, with the verified code shown alongside. A
-> deeper, step-by-step companion covering **both developments** (prerequisites,
-> a "how Lean works" primer, every case of the completeness proof, and the full
-> quicksort correctness argument) is at
-> <https://rudikschess.github.io/lean_execution/thesis.html>.
->
-> **Browse the proofs:** generated API docs (hover for types, click to jump to
-> definitions) are published at
-> <https://rudikschess.github.io/lean_execution/> — see `Thesis/Prop/` for this
-> development. Built by doc-gen4 on each release.
->
-> **Verify the result:** the public
-> [verification page](https://rudikschess.github.io/lean_execution/verification.html)
-> shows the literal Lean theorem/evaluation transcript and explains the CI
-> checks, axiom certificates, trust boundary, and exact local reproduction commands.
+- **Completitud:** toda tautología del lenguaje proposicional {¬, →} es derivable desde el contexto vacío. La prueba usa el lema de Kalmár y la descarga de literales, sin postular un oráculo.
+- **Quicksort:** la salida es una permutación ordenada de la entrada, con disminución explícita de las llamadas recursivas.
 
-## Repository layout
+## Código en español
 
-This repo holds **two independent, machine-checked developments**, both built by
-`lake build` and verified in CI:
+Los nombres propios de definiciones, resultados y variables descriptivas, así como los comentarios de `Thesis/`, están en español. Por ejemplo:
 
-| Path | |
-|------|--|
-| **`Thesis/Prop/`** | **Development 1 — propositional natural deduction:** syntax, semantics, the ND calculus, soundness, and Kalmár completeness |
-| **`Thesis/Sort/`** | **Development 2 — quicksort:** the recursive definition and proofs that it is a sorted permutation of its input |
-| `Thesis.lean` | library root; imports both developments |
-| `Thesis/VerificationOutput.lean` | emits the public theorem signatures, evaluated examples, and axiom transcript |
-| `Thesis/Prop/Audit.lean` | emits the axiom certificate (→ `reports/natural-deduction/audit.txt`) |
-| `aristotle/` | AI cross-validation: proofs reconstructed cold by Harmonic Aristotle (both developments) |
-| `reports/aristotle/` | the *AI-Reconstructed Proofs* reference report (`make pdf-aristotle`) |
-| `reports/natural-deduction/` | the ND thesis report (`ThesisReport_ND.tex`, Spanish edition, generated `audit.txt`); listings are pulled from `Thesis/Prop/` |
-| `reports/quicksort/` | the quicksort report (`QuicksortReport.tex`) |
-| `web/` | hosted overview, step-by-step walkthrough, and verification guide |
-| `docbuild/` | doc-gen4 configuration for the API docs site |
+| Concepto | Nombre en Lean |
+|---|---|
+| Valuación e interpretación | `Valuacion`, `evaluar` |
+| Contexto de literales | `contextoLiterales` |
+| Debilitamiento | `debilitamiento` |
+| Análisis por casos | `analisis_por_casos` |
+| Corrección y completitud | `correccion`, `completitud_ND`, `correccion_completitud` |
+| Permutación y ordenamiento | `quicksort_permutacion`, `quicksort_ordenada` |
+| Hipótesis inductiva | `hipInd`, con sufijos para distinguir sus instancias |
+| Particiones del pivote | `menoresIguales`, `mayores` |
 
-## Reproduce it
+Se conservan las palabras reservadas y tácticas de Lean (`theorem`, `intro`, `exact`, `rw`), las APIs externas (`List.filter`, `List.Perm`, `LinearOrder`, Foundation), los símbolos matemáticos y las abreviaturas de reglas (`ND.impI`, `ND.negE`). `quicksort` conserva el nombre del algoritmo. Los módulos y rutas existentes no se renombran, para mantener las importaciones y los enlaces.
 
-**Public evidence** — the [CI workflow](https://github.com/RudiksChess/lean_execution/actions/workflows/ci.yml)
-runs on every push and pull request. A green badge means GitHub built the Lean
-sources, regenerated and compared both axiom certificates, and compiled the
-Foundation bridge plus the three standalone Aristotle reconstructions. See the
-[verification guide](https://rudikschess.github.io/lean_execution/verification.html)
-for what each check establishes and the limits of the claim.
-
-**Independent local reproduction** — requires
-[`elan`](https://github.com/leanprover/elan). The Lean toolchain is pinned in
-`lean-toolchain`, and package revisions are locked in `lake-manifest.json`.
+La correspondencia de nombres anteriores y actuales está en [tools/nombres_es.json](tools/nombres_es.json). La comprobación de migración contrasta con la revisión anterior y exige que el código, salvo identificadores autorizados y comentarios, sea el mismo:
 
 ```sh
-lake exe cache get   # fetch the prebuilt Mathlib (skips a multi-hour build)
-lake build           # kernel-checks every proof
-make check           # build + audits + Foundation and Aristotle cross-checks
-make proof-explorer  # regenerate real before/after tactic states as JSON
+python3 tools/spanish_migration.py
 ```
 
-`make check` mirrors the substantive CI checks. It fails if a proof no longer
-type-checks, either committed audit changes, or the published
-[Lean transcript](https://rudikschess.github.io/lean_execution/lean-output.txt)
-drifts. An admitted gap or a newly
-postulated axiom used by an audited result would appear in its transitive axiom
-list (for example as `sorryAx`) and make that comparison fail.
+Los archivos de `aristotle/` son reconstrucciones históricas independientes y se conservan **sin traducir** como evidencia original. Tampoco se traducen dependencias, comandos de herramientas, claves del formato de exportación ni salidas literales de Lean. La infraestructura de desarrollo no forma parte de la notación matemática.
 
-**Optional interactive exploration** — GitHub Codespaces can provide the same
-toolchain without a local Lean installation. It is not the fastest way to see
-whether the proofs pass: the first launch must provision and unpack the pinned
-Mathlib dependency cache, which can consume several gigabytes and take a while.
-Use **Code ▸ Codespaces ▸ Create codespace** if you want to edit and inspect the
-proofs interactively; repository maintainers can enable a Codespaces prebuild
-to move most of that first-use setup out of a visitor's session.
+## Organización
 
-## The axiom certificate
+| Ruta | Contenido |
+|---|---|
+| `Thesis/Prop/` | Sintaxis, semántica, reglas de ND, corrección y completitud |
+| `Thesis/Sort/` | Quicksort, pruebas auxiliares, permutación y ordenamiento |
+| `Thesis.lean` | Módulo raíz de los dos desarrollos |
+| `Thesis/Prop/CompletenessViaFoundation.lean` | Validación independiente con Foundation |
+| `Thesis/VerificationOutput.lean` | Tipos, ejemplos ejecutados y transcripción de axiomas |
+| `Thesis/Prop/Audit.lean`, `Thesis/Sort/Audit.lean` | Auditorías de axiomas |
+| `artifacts/explorer/proofs.json` | Código y estados reales para el explorador |
+| `aristotle/` | Reconstrucciones históricas independientes |
+| `reports/` | Informes de deducción natural, Quicksort y Aristotle |
+| `web/` | Guías complementarias y evidencia pública de verificación |
+| `docbuild/` | Configuración de doc-gen4 para la documentación de API |
 
-`python3 tools/check_axioms.py` runs both Lean audits and independently rejects
-any dependency outside `propext`, `Classical.choice`, and `Quot.sound`, including
-`sorryAx`. It also rejects missing targets and unexpected output. Both CI and
-`make check` enforce this policy as well as comparing the committed certificates;
-updating a certificate alone cannot authorize a new axiom.
+## Reproducir la verificación
 
-The proof explorer data in `artifacts/explorer/proofs.json` is generated by the
-separate `proofExplorerExport` executable. It reads Lean's elaborator
-`TacticInfo` records and uses the pinned SubVerso renderer for the real goal
-states before and after each displayed tactic. `make proof-explorer-check`
-re-elaborates the original source modules and fails unless the result matches the
-tracked artifact byte-for-byte. It also rejects source drift from the pinned
-commit, elaboration errors, missing tactics or states, and dependency-pin drift.
-
-The catalog now covers 27 declarations from the two practical thesis chapters:
-natural deduction, completeness, the independent Foundation bridge, and
-Quicksort. It includes the termination obligations inside the original
-`quicksort` definition (not an invented termination theorem). The two pilot
-IDs remain unchanged. Additional transitions use source-text hashes plus an
-occurrence suffix. Concrete leaf tactics retain their actual local before/after
-states; wrapper snapshots, punctuation and macro duplicates are excluded.
-Closing a nested goal is not presented as completion of the entire derivation.
-
-The completeness results use `propext`, `Classical.choice`, and `Quot.sound`.
-The Quicksort results use only `propext` and `Quot.sound` after making the
-termination proof explicit. Both satisfy the same allowed-axiom policy, with
-no admitted gaps or postulated correctness rules:
-
-```
-'completeness_ND' depends on axioms: [propext, Classical.choice, Quot.sound]
-'soundComplete'   depends on axioms: [propext, Classical.choice, Quot.sound]
-'ex_id'           does not depend on any axioms
-```
-
-Regenerate with `make audit`.
-
-## Build the PDFs
+Se requiere [elan](https://github.com/leanprover/elan). La versión de Lean está fijada en `lean-toolchain` y las dependencias en `lake-manifest.json`.
 
 ```sh
-make pdf            # natural-deduction report (regenerates audit.txt first)
-make pdf-quicksort  # quicksort report
+lake exe cache get
+lake build
+make check
+make proof-explorer
 ```
 
-Each report lives under `reports/<topic>/` and compiles in place.
+`make check` compila ambos desarrollos, comprueba la validación con Foundation y las tres reconstrucciones de Aristotle, regenera los certificados y compara la transcripción pública. Un cambio de nombres obliga a regenerar los estados: no se traducen estados a mano.
+
+Foundation se compila como un objetivo separado porque Foundation y la clausura completa de Mathlib definen `Matrix.map`; no se combinan en el mismo módulo raíz.
+
+GitHub Codespaces permite explorar el desarrollo sin instalar Lean localmente: **Code ▸ Codespaces ▸ Create codespace**. La primera preparación descarga la caché de Mathlib y puede consumir varios gigabytes. Una precompilación de Codespaces permite adelantar ese trabajo.
+
+## Axiomas y alcance
+
+`python3 tools/check_axioms.py` rechaza dependencias ajenas a `propext`, `Classical.choice` y `Quot.sound`, incluidas pruebas admitidas mediante `sorryAx`. También rechaza resultados ausentes, duplicados o salidas inesperadas.
+
+La completitud usa los tres axiomas permitidos. Las pruebas de Quicksort usan `propext` y `Quot.sound`, sin `Classical.choice`. Los certificados literales se conservan en `reports/natural-deduction/audit.txt` y `reports/quicksort/audit.txt`.
+
+```sh
+make audit audit-quicksort verification-output
+```
+
+Lean comprueba los términos de prueba. La correspondencia pedagógica y la bibliografía requieren una revisión separada; una compilación correcta no certifica la redacción.
+
+## Estados del explorador
+
+El ejecutable separado `proofExplorerExport` lee los registros `TacticInfo` del elaborador y utiliza SubVerso, fijado a una revisión compatible con Lean 4.29.0. Exporta las hipótesis y metas reales antes y después de cada táctica.
+
+Los 27 resultados cubren deducción natural, completitud, el puente con Foundation y Quicksort, incluidas las obligaciones de terminación de su definición. Los identificadores de navegación se mantienen separados de los nombres visibles en Lean.
+
+`make proof-explorer-check` vuelve a elaborar los módulos originales y exige coincidencia exacta con el artefacto versionado. Rechaza cambios de fuentes o dependencias, errores de elaboración y ausencia de estados. Los cierres locales de una rama no se presentan como cierre de toda la prueba.
+
+## Informes y documentación
+
+```sh
+make pdf
+make pdf-quicksort
+make pdf-aristotle
+make docs
+```
+
+Los informes compilan en `reports/<tema>/`; sus listados se toman de los módulos de Lean. `make docs` genera la API con doc-gen4 y puede requerir una compilación extensa.
+
+- [Explorador en español](https://tesis.rudiks.com/explorador)
+- [Documentación de API](https://rudikschess.github.io/lean_execution/)
+- [Guía de verificación](https://rudikschess.github.io/lean_execution/verification.html)
+- [Transcripción literal de Lean](https://rudikschess.github.io/lean_execution/lean-output.txt)
+- [Recorrido complementario matemática y código](https://rudikschess.github.io/lean_execution/overview.html)
+- [Guía paso a paso](https://rudikschess.github.io/lean_execution/thesis.html)
+- [Informes publicados](https://github.com/RudiksChess/lean_execution/releases)

@@ -8,12 +8,12 @@ namespace Thesis.Prop
 -- ANCHOR: tr
 abbrev F : Type := LO.Propositional.NNFormula String
 
-def tr : Formula → F
+def traducir : Formula → F
 | .atom s   => LO.Propositional.NNFormula.atom s
-| .neg p    => (∼ (tr p))
-| .impl p q => (∼ (tr p)) ⋎ (tr q)
+| .neg p    => (∼ (traducir p))
+| .impl p q => (∼ (traducir p)) ⋎ (traducir q)
 
-abbrev Sat (v : Valuation) (ψ : F) : Prop :=
+abbrev Satisface (v : Valuacion) (ψ : F) : Prop :=
   v ⊧ ψ
 -- ANCHOREND: tr
 

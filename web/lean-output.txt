@@ -4,24 +4,24 @@ Lean 4 public verification transcript
 $ cat lean-toolchain
 leanprover/lean4:v4.29.0
 $ lake env lean Thesis/VerificationOutput.lean
-Thesis.Prop.soundness {Γ : Set Thesis.Prop.Formula} {φ : Thesis.Prop.Formula} (d : Thesis.Prop.ND Γ φ)
-  (v : Thesis.Prop.Valuation) : (∀ ψ ∈ Γ, Thesis.Prop.eval v ψ) → Thesis.Prop.eval v φ
-Thesis.Prop.completeness_ND (φ : Thesis.Prop.Formula) (h : Thesis.Prop.IsTautology φ) : Thesis.Prop.ND ∅ φ
-Thesis.Prop.soundComplete (φ : Thesis.Prop.Formula) : Thesis.Prop.IsTautology φ ↔ Thesis.Prop.ND ∅ φ
-Thesis.Sort.quicksort_perm.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) : (Thesis.Sort.quicksort l).Perm l
-Thesis.Sort.quicksort_sorted.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) :
-  Thesis.Sort.Sorted (Thesis.Sort.quicksort l)
-Thesis.Sort.quicksort_correct.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) :
-  (Thesis.Sort.quicksort l).Perm l ∧ Thesis.Sort.Sorted (Thesis.Sort.quicksort l)
+Thesis.Prop.correccion {Γ : Set Thesis.Prop.Formula} {φ : Thesis.Prop.Formula} (d : Thesis.Prop.ND Γ φ)
+  (v : Thesis.Prop.Valuacion) : (∀ ψ ∈ Γ, Thesis.Prop.evaluar v ψ) → Thesis.Prop.evaluar v φ
+Thesis.Prop.completitud_ND (φ : Thesis.Prop.Formula) (h : Thesis.Prop.EsTautologia φ) : Thesis.Prop.ND ∅ φ
+Thesis.Prop.correccion_completitud (φ : Thesis.Prop.Formula) : Thesis.Prop.EsTautologia φ ↔ Thesis.Prop.ND ∅ φ
+Thesis.Sort.quicksort_permutacion.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) : (Thesis.Sort.quicksort l).Perm l
+Thesis.Sort.quicksort_ordenada.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) :
+  Thesis.Sort.Ordenada (Thesis.Sort.quicksort l)
+Thesis.Sort.quicksort_correcto.{u_1} {α : Type u_1} [LinearOrder α] (l : List α) :
+  (Thesis.Sort.quicksort l).Perm l ∧ Thesis.Sort.Ordenada (Thesis.Sort.quicksort l)
 [1, 2, 3]
 [1, 1, 3, 4, 5, 5]
 []
 [1, 1, 2, 2]
-'Thesis.Prop.soundness' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Thesis.Prop.completeness_ND' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Thesis.Prop.soundComplete' depends on axioms: [propext, Classical.choice, Quot.sound]
-'Thesis.Prop.ex_id' does not depend on any axioms
-'Thesis.Prop.ex_dne' does not depend on any axioms
-'Thesis.Sort.quicksort_perm' depends on axioms: [propext, Quot.sound]
-'Thesis.Sort.quicksort_sorted' depends on axioms: [propext, Quot.sound]
-'Thesis.Sort.quicksort_correct' depends on axioms: [propext, Quot.sound]
+'Thesis.Prop.correccion' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.completitud_ND' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.correccion_completitud' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.ej_identidad' does not depend on any axioms
+'Thesis.Prop.ej_eliminacion_doble_negacion' does not depend on any axioms
+'Thesis.Sort.quicksort_permutacion' depends on axioms: [propext, Quot.sound]
+'Thesis.Sort.quicksort_ordenada' depends on axioms: [propext, Quot.sound]
+'Thesis.Sort.quicksort_correcto' depends on axioms: [propext, Quot.sound]
