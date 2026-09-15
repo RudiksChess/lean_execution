@@ -101,13 +101,13 @@ truth tables. A <em>tautology</em> is a formula true under every valuation.</p>
 | neg  : Formula → Formula
 | impl : Formula → Formula → Formula
 
-<span class="kw">def</span> eval (v : Valuation) : Formula → Prop
+<span class="kw">def</span> evaluar (v : Valuacion) : Formula → Prop
 | .atom s   => v s
-| .neg p    => ¬ eval v p
-| .impl p q => eval v p → eval v q
+| .neg p    => ¬ evaluar v p
+| .impl p q => evaluar v p → evaluar v q
 
-<span class="kw">def</span> IsTautology (φ : Formula) : Prop :=
-  ∀ v, eval v φ</pre>
+<span class="kw">def</span> EsTautologia (φ : Formula) : Prop :=
+  ∀ v, evaluar v φ</pre>
   </div>
 </div>
 
@@ -131,16 +131,16 @@ classical rather than intuitionistic.</p>
     $$\dfrac{\Gamma,\neg\varphi\vdash\bot}{\Gamma\vdash\varphi}\;(\text{classical})$$
   </div></div>
   <div class="panel code"><div class="cap">Lean 4 — NaturalDeduction.lean</div>
-<pre><span class="kw">def</span> Bot : Formula := ~(.atom "⊥" ⟶ .atom "⊥")
+<pre><span class="kw">def</span> Falsedad : Formula := ~(.atom "⊥" ⟶ .atom "⊥")
 
 <span class="kw">inductive</span> ND : Set Formula → Formula → Prop
 | hyp       : φ ∈ Γ → ND Γ φ
 | impI      : ND (insert φ Γ) ψ → ND Γ (φ ⟶ ψ)
 | impE      : ND Γ (φ ⟶ ψ) → ND Γ φ → ND Γ ψ
-| negI      : ND (insert φ Γ) Bot → ND Γ (~φ)
-| negE      : ND Γ (~φ) → ND Γ φ → ND Γ Bot
-| botE      : ND Γ Bot → ND Γ φ
-| classical : ND (insert (~φ) Γ) Bot → ND Γ φ</pre>
+| negI      : ND (insert φ Γ) Falsedad → ND Γ (~φ)
+| negE      : ND Γ (~φ) → ND Γ φ → ND Γ Falsedad
+| botE      : ND Γ Falsedad → ND Γ φ
+| classical : ND (insert (~φ) Γ) Falsedad → ND Γ φ</pre>
   </div>
 </div>
 <div class="note">Each inference rule is one <em>constructor</em> of an inductive family. A derivation of
@@ -161,13 +161,13 @@ derivable — the system is consistent.</p>
     $\;\emptyset\not\vdash\bot$ (consistency).
   </div></div>
   <div class="panel code"><div class="cap">Lean 4 — NaturalDeduction.lean</div>
-<pre><span class="kw">theorem</span> soundness (d : ND Γ φ) :
-    ∀ v, (∀ ψ ∈ Γ, eval v ψ) → eval v φ
+<pre><span class="kw">theorem</span> correccion (d : ND Γ φ) :
+    ∀ v, (∀ ψ ∈ Γ, evaluar v ψ) → evaluar v φ
 
-<span class="kw">theorem</span> isTautology_of_provable
-    (d : ND ∅ φ) : IsTautology φ
+<span class="kw">theorem</span> tautologia_de_derivable
+    (d : ND ∅ φ) : EsTautologia φ
 
-<span class="kw">theorem</span> not_provable_Bot : ¬ ND ∅ Bot</pre>
+<span class="kw">theorem</span> no_derivable_falsedad : ¬ ND ∅ Falsedad</pre>
   </div>
 </div>
 
@@ -189,15 +189,15 @@ false. The proof is by induction on the structure of $\varphi$.</p>
        \big(\neg\llbracket\varphi\rrbracket_v \Rightarrow \Gamma_v\vdash\neg\varphi\big).$$
   </div></div>
   <div class="panel code"><div class="cap">Lean 4 — Completeness.lean</div>
-<pre><span class="kw">def</span> lit (v : Valuation) (p : String) : Formula :=
+<pre><span class="kw">def</span> literal (v : Valuacion) (p : String) : Formula :=
   <span class="kw">if</span> v p <span class="kw">then</span> .atom p <span class="kw">else</span> ~(.atom p)
 
-<span class="cm">-- literal context for the atoms of φ</span>
-<span class="kw">def</span> litCtx (v : Valuation) : List String → Set Formula
+<span class="cm">-- literal context for the atomos of φ</span>
+<span class="kw">def</span> contextoLiterales (v : Valuacion) : List String → Set Formula
 
-<span class="kw">theorem</span> kalmar (v) (ats) (φ) (h : atoms φ ⊆ ats) :
-    (eval v φ → ND (litCtx v ats) φ) ∧
-    (¬ eval v φ → ND (litCtx v ats) (~φ))</pre>
+<span class="kw">theorem</span> kalmar (v) (listaAtomos) (φ) (h : atomos φ ⊆ listaAtomos) :
+    (evaluar v φ → ND (contextoLiterales v listaAtomos) φ) ∧
+    (¬ evaluar v φ → ND (contextoLiterales v listaAtomos) (~φ))</pre>
   </div>
 </div>
 
@@ -215,9 +215,9 @@ no assumptions. Each atom is eliminated by a classical case split (it is either 
     $v(p)=\text{false}$ derivations with the derived rule of proof by cases.
   </div></div>
   <div class="panel code"><div class="cap">Lean 4 — Completeness.lean</div>
-<pre><span class="kw">theorem</span> discharge (ats : List String)
-    (hnd : ats.Nodup)
-    (H : ∀ v, ND (litCtx v ats) φ) :
+<pre><span class="kw">theorem</span> descarga (listaAtomos : List String)
+    (hnd : listaAtomos.Nodup)
+    (H : ∀ v, ND (contextoLiterales v listaAtomos) φ) :
     ND ∅ φ</pre>
   </div>
 </div>
@@ -236,13 +236,13 @@ soundness, derivability and validity coincide exactly.</p>
     $$\mathrm{Taut}(\varphi)\ \Longleftrightarrow\ \emptyset\vdash\varphi.$$
   </div></div>
   <div class="panel code"><div class="cap">Lean 4 — Completeness.lean</div>
-<pre><span class="kw">theorem</span> completeness_ND (φ) (h : IsTautology φ) :
+<pre><span class="kw">theorem</span> completitud_ND (φ) (h : EsTautologia φ) :
     ND ∅ φ :=
-  discharge (atoms φ).dedup _ (<span class="kw">fun</span> v =>
+  descarga (atomos φ).dedup _ (<span class="kw">fun</span> v =>
     (kalmar v _ φ _).1 (h v))
 
-<span class="kw">theorem</span> soundComplete (φ) :
-    IsTautology φ ↔ ND ∅ φ</pre>
+<span class="kw">theorem</span> correccion_completitud (φ) :
+    EsTautologia φ ↔ ND ∅ φ</pre>
   </div>
 </div>
 
@@ -256,17 +256,17 @@ postulated "oracle" completeness rule.</p>
 <div class="pair">
   <div class="panel math"><div class="cap">Generated certificate (audit.txt)</div><div class="body">
     <table class="ax">
-      <tr><td><code class="inl">completeness_ND</code></td><td>propext, Classical.choice, Quot.sound</td></tr>
-      <tr><td><code class="inl">soundComplete</code></td><td>propext, Classical.choice, Quot.sound</td></tr>
-      <tr><td><code class="inl">ex_id</code>, <code class="inl">ex_dne</code></td><td>(no axioms)</td></tr>
+      <tr><td><code class="inl">completitud_ND</code></td><td>propext, Classical.choice, Quot.sound</td></tr>
+      <tr><td><code class="inl">correccion_completitud</code></td><td>propext, Classical.choice, Quot.sound</td></tr>
+      <tr><td><code class="inl">ej_identidad</code>, <code class="inl">ej_eliminacion_doble_negacion</code></td><td>(no axioms)</td></tr>
     </table>
     These are exactly the axioms underlying all of classical mathematics in Lean — not anything
     specific to this proof.
   </div></div>
   <div class="panel code"><div class="cap">How it is produced</div>
 <pre><span class="cm">-- Audit.lean, run on every CI build</span>
-<span class="kw">#print</span> axioms completeness_ND
-<span class="kw">#print</span> axioms soundComplete
+<span class="kw">#print</span> axioms completitud_ND
+<span class="kw">#print</span> axioms correccion_completitud
 
 <span class="cm">-- a stray `sorry` would appear here as `sorryAx`</span>
 <span class="cm">-- and break the build.</span></pre>
@@ -293,13 +293,13 @@ are in the thesis report.
     Specification: $\;\mathrm{qsort}(\ell)\sim\ell\ \wedge\ \mathrm{Sorted}(\mathrm{qsort}(\ell)).$
   </div></div>
   <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
-<pre><span class="kw">def</span> Sorted (l : List α) : Prop := l.Pairwise (· ≤ ·)
+<pre><span class="kw">def</span> Ordenada (l : List α) : Prop := l.Pairwise (· ≤ ·)
 
 <span class="kw">def</span> quicksort : List α → List α
   | [] => []
-  | p :: rest =>
-      quicksort (rest.filter (fun x => decide (x ≤ p)))
-        ++ p :: quicksort (rest.filter (fun x => ! decide (x ≤ p)))
+  | p :: cola =>
+      quicksort (cola.filter (fun x => decide (x ≤ p)))
+        ++ p :: quicksort (cola.filter (fun x => ! decide (x ≤ p)))
   <span class="kw">termination_by</span> l => l.length</pre>
   </div>
 </div>
@@ -313,9 +313,9 @@ are in the thesis report.
     Quicksort returns a sorted permutation of its input — the full specification of a sorting algorithm.
   </div></div>
   <div class="panel code"><div class="cap">Lean — generated certificate</div>
-<pre><span class="kw">theorem</span> quicksort_correct (l : List α) :
-    quicksort l ~ l ∧ Sorted (quicksort l) :=
-  ⟨quicksort_perm l, quicksort_sorted l⟩
+<pre><span class="kw">theorem</span> quicksort_correcto (l : List α) :
+    quicksort l ~ l ∧ Ordenada (quicksort l) :=
+  ⟨quicksort_permutacion l, quicksort_ordenada l⟩
 
 <span class="cm">-- audit.txt: depends only on</span>
 <span class="cm">--   [propext, Classical.choice, Quot.sound]</span></pre>
