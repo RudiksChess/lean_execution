@@ -312,7 +312,9 @@ def make_proof(target: dict[str, str]) -> dict[str, Any]:
         if not kind.startswith('Lean.Parser.Tactic.') or 'tacticSeq' in kind:
             continue
         start, end = tactic['range']['start']['line'], tactic['range']['end']['line']
-        if not tactic['before'] or any(s['startLine'] <= start <= s['endLine'] for s in steps):
+        if not tactic['before'] or any(s['sourceText'] == tactic['sourceText'] and s['startLine'] == start for s in steps):
+            continue
+        if any(s['startLine'] <= start <= s['endLine'] for s in steps) and not tactic['sourceText'].lstrip().startswith(('have ', 'let ', 'induction ', 'cases ')):
             continue
         key = (start, end)
         if key in seen:

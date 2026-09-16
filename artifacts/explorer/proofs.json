@@ -25976,6 +25976,232 @@
           "kind": "continuation"
         },
         {
+          "id": "discharge.block-210-8fd16fc9",
+          "branch": "discharge.blocks",
+          "label": "have hp_verdadero : (Function.update v p True) p := by simp",
+          "startLine": 210,
+          "endLine": 210,
+          "sourceText": "have hp_verdadero : (Function.update v p True) p := by simp",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                }
+              ],
+              "id": "discharge.block-210-8fd16fc9.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                }
+              ],
+              "id": "discharge.block-210-8fd16fc9.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-211-58c4047c",
+          "branch": "discharge.blocks",
+          "label": "have hp_falso : ¬ (Function.update v p False) p := by simp",
+          "startLine": 211,
+          "endLine": 211,
+          "sourceText": "have hp_falso : ¬ (Function.update v p False) p := by simp",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                }
+              ],
+              "id": "discharge.block-211-58c4047c.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                }
+              ],
+              "id": "discharge.block-211-58c4047c.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
           "id": "discharge.block-212-4b3caeb9",
           "branch": "discharge.blocks",
           "label": "have hLiteralVerdadero : literal (Function.update v p True) p = Formula.atom p := by",
