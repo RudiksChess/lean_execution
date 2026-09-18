@@ -2290,6 +2290,38 @@
           "kind": "closure",
           "sourceText": "exact ND.classical dFalsedad"
         }
+      ],
+      "blocks": [
+        {
+          "id": "weakening.block-54-50a9206b",
+          "branch": "weakening.blocks",
+          "label": "induction d with",
+          "startLine": 54,
+          "endLine": 89,
+          "sourceText": "induction d with\n  | @hyp Γ φ hmem =>\n      intro Δ hsub\n      have hEnDelta : φ ∈ Δ := hsub hmem\n      exact ND.hyp hEnDelta\n  | @impI Γ φ ψ _ hipInd =>\n      intro Δ hsub\n      have hAmpliado : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub\n      have dCuerpo : ND (insert φ Δ) ψ := hipInd hAmpliado\n      -- impI descarga φ; las fórmulas de Δ permanecen.\n      exact ND.impI dCuerpo\n  | @impE Γ φ ψ _ _ hipIndImp hipIndAntecedente =>\n      intro Δ hsub\n      have dImp : ND Δ (φ ⟶ ψ) := hipIndImp hsub\n      have dAntecedente : ND Δ φ := hipIndAntecedente hsub\n      exact ND.impE dImp dAntecedente\n  | @negI Γ φ _ hipInd =>\n      intro Δ hsub\n      have hAmpliado : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub\n      have dFalsedad : ND (insert φ Δ) Falsedad := hipInd hAmpliado\n      exact ND.negI dFalsedad\n  | @negE Γ φ _ _ hipIndNeg hipIndPos =>\n      intro Δ hsub\n      have dNeg : ND Δ (~φ) := hipIndNeg hsub\n      have dPos : ND Δ φ := hipIndPos hsub\n      exact ND.negE dNeg dPos\n  | @botE Γ φ _ hipInd =>\n      intro Δ hsub\n      have dFalsedad : ND Δ Falsedad := hipInd hsub\n      exact ND.botE dFalsedad\n  | @classical Γ φ _ hipInd =>\n      intro Δ hsub\n      have hAmpliado : insert (~φ) Γ ⊆ insert (~φ) Δ := Set.insert_subset_insert hsub\n      have dFalsedad : ND (insert (~φ) Δ) Falsedad := hipInd hAmpliado\n      -- Por RAA objeto, se descarga ~φ y se concluye φ bajo Δ.\n      exact ND.classical dFalsedad",
+          "before": [
+            {
+              "target": "∀ {Δ : Set Formula}, Γ ⊆ Δ → ND Δ φ",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "d"
+                }
+              ],
+              "id": "weakening.block-54-50a9206b.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        }
       ]
     },
     {
@@ -3939,7 +3971,8 @@
           "kind": "closure",
           "sourceText": "exact hMayoresLt"
         }
-      ]
+      ],
+      "blocks": []
     },
     {
       "id": "eval_Bot",
@@ -4279,6 +4312,45 @@
           "after": [],
           "kind": "closure",
           "sourceText": "exact False.elim hFalso"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "eval_Bot.block-19-bc35c90c",
+          "branch": "eval_Bot.blocks",
+          "label": "have hIdentidad : v \"⊥\" → v \"⊥\" := by",
+          "startLine": 19,
+          "endLine": 21,
+          "sourceText": "have hIdentidad : v \"⊥\" → v \"⊥\" := by\n    intro hAtomo\n    exact hAtomo",
+          "before": [
+            {
+              "target": "evaluar v Falsedad ↔ False",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                }
+              ],
+              "id": "eval_Bot.block-19-bc35c90c.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "evaluar v Falsedad ↔ False",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "v \"⊥\" → v \"⊥\"",
+                  "name": "hIdentidad"
+                }
+              ],
+              "id": "eval_Bot.block-19-bc35c90c.after.1"
+            }
+          ],
+          "kind": "continuation"
         }
       ]
     },
@@ -4788,7 +4860,8 @@
           "kind": "closure",
           "sourceText": "exact ND.negI dFalsedad"
         }
-      ]
+      ],
+      "blocks": []
     },
     {
       "id": "byCases",
@@ -6368,6 +6441,170 @@
           "kind": "closure",
           "sourceText": "exact ND.classical dFalsedad"
         }
+      ],
+      "blocks": [
+        {
+          "id": "byCases.block-115-252449b1",
+          "branch": "byCases.blocks",
+          "label": "have dNeg : ND Δ (~φ) := by",
+          "startLine": 115,
+          "endLine": 125,
+          "sourceText": "have dNeg : ND Δ (~φ) := by\n    let Θ := insert φ Δ\n    have hNoChi : (~χ) ∈ Θ :=\n      Set.mem_insert_of_mem _ (Set.mem_insert _ _)\n    have hInclusion : insert φ Γ ⊆ Θ :=\n      Set.insert_subset_insert (Set.subset_insert _ _)\n    have dNoChi : ND Θ (~χ) := ND.hyp hNoChi\n    have dChi : ND Θ χ := debilitamiento d1 hInclusion\n    have dFalsedad : ND Θ Falsedad := ND.negE dNoChi dChi\n    -- Se descarga φ; ~χ permanece en Δ.\n    exact ND.negI dFalsedad",
+          "before": [
+            {
+              "target": "ND Γ χ",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "χ"
+                },
+                {
+                  "type": "ND (insert φ Γ) χ",
+                  "name": "d1"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) χ",
+                  "name": "d2"
+                },
+                {
+                  "type": "Set Formula := insert (~χ) Γ",
+                  "name": "Δ"
+                }
+              ],
+              "id": "byCases.block-115-252449b1.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Γ χ",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "χ"
+                },
+                {
+                  "type": "ND (insert φ Γ) χ",
+                  "name": "d1"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) χ",
+                  "name": "d2"
+                },
+                {
+                  "type": "Set Formula := insert (~χ) Γ",
+                  "name": "Δ"
+                },
+                {
+                  "type": "ND Δ (~φ)",
+                  "name": "dNeg"
+                }
+              ],
+              "id": "byCases.block-115-252449b1.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "byCases.block-126-74d769d2",
+          "branch": "byCases.blocks",
+          "label": "have dDobleNeg : ND Δ (~~φ) := by",
+          "startLine": 126,
+          "endLine": 136,
+          "sourceText": "have dDobleNeg : ND Δ (~~φ) := by\n    let Θ := insert (~φ) Δ\n    have hNoChi : (~χ) ∈ Θ :=\n      Set.mem_insert_of_mem _ (Set.mem_insert _ _)\n    have hInclusion : insert (~φ) Γ ⊆ Θ :=\n      Set.insert_subset_insert (Set.subset_insert _ _)\n    have dNoChi : ND Θ (~χ) := ND.hyp hNoChi\n    have dChi : ND Θ χ := debilitamiento d2 hInclusion\n    have dFalsedad : ND Θ Falsedad := ND.negE dNoChi dChi\n    -- Se descarga ~φ; ~χ permanece en Δ.\n    exact ND.negI dFalsedad",
+          "before": [
+            {
+              "target": "ND Γ χ",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "χ"
+                },
+                {
+                  "type": "ND (insert φ Γ) χ",
+                  "name": "d1"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) χ",
+                  "name": "d2"
+                },
+                {
+                  "type": "Set Formula := insert (~χ) Γ",
+                  "name": "Δ"
+                },
+                {
+                  "type": "ND Δ (~φ)",
+                  "name": "dNeg"
+                }
+              ],
+              "id": "byCases.block-126-74d769d2.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND Γ χ",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "χ"
+                },
+                {
+                  "type": "ND (insert φ Γ) χ",
+                  "name": "d1"
+                },
+                {
+                  "type": "ND (insert (~φ) Γ) χ",
+                  "name": "d2"
+                },
+                {
+                  "type": "Set Formula := insert (~χ) Γ",
+                  "name": "Δ"
+                },
+                {
+                  "type": "ND Δ (~φ)",
+                  "name": "dNeg"
+                },
+                {
+                  "type": "ND Δ (~~φ)",
+                  "name": "dDobleNeg"
+                }
+              ],
+              "id": "byCases.block-126-74d769d2.after.1"
+            }
+          ],
+          "kind": "continuation"
+        }
       ]
     },
     {
@@ -6842,7 +7079,8 @@
           "kind": "closure",
           "sourceText": "exact hΓ ψ hEnGamma"
         }
-      ]
+      ],
+      "blocks": []
     },
     {
       "id": "soundness",
@@ -9926,6 +10164,38 @@
           "kind": "closure",
           "sourceText": "exact (evaluar_falsedad v).mp hFalsedad"
         }
+      ],
+      "blocks": [
+        {
+          "id": "soundness.block-163-1194a840",
+          "branch": "soundness.blocks",
+          "label": "induction d with",
+          "startLine": 163,
+          "endLine": 205,
+          "sourceText": "induction d with\n  | @hyp Γ φ hmem =>\n      intro v hv\n      exact hv φ hmem\n  | @impI Γ φ ψ _ hipInd =>\n      intro v hv\n      change evaluar v φ → evaluar v ψ\n      intro hPhi\n      have hAmpliado : ∀ θ ∈ insert φ Γ, evaluar v θ := satisfaccion_insertar hPhi hv\n      have hPsi : evaluar v ψ := hipInd v hAmpliado\n      exact hPsi\n  | @impE Γ φ ψ _ _ hipIndImp hipIndAntecedente =>\n      intro v hv\n      have hImp : evaluar v φ → evaluar v ψ := hipIndImp v hv\n      have hPhi : evaluar v φ := hipIndAntecedente v hv\n      exact hImp hPhi\n  | @negI Γ φ _ hipInd =>\n      intro v hv\n      change ¬ evaluar v φ\n      intro hPhi\n      have hAmpliado : ∀ θ ∈ insert φ Γ, evaluar v θ := satisfaccion_insertar hPhi hv\n      have hFalsedad : evaluar v Falsedad := hipInd v hAmpliado\n      exact (evaluar_falsedad v).mp hFalsedad\n  | @negE Γ φ _ _ hipIndNeg hipIndPos =>\n      intro v hv\n      have hNeg : ¬ evaluar v φ := hipIndNeg v hv\n      have hPos : evaluar v φ := hipIndPos v hv\n      have hFalso : False := hNeg hPos\n      -- Dirección inversa: False → evaluar v Falsedad.\n      exact (evaluar_falsedad v).mpr hFalso\n  | @botE Γ φ _ hipInd =>\n      intro v hv\n      have hFalsedad : evaluar v Falsedad := hipInd v hv\n      have hFalso : False := (evaluar_falsedad v).mp hFalsedad\n      exact False.elim hFalso\n  | @classical Γ φ _ hipInd =>\n      intro v hv\n      -- Por RAA metateórica, se supone ¬ evaluar v φ, no ND Γ (~φ).\n      by_contra hnp\n      have hNeg : evaluar v (~φ) := hnp\n      have hAmpliado : ∀ θ ∈ insert (~φ) Γ, evaluar v θ := satisfaccion_insertar hNeg hv\n      have hFalsedad : evaluar v Falsedad := hipInd v hAmpliado\n      exact (evaluar_falsedad v).mp hFalsedad",
+          "before": [
+            {
+              "target": "∀ (v : Valuacion), (∀ ψ ∈ Γ, evaluar v ψ) → evaluar v φ",
+              "hypotheses": [
+                {
+                  "type": "Set Formula",
+                  "name": "Γ"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND Γ φ",
+                  "name": "d"
+                }
+              ],
+              "id": "soundness.block-163-1194a840.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        }
       ]
     },
     {
@@ -10189,6 +10459,61 @@
           "kind": "closure",
           "sourceText": "exact correccion d v hVacio"
         }
+      ],
+      "blocks": [
+        {
+          "id": "isTautology_of_provable.block-211-2f63f687",
+          "branch": "isTautology_of_provable.blocks",
+          "label": "have hVacio : ∀ ψ ∈ (∅ : Set Formula), evaluar v ψ := by",
+          "startLine": 211,
+          "endLine": 214,
+          "sourceText": "have hVacio : ∀ ψ ∈ (∅ : Set Formula), evaluar v ψ := by\n    intro ψ hψ\n    have hFalso : False := hψ\n    exact False.elim hFalso",
+          "before": [
+            {
+              "target": "evaluar v φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND ∅ φ",
+                  "name": "d"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                }
+              ],
+              "id": "isTautology_of_provable.block-211-2f63f687.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "evaluar v φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "ND ∅ φ",
+                  "name": "d"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "∀ ψ ∈ ∅, evaluar v ψ",
+                  "name": "hVacio"
+                }
+              ],
+              "id": "isTautology_of_provable.block-211-2f63f687.after.1"
+            }
+          ],
+          "kind": "continuation"
+        }
       ]
     },
     {
@@ -10402,7 +10727,8 @@
           "kind": "closure",
           "sourceText": "exact (evaluar_falsedad v).mp hFalsedad"
         }
-      ]
+      ],
+      "blocks": []
     },
     {
       "id": "lit_mem",
@@ -10942,6 +11268,42 @@
           "after": [],
           "kind": "closure",
           "sourceText": "exact Set.mem_insert_of_mem (literal v a) hLiteralCola"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "lit_mem.block-36-a9c04a7d",
+          "branch": "lit_mem.blocks",
+          "label": "induction listaAtomos with",
+          "startLine": 36,
+          "endLine": 46,
+          "sourceText": "induction listaAtomos with\n  | nil =>\n      have hFalso : False := List.not_mem_nil h\n      exact False.elim hFalso\n  | cons a cola hipInd =>\n      have hCasos : p = a ∨ p ∈ cola := List.mem_cons.mp h\n      rcases hCasos with hIgualdad | hCola\n      · subst p\n        exact Set.mem_insert _ _\n      · have hLiteralCola : literal v p ∈ contextoLiterales v cola := hipInd hCola\n        exact Set.mem_insert_of_mem (literal v a) hLiteralCola",
+          "before": [
+            {
+              "target": "literal v p ∈ contextoLiterales v listaAtomos",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "p ∈ listaAtomos",
+                  "name": "h"
+                }
+              ],
+              "id": "lit_mem.block-36-a9c04a7d.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
         }
       ]
     },
@@ -19463,6 +19825,844 @@
           "kind": "closure",
           "sourceText": "exact ND.negI dFalsedad"
         }
+      ],
+      "blocks": [
+        {
+          "id": "kalmar.block-58-3a41071e",
+          "branch": "kalmar.blocks",
+          "label": "induction φ with",
+          "startLine": 58,
+          "endLine": 147,
+          "sourceText": "induction φ with\n  | atom s =>\n      intro hsub\n      have hAtomo : s ∈ atomos (.atom s) := List.mem_singleton_self s\n      have hs : s ∈ listaAtomos := hsub hAtomo\n      refine ⟨?_, ?_⟩\n      · intro hev\n        have hvs : v s := hev\n        have hmem : literal v s ∈ contextoLiterales v listaAtomos := pertenencia_literal (v := v) hs\n        rw [literal, if_pos hvs] at hmem\n        exact ND.hyp hmem\n      · intro hev\n        have hvs : ¬ v s := hev\n        have hmem : literal v s ∈ contextoLiterales v listaAtomos := pertenencia_literal (v := v) hs\n        rw [literal, if_neg hvs] at hmem\n        exact ND.hyp hmem\n  | neg p hipInd =>\n      intro hsub\n      have hsub' : atomos p ⊆ listaAtomos := hsub\n      obtain ⟨hipIndPos, hipIndNeg⟩ := hipInd hsub'\n      refine ⟨?_, ?_⟩\n      · intro hev\n        have hNoP : ¬ evaluar v p := hev\n        exact hipIndNeg hNoP\n      · intro hev\n        have hDobleNeg : ¬ ¬ evaluar v p := hev\n        -- Eliminación de doble negación metateórica, mediante lógica clásica.\n        have hP : evaluar v p := Classical.byContradiction hDobleNeg\n        have dP : ND (contextoLiterales v listaAtomos) p := hipIndPos hP\n        -- Introducción de doble negación objeto; no es la eliminación anterior.\n        exact introduccion_doble_negacion dP\n  | impl p q hipIndP hipIndQ =>\n      intro hsub\n      have hsp : atomos p ⊆ listaAtomos := by\n        intro a ha\n        have hUnion : a ∈ atomos p ++ atomos q := List.mem_append.mpr (Or.inl ha)\n        exact hsub hUnion\n      have hsq : atomos q ⊆ listaAtomos := by\n        intro a ha\n        have hUnion : a ∈ atomos p ++ atomos q := List.mem_append.mpr (Or.inr ha)\n        exact hsub hUnion\n      obtain ⟨hipIndPPos, hipIndPNeg⟩ := hipIndP hsp\n      obtain ⟨hipIndQPos, hipIndQNeg⟩ := hipIndQ hsq\n      refine ⟨?_, ?_⟩\n      · intro hev\n        -- Casos semánticos sobre evaluar v p; no se usa el lema objeto analisis_por_casos.\n        by_cases hp : evaluar v p\n        · have hq : evaluar v q := hev hp\n          have dQ : ND (contextoLiterales v listaAtomos) q := hipIndQPos hq\n          have hInclusion : contextoLiterales v listaAtomos ⊆ insert p (contextoLiterales v listaAtomos) := Set.subset_insert _ _\n          have dQAmpliada : ND (insert p (contextoLiterales v listaAtomos)) q := debilitamiento dQ hInclusion\n          -- Se descarga p, aunque esta rama no necesita usarlo.\n          exact ND.impI dQAmpliada\n        · have dNoP : ND (contextoLiterales v listaAtomos) (~p) := hipIndPNeg hp\n          have hInclusion : contextoLiterales v listaAtomos ⊆ insert p (contextoLiterales v listaAtomos) := Set.subset_insert _ _\n          have h1 : ND (insert p (contextoLiterales v listaAtomos)) (~p) :=\n            debilitamiento dNoP hInclusion\n          have h2 : ND (insert p (contextoLiterales v listaAtomos)) p := ND.hyp (Set.mem_insert _ _)\n          have dFalsedad : ND (insert p (contextoLiterales v listaAtomos)) Falsedad := ND.negE h1 h2\n          have dQ : ND (insert p (contextoLiterales v listaAtomos)) q := ND.botE dFalsedad\n          exact ND.impI dQ\n      · intro hev\n        have hNoImp : ¬ (evaluar v p → evaluar v q) := hev\n        have hp : evaluar v p := by\n          -- Por RAA metateórica, se supone que evaluar v p es falsa.\n          by_contra hNoP\n          have hImp : evaluar v p → evaluar v q := by\n            intro hP\n            have hFalso : False := hNoP hP\n            exact False.elim hFalso\n          exact hNoImp hImp\n        have hq : ¬ evaluar v q := by\n          intro hQ\n          have hImp : evaluar v p → evaluar v q := by\n            intro _\n            exact hQ\n          exact hNoImp hImp\n        have dP : ND (contextoLiterales v listaAtomos) p := hipIndPPos hp\n        have dNoQ : ND (contextoLiterales v listaAtomos) (~q) := hipIndQNeg hq\n        have hInclusion : contextoLiterales v listaAtomos ⊆ insert (p ⟶ q) (contextoLiterales v listaAtomos) :=\n          Set.subset_insert _ _\n        have hpq : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) (p ⟶ q) := ND.hyp (Set.mem_insert _ _)\n        have hpp : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) p :=\n          debilitamiento dP hInclusion\n        have hnq : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) (~q) :=\n          debilitamiento dNoQ hInclusion\n        have dQ : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) q := ND.impE hpq hpp\n        have dFalsedad : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) Falsedad := ND.negE hnq dQ\n        -- negI descarga p ⟶ q y concluye su negación bajo el contexto original.\n        exact ND.negI dFalsedad",
+          "before": [
+            {
+              "target": "atomos φ ⊆ listaAtomos →\n  (evaluar v φ → ND (contextoLiterales v listaAtomos) φ) ∧ (¬evaluar v φ → ND (contextoLiterales v listaAtomos) (~φ))",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                }
+              ],
+              "id": "kalmar.block-58-3a41071e.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        },
+        {
+          "id": "kalmar.block-91-5398c5dc",
+          "branch": "kalmar.blocks",
+          "label": "have hsp : atomos p ⊆ listaAtomos := by",
+          "startLine": 91,
+          "endLine": 94,
+          "sourceText": "have hsp : atomos p ⊆ listaAtomos := by\n        intro a ha\n        have hUnion : a ∈ atomos p ++ atomos q := List.mem_append.mpr (Or.inl ha)\n        exact hsub hUnion",
+          "before": [
+            {
+              "target": "(evaluar v (p ⟶ q) → ND (contextoLiterales v listaAtomos) (p ⟶ q)) ∧\n  (¬evaluar v (p ⟶ q) → ND (contextoLiterales v listaAtomos) (~(p ⟶ q)))",
+              "id": "impl",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "(evaluar v (p ⟶ q) → ND (contextoLiterales v listaAtomos) (p ⟶ q)) ∧\n  (¬evaluar v (p ⟶ q) → ND (contextoLiterales v listaAtomos) (~(p ⟶ q)))",
+              "id": "impl",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "kalmar.block-95-3ad19d7c",
+          "branch": "kalmar.blocks",
+          "label": "have hsq : atomos q ⊆ listaAtomos := by",
+          "startLine": 95,
+          "endLine": 98,
+          "sourceText": "have hsq : atomos q ⊆ listaAtomos := by\n        intro a ha\n        have hUnion : a ∈ atomos p ++ atomos q := List.mem_append.mpr (Or.inr ha)\n        exact hsub hUnion",
+          "before": [
+            {
+              "target": "(evaluar v (p ⟶ q) → ND (contextoLiterales v listaAtomos) (p ⟶ q)) ∧\n  (¬evaluar v (p ⟶ q) → ND (contextoLiterales v listaAtomos) (~(p ⟶ q)))",
+              "id": "impl",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "(evaluar v (p ⟶ q) → ND (contextoLiterales v listaAtomos) (p ⟶ q)) ∧\n  (¬evaluar v (p ⟶ q) → ND (contextoLiterales v listaAtomos) (~(p ⟶ q)))",
+              "id": "impl",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "kalmar.block-121-2d9ad645",
+          "branch": "kalmar.blocks",
+          "label": "have hp : evaluar v p := by",
+          "startLine": 121,
+          "endLine": 128,
+          "sourceText": "have hp : evaluar v p := by\n          -- Por RAA metateórica, se supone que evaluar v p es falsa.\n          by_contra hNoP\n          have hImp : evaluar v p → evaluar v q := by\n            intro hP\n            have hFalso : False := hNoP hP\n            exact False.elim hFalso\n          exact hNoImp hImp",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v listaAtomos) (~(p ⟶ q))",
+              "id": "impl.refine_2",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                },
+                {
+                  "type": "evaluar v p → ND (contextoLiterales v listaAtomos) p",
+                  "name": "hipIndPPos"
+                },
+                {
+                  "type": "¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)",
+                  "name": "hipIndPNeg"
+                },
+                {
+                  "type": "evaluar v q → ND (contextoLiterales v listaAtomos) q",
+                  "name": "hipIndQPos"
+                },
+                {
+                  "type": "¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q)",
+                  "name": "hipIndQNeg"
+                },
+                {
+                  "type": "¬evaluar v (p ⟶ q)",
+                  "name": "hev"
+                },
+                {
+                  "type": "¬(evaluar v p → evaluar v q)",
+                  "name": "hNoImp"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v listaAtomos) (~(p ⟶ q))",
+              "id": "impl.refine_2",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                },
+                {
+                  "type": "evaluar v p → ND (contextoLiterales v listaAtomos) p",
+                  "name": "hipIndPPos"
+                },
+                {
+                  "type": "¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)",
+                  "name": "hipIndPNeg"
+                },
+                {
+                  "type": "evaluar v q → ND (contextoLiterales v listaAtomos) q",
+                  "name": "hipIndQPos"
+                },
+                {
+                  "type": "¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q)",
+                  "name": "hipIndQNeg"
+                },
+                {
+                  "type": "¬evaluar v (p ⟶ q)",
+                  "name": "hev"
+                },
+                {
+                  "type": "¬(evaluar v p → evaluar v q)",
+                  "name": "hNoImp"
+                },
+                {
+                  "type": "evaluar v p",
+                  "name": "hp"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "kalmar.block-124-79a4c149",
+          "branch": "kalmar.blocks",
+          "label": "have hImp : evaluar v p → evaluar v q := by",
+          "startLine": 124,
+          "endLine": 127,
+          "sourceText": "have hImp : evaluar v p → evaluar v q := by\n            intro hP\n            have hFalso : False := hNoP hP\n            exact False.elim hFalso",
+          "before": [
+            {
+              "target": "False",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                },
+                {
+                  "type": "evaluar v p → ND (contextoLiterales v listaAtomos) p",
+                  "name": "hipIndPPos"
+                },
+                {
+                  "type": "¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)",
+                  "name": "hipIndPNeg"
+                },
+                {
+                  "type": "evaluar v q → ND (contextoLiterales v listaAtomos) q",
+                  "name": "hipIndQPos"
+                },
+                {
+                  "type": "¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q)",
+                  "name": "hipIndQNeg"
+                },
+                {
+                  "type": "¬evaluar v (p ⟶ q)",
+                  "name": "hev"
+                },
+                {
+                  "type": "¬(evaluar v p → evaluar v q)",
+                  "name": "hNoImp"
+                },
+                {
+                  "type": "¬evaluar v p",
+                  "name": "hNoP"
+                }
+              ],
+              "id": "kalmar.block-124-79a4c149.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "False",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                },
+                {
+                  "type": "evaluar v p → ND (contextoLiterales v listaAtomos) p",
+                  "name": "hipIndPPos"
+                },
+                {
+                  "type": "¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)",
+                  "name": "hipIndPNeg"
+                },
+                {
+                  "type": "evaluar v q → ND (contextoLiterales v listaAtomos) q",
+                  "name": "hipIndQPos"
+                },
+                {
+                  "type": "¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q)",
+                  "name": "hipIndQNeg"
+                },
+                {
+                  "type": "¬evaluar v (p ⟶ q)",
+                  "name": "hev"
+                },
+                {
+                  "type": "¬(evaluar v p → evaluar v q)",
+                  "name": "hNoImp"
+                },
+                {
+                  "type": "¬evaluar v p",
+                  "name": "hNoP"
+                },
+                {
+                  "type": "evaluar v p → evaluar v q",
+                  "name": "hImp"
+                }
+              ],
+              "id": "kalmar.block-124-79a4c149.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "kalmar.block-129-b6b80ce1",
+          "branch": "kalmar.blocks",
+          "label": "have hq : ¬ evaluar v q := by",
+          "startLine": 129,
+          "endLine": 134,
+          "sourceText": "have hq : ¬ evaluar v q := by\n          intro hQ\n          have hImp : evaluar v p → evaluar v q := by\n            intro _\n            exact hQ\n          exact hNoImp hImp",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v listaAtomos) (~(p ⟶ q))",
+              "id": "impl.refine_2",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                },
+                {
+                  "type": "evaluar v p → ND (contextoLiterales v listaAtomos) p",
+                  "name": "hipIndPPos"
+                },
+                {
+                  "type": "¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)",
+                  "name": "hipIndPNeg"
+                },
+                {
+                  "type": "evaluar v q → ND (contextoLiterales v listaAtomos) q",
+                  "name": "hipIndQPos"
+                },
+                {
+                  "type": "¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q)",
+                  "name": "hipIndQNeg"
+                },
+                {
+                  "type": "¬evaluar v (p ⟶ q)",
+                  "name": "hev"
+                },
+                {
+                  "type": "¬(evaluar v p → evaluar v q)",
+                  "name": "hNoImp"
+                },
+                {
+                  "type": "evaluar v p",
+                  "name": "hp"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v listaAtomos) (~(p ⟶ q))",
+              "id": "impl.refine_2",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                },
+                {
+                  "type": "evaluar v p → ND (contextoLiterales v listaAtomos) p",
+                  "name": "hipIndPPos"
+                },
+                {
+                  "type": "¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)",
+                  "name": "hipIndPNeg"
+                },
+                {
+                  "type": "evaluar v q → ND (contextoLiterales v listaAtomos) q",
+                  "name": "hipIndQPos"
+                },
+                {
+                  "type": "¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q)",
+                  "name": "hipIndQNeg"
+                },
+                {
+                  "type": "¬evaluar v (p ⟶ q)",
+                  "name": "hev"
+                },
+                {
+                  "type": "¬(evaluar v p → evaluar v q)",
+                  "name": "hNoImp"
+                },
+                {
+                  "type": "evaluar v p",
+                  "name": "hp"
+                },
+                {
+                  "type": "¬evaluar v q",
+                  "name": "hq"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "kalmar.block-131-ab5fc4a1",
+          "branch": "kalmar.blocks",
+          "label": "have hImp : evaluar v p → evaluar v q := by",
+          "startLine": 131,
+          "endLine": 133,
+          "sourceText": "have hImp : evaluar v p → evaluar v q := by\n            intro _\n            exact hQ",
+          "before": [
+            {
+              "target": "False",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                },
+                {
+                  "type": "evaluar v p → ND (contextoLiterales v listaAtomos) p",
+                  "name": "hipIndPPos"
+                },
+                {
+                  "type": "¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)",
+                  "name": "hipIndPNeg"
+                },
+                {
+                  "type": "evaluar v q → ND (contextoLiterales v listaAtomos) q",
+                  "name": "hipIndQPos"
+                },
+                {
+                  "type": "¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q)",
+                  "name": "hipIndQNeg"
+                },
+                {
+                  "type": "¬evaluar v (p ⟶ q)",
+                  "name": "hev"
+                },
+                {
+                  "type": "¬(evaluar v p → evaluar v q)",
+                  "name": "hNoImp"
+                },
+                {
+                  "type": "evaluar v p",
+                  "name": "hp"
+                },
+                {
+                  "type": "evaluar v q",
+                  "name": "hQ"
+                }
+              ],
+              "id": "kalmar.block-131-ab5fc4a1.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "False",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos →\n  (evaluar v p → ND (contextoLiterales v listaAtomos) p) ∧ (¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p))",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos →\n  (evaluar v q → ND (contextoLiterales v listaAtomos) q) ∧ (¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q))",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "atomos (p ⟶ q) ⊆ listaAtomos",
+                  "name": "hsub"
+                },
+                {
+                  "type": "atomos p ⊆ listaAtomos",
+                  "name": "hsp"
+                },
+                {
+                  "type": "atomos q ⊆ listaAtomos",
+                  "name": "hsq"
+                },
+                {
+                  "type": "evaluar v p → ND (contextoLiterales v listaAtomos) p",
+                  "name": "hipIndPPos"
+                },
+                {
+                  "type": "¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)",
+                  "name": "hipIndPNeg"
+                },
+                {
+                  "type": "evaluar v q → ND (contextoLiterales v listaAtomos) q",
+                  "name": "hipIndQPos"
+                },
+                {
+                  "type": "¬evaluar v q → ND (contextoLiterales v listaAtomos) (~q)",
+                  "name": "hipIndQNeg"
+                },
+                {
+                  "type": "¬evaluar v (p ⟶ q)",
+                  "name": "hev"
+                },
+                {
+                  "type": "¬(evaluar v p → evaluar v q)",
+                  "name": "hNoImp"
+                },
+                {
+                  "type": "evaluar v p",
+                  "name": "hp"
+                },
+                {
+                  "type": "evaluar v q",
+                  "name": "hQ"
+                },
+                {
+                  "type": "evaluar v p → evaluar v q",
+                  "name": "hImp"
+                }
+              ],
+              "id": "kalmar.block-131-ab5fc4a1.after.1"
+            }
+          ],
+          "kind": "continuation"
+        }
       ]
     },
     {
@@ -19910,6 +21110,77 @@
           "after": [],
           "kind": "closure",
           "sourceText": "rw [literal, literal, if_neg hx, if_neg hx2]"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "lit_congr.block-161-9c389790",
+          "branch": "lit_congr.blocks",
+          "label": "have hx2 : ¬ w2 x := by",
+          "startLine": 161,
+          "endLine": 164,
+          "sourceText": "have hx2 : ¬ w2 x := by\n      intro hVerdadero\n      have hx1 : w1 x := h.mpr hVerdadero\n      exact hx hx1",
+          "before": [
+            {
+              "target": "literal w1 x = literal w2 x",
+              "id": "neg",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "w1"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "w2"
+                },
+                {
+                  "type": "String",
+                  "name": "x"
+                },
+                {
+                  "type": "w1 x ↔ w2 x",
+                  "name": "h"
+                },
+                {
+                  "type": "¬w1 x",
+                  "name": "hx"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "literal w1 x = literal w2 x",
+              "id": "neg",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "w1"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "w2"
+                },
+                {
+                  "type": "String",
+                  "name": "x"
+                },
+                {
+                  "type": "w1 x ↔ w2 x",
+                  "name": "h"
+                },
+                {
+                  "type": "¬w1 x",
+                  "name": "hx"
+                },
+                {
+                  "type": "¬w2 x",
+                  "name": "hx2"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
         }
       ]
     },
@@ -20942,6 +22213,139 @@
           "after": [],
           "kind": "closure",
           "sourceText": "rw [hLiteral, hr]"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "litCtx_congr.block-171-3eb9e350",
+          "branch": "litCtx_congr.blocks",
+          "label": "induction listaAtomos with",
+          "startLine": 171,
+          "endLine": 186,
+          "sourceText": "induction listaAtomos with\n  | nil => intro _; rfl\n  | cons a cola hipInd =>\n      intro h\n      have hCabeza : a ∈ a :: cola := List.mem_cons.mpr (Or.inl rfl)\n      have ha : w1 a ↔ w2 a := h a hCabeza\n      have hLiteral : literal w1 a = literal w2 a := congruencia_literal ha\n      have hCola : ∀ x ∈ cola, w1 x ↔ w2 x := by\n        intro x hx\n        have hEnLista : x ∈ a :: cola := List.mem_cons.mpr (Or.inr hx)\n        exact h x hEnLista\n      have hr : contextoLiterales w1 cola = contextoLiterales w2 cola :=\n        hipInd hCola\n      -- Las igualdades de la cabeza y de la cola se sustituyen en insert.\n      change insert (literal w1 a) (contextoLiterales w1 cola) = insert (literal w2 a) (contextoLiterales w2 cola)\n      rw [hLiteral, hr]",
+          "before": [
+            {
+              "target": "(∀ x ∈ listaAtomos, w1 x ↔ w2 x) → contextoLiterales w1 listaAtomos = contextoLiterales w2 listaAtomos",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "w1"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "w2"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                }
+              ],
+              "id": "litCtx_congr.block-171-3eb9e350.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        },
+        {
+          "id": "litCtx_congr.block-178-4e206e7a",
+          "branch": "litCtx_congr.blocks",
+          "label": "have hCola : ∀ x ∈ cola, w1 x ↔ w2 x := by",
+          "startLine": 178,
+          "endLine": 181,
+          "sourceText": "have hCola : ∀ x ∈ cola, w1 x ↔ w2 x := by\n        intro x hx\n        have hEnLista : x ∈ a :: cola := List.mem_cons.mpr (Or.inr hx)\n        exact h x hEnLista",
+          "before": [
+            {
+              "target": "contextoLiterales w1 (a :: cola) = contextoLiterales w2 (a :: cola)",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "w1"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "w2"
+                },
+                {
+                  "type": "String",
+                  "name": "a"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "(∀ x ∈ cola, w1 x ↔ w2 x) → contextoLiterales w1 cola = contextoLiterales w2 cola",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "∀ x ∈ a :: cola, w1 x ↔ w2 x",
+                  "name": "h"
+                },
+                {
+                  "type": "a ∈ a :: cola",
+                  "name": "hCabeza"
+                },
+                {
+                  "type": "w1 a ↔ w2 a",
+                  "name": "ha"
+                },
+                {
+                  "type": "literal w1 a = literal w2 a",
+                  "name": "hLiteral"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "contextoLiterales w1 (a :: cola) = contextoLiterales w2 (a :: cola)",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "w1"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "w2"
+                },
+                {
+                  "type": "String",
+                  "name": "a"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "(∀ x ∈ cola, w1 x ↔ w2 x) → contextoLiterales w1 cola = contextoLiterales w2 cola",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "∀ x ∈ a :: cola, w1 x ↔ w2 x",
+                  "name": "h"
+                },
+                {
+                  "type": "a ∈ a :: cola",
+                  "name": "hCabeza"
+                },
+                {
+                  "type": "w1 a ↔ w2 a",
+                  "name": "ha"
+                },
+                {
+                  "type": "literal w1 a = literal w2 a",
+                  "name": "hLiteral"
+                },
+                {
+                  "type": "∀ x ∈ cola, w1 x ↔ w2 x",
+                  "name": "hCola"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
         }
       ]
     },
@@ -24442,6 +25846,1553 @@
           "kind": "closure",
           "sourceText": "exact hipInd hColaSinRepeticiones hUniversal"
         }
+      ],
+      "blocks": [
+        {
+          "id": "discharge.block-196-e31077ff",
+          "branch": "discharge.blocks",
+          "label": "induction listaAtomos with",
+          "startLine": 196,
+          "endLine": 248,
+          "sourceText": "induction listaAtomos with\n  | nil =>\n      intro _ H\n      let v : Valuacion := fun _ => True\n      have h : ND (contextoLiterales v []) φ := H v\n      simpa only [contextoLiterales] using h\n  | cons p cola hipInd =>\n      intro hnd H\n      have hPartes : p ∉ cola ∧ cola.Nodup := List.nodup_cons.mp hnd\n      have hpr : p ∉ cola := hPartes.left\n      have hColaSinRepeticiones : cola.Nodup := hPartes.right\n      -- La hipótesis inductiva exige una derivación para TODA valuación de cola.\n      have hUniversal : ∀ v, ND (contextoLiterales v cola) φ := by\n        intro v\n        have hp_verdadero : (Function.update v p True) p := by simp\n        have hp_falso : ¬ (Function.update v p False) p := by simp\n        have hLiteralVerdadero : literal (Function.update v p True) p = Formula.atom p := by\n          rw [literal, if_pos hp_verdadero]\n        have hLiteralFalso : literal (Function.update v p False) p = ~(Formula.atom p) := by\n          rw [literal, if_neg hp_falso]\n        have hContextoVerdadero : contextoLiterales (Function.update v p True) cola = contextoLiterales v cola := by\n          apply congruencia_contextoLiterales\n          intro x hx\n          have hxp : x ≠ p := by\n            intro hIgualdad\n            have hpEnCola : p ∈ cola := hIgualdad ▸ hx\n            exact hpr hpEnCola\n          -- Fuera de p, Function.update conserva v x.\n          simp only [Function.update_of_ne hxp]\n        have hContextoFalso : contextoLiterales (Function.update v p False) cola = contextoLiterales v cola := by\n          apply congruencia_contextoLiterales\n          intro x hx\n          have hxp : x ≠ p := by\n            intro hIgualdad\n            have hpEnCola : p ∈ cola := hIgualdad ▸ hx\n            exact hpr hpEnCola\n          simp only [Function.update_of_ne hxp]\n        have d1 : ND (insert (Formula.atom p) (contextoLiterales v cola)) φ := by\n          have h : ND (contextoLiterales (Function.update v p True) (p :: cola)) φ :=\n            H (Function.update v p True)\n          -- Se reescribe primero la cabeza y después el contexto de cola.\n          rw [contextoLiterales, hLiteralVerdadero, hContextoVerdadero] at h\n          exact h\n        have d2 : ND (insert (~(Formula.atom p)) (contextoLiterales v cola)) φ := by\n          have h : ND (contextoLiterales (Function.update v p False) (p :: cola)) φ :=\n            H (Function.update v p False)\n          rw [contextoLiterales, hLiteralFalso, hContextoFalso] at h\n          exact h\n        -- analisis_por_casos se instancia con Γ := contextoLiterales v cola, fórmula := atom p, conclusión := φ.\n        -- Su RAA interno descarga ~φ; el resultado no contiene el literal de p.\n        exact analisis_por_casos (Γ := contextoLiterales v cola) (φ := Formula.atom p) (χ := φ) d1 d2\n      -- Se aplica la hipótesis inductiva después de construir su premisa universal.\n      exact hipInd hColaSinRepeticiones hUniversal",
+          "before": [
+            {
+              "target": "listaAtomos.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v listaAtomos) φ) → ND ∅ φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "List String",
+                  "name": "listaAtomos"
+                }
+              ],
+              "id": "discharge.block-196-e31077ff.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        },
+        {
+          "id": "discharge.block-208-0993b642",
+          "branch": "discharge.blocks",
+          "label": "have hUniversal : ∀ v, ND (contextoLiterales v cola) φ := by",
+          "startLine": 208,
+          "endLine": 246,
+          "sourceText": "have hUniversal : ∀ v, ND (contextoLiterales v cola) φ := by\n        intro v\n        have hp_verdadero : (Function.update v p True) p := by simp\n        have hp_falso : ¬ (Function.update v p False) p := by simp\n        have hLiteralVerdadero : literal (Function.update v p True) p = Formula.atom p := by\n          rw [literal, if_pos hp_verdadero]\n        have hLiteralFalso : literal (Function.update v p False) p = ~(Formula.atom p) := by\n          rw [literal, if_neg hp_falso]\n        have hContextoVerdadero : contextoLiterales (Function.update v p True) cola = contextoLiterales v cola := by\n          apply congruencia_contextoLiterales\n          intro x hx\n          have hxp : x ≠ p := by\n            intro hIgualdad\n            have hpEnCola : p ∈ cola := hIgualdad ▸ hx\n            exact hpr hpEnCola\n          -- Fuera de p, Function.update conserva v x.\n          simp only [Function.update_of_ne hxp]\n        have hContextoFalso : contextoLiterales (Function.update v p False) cola = contextoLiterales v cola := by\n          apply congruencia_contextoLiterales\n          intro x hx\n          have hxp : x ≠ p := by\n            intro hIgualdad\n            have hpEnCola : p ∈ cola := hIgualdad ▸ hx\n            exact hpr hpEnCola\n          simp only [Function.update_of_ne hxp]\n        have d1 : ND (insert (Formula.atom p) (contextoLiterales v cola)) φ := by\n          have h : ND (contextoLiterales (Function.update v p True) (p :: cola)) φ :=\n            H (Function.update v p True)\n          -- Se reescribe primero la cabeza y después el contexto de cola.\n          rw [contextoLiterales, hLiteralVerdadero, hContextoVerdadero] at h\n          exact h\n        have d2 : ND (insert (~(Formula.atom p)) (contextoLiterales v cola)) φ := by\n          have h : ND (contextoLiterales (Function.update v p False) (p :: cola)) φ :=\n            H (Function.update v p False)\n          rw [contextoLiterales, hLiteralFalso, hContextoFalso] at h\n          exact h\n        -- analisis_por_casos se instancia con Γ := contextoLiterales v cola, fórmula := atom p, conclusión := φ.\n        -- Su RAA interno descarga ~φ; el resultado no contiene el literal de p.\n        exact analisis_por_casos (Γ := contextoLiterales v cola) (φ := Formula.atom p) (χ := φ) d1 d2",
+          "before": [
+            {
+              "target": "ND ∅ φ",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "ND ∅ φ",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v cola) φ",
+                  "name": "hUniversal"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-210-8fd16fc9",
+          "branch": "discharge.blocks",
+          "label": "have hp_verdadero : (Function.update v p True) p := by simp",
+          "startLine": 210,
+          "endLine": 210,
+          "sourceText": "have hp_verdadero : (Function.update v p True) p := by simp",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                }
+              ],
+              "id": "discharge.block-210-8fd16fc9.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                }
+              ],
+              "id": "discharge.block-210-8fd16fc9.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-211-58c4047c",
+          "branch": "discharge.blocks",
+          "label": "have hp_falso : ¬ (Function.update v p False) p := by simp",
+          "startLine": 211,
+          "endLine": 211,
+          "sourceText": "have hp_falso : ¬ (Function.update v p False) p := by simp",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                }
+              ],
+              "id": "discharge.block-211-58c4047c.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                }
+              ],
+              "id": "discharge.block-211-58c4047c.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-212-4b3caeb9",
+          "branch": "discharge.blocks",
+          "label": "have hLiteralVerdadero : literal (Function.update v p True) p = Formula.atom p := by",
+          "startLine": 212,
+          "endLine": 213,
+          "sourceText": "have hLiteralVerdadero : literal (Function.update v p True) p = Formula.atom p := by\n          rw [literal, if_pos hp_verdadero]",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                }
+              ],
+              "id": "discharge.block-212-4b3caeb9.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                }
+              ],
+              "id": "discharge.block-212-4b3caeb9.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-214-8e36e380",
+          "branch": "discharge.blocks",
+          "label": "have hLiteralFalso : literal (Function.update v p False) p = ~(Formula.atom p) := by",
+          "startLine": 214,
+          "endLine": 215,
+          "sourceText": "have hLiteralFalso : literal (Function.update v p False) p = ~(Formula.atom p) := by\n          rw [literal, if_neg hp_falso]",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                }
+              ],
+              "id": "discharge.block-214-8e36e380.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                }
+              ],
+              "id": "discharge.block-214-8e36e380.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-216-c66a88ed",
+          "branch": "discharge.blocks",
+          "label": "have hContextoVerdadero : contextoLiterales (Function.update v p True) cola = contextoLiterales v cola := by",
+          "startLine": 216,
+          "endLine": 224,
+          "sourceText": "have hContextoVerdadero : contextoLiterales (Function.update v p True) cola = contextoLiterales v cola := by\n          apply congruencia_contextoLiterales\n          intro x hx\n          have hxp : x ≠ p := by\n            intro hIgualdad\n            have hpEnCola : p ∈ cola := hIgualdad ▸ hx\n            exact hpr hpEnCola\n          -- Fuera de p, Function.update conserva v x.\n          simp only [Function.update_of_ne hxp]",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                }
+              ],
+              "id": "discharge.block-216-c66a88ed.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                }
+              ],
+              "id": "discharge.block-216-c66a88ed.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-219-70215b0d",
+          "branch": "discharge.blocks",
+          "label": "have hxp : x ≠ p := by",
+          "startLine": 219,
+          "endLine": 222,
+          "sourceText": "have hxp : x ≠ p := by\n            intro hIgualdad\n            have hpEnCola : p ∈ cola := hIgualdad ▸ hx\n            exact hpr hpEnCola",
+          "before": [
+            {
+              "target": "Function.update v p True x ↔ v x",
+              "id": "a",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "String",
+                  "name": "x"
+                },
+                {
+                  "type": "x ∈ cola",
+                  "name": "hx"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "Function.update v p True x ↔ v x",
+              "id": "a",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "String",
+                  "name": "x"
+                },
+                {
+                  "type": "x ∈ cola",
+                  "name": "hx"
+                },
+                {
+                  "type": "x ≠ p",
+                  "name": "hxp"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-225-11edcdb4",
+          "branch": "discharge.blocks",
+          "label": "have hContextoFalso : contextoLiterales (Function.update v p False) cola = contextoLiterales v cola := by",
+          "startLine": 225,
+          "endLine": 232,
+          "sourceText": "have hContextoFalso : contextoLiterales (Function.update v p False) cola = contextoLiterales v cola := by\n          apply congruencia_contextoLiterales\n          intro x hx\n          have hxp : x ≠ p := by\n            intro hIgualdad\n            have hpEnCola : p ∈ cola := hIgualdad ▸ hx\n            exact hpr hpEnCola\n          simp only [Function.update_of_ne hxp]",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                }
+              ],
+              "id": "discharge.block-225-11edcdb4.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p False) cola = contextoLiterales v cola",
+                  "name": "hContextoFalso"
+                }
+              ],
+              "id": "discharge.block-225-11edcdb4.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-228-70215b0d",
+          "branch": "discharge.blocks",
+          "label": "have hxp : x ≠ p := by",
+          "startLine": 228,
+          "endLine": 231,
+          "sourceText": "have hxp : x ≠ p := by\n            intro hIgualdad\n            have hpEnCola : p ∈ cola := hIgualdad ▸ hx\n            exact hpr hpEnCola",
+          "before": [
+            {
+              "target": "Function.update v p False x ↔ v x",
+              "id": "a",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                },
+                {
+                  "type": "String",
+                  "name": "x"
+                },
+                {
+                  "type": "x ∈ cola",
+                  "name": "hx"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "Function.update v p False x ↔ v x",
+              "id": "a",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                },
+                {
+                  "type": "String",
+                  "name": "x"
+                },
+                {
+                  "type": "x ∈ cola",
+                  "name": "hx"
+                },
+                {
+                  "type": "x ≠ p",
+                  "name": "hxp"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-233-098cdc3a",
+          "branch": "discharge.blocks",
+          "label": "have d1 : ND (insert (Formula.atom p) (contextoLiterales v cola)) φ := by",
+          "startLine": 233,
+          "endLine": 238,
+          "sourceText": "have d1 : ND (insert (Formula.atom p) (contextoLiterales v cola)) φ := by\n          have h : ND (contextoLiterales (Function.update v p True) (p :: cola)) φ :=\n            H (Function.update v p True)\n          -- Se reescribe primero la cabeza y después el contexto de cola.\n          rw [contextoLiterales, hLiteralVerdadero, hContextoVerdadero] at h\n          exact h",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p False) cola = contextoLiterales v cola",
+                  "name": "hContextoFalso"
+                }
+              ],
+              "id": "discharge.block-233-098cdc3a.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p False) cola = contextoLiterales v cola",
+                  "name": "hContextoFalso"
+                },
+                {
+                  "type": "ND (insert (Formula.atom p) (contextoLiterales v cola)) φ",
+                  "name": "d1"
+                }
+              ],
+              "id": "discharge.block-233-098cdc3a.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "discharge.block-239-bcb292d2",
+          "branch": "discharge.blocks",
+          "label": "have d2 : ND (insert (~(Formula.atom p)) (contextoLiterales v cola)) φ := by",
+          "startLine": 239,
+          "endLine": 243,
+          "sourceText": "have d2 : ND (insert (~(Formula.atom p)) (contextoLiterales v cola)) φ := by\n          have h : ND (contextoLiterales (Function.update v p False) (p :: cola)) φ :=\n            H (Function.update v p False)\n          rw [contextoLiterales, hLiteralFalso, hContextoFalso] at h\n          exact h",
+          "before": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p False) cola = contextoLiterales v cola",
+                  "name": "hContextoFalso"
+                },
+                {
+                  "type": "ND (insert (Formula.atom p) (contextoLiterales v cola)) φ",
+                  "name": "d1"
+                }
+              ],
+              "id": "discharge.block-239-bcb292d2.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND (contextoLiterales v cola) φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "String",
+                  "name": "p"
+                },
+                {
+                  "type": "List String",
+                  "name": "cola"
+                },
+                {
+                  "type": "cola.Nodup → (∀ (v : Valuacion), ND (contextoLiterales v cola) φ) → ND ∅ φ",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "(p :: cola).Nodup",
+                  "name": "hnd"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v (p :: cola)) φ",
+                  "name": "H"
+                },
+                {
+                  "type": "p ∉ cola ∧ cola.Nodup",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "p ∉ cola",
+                  "name": "hpr"
+                },
+                {
+                  "type": "cola.Nodup",
+                  "name": "hColaSinRepeticiones"
+                },
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Function.update v p True p",
+                  "name": "hp_verdadero"
+                },
+                {
+                  "type": "¬Function.update v p False p",
+                  "name": "hp_falso"
+                },
+                {
+                  "type": "literal (Function.update v p True) p = Formula.atom p",
+                  "name": "hLiteralVerdadero"
+                },
+                {
+                  "type": "literal (Function.update v p False) p = ~Formula.atom p",
+                  "name": "hLiteralFalso"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p True) cola = contextoLiterales v cola",
+                  "name": "hContextoVerdadero"
+                },
+                {
+                  "type": "contextoLiterales (Function.update v p False) cola = contextoLiterales v cola",
+                  "name": "hContextoFalso"
+                },
+                {
+                  "type": "ND (insert (Formula.atom p) (contextoLiterales v cola)) φ",
+                  "name": "d1"
+                },
+                {
+                  "type": "ND (insert (~Formula.atom p) (contextoLiterales v cola)) φ",
+                  "name": "d2"
+                }
+              ],
+              "id": "discharge.block-239-bcb292d2.after.1"
+            }
+          ],
+          "kind": "continuation"
+        }
       ]
     },
     {
@@ -24986,6 +27937,138 @@
           "kind": "closure",
           "sourceText": "exact descarga listaAtomos hSinRepeticiones hUniversal"
         }
+      ],
+      "blocks": [
+        {
+          "id": "completeness_ND.block-260-b84d10bc",
+          "branch": "completeness_ND.blocks",
+          "label": "have hCobertura : atomos φ ⊆ listaAtomos := by",
+          "startLine": 260,
+          "endLine": 262,
+          "sourceText": "have hCobertura : atomos φ ⊆ listaAtomos := by\n    intro a ha\n    exact List.mem_dedup.mpr ha",
+          "before": [
+            {
+              "target": "ND ∅ φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "EsTautologia φ",
+                  "name": "h"
+                },
+                {
+                  "type": "List String := (atomos φ).dedup",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "listaAtomos.Nodup",
+                  "name": "hSinRepeticiones"
+                }
+              ],
+              "id": "completeness_ND.block-260-b84d10bc.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND ∅ φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "EsTautologia φ",
+                  "name": "h"
+                },
+                {
+                  "type": "List String := (atomos φ).dedup",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "listaAtomos.Nodup",
+                  "name": "hSinRepeticiones"
+                },
+                {
+                  "type": "atomos φ ⊆ listaAtomos",
+                  "name": "hCobertura"
+                }
+              ],
+              "id": "completeness_ND.block-260-b84d10bc.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "completeness_ND.block-263-4a146740",
+          "branch": "completeness_ND.blocks",
+          "label": "have hUniversal : ∀ v, ND (contextoLiterales v listaAtomos) φ := by",
+          "startLine": 263,
+          "endLine": 268,
+          "sourceText": "have hUniversal : ∀ v, ND (contextoLiterales v listaAtomos) φ := by\n    intro v\n    have hVerdadero : evaluar v φ := h v\n    have hPositiva : evaluar v φ → ND (contextoLiterales v listaAtomos) φ :=\n      (kalmar v listaAtomos φ hCobertura).left\n    exact hPositiva hVerdadero",
+          "before": [
+            {
+              "target": "ND ∅ φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "EsTautologia φ",
+                  "name": "h"
+                },
+                {
+                  "type": "List String := (atomos φ).dedup",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "listaAtomos.Nodup",
+                  "name": "hSinRepeticiones"
+                },
+                {
+                  "type": "atomos φ ⊆ listaAtomos",
+                  "name": "hCobertura"
+                }
+              ],
+              "id": "completeness_ND.block-263-4a146740.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "ND ∅ φ",
+              "hypotheses": [
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                },
+                {
+                  "type": "EsTautologia φ",
+                  "name": "h"
+                },
+                {
+                  "type": "List String := (atomos φ).dedup",
+                  "name": "listaAtomos"
+                },
+                {
+                  "type": "listaAtomos.Nodup",
+                  "name": "hSinRepeticiones"
+                },
+                {
+                  "type": "atomos φ ⊆ listaAtomos",
+                  "name": "hCobertura"
+                },
+                {
+                  "type": "∀ (v : Valuacion), ND (contextoLiterales v listaAtomos) φ",
+                  "name": "hUniversal"
+                }
+              ],
+              "id": "completeness_ND.block-263-4a146740.after.1"
+            }
+          ],
+          "kind": "continuation"
+        }
       ]
     },
     {
@@ -25171,7 +28254,8 @@
           "kind": "closure",
           "sourceText": "exact tautologia_de_derivable d"
         }
-      ]
+      ],
+      "blocks": []
     },
     {
       "id": "eval_tr",
@@ -26927,6 +30011,249 @@
           "kind": "closure",
           "sourceText": "exact hipIndQ.mpr hQ"
         }
+      ],
+      "blocks": [
+        {
+          "id": "eval_tr.block-9-ec95b441",
+          "branch": "eval_tr.blocks",
+          "label": "induction φ with",
+          "startLine": 9,
+          "endLine": 42,
+          "sourceText": "induction φ with\n  | atom s =>\n      -- Ambas semánticas interpretan el átomo s como v s.\n      simp only [evaluar, traducir, Satisface, LO.Propositional.NNFormula.models_atom]\n  | neg p hipInd =>\n      have hNeg : Satisface v (traducir (~p)) ↔ ¬ Satisface v (traducir p) := by\n        simp only [traducir, Satisface, LO.Semantics.Not.models_not]\n      change (¬ evaluar v p) ↔ Satisface v (traducir (~p))\n      rw [hNeg]\n      constructor\n      · intro hNoEvaluacion hSatisfaccion\n        exact hNoEvaluacion (hipInd.mpr hSatisfaccion)\n      · intro hNoSatisfaccion hEvaluacion\n        exact hNoSatisfaccion (hipInd.mp hEvaluacion)\n  | impl p q hipIndP hipIndQ =>\n      have hImp : Satisface v (traducir (p ⟶ q)) ↔ (¬ Satisface v (traducir p) ∨ Satisface v (traducir q)) := by\n        simp only [traducir, Satisface, LO.Semantics.Or.models_or, LO.Semantics.Not.models_not]\n      change (evaluar v p → evaluar v q) ↔ Satisface v (traducir (p ⟶ q))\n      rw [hImp]\n      constructor\n      · intro hEvaluacionImp\n        -- Tercero excluido metateórico para construir la disyunción.\n        by_cases hP : evaluar v p\n        · have hQ : evaluar v q := hEvaluacionImp hP\n          exact Or.inr (hipIndQ.mp hQ)\n        · have hNoSatisfaccion : ¬ Satisface v (traducir p) := by\n            intro hSatisfaccion\n            exact hP (hipIndP.mpr hSatisfaccion)\n          exact Or.inl hNoSatisfaccion\n      · intro hCasos hP\n        rcases hCasos with hNoP | hQ\n        · have hSatisfaccionP : Satisface v (traducir p) := hipIndP.mp hP\n          exact False.elim (hNoP hSatisfaccionP)\n        · exact hipIndQ.mpr hQ",
+          "before": [
+            {
+              "target": "evaluar v φ ↔ Satisface v (traducir φ)",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Formula",
+                  "name": "φ"
+                }
+              ],
+              "id": "eval_tr.block-9-ec95b441.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        },
+        {
+          "id": "eval_tr.block-14-c9becd95",
+          "branch": "eval_tr.blocks",
+          "label": "have hNeg : Satisface v (traducir (~p)) ↔ ¬ Satisface v (traducir p) := by",
+          "startLine": 14,
+          "endLine": 15,
+          "sourceText": "have hNeg : Satisface v (traducir (~p)) ↔ ¬ Satisface v (traducir p) := by\n        simp only [traducir, Satisface, LO.Semantics.Not.models_not]",
+          "before": [
+            {
+              "target": "evaluar v (~p) ↔ Satisface v (traducir (~p))",
+              "id": "neg",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "evaluar v p ↔ Satisface v (traducir p)",
+                  "name": "hipInd"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "evaluar v (~p) ↔ Satisface v (traducir (~p))",
+              "id": "neg",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "evaluar v p ↔ Satisface v (traducir p)",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "Satisface v (traducir (~p)) ↔ ¬Satisface v (traducir p)",
+                  "name": "hNeg"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "eval_tr.block-24-18fa3941",
+          "branch": "eval_tr.blocks",
+          "label": "have hImp : Satisface v (traducir (p ⟶ q)) ↔ (¬ Satisface v (traducir p) ∨ Satisface v (traducir q)) := by",
+          "startLine": 24,
+          "endLine": 25,
+          "sourceText": "have hImp : Satisface v (traducir (p ⟶ q)) ↔ (¬ Satisface v (traducir p) ∨ Satisface v (traducir q)) := by\n        simp only [traducir, Satisface, LO.Semantics.Or.models_or, LO.Semantics.Not.models_not]",
+          "before": [
+            {
+              "target": "evaluar v (p ⟶ q) ↔ Satisface v (traducir (p ⟶ q))",
+              "id": "impl",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "evaluar v p ↔ Satisface v (traducir p)",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "evaluar v q ↔ Satisface v (traducir q)",
+                  "name": "hipIndQ"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "evaluar v (p ⟶ q) ↔ Satisface v (traducir (p ⟶ q))",
+              "id": "impl",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "evaluar v p ↔ Satisface v (traducir p)",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "evaluar v q ↔ Satisface v (traducir q)",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "Satisface v (traducir (p ⟶ q)) ↔ ¬Satisface v (traducir p) ∨ Satisface v (traducir q)",
+                  "name": "hImp"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "eval_tr.block-34-22c371a3",
+          "branch": "eval_tr.blocks",
+          "label": "have hNoSatisfaccion : ¬ Satisface v (traducir p) := by",
+          "startLine": 34,
+          "endLine": 36,
+          "sourceText": "have hNoSatisfaccion : ¬ Satisface v (traducir p) := by\n            intro hSatisfaccion\n            exact hP (hipIndP.mpr hSatisfaccion)",
+          "before": [
+            {
+              "target": "¬Satisface v (traducir p) ∨ Satisface v (traducir q)",
+              "id": "neg",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "evaluar v p ↔ Satisface v (traducir p)",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "evaluar v q ↔ Satisface v (traducir q)",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "Satisface v (traducir (p ⟶ q)) ↔ ¬Satisface v (traducir p) ∨ Satisface v (traducir q)",
+                  "name": "hImp"
+                },
+                {
+                  "type": "evaluar v p → evaluar v q",
+                  "name": "hEvaluacionImp"
+                },
+                {
+                  "type": "¬evaluar v p",
+                  "name": "hP"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "¬Satisface v (traducir p) ∨ Satisface v (traducir q)",
+              "id": "neg",
+              "hypotheses": [
+                {
+                  "type": "Valuacion",
+                  "name": "v"
+                },
+                {
+                  "type": "Formula",
+                  "name": "p"
+                },
+                {
+                  "type": "Formula",
+                  "name": "q"
+                },
+                {
+                  "type": "evaluar v p ↔ Satisface v (traducir p)",
+                  "name": "hipIndP"
+                },
+                {
+                  "type": "evaluar v q ↔ Satisface v (traducir q)",
+                  "name": "hipIndQ"
+                },
+                {
+                  "type": "Satisface v (traducir (p ⟶ q)) ↔ ¬Satisface v (traducir p) ∨ Satisface v (traducir q)",
+                  "name": "hImp"
+                },
+                {
+                  "type": "evaluar v p → evaluar v q",
+                  "name": "hEvaluacionImp"
+                },
+                {
+                  "type": "¬evaluar v p",
+                  "name": "hP"
+                },
+                {
+                  "type": "¬Satisface v (traducir p)",
+                  "name": "hNoSatisfaccion"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        }
       ]
     },
     {
@@ -27323,7 +30650,8 @@
           "kind": "closure",
           "sourceText": "exact hSatisfaccion"
         }
-      ]
+      ],
+      "blocks": []
     },
     {
       "id": "filter_length_le",
@@ -27595,6 +30923,76 @@
           "kind": "closure",
           "sourceText": "exact le_of_lt (lt_of_le_of_lt hipInd (Nat.lt_succ_self cola.length))"
         }
+      ],
+      "blocks": [
+        {
+          "id": "filter_length_le.block-33-d2740056",
+          "branch": "filter_length_le.blocks",
+          "label": "induction l with",
+          "startLine": 33,
+          "endLine": 44,
+          "sourceText": "induction l with\n  | nil => exact Nat.le_refl 0\n  | cons a cola hipInd =>\n      cases hq : q a with\n      | true =>\n          -- Se conserva a: sumar 1 a ambos lados de hipInd.\n          simp only [List.filter_cons, hq, ↓reduceIte, List.length_cons]\n          exact Nat.succ_le_succ hipInd\n      | false =>\n          -- Se descarta a: longitud del filtro ≤ longitud de cola < longitud de a :: cola.\n          simp only [List.filter_cons, hq, Bool.false_eq_true, ↓reduceIte]\n          exact le_of_lt (lt_of_le_of_lt hipInd (Nat.lt_succ_self cola.length))",
+          "before": [
+            {
+              "target": "(filter q l).length ≤ l.length",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → Bool",
+                  "name": "q"
+                },
+                {
+                  "type": "List α",
+                  "name": "l"
+                }
+              ],
+              "id": "filter_length_le.block-33-d2740056.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        },
+        {
+          "id": "filter_length_le.block-36-d60b36af",
+          "branch": "filter_length_le.blocks",
+          "label": "cases hq : q a with",
+          "startLine": 36,
+          "endLine": 44,
+          "sourceText": "cases hq : q a with\n      | true =>\n          -- Se conserva a: sumar 1 a ambos lados de hipInd.\n          simp only [List.filter_cons, hq, ↓reduceIte, List.length_cons]\n          exact Nat.succ_le_succ hipInd\n      | false =>\n          -- Se descarta a: longitud del filtro ≤ longitud de cola < longitud de a :: cola.\n          simp only [List.filter_cons, hq, Bool.false_eq_true, ↓reduceIte]\n          exact le_of_lt (lt_of_le_of_lt hipInd (Nat.lt_succ_self cola.length))",
+          "before": [
+            {
+              "target": "(filter q (a :: cola)).length ≤ (a :: cola).length",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → Bool",
+                  "name": "q"
+                },
+                {
+                  "type": "α",
+                  "name": "a"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "(filter q cola).length ≤ cola.length",
+                  "name": "hipInd"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        }
       ]
     },
     {
@@ -27817,6 +31215,77 @@
           "kind": "closure",
           "sourceText": "exact lt_of_le_of_lt hFiltro hCola"
         }
+      ],
+      "blocks": [
+        {
+          "id": "filter_length_lt_cons.block-150-0823bddd",
+          "branch": "filter_length_lt_cons.blocks",
+          "label": "have hCola : cola.length < (p :: cola).length := by",
+          "startLine": 150,
+          "endLine": 153,
+          "sourceText": "have hCola : cola.length < (p :: cola).length := by\n    -- La longitud de p :: cola es cola.length + 1.\n    change cola.length < cola.length + 1\n    exact Nat.lt_succ_self cola.length",
+          "before": [
+            {
+              "target": "(filter q cola).length < (p :: cola).length",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → Bool",
+                  "name": "q"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "(filter q cola).length ≤ cola.length",
+                  "name": "hFiltro"
+                }
+              ],
+              "id": "filter_length_lt_cons.block-150-0823bddd.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "(filter q cola).length < (p :: cola).length",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → Bool",
+                  "name": "q"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "(filter q cola).length ≤ cola.length",
+                  "name": "hFiltro"
+                },
+                {
+                  "type": "cola.length < (p :: cola).length",
+                  "name": "hCola"
+                }
+              ],
+              "id": "filter_length_lt_cons.block-150-0823bddd.after.1"
+            }
+          ],
+          "kind": "continuation"
+        }
       ]
     },
     {
@@ -28015,7 +31484,8 @@
           "kind": "closure",
           "sourceText": "exact longitud_filtro_lt_cons (fun x => ! decide (x ≤ p)) p cola"
         }
-      ]
+      ],
+      "blocks": []
     },
     {
       "id": "filter_partition_perm",
@@ -28379,6 +31849,80 @@
           "after": [],
           "kind": "closure",
           "sourceText": "exact List.perm_middle.trans hCons"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "filter_partition_perm.block-53-2dec97f9",
+          "branch": "filter_partition_perm.blocks",
+          "label": "induction l with",
+          "startLine": 53,
+          "endLine": 68,
+          "sourceText": "induction l with\n  | nil => exact List.Perm.refl []\n  | cons a cola hipInd =>\n      have hCons := hipInd.cons a\n      -- hCons añade a al inicio de ambos lados de la permutación inductiva.\n      cases hq : q a with\n      | true =>\n          -- a queda en el filtro izquierdo; cons_append permite aplicar hCons.\n          simp only [List.filter_cons, hq, Bool.not_true, Bool.false_eq_true,\n            ↓reduceIte, List.cons_append]\n          exact hCons\n      | false =>\n          -- a queda en el derecho; perm_middle lo lleva al inicio y trans compone.\n          simp only [List.filter_cons, hq, Bool.not_false, Bool.false_eq_true,\n            ↓reduceIte]\n          exact List.perm_middle.trans hCons",
+          "before": [
+            {
+              "target": "filter q l ++ filter (fun x => !q x) l ~ l",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → Bool",
+                  "name": "q"
+                },
+                {
+                  "type": "List α",
+                  "name": "l"
+                }
+              ],
+              "id": "filter_partition_perm.block-53-2dec97f9.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        },
+        {
+          "id": "filter_partition_perm.block-58-cbb95dbd",
+          "branch": "filter_partition_perm.blocks",
+          "label": "cases hq : q a with",
+          "startLine": 58,
+          "endLine": 68,
+          "sourceText": "cases hq : q a with\n      | true =>\n          -- a queda en el filtro izquierdo; cons_append permite aplicar hCons.\n          simp only [List.filter_cons, hq, Bool.not_true, Bool.false_eq_true,\n            ↓reduceIte, List.cons_append]\n          exact hCons\n      | false =>\n          -- a queda en el derecho; perm_middle lo lleva al inicio y trans compone.\n          simp only [List.filter_cons, hq, Bool.not_false, Bool.false_eq_true,\n            ↓reduceIte]\n          exact List.perm_middle.trans hCons",
+          "before": [
+            {
+              "target": "filter q (a :: cola) ++ filter (fun x => !q x) (a :: cola) ~ a :: cola",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → Bool",
+                  "name": "q"
+                },
+                {
+                  "type": "α",
+                  "name": "a"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "filter q cola ++ filter (fun x => !q x) cola ~ cola",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "a :: (filter q cola ++ filter (fun x => !q x) cola) ~ a :: cola",
+                  "name": "hCons"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure"
         }
       ]
     },
@@ -28875,7 +32419,8 @@
           "kind": "closure",
           "sourceText": "exact hPertenencia.mpr hEnEntrada"
         }
-      ]
+      ],
+      "blocks": []
     },
     {
       "id": "pairwise_cons_iff",
@@ -29179,6 +32724,46 @@
           "after": [],
           "kind": "closure",
           "sourceText": "exact List.Pairwise.cons hCabeza hCola"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "pairwise_cons_iff.block-80-3785f19b",
+          "branch": "pairwise_cons_iff.blocks",
+          "label": "cases h with",
+          "startLine": 80,
+          "endLine": 81,
+          "sourceText": "cases h with\n    | cons hCabeza hCola => exact ⟨hCabeza, hCola⟩",
+          "before": [
+            {
+              "target": "(∀ b ∈ l, R a b) ∧ List.Pairwise R l",
+              "id": "mp",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → α → Prop",
+                  "name": "R"
+                },
+                {
+                  "type": "α",
+                  "name": "a"
+                },
+                {
+                  "type": "List α",
+                  "name": "l"
+                },
+                {
+                  "type": "List.Pairwise R (a :: l)",
+                  "name": "h"
+                }
+              ]
+            }
+          ],
+          "after": [],
+          "kind": "closure"
         }
       ]
     },
@@ -32232,6 +35817,236 @@
           "after": [],
           "kind": "closure",
           "sourceText": "exact ⟨⟨hr, hl⟩, hp, hq, hc⟩"
+        }
+      ],
+      "blocks": [
+        {
+          "id": "pairwise_append_iff.block-93-525d0d24",
+          "branch": "pairwise_append_iff.blocks",
+          "label": "induction l₁ with",
+          "startLine": 93,
+          "endLine": 138,
+          "sourceText": "induction l₁ with\n  | nil =>\n      -- [] ++ l₂ = l₂; Pairwise [] y la condición cruzada vacía se satisfacen.\n      constructor\n      · intro h\n        exact ⟨List.Pairwise.nil, h, fun a ha => False.elim (List.not_mem_nil ha)⟩\n      · rintro ⟨_, h, _⟩\n        exact h\n  | cons a cola hipInd =>\n      -- H expresa la relación de a con una lista; C, la relación entre dos listas.\n      let H := fun s : List α => ∀ z ∈ s, R a z\n      let C := fun s t : List α => ∀ x ∈ s, ∀ y ∈ t, R x y\n      have hCabeza : H (cola ++ l₂) ↔ H cola ∧ H l₂ := by\n        -- Pertenecer a cola ++ l₂ equivale a pertenecer a uno de los dos bloques.\n        constructor\n        · intro h\n          exact ⟨fun z hz => h z (List.mem_append_left l₂ hz),\n            fun z hz => h z (List.mem_append_right cola hz)⟩\n        · rintro ⟨hCola, hUltima⟩ z hz\n          rcases List.mem_append.mp hz with hr | hl\n          · exact hCola z hr\n          · exact hUltima z hl\n      have hCruce : C (a :: cola) l₂ ↔ H l₂ ∧ C cola l₂ := by\n        -- Se separan la cabeza a y los elementos de cola, en ambas direcciones.\n        constructor\n        · intro h\n          exact ⟨fun y hy => h a List.mem_cons_self y hy,\n            fun x hx y hy => h x (List.mem_cons_of_mem a hx) y hy⟩\n        · rintro ⟨hA, hCola⟩ x hx y hy\n          rcases List.mem_cons.mp hx with ha | hr\n          · subst x\n            exact hA y hy\n          · exact hCola x hr y hy\n      -- Se despliegan la concatenación y las dos apariciones de Pairwise sobre ::.\n      change List.Pairwise R ((a :: cola) ++ l₂) ↔\n        List.Pairwise R (a :: cola) ∧ List.Pairwise R l₂ ∧ C (a :: cola) l₂\n      rw [List.cons_append, relacion_pares_cons_iff, relacion_pares_cons_iff]\n      change (H (cola ++ l₂) ∧ List.Pairwise R (cola ++ l₂)) ↔\n        (H cola ∧ List.Pairwise R cola) ∧ List.Pairwise R l₂ ∧ C (a :: cola) l₂\n      rw [hCabeza, hipInd, hCruce]\n      -- Tras sustituir las tres equivalencias, solo se reagrupan las conjunciones.\n      constructor\n      · rintro ⟨⟨hr, hl⟩, hp, hq, hc⟩\n        exact ⟨⟨hr, hp⟩, hq, hl, hc⟩\n      · rintro ⟨⟨hr, hp⟩, hq, hl, hc⟩\n        exact ⟨⟨hr, hl⟩, hp, hq, hc⟩",
+          "before": [
+            {
+              "target": "List.Pairwise R (l₁ ++ l₂) ↔ List.Pairwise R l₁ ∧ List.Pairwise R l₂ ∧ ∀ a ∈ l₁, ∀ b ∈ l₂, R a b",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → α → Prop",
+                  "name": "R"
+                },
+                {
+                  "type": "List α",
+                  "name": "l₁"
+                },
+                {
+                  "type": "List α",
+                  "name": "l₂"
+                }
+              ],
+              "id": "pairwise_append_iff.block-93-525d0d24.before.1"
+            }
+          ],
+          "after": [],
+          "kind": "closure"
+        },
+        {
+          "id": "pairwise_append_iff.block-105-15ff20e6",
+          "branch": "pairwise_append_iff.blocks",
+          "label": "have hCabeza : H (cola ++ l₂) ↔ H cola ∧ H l₂ := by",
+          "startLine": 105,
+          "endLine": 114,
+          "sourceText": "have hCabeza : H (cola ++ l₂) ↔ H cola ∧ H l₂ := by\n        -- Pertenecer a cola ++ l₂ equivale a pertenecer a uno de los dos bloques.\n        constructor\n        · intro h\n          exact ⟨fun z hz => h z (List.mem_append_left l₂ hz),\n            fun z hz => h z (List.mem_append_right cola hz)⟩\n        · rintro ⟨hCola, hUltima⟩ z hz\n          rcases List.mem_append.mp hz with hr | hl\n          · exact hCola z hr\n          · exact hUltima z hl",
+          "before": [
+            {
+              "target": "List.Pairwise R (a :: cola ++ l₂) ↔\n  List.Pairwise R (a :: cola) ∧ List.Pairwise R l₂ ∧ ∀ a_1 ∈ a :: cola, ∀ b ∈ l₂, R a_1 b",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → α → Prop",
+                  "name": "R"
+                },
+                {
+                  "type": "List α",
+                  "name": "l₂"
+                },
+                {
+                  "type": "α",
+                  "name": "a"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List.Pairwise R (cola ++ l₂) ↔ List.Pairwise R cola ∧ List.Pairwise R l₂ ∧ ∀ a ∈ cola, ∀ b ∈ l₂, R a b",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "List α → Prop := fun s => ∀ z ∈ s, R a z",
+                  "name": "H"
+                },
+                {
+                  "type": "List α → List α → Prop := fun s t => ∀ x ∈ s, ∀ y ∈ t, R x y",
+                  "name": "C"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "List.Pairwise R (a :: cola ++ l₂) ↔\n  List.Pairwise R (a :: cola) ∧ List.Pairwise R l₂ ∧ ∀ a_1 ∈ a :: cola, ∀ b ∈ l₂, R a_1 b",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → α → Prop",
+                  "name": "R"
+                },
+                {
+                  "type": "List α",
+                  "name": "l₂"
+                },
+                {
+                  "type": "α",
+                  "name": "a"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List.Pairwise R (cola ++ l₂) ↔ List.Pairwise R cola ∧ List.Pairwise R l₂ ∧ ∀ a ∈ cola, ∀ b ∈ l₂, R a b",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "List α → Prop := fun s => ∀ z ∈ s, R a z",
+                  "name": "H"
+                },
+                {
+                  "type": "List α → List α → Prop := fun s t => ∀ x ∈ s, ∀ y ∈ t, R x y",
+                  "name": "C"
+                },
+                {
+                  "type": "H (cola ++ l₂) ↔ H cola ∧ H l₂",
+                  "name": "hCabeza"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "pairwise_append_iff.block-115-5145f696",
+          "branch": "pairwise_append_iff.blocks",
+          "label": "have hCruce : C (a :: cola) l₂ ↔ H l₂ ∧ C cola l₂ := by",
+          "startLine": 115,
+          "endLine": 125,
+          "sourceText": "have hCruce : C (a :: cola) l₂ ↔ H l₂ ∧ C cola l₂ := by\n        -- Se separan la cabeza a y los elementos de cola, en ambas direcciones.\n        constructor\n        · intro h\n          exact ⟨fun y hy => h a List.mem_cons_self y hy,\n            fun x hx y hy => h x (List.mem_cons_of_mem a hx) y hy⟩\n        · rintro ⟨hA, hCola⟩ x hx y hy\n          rcases List.mem_cons.mp hx with ha | hr\n          · subst x\n            exact hA y hy\n          · exact hCola x hr y hy",
+          "before": [
+            {
+              "target": "List.Pairwise R (a :: cola ++ l₂) ↔\n  List.Pairwise R (a :: cola) ∧ List.Pairwise R l₂ ∧ ∀ a_1 ∈ a :: cola, ∀ b ∈ l₂, R a_1 b",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → α → Prop",
+                  "name": "R"
+                },
+                {
+                  "type": "List α",
+                  "name": "l₂"
+                },
+                {
+                  "type": "α",
+                  "name": "a"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List.Pairwise R (cola ++ l₂) ↔ List.Pairwise R cola ∧ List.Pairwise R l₂ ∧ ∀ a ∈ cola, ∀ b ∈ l₂, R a b",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "List α → Prop := fun s => ∀ z ∈ s, R a z",
+                  "name": "H"
+                },
+                {
+                  "type": "List α → List α → Prop := fun s t => ∀ x ∈ s, ∀ y ∈ t, R x y",
+                  "name": "C"
+                },
+                {
+                  "type": "H (cola ++ l₂) ↔ H cola ∧ H l₂",
+                  "name": "hCabeza"
+                }
+              ]
+            }
+          ],
+          "after": [
+            {
+              "target": "List.Pairwise R (a :: cola ++ l₂) ↔\n  List.Pairwise R (a :: cola) ∧ List.Pairwise R l₂ ∧ ∀ a_1 ∈ a :: cola, ∀ b ∈ l₂, R a_1 b",
+              "id": "cons",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "α → α → Prop",
+                  "name": "R"
+                },
+                {
+                  "type": "List α",
+                  "name": "l₂"
+                },
+                {
+                  "type": "α",
+                  "name": "a"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List.Pairwise R (cola ++ l₂) ↔ List.Pairwise R cola ∧ List.Pairwise R l₂ ∧ ∀ a ∈ cola, ∀ b ∈ l₂, R a b",
+                  "name": "hipInd"
+                },
+                {
+                  "type": "List α → Prop := fun s => ∀ z ∈ s, R a z",
+                  "name": "H"
+                },
+                {
+                  "type": "List α → List α → Prop := fun s t => ∀ x ∈ s, ∀ y ∈ t, R x y",
+                  "name": "C"
+                },
+                {
+                  "type": "H (cola ++ l₂) ↔ H cola ∧ H l₂",
+                  "name": "hCabeza"
+                },
+                {
+                  "type": "C (a :: cola) l₂ ↔ H l₂ ∧ C cola l₂",
+                  "name": "hCruce"
+                }
+              ]
+            }
+          ],
+          "kind": "continuation"
         }
       ]
     },
@@ -37376,6 +41191,838 @@
           "kind": "closure",
           "sourceText": "exact hMayoresLt"
         }
+      ],
+      "blocks": [
+        {
+          "id": "quicksort_sorted.block-269-25672f2e",
+          "branch": "quicksort_sorted.blocks",
+          "label": "have hCotaMenoresIguales : ∀ a ∈ quicksort menoresIguales, a ≤ p := by",
+          "startLine": 269,
+          "endLine": 275,
+          "sourceText": "have hCotaMenoresIguales : ∀ a ∈ quicksort menoresIguales, a ≤ p := by\n        intro a hEnSalida\n        have hEnFiltro : a ∈ menoresIguales := pertenencia_quicksort.mp hEnSalida\n        have hPartes : a ∈ cola ∧ decide (a ≤ p) = true :=\n          List.mem_filter.mp hEnFiltro\n        have hDecision : decide (a ≤ p) = true := hPartes.right\n        exact of_decide_eq_true hDecision",
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                }
+              ],
+              "id": "quicksort_sorted.block-269-25672f2e.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                }
+              ],
+              "id": "quicksort_sorted.block-269-25672f2e.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "quicksort_sorted.block-277-ed5ecb2b",
+          "branch": "quicksort_sorted.blocks",
+          "label": "have hCotaMayores : ∀ b ∈ quicksort mayores, p ≤ b := by",
+          "startLine": 277,
+          "endLine": 287,
+          "sourceText": "have hCotaMayores : ∀ b ∈ quicksort mayores, p ≤ b := by\n        intro b hEnSalida\n        have hEnFiltro : b ∈ mayores := pertenencia_quicksort.mp hEnSalida\n        have hPartes : b ∈ cola ∧ (! decide (b ≤ p)) = true :=\n          List.mem_filter.mp hEnFiltro\n        have hNegado : (! decide (b ≤ p)) = true := hPartes.right\n        have hFalso : decide (b ≤ p) = false := by\n          simpa only [Bool.not_eq_true'] using hNegado\n        have hNoLe : ¬ (b ≤ p) := of_decide_eq_false hFalso\n        have hEstricto : p < b := lt_of_not_ge hNoLe\n        exact le_of_lt hEstricto",
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                }
+              ],
+              "id": "quicksort_sorted.block-277-ed5ecb2b.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "∀ b ∈ quicksort mayores, p ≤ b",
+                  "name": "hCotaMayores"
+                }
+              ],
+              "id": "quicksort_sorted.block-277-ed5ecb2b.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "quicksort_sorted.block-283-3a93b394",
+          "branch": "quicksort_sorted.blocks",
+          "label": "have hFalso : decide (b ≤ p) = false := by",
+          "startLine": 283,
+          "endLine": 284,
+          "sourceText": "have hFalso : decide (b ≤ p) = false := by\n          simpa only [Bool.not_eq_true'] using hNegado",
+          "before": [
+            {
+              "target": "p ≤ b",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "α",
+                  "name": "b"
+                },
+                {
+                  "type": "b ∈ quicksort mayores",
+                  "name": "hEnSalida"
+                },
+                {
+                  "type": "b ∈ mayores",
+                  "name": "hEnFiltro"
+                },
+                {
+                  "type": "b ∈ cola ∧ (!decide (b ≤ p)) = true",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "(!decide (b ≤ p)) = true",
+                  "name": "hNegado"
+                }
+              ],
+              "id": "quicksort_sorted.block-283-3a93b394.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "p ≤ b",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "α",
+                  "name": "b"
+                },
+                {
+                  "type": "b ∈ quicksort mayores",
+                  "name": "hEnSalida"
+                },
+                {
+                  "type": "b ∈ mayores",
+                  "name": "hEnFiltro"
+                },
+                {
+                  "type": "b ∈ cola ∧ (!decide (b ≤ p)) = true",
+                  "name": "hPartes"
+                },
+                {
+                  "type": "(!decide (b ≤ p)) = true",
+                  "name": "hNegado"
+                },
+                {
+                  "type": "decide (b ≤ p) = false",
+                  "name": "hFalso"
+                }
+              ],
+              "id": "quicksort_sorted.block-283-3a93b394.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "quicksort_sorted.block-293-445b5f3f",
+          "branch": "quicksort_sorted.blocks",
+          "label": "have hParesDerecha : List.Pairwise (· ≤ ·) (p :: quicksort mayores) := by",
+          "startLine": 293,
+          "endLine": 297,
+          "sourceText": "have hParesDerecha : List.Pairwise (· ≤ ·) (p :: quicksort mayores) := by\n        apply (relacion_pares_cons_iff _ _ _).mpr\n        constructor\n        · exact hCotaMayores\n        · exact hParesMayores",
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "∀ b ∈ quicksort mayores, p ≤ b",
+                  "name": "hCotaMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales)",
+                  "name": "hParesMenoresIguales"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort mayores)",
+                  "name": "hParesMayores"
+                }
+              ],
+              "id": "quicksort_sorted.block-293-445b5f3f.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "∀ b ∈ quicksort mayores, p ≤ b",
+                  "name": "hCotaMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales)",
+                  "name": "hParesMenoresIguales"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort mayores)",
+                  "name": "hParesMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (p :: quicksort mayores)",
+                  "name": "hParesDerecha"
+                }
+              ],
+              "id": "quicksort_sorted.block-293-445b5f3f.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "quicksort_sorted.block-299-1eb56775",
+          "branch": "quicksort_sorted.blocks",
+          "label": "have hCruce : ∀ a ∈ quicksort menoresIguales,",
+          "startLine": 299,
+          "endLine": 310,
+          "sourceText": "have hCruce : ∀ a ∈ quicksort menoresIguales,\n          ∀ b ∈ p :: quicksort mayores, a ≤ b := by\n        intro a hEnMenoresIguales b hEnDerecha\n        have hCasos : b = p ∨ b ∈ quicksort mayores := List.mem_cons.mp hEnDerecha\n        rcases hCasos with hEsPivote | hEnMayores\n        · -- b es el pivote: se sustituye b por p en la meta.\n          subst b\n          exact hCotaMenoresIguales a hEnMenoresIguales\n        · -- b está en la salida derecha: a ≤ p y p ≤ b.\n          have hAP : a ≤ p := hCotaMenoresIguales a hEnMenoresIguales\n          have hPB : p ≤ b := hCotaMayores b hEnMayores\n          exact le_trans hAP hPB",
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "∀ b ∈ quicksort mayores, p ≤ b",
+                  "name": "hCotaMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales)",
+                  "name": "hParesMenoresIguales"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort mayores)",
+                  "name": "hParesMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (p :: quicksort mayores)",
+                  "name": "hParesDerecha"
+                }
+              ],
+              "id": "quicksort_sorted.block-299-1eb56775.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "∀ b ∈ quicksort mayores, p ≤ b",
+                  "name": "hCotaMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales)",
+                  "name": "hParesMenoresIguales"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort mayores)",
+                  "name": "hParesMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (p :: quicksort mayores)",
+                  "name": "hParesDerecha"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, ∀ b ∈ p :: quicksort mayores, a ≤ b",
+                  "name": "hCruce"
+                }
+              ],
+              "id": "quicksort_sorted.block-299-1eb56775.after.1"
+            }
+          ],
+          "kind": "continuation"
+        },
+        {
+          "id": "quicksort_sorted.block-312-79557bfb",
+          "branch": "quicksort_sorted.blocks",
+          "label": "have hTodosPares : List.Pairwise (· ≤ ·)",
+          "startLine": 312,
+          "endLine": 315,
+          "sourceText": "have hTodosPares : List.Pairwise (· ≤ ·)\n          (quicksort menoresIguales ++ (p :: quicksort mayores)) := by\n        apply (relacion_pares_concatenacion_iff _ _ _).mpr\n        exact ⟨hParesMenoresIguales, hParesDerecha, hCruce⟩",
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "∀ b ∈ quicksort mayores, p ≤ b",
+                  "name": "hCotaMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales)",
+                  "name": "hParesMenoresIguales"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort mayores)",
+                  "name": "hParesMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (p :: quicksort mayores)",
+                  "name": "hParesDerecha"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, ∀ b ∈ p :: quicksort mayores, a ≤ b",
+                  "name": "hCruce"
+                }
+              ],
+              "id": "quicksort_sorted.block-312-79557bfb.before.1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                },
+                {
+                  "type": "Ordenada (quicksort mayores)",
+                  "name": "hipIndMayores"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, a ≤ p",
+                  "name": "hCotaMenoresIguales"
+                },
+                {
+                  "type": "∀ b ∈ quicksort mayores, p ≤ b",
+                  "name": "hCotaMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales)",
+                  "name": "hParesMenoresIguales"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort mayores)",
+                  "name": "hParesMayores"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (p :: quicksort mayores)",
+                  "name": "hParesDerecha"
+                },
+                {
+                  "type": "∀ a ∈ quicksort menoresIguales, ∀ b ∈ p :: quicksort mayores, a ≤ b",
+                  "name": "hCruce"
+                },
+                {
+                  "type": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales ++ p :: quicksort mayores)",
+                  "name": "hTodosPares"
+                }
+              ],
+              "id": "quicksort_sorted.block-312-79557bfb.after.1"
+            }
+          ],
+          "kind": "continuation"
+        }
       ]
     },
     {
@@ -37544,7 +42191,8 @@
           "kind": "closure",
           "sourceText": "exact And.intro hPermutacion hOrdenada"
         }
-      ]
+      ],
+      "blocks": []
     }
   ]
 }

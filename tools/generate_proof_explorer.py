@@ -304,6 +304,31 @@ def make_proof(target: dict[str, str]) -> dict[str, Any]:
         raise ExportError(f"adapter returned wrong declaration for {target['id']}")
     declaration_range = proof["declarationRange"]
     code = proof["code"]
+    steps = normalized_steps(target["id"], raw)
+    blocks = []
+    seen = set()
+    for tactic in raw['proof']['tactics']:
+        kind = tactic['syntaxKind']
+        if not kind.startswith('Lean.Parser.Tactic.') or 'tacticSeq' in kind:
+            continue
+        start, end = tactic['range']['start']['line'], tactic['range']['end']['line']
+        if not tactic['before'] or any(s['sourceText'] == tactic['sourceText'] and s['startLine'] == start for s in steps):
+            continue
+        if any(s['startLine'] <= start <= s['endLine'] for s in steps) and not tactic['sourceText'].lstrip().startswith(('have ', 'let ', 'induction ', 'cases ')):
+            continue
+        key = (start, end)
+        if key in seen:
+            continue
+        seen.add(key)
+        ident = f"{target['id']}.block-{start}-{sha256(tactic['sourceText'].encode())[:8]}"
+        for phase in ('before', 'after'):
+            for i, goal in enumerate(tactic[phase], 1):
+                goal.setdefault('id', f'{ident}.{phase}.{i}')
+        blocks.append(dict(id=ident, branch=f"{target['id']}.blocks",
+                           label=tactic['sourceText'].splitlines()[0],
+                           startLine=start, endLine=end, sourceText=tactic['sourceText'],
+                           before=tactic['before'], after=tactic['after'],
+                           kind='closure' if not tactic['after'] else 'continuation'))
     return {
         "id": target["id"],
         "declaration": target["declaration"],
@@ -317,7 +342,10 @@ def make_proof(target: dict[str, str]) -> dict[str, Any]:
             "endLine": declaration_range["end"]["line"],
         },
         "leanVersion": LEAN_VERSION,
-        "steps": normalized_steps(target["id"], raw),
+        "steps": steps,
+        # Parent tactic snapshots surround a complete nested block. They are
+        # separate from the leaf timeline: never pretend they precede a child.
+        "blocks": sorted(blocks, key=lambda s: (s['startLine'], s['endLine'])),
     }
 
 
