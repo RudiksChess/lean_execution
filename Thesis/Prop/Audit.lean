@@ -8,8 +8,6 @@ La integración continua compara el certificado con la salida de Lean.
 
 sorryAx indicaría una prueba admitida. La política rechaza ese axioma
 
-
-
 y cualquier dependencia ajena a los axiomas permitidos. -/
 
 namespace Thesis.Prop
