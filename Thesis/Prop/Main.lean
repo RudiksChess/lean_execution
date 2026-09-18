@@ -46,12 +46,12 @@ theorem ej_eliminacion_doble_negacion : ND (∅ : Set Formula) ((~~P) ⟶ P) := 
   -- A probar: ⊢ ~~P → P. Método: impI y RAA objeto bajo ~~P.
   let Γ := insert (~~P) (∅ : Set Formula)
   let Δ := insert (~P) Γ
-  have hDouble : (~~P) ∈ Γ := Set.mem_insert _ _
-  have hDoubleDelta : (~~P) ∈ Δ := Set.mem_insert_of_mem _ hDouble
+  have hDoble : (~~P) ∈ Γ := Set.mem_insert _ _
+  have hDobleDelta : (~~P) ∈ Δ := Set.mem_insert_of_mem _ hDoble
   have hNeg : (~P) ∈ Δ := Set.mem_insert _ _
-  have dDouble : ND Δ (~~P) := ND.hyp hDoubleDelta
+  have dDoble : ND Δ (~~P) := ND.hyp hDobleDelta
   have dNeg : ND Δ (~P) := ND.hyp hNeg
-  have dFalsedad : ND Δ Falsedad := ND.negE dDouble dNeg
+  have dFalsedad : ND Δ Falsedad := ND.negE dDoble dNeg
   have dP : ND Γ P := ND.classical dFalsedad
   -- RAA descarga ~P; impI descarga después ~~P.
   exact ND.impI dP

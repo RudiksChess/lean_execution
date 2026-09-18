@@ -4,8 +4,6 @@ import Thesis.Sort.Quicksort
 
 quicksort es computable: #eval ejecuta ejemplos concretos.
 
-
-
 Los teoremas generales prueban sus propiedades sin añadir axiomas. -/
 
 namespace Thesis.Sort
