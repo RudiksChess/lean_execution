@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Demostraciones y código, uno a uno — Completitud y Quicksort en Lean 4</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-<script>window.katexMacros = {"\\Provnd": "\\vdash_{\\mathrm{ND}}", "\\sem": "\\llbracket #1\\rrbracket", "\\Not": "\\neg", "\\Imp": "\\rightarrow", "\\Or": "\\vee", "\\Falso": "\\bot", "\\Contra": "\\mathrel{\\Rightarrow\\mkern-3mu\\Leftarrow}", "\\Perm": "\\sim", "\\concat": "\\mathbin{+\\!\\!+}", "\\qs": "\\operatorname{\\mathsf{qsort}}", "\\filt": "\\operatorname{\\mathsf{filtrar}}", "\\len": "\\lvert #1\\rvert", "\\Sorted": "\\operatorname{\\mathsf{Ordenada}}", "\\Pairwise": "\\operatorname{\\mathsf{PorPares}}", "\\Lista": "\\operatorname{\\mathsf{Lista}}", "\\cuenta": "\\operatorname{\\mathsf{cuenta}}", "\\decidir": "\\operatorname{\\mathsf{decidir}}", "\\verd": "\\mathsf{V}", "\\fals": "\\mathsf{F}", "\\recSim": "\\operatorname{rec}_{\\mathrm{sim}}"};</script>
+<script>window.katexMacros = {"\\Provnd": "\\vdash_{\\mathrm{ND}}", "\\sem": "\\llbracket #1\\rrbracket", "\\Not": "\\neg", "\\Imp": "\\rightarrow", "\\Or": "\\vee", "\\Falso": "\\bot", "\\Contra": "(\\Rightarrow\\mkern-3mu\\Leftarrow)", "\\Perm": "\\sim", "\\concat": "\\mathbin{+\\!\\!+}", "\\qs": "\\operatorname{\\mathsf{qsort}}", "\\filt": "\\operatorname{\\mathsf{filtrar}}", "\\len": "\\lvert #1\\rvert", "\\Sorted": "\\operatorname{\\mathsf{Ordenada}}", "\\Pairwise": "\\operatorname{\\mathsf{PorPares}}", "\\Lista": "\\operatorname{\\mathsf{Lista}}", "\\cuenta": "\\operatorname{\\mathsf{cuenta}}", "\\decidir": "\\operatorname{\\mathsf{decidir}}", "\\verd": "\\mathsf{V}", "\\fals": "\\mathsf{F}", "\\recSim": "\\operatorname{rec}_{\\mathrm{sim}}"};</script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false,macros:window.katexMacros});"></script>
@@ -366,7 +366,7 @@ Aquí se explicita el contexto $\Gamma$ mediante debilitamiento.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Gamma\Provnd\Not\Not\varphi$.
 </p><p>
-Por introducción de negación, se abre $[\Not\varphi]^{(a)}$.
+Por reducción al absurdo, se abre $[\Not\varphi]^{(a)}$.
 El contexto ampliado es $\Gamma,\Not\varphi:=\Gamma\cup\{\Not\varphi\}$:
 contiene el supuesto nuevo y también a $\Gamma$, de modo que permite usar la premisa
 $\Gamma\Provnd\varphi$ por debilitamiento (Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>).
@@ -552,7 +552,7 @@ $$
 \sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
 $$
 Por lo tanto, el supuesto $\sem\alpha_v$ no puede sostenerse: se descarga por
-introducción de negación y queda $\Not\sem\alpha_v$.
+reducción al absurdo y queda $\Not\sem\alpha_v$.
 </li><li>$\Not\mathrm E$: las premisas son $\Gamma\Provnd\Not\alpha$ y
 $\Gamma\Provnd\alpha$ y la meta es $\sem\bot_v$. Las hipótesis inductivas dan
 $$
@@ -568,14 +568,14 @@ $$
 $$
 Se tiene entonces $\mathrm{Falso}$; la eliminación de falsedad da $\sem\alpha_v$.
 </li><li>RAA: la premisa es $\Gamma,\Not\alpha\Provnd\bot$ y la meta es
-$\sem\alpha_v$. Se razona por reducción al absurdo en la lógica de Lean:<sup class="fn">1</sup> supóngase
+$\sem\alpha_v$. Se razona por reducción al absurdo clásica en la lógica de Lean:<sup class="fn">1</sup> supóngase
 $\Not\sem\alpha_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a> es
 $\sem{\Not\alpha}_v$. El Lema&nbsp;<a class="xref" href="#lem:satinsert">11.11</a> da $v\models\Gamma\cup\{\Not\alpha\}$; la hipótesis inductiva da $\sem\bot_v$,
 que el Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> declara falsa:
 $$
 \sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
 $$
-Por lo tanto, la reducción al absurdo descarga el supuesto $\Not\sem\alpha_v$ y
+Por lo tanto, la reducción al absurdo clásica descarga el supuesto $\Not\sem\alpha_v$ y
 concluye $\sem\alpha_v$. Este supuesto de la lógica de Lean es distinto del supuesto $[\Not\alpha]^{(a)}$ que descarga la
 regla RAA en la derivación de $\Provnd$; es el único caso que usa un principio
 clásico de la lógica de Lean.
@@ -633,8 +633,8 @@ $$
       have hFalsedad : evaluar v Falsedad := hipInd v hAmpliado
       exact (evaluar_falsedad v).mp hFalsedad</pre></div>
 <ol class="footnotes"><li><p>La
-<em>reducción al absurdo</em> prueba $P$ suponiendo $\Not P$ y obteniendo una
-contradicción; es la regla clásica RAA de la deducción
+<em>reducción al absurdo clásica</em> prueba $P$ suponiendo $\Not P$ y obteniendo una
+contradicción; es la regla RAA de la deducción
 natural&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2]</span>, aplicada aquí a proposiciones de la lógica de Lean y no a fórmulas del cálculo. En Lean corresponde a
 <code>by_contra</code>.</p></li></ol>
 </section>
@@ -687,7 +687,7 @@ aquí se excluye $\bot$ mediante el Lema&nbsp;<a class="xref" href="#lem:evalBot
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Not(\varnothing\Provnd\bot)$.
 </p><p>
-Por introducción de negación, supóngase una derivación
+Por reducción al absurdo, supóngase una derivación
 $d:\varnothing\Provnd\bot$. El Corolario&nbsp;<a class="xref" href="#cor:taut">11.13</a> da
 $\operatorname{Taut}(\bot)$. Sea $v_0$ la valuación que asigna $\mathrm{Verdadero}$ a todo
 átomo; por la Definición&nbsp;<a class="xref" href="#def:tautology">11.4</a>, $\sem\bot_{v_0}$ se cumple; el Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> dice que es falsa:
@@ -854,7 +854,7 @@ Se obtiene $\sem p_v$ por eliminación clásica de doble negación en la lógica
 $$
 \Not\sem p_v,\qquad\Not\Not\sem p_v\qquad\Contra
 $$
-Entonces la reducción al absurdo descarga $\Not\sem p_v$ y concluye
+Entonces la reducción al absurdo clásica descarga $\Not\sem p_v$ y concluye
 $\sem p_v$. La parte positiva de $K(p)$ da $\Gamma\Provnd p$; el Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a> da $\Gamma\Provnd\Not\Not p$, que
 es la meta $\Gamma\Provnd\Not(\Not p)$.
 </p><p>
@@ -902,7 +902,7 @@ $q$; y $\Imp\mathrm I(a)$ descarga $[p]^{(a)}$.
 </li></ul>
 </p><p>
 Para la conclusión negativa, se supone $\Not(P\Rightarrow Q)$, con
-$P:=\sem p_v$ y $Q:=\sem q_v$. Primero se obtiene $P$ por reducción al absurdo
+$P:=\sem p_v$ y $Q:=\sem q_v$. Primero se obtiene $P$ por reducción al absurdo clásica
 en la lógica de Lean: supóngase $\Not P$. Entonces $P\Rightarrow Q$ se prueba
 suponiendo $P$: con $\Not P$ se tiene
 $$
@@ -913,8 +913,8 @@ falsedad. La implicación así obtenida choca con lo supuesto:
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
 $$
-Por lo tanto, la reducción al absurdo descarga $\Not P$ y concluye $P$.
-Después se obtiene $\Not Q$ por introducción de negación: supóngase $Q$;
+Por lo tanto, la reducción al absurdo clásica descarga $\Not P$ y concluye $P$.
+Después se obtiene $\Not Q$ por reducción al absurdo: supóngase $Q$;
 entonces $P\Rightarrow Q$ se prueba devolviendo $Q$ bajo cualquier supuesto $P$; de nuevo
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
@@ -1074,7 +1074,7 @@ $(\Leftarrow)$ de $h$ da $v(x)$; entonces
 $$
 v(x),\qquad\Not v(x)\qquad\Contra
 $$
-Entonces se descarga $w(x)$ por introducción de negación y queda $\Not w(x)$.
+Entonces se descarga $w(x)$ por reducción al absurdo y queda $\Not w(x)$.
 Así, $v(x)$ y $w(x)$ tienen el mismo valor; la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>, que calcula cada literal por casos sobre ese valor, da el mismo resultado para
 ambas valuaciones:
 $$
@@ -1195,7 +1195,7 @@ Sea $x\in r$. Si fuera $x=p$, entonces $p\in r$; se tendría
 $$
 p\in r,\qquad p\notin r\qquad\Contra
 $$
-Por lo tanto, $x\ne p$ por introducción de negación; por definición de $u$ y $w$, $u(x)=v(x)=w(x)$. Como $x$ era arbitrario,
+Por lo tanto, $x\ne p$ por reducción al absurdo; por definición de $u$ y $w$, $u(x)=v(x)=w(x)$. Como $x$ era arbitrario,
 $\forall x\in r,\ u(x)\leftrightarrow v(x)$ y
 $\forall x\in r,\ v(x)\leftrightarrow w(x)$. El Lema&nbsp;<a class="xref" href="#lem:congr">11.19</a>,
 instanciado en la lista $r$ con cada uno de esos pares de valuaciones, da
@@ -2362,8 +2362,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>67b4ff2</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>cbd4b1e</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>3cb4fdf</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>bde93c8</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
