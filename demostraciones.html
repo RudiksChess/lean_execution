@@ -850,12 +850,10 @@ Parte positiva: supóngase $\sem{\Not p}_v$, que por la Definición&nbsp;<a clas
 es $\Not\sem p_v$. La parte negativa de la hipótesis inductiva $K(p)$ da
 $\Gamma\Provnd\Not p$.
 Parte negativa: supóngase $\Not\sem{\Not p}_v$, es decir, $\Not\Not\sem p_v$.
-Se obtiene $\sem p_v$ por eliminación clásica de doble negación en la lógica de Lean: se supone $\Not\sem p_v$ y se confronta con lo ya supuesto,
-$$
-\Not\sem p_v,\qquad\Not\Not\sem p_v\qquad\Contra
-$$
-Entonces la reducción al absurdo clásica descarga $\Not\sem p_v$ y concluye
-$\sem p_v$. La parte positiva de $K(p)$ da $\Gamma\Provnd p$; el Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a> da $\Gamma\Provnd\Not\Not p$, que
+La eliminación clásica de doble negación en la lógica de Lean (en el código,
+<code>Classical.byContradiction</code> aplicado a $\Not\Not\sem p_v$) da
+$\sem p_v$ en un solo paso; es el único paso clásico de este caso.
+La parte positiva de $K(p)$ da $\Gamma\Provnd p$; el Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a> da $\Gamma\Provnd\Not\Not p$, que
 es la meta $\Gamma\Provnd\Not(\Not p)$.
 </p><p>
  Si $\varphi=p\Imp q$:
@@ -902,27 +900,41 @@ $q$; y $\Imp\mathrm I(a)$ descarga $[p]^{(a)}$.
 </li></ul>
 </p><p>
 Para la conclusión negativa, se supone $\Not(P\Rightarrow Q)$, con
-$P:=\sem p_v$ y $Q:=\sem q_v$. Primero se obtiene $P$ por reducción al absurdo clásica
-en la lógica de Lean: supóngase $\Not P$. Entonces $P\Rightarrow Q$ se prueba
-suponiendo $P$: con $\Not P$ se tiene
+$P:=\sem p_v$ y $Q:=\sem q_v$. De ese supuesto hay que extraer dos hechos,
+$P$ y $\Not Q$, cada uno en una subprueba propia; solo la primera es clásica.
+Las dos subpruebas siguen el mismo esquema: bajo un supuesto auxiliar se
+construye $P\Rightarrow Q$ y se confronta con $\Not(P\Rightarrow Q)$, lo que
+descarga el supuesto auxiliar.
+<ul><li><strong>Subprueba 1: $P$, por reducción al absurdo clásica.</strong>
+Supóngase $\Not P$. Bajo ese supuesto se construye $P\Rightarrow Q$ por
+introducción de implicación: supóngase $P$; junto con $\Not P$,
 $$
 P,\qquad\Not P\qquad\Contra
 $$
 luego $\mathrm{Falso}$ por eliminación de negación y $Q$ por eliminación de
-falsedad. La implicación así obtenida choca con lo supuesto:
+falsedad. Esta primera contradicción solo cierra la introducción de
+implicación: descarga $P$ y deja $P\Rightarrow Q$; el supuesto $\Not P$ sigue
+abierto. Ahora
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
 $$
-Por lo tanto, la reducción al absurdo clásica descarga $\Not P$ y concluye $P$.
-Después se obtiene $\Not Q$ por reducción al absurdo: supóngase $Q$;
-entonces $P\Rightarrow Q$ se prueba devolviendo $Q$ bajo cualquier supuesto $P$; de nuevo
+y esta segunda contradicción es la que descarga $\Not P$: la reducción al
+absurdo clásica concluye $P$. En el código, <code>by_contra hNoP</code> abre la
+subprueba y <code>exact hNoImp hImp</code> la cierra.
+</li><li><strong>Subprueba 2: $\Not Q$, por reducción al absurdo.</strong>
+Supóngase $Q$. Entonces $P\Rightarrow Q$ se prueba por introducción de
+implicación devolviendo $Q$ bajo cualquier supuesto $P$. De nuevo
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
 $$
-Se descarga entonces $Q$ y queda $\Not Q$.
-La parte positiva de $K(p)$, por eliminación de implicación con $P$, da
-$\Gamma\Provnd p$; la parte negativa de $K(q)$, con $\Not Q$, da
-$\Gamma\Provnd\Not q$.
+y esta contradicción descarga $Q$ y deja $\Not Q$. No interviene ningún
+principio clásico: es la introducción de negación del
+Capítulo&nbsp;9. En el código, <code>intro hQ</code> abre la
+subprueba y <code>exact hNoImp hImp</code> la cierra.
+</li></ul>
+Con $P$ y $\Not Q$ en mano, la parte positiva de $K(p)$, por eliminación de
+implicación con $P$, da $\Gamma\Provnd p$; la parte negativa de $K(q)$, con
+$\Not Q$, da $\Gamma\Provnd\Not q$.
 Para introducir $\Not(p\Imp q)$, se abre $[p\Imp q]^{(b)}$.
 En el contexto $\Delta:=\Gamma\cup\{p\Imp q\}$,
 $$
@@ -2362,8 +2374,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>3cb4fdf</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>bde93c8</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>14a7289</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>9645e85</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
