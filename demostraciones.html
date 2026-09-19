@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demostraciones y código, uno a uno — Completitud y Quicksort en Lean 4</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script>window.katexMacros = {"\\Provnd": "\\vdash_{\\mathrm{ND}}", "\\sem": "\\llbracket #1\\rrbracket", "\\Not": "\\neg", "\\Imp": "\\rightarrow", "\\Or": "\\vee", "\\Falso": "\\bot", "\\Contra": "\\mathrel{\\Rightarrow\\mkern-3mu\\Leftarrow}", "\\Perm": "\\sim", "\\concat": "\\mathbin{+\\!\\!+}", "\\qs": "\\operatorname{\\mathsf{qsort}}", "\\filt": "\\operatorname{\\mathsf{filtrar}}", "\\len": "\\lvert #1\\rvert", "\\Sorted": "\\operatorname{\\mathsf{Ordenada}}", "\\Pairwise": "\\operatorname{\\mathsf{PorPares}}", "\\Lista": "\\operatorname{\\mathsf{Lista}}", "\\cuenta": "\\operatorname{\\mathsf{cuenta}}", "\\decidir": "\\operatorname{\\mathsf{decidir}}", "\\verd": "\\mathsf{V}", "\\fals": "\\mathsf{F}", "\\recSim": "\\operatorname{rec}_{\\mathrm{sim}}"};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false,macros:window.katexMacros});"></script>
+<style>
+  :root{--bg:#fbfbfd;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--code-bg:#1e2330;--code-fg:#e6e6e6;--accent:#2b5fb3;--maxw:1000px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  header{padding:3rem 1.25rem 2rem;border-bottom:1px solid var(--line);background:#fff}
+  header .wrap,main{max-width:var(--maxw);margin:0 auto;padding:0 1.25rem}
+  h1{font-size:1.85rem;line-height:1.2;margin:.2rem 0 .4rem}
+  .sub{color:var(--muted);font-size:1.02rem}
+  .links{margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap}
+  .links a{display:inline-block;padding:.4rem .8rem;border:1px solid var(--line);border-radius:8px;text-decoration:none;color:var(--accent);background:#fff;font-size:.9rem}
+  main{padding-bottom:4rem}
+  h2.chapter{font-size:1.5rem;margin:3rem 0 .5rem;padding-top:1.2rem;border-top:3px solid var(--accent);color:var(--accent)}
+  h3{font-size:1.25rem;margin:2.2rem 0 .3rem;padding-top:.8rem;border-top:1px solid var(--line)}
+  h4{font-size:1.05rem;margin:1.6rem 0 .3rem;color:var(--muted)}
+  .result{border:1px solid var(--line);border-radius:12px;background:#fff;padding:.2rem 1.1rem 1rem;margin:1.2rem 0}
+  .result h5{font-size:1.02rem;margin:.9rem 0 .4rem}
+  .statement{border-left:3px solid var(--accent);padding:.1rem 0 .1rem 1rem;margin:.4rem 0 .8rem}
+  .preface{color:#3a3a40;font-size:.95rem}
+  .proof-head{font-style:italic;margin-right:.4rem}
+  .proof{margin:.6rem 0}
+  .qed{float:right;margin-top:-1.4rem}
+  .cite{color:var(--muted);font-size:.92em}
+  .fn{color:var(--accent)}
+  ol.footnotes{font-size:.88rem;color:var(--muted);margin:.6rem 0 0 1.1rem}
+  .lean{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:.9rem 0}
+  .lean .cap{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#9fb0c3;padding:.4rem .85rem;background:#171b26;border-bottom:1px solid #2a3142}
+  pre{margin:0;background:var(--code-bg);color:var(--code-fg);padding:1rem;overflow:auto;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:#eef0f4;padding:.05rem .35rem;border-radius:5px;font-size:.92em}
+  .katex-display{overflow-x:auto;overflow-y:hidden;padding:.2rem 0}
+  .toc{font-size:.93rem;margin:1rem 0} .toc ul{margin:.2rem 0 .2rem 1.2rem;padding:0} .toc li{list-style:none;margin:.15rem 0}
+  .toc li.chap{margin-top:.6rem;font-weight:600} .toc li.chap li{font-weight:400}
+  .toc a,.xref{color:var(--accent);text-decoration:none} .toc a:hover,.xref:hover{text-decoration:underline}
+  footer{border-top:1px solid var(--line);color:var(--muted);font-size:.88rem;max-width:var(--maxw);margin:2rem auto 0;padding:1.5rem 1.25rem 3rem}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="sub">Tesis de licenciatura · verificación formal en Lean 4 · complemento de la <a href="./thesis.html">guía paso a paso</a></div>
+  <h1>Demostraciones y código, uno a uno</h1>
+  <div class="sub">Cada definición y cada resultado de los capítulos 11 y 12 de la tesis, con su demostración escrita tal como aparece en el documento y el listado de Lean que la formaliza. Esta página se genera automáticamente a partir del código fuente de la tesis.</div>
+  <div class="links">
+    <a href="./overview.html">← Resumen (inglés)</a>
+    <a href="./thesis.html">Guía paso a paso (inglés)</a>
+    <a href="./verification.html">Estado de la verificación</a>
+    <a href="https://github.com/RudiksChess/lean_execution">Repositorio Lean</a>
+    <a href="https://github.com/RudiksChess/tesis-mate">Repositorio de la tesis</a>
+  </div>
+</div></header>
+<main>
+<div class="toc"><ul>
+<li class="chap"><a href="#cap11">Capítulo 11. Teorema de la completitud</a><ul>
+<li><a href="#def:formula-syntax">Definición 11.2 (Fórmulas)</a></li>
+<li><a href="#def:eval">Definición 11.3 (Valuación y evaluación)</a></li>
+<li><a href="#def:tautology">Definición 11.4 (Tautología)</a></li>
+<li><a href="#def:falsedad">Definición 11.6 (Falsedad objeto)</a></li>
+<li><a href="#lem:evalBot">Lema 11.7 ($\bot$ es semánticamente falsa)</a></li>
+<li><a href="#lem:weak">Lema 11.8 (Debilitamiento)</a></li>
+<li><a href="#lem:dni">Lema 11.9 (Introducción de doble negación)</a></li>
+<li><a href="#lem:bycases">Lema 11.10 (Análisis por casos derivado)</a></li>
+<li><a href="#lem:satinsert">Lema 11.11 (Satisfacción de un contexto extendido)</a></li>
+<li><a href="#thm:soundness">Teorema 11.12 (Corrección)</a></li>
+<li><a href="#cor:taut">Corolario 11.13 (Los teoremas son tautologías)</a></li>
+<li><a href="#cor:consistency">Corolario 11.14 (Consistencia)</a></li>
+<li><a href="#def:atoms">Definición 11.15 (Átomos de una fórmula)</a></li>
+<li><a href="#def:litctx">Definición 11.16 (Literal y contexto de literales)</a></li>
+<li><a href="#lem:litmem">Lema 11.17 (Pertenencia del literal)</a></li>
+<li><a href="#lem:kalmar">Lema 11.18 (Kalmár)</a></li>
+<li><a href="#lem:congr">Lema 11.19 (Congruencia de literales y contextos)</a></li>
+<li><a href="#lem:discharge">Lema 11.20 (Descarga)</a></li>
+<li><a href="#thm:completeness">Teorema 11.21 (Completitud de ND)</a></li>
+<li><a href="#thm:adequacy">Teorema 11.22 (Adecuación)</a></li>
+</ul></li>
+<li class="chap"><a href="#cap12">Capítulo 12. Corrección del algoritmo Quicksort</a><ul>
+<li><a href="#def:qs-spec">Definición 12.1 (Función de ordenamiento)</a></li>
+<li><a href="#def:qs-sorted">Definición 12.2 (Ordenada)</a></li>
+<li><a href="#def:qs-perm">Definición 12.3 (Permutación)</a></li>
+<li><a href="#def:qs-def">Definición 12.4 (Quicksort funcional)</a></li>
+<li><a href="#lem:qs-filter-le">Lema 12.5 (El filtrado no aumenta la longitud)</a></li>
+<li><a href="#prop:qs-term">Proposición 12.6 (Terminación)</a></li>
+<li><a href="#lem:qs-filter-perm">Lema 12.7 (La partición por filtro es una permutación)</a></li>
+<li><a href="#thm:qs-perm">Teorema 12.8 (Permutación)</a></li>
+<li><a href="#cor:qs-mem">Corolario 12.9 (Se preserva la pertenencia)</a></li>
+<li><a href="#lem:qs-pairwise-append">Lema 12.10 (Relación por pares sobre la concatenación)</a></li>
+<li><a href="#thm:qs-sorted">Teorema 12.11 (Ordenamiento)</a></li>
+<li><a href="#thm:qs-correct">Teorema 12.12 (Corrección de quicksort)</a></li>
+</ul></li>
+</ul></div>
+<h2 class="chapter" id="cap11">Capítulo 11. Teorema de la completitud</h2>
+<h3>Planteamiento y estrategia</h3>
+<h3>Sintaxis y semántica de superficie (Syntax.lean)</h3>
+<h4>Matemática</h4>
+<section class="result" id="def:formula-syntax"><h5>Definición 11.2 (Fórmulas)</h5>
+<div class="statement"><p>
+El conjunto de fórmulas se genera mediante la gramática
+$$
+\varphi ::= p \;\mid\; \Not\varphi \;\mid\; (\varphi\Imp\psi),\qquad p \in \mathsf{Var}.
+$$
+El símbolo $::=$ introduce las formas permitidas y cada barra $\mid$ separa una alternativa.
+</p></div>
+</section>
+<section class="result" id="def:eval"><h5>Definición 11.3 (Valuación y evaluación)</h5>
+<div class="statement"><p>
+Una <em>valuación</em> es una función $v : \mathsf{Var} \to \{\mathsf{V},\mathsf{F}\}$ (en Lean, una
+función hacia <code>Prop</code>). La evaluación $\sem{\cdot}_v$ se define por recursión sobre la
+sintaxis:
+$$
+\sem{p}_v = v(p),\qquad
+\sem{\Not\varphi}_v = \Not\,\sem{\varphi}_v,\qquad
+\sem{\varphi\Imp\psi}_v = \big(\sem{\varphi}_v \Imp \sem{\psi}_v\big).
+$$
+</p></div>
+</section>
+<section class="result" id="def:tautology"><h5>Definición 11.4 (Tautología)</h5>
+<div class="statement"><p>
+$\varphi$ es una <em>tautología</em>, escrito $\mathrm{Taut}(\varphi)$, si y solo si $\sem{\varphi}_v$
+se cumple para toda valuación $v$.
+</p></div>
+</section>
+<h4>Por qué se elige la base negación e implicación</h4>
+<h4>Código de Lean (tal como se implementa)</h4>
+<div class="lean standalone"><div class="cap">Lean</div><pre>namespace Thesis.Prop
+
+inductive Formula : Type
+| atom : String → Formula
+| neg  : Formula → Formula
+| impl : Formula → Formula → Formula
+deriving DecidableEq, Repr
+
+prefix:60 "~" =&gt; Formula.neg
+infixr:55 " ⟶ " =&gt; Formula.impl
+
+abbrev Valuacion : Type := String → Prop
+
+def evaluar (v : Valuacion) : Formula → Prop
+| .atom s   =&gt; v s
+| .neg p    =&gt; ¬ evaluar v p
+| .impl p q =&gt; evaluar v p → evaluar v q
+
+def EsTautologia (φ : Formula) : Prop :=
+  ∀ v : Valuacion, evaluar v φ
+
+end Thesis.Prop</pre></div>
+<h3>El cálculo de deducción natural</h3>
+<h4>Codificar la falsedad dentro del fragmento neg,imp</h4>
+<section class="result" id="def:falsedad"><h5>Definición 11.6 (Falsedad objeto)</h5>
+<div class="statement"><p>
+Se fija un átomo distinguido $p_0$ (en el código, la cadena <code>"$\bot$"</code>). Se define
+$$
+\bot \;:=\; \Not(p_0 \Imp p_0).
+$$
+</p></div>
+</section>
+<section class="result" id="lem:evalBot"><h5>Lema 11.7 ($\bot$ es semánticamente falsa)</h5>
+<div class="statement"><p>
+Para toda valuación $v$, $\;\sem{\bot}_v \leftrightarrow \mathrm{Falso}$.
+</p></div>
+<div class="preface"><p>
+La prueba verifica la codificación de la Definición&nbsp;<a class="xref" href="#def:falsedad">11.6</a> mediante las
+tablas de $\Not$ e $\Imp$&nbsp;<span class="cite">[Mendelson 2015, sec. 1.1]</span>.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\sem{\bot}_v\Longleftrightarrow\mathrm{Falso}$.
+</p><p>
+Sea $A:=v(p_0)$. Por las Definiciones&nbsp;<a class="xref" href="#def:eval">11.3</a> y&nbsp;<a class="xref" href="#def:falsedad">11.6</a>,
+$\sem{\bot}_v$ es la proposición $\Not(A\Rightarrow A)$. La implicación
+$A\Rightarrow A$ se prueba suponiendo $A$ y devolviéndola (introducción de
+implicación).
+</p><p>
+Dirección $(\Rightarrow)$: supóngase $\sem{\bot}_v$, es decir,
+$\Not(A\Rightarrow A)$. Junto con $A\Rightarrow A$ se tiene
+$$
+A\Rightarrow A,\qquad\Not(A\Rightarrow A)\qquad\Contra
+$$
+Entonces, de $\sem{\bot}_v$ se sigue $\mathrm{Falso}$ por eliminación de
+negación, y se descarga el supuesto por introducción de implicación.
+Dirección $(\Leftarrow)$: de $\mathrm{Falso}$ se sigue cualquier proposición
+por eliminación de falsedad, en particular $\sem{\bot}_v$. Ambas direcciones
+se reúnen por introducción del bicondicional.
+$$
+\therefore\quad \sem{\bot}_v\Longleftrightarrow\mathrm{Falso}.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>def Falsedad : Formula := ~(.atom "⊥" ⟶ .atom "⊥")
+
+theorem evaluar_falsedad (v : Valuacion) : evaluar v Falsedad ↔ False := by
+  -- A probar: las dos implicaciones de evaluar v Falsedad ↔ False.
+  -- Método: desplegar la semántica y aplicar la identidad P → P.
+  have hIdentidad : v "⊥" → v "⊥" := by
+    intro hAtomo
+    exact hAtomo
+  constructor
+  · intro h
+    have hNoIdentidad : ¬ (v "⊥" → v "⊥") := h
+    exact hNoIdentidad hIdentidad
+  · intro hFalso
+    exact False.elim hFalso</pre></div>
+</section>
+<h4>Convenios sobre el juicio</h4>
+<h4>Matemática: las reglas</h4>
+<h4>Código de Lean (tal como se implementa)</h4>
+<div class="lean standalone"><div class="cap">Lean</div><pre>inductive ND : Set Formula → Formula → Prop
+| hyp {Γ φ} : φ ∈ Γ → ND Γ φ
+| impI {Γ φ ψ} : ND (insert φ Γ) ψ → ND Γ (φ ⟶ ψ)
+| impE {Γ φ ψ} : ND Γ (φ ⟶ ψ) → ND Γ φ → ND Γ ψ
+| negI {Γ φ} : ND (insert φ Γ) Falsedad → ND Γ (~φ)
+| negE {Γ φ} : ND Γ (~φ) → ND Γ φ → ND Γ Falsedad
+| botE {Γ φ} : ND Γ Falsedad → ND Γ φ
+| classical {Γ φ} : ND (insert (~φ) Γ) Falsedad → ND Γ φ</pre></div>
+<h3>Reglas estructurales y derivadas</h3>
+<h4>Debilitamiento (monotonía en el contexto)</h4>
+<section class="result" id="lem:weak"><h5>Lema 11.8 (Debilitamiento)</h5>
+<div class="statement"><p>
+Si $\Gamma \Provnd \varphi$ y $\Gamma \subseteq \Delta$, entonces $\Delta \Provnd \varphi$.
+</p></div>
+<div class="preface"><p>
+Es la monotonía de la consecuencia, propiedad&nbsp;1 de
+Mendelson&nbsp;<span class="cite">[Mendelson 2015, sec. 1.4, p. 28]</span>.
+Allí se formula para deducciones por secuencias; aquí se prueba por inducción
+sobre los siete constructores de $\Provnd$, incluidas sus descargas.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\Delta\Provnd\varphi$.
+</p><p>
+La inducción sobre la derivación de $\Gamma\Provnd\varphi$ prueba el enunciado
+más fuerte
+$$
+\forall\Delta,\quad\Gamma\subseteq\Delta\Rightarrow\Delta\Provnd\varphi,
+$$
+del que el lema es la instancia en el $\Delta$ dado. Mantener $\Delta$
+cuantificado es lo que permite que, en cada caso, la hipótesis inductiva se
+aplique a un contexto distinto del original. Antes de los casos, se observa
+que la inclusión se conserva al añadir una misma fórmula $\psi$ a ambos contextos:
+sea $\chi\in\Gamma\cup\{\psi\}$; por la caracterización de la unión
+(Sección&nbsp;11.3.2), $\chi\in\Gamma$ o $\chi=\psi$; en el primer
+caso $\Gamma\subseteq\Delta$ da $\chi\in\Delta$, y en el segundo $\chi=\psi$;
+en ambos, $\chi\in\Delta\cup\{\psi\}$. Así,
+$\Gamma\cup\{\psi\}\subseteq\Delta\cup\{\psi\}$.
+</p><p>
+Para cada subderivación $\Sigma\Provnd\theta$, la hipótesis inductiva es
+$\forall\Theta,\ \Sigma\subseteq\Theta\Rightarrow\Theta\Provnd\theta$.
+En cada caso, sea $\Delta$ un contexto arbitrario con $\Gamma\subseteq\Delta$;
+se instancia $\Theta$ en el contexto indicado, se prueba la inclusión requerida
+y se reaplica la última regla (Sección&nbsp;11.3):
+<ol><li>Hipótesis: $\varphi\in\Gamma$. Como $\Gamma\subseteq\Delta$,
+$\varphi\in\Delta$, y la regla de hipótesis da $\Delta\Provnd\varphi$.
+</li><li>$\Imp\mathrm I$: la premisa es $\Gamma,\alpha\Provnd\beta$.
+Se abre $[\alpha]^{(a)}$ en $\Delta$. La hipótesis inductiva se instancia con
+$\Sigma=\Gamma\cup\{\alpha\}$, $\Theta=\Delta\cup\{\alpha\}$ y $\theta=\beta$;
+la inclusión $\Gamma\cup\{\alpha\}\subseteq\Delta\cup\{\alpha\}$ probada arriba
+da el numerador, y $\Imp\mathrm I(a)$ descarga $[\alpha]^{(a)}$:
+$$
+\frac{\Delta,\alpha\Provnd\beta}{\Delta\Provnd\alpha\Imp\beta}\;\Imp\mathrm I(a).
+$$
+</li><li>$\Imp\mathrm E$: las premisas son $\Gamma\Provnd\alpha\Imp\beta$
+y $\Gamma\Provnd\alpha$. Las dos hipótesis inductivas, instanciadas con
+$\Theta=\Delta$ y la inclusión $\Gamma\subseteq\Delta$, dan las dos
+derivaciones del numerador:
+$$
+\frac{\Delta\Provnd\alpha\Imp\beta\qquad\Delta\Provnd\alpha}
+{\Delta\Provnd\beta}\;\Imp\mathrm E.
+$$
+</li><li>$\Not\mathrm I$: la premisa es $\Gamma,\alpha\Provnd\bot$.
+Se abre $[\alpha]^{(a)}$ en $\Delta$. La hipótesis inductiva se instancia con
+$\Sigma=\Gamma\cup\{\alpha\}$, $\Theta=\Delta\cup\{\alpha\}$ y $\theta=\bot$,
+con la misma inclusión que en $\Imp\mathrm I$; $\Not\mathrm I(a)$ descarga
+$[\alpha]^{(a)}$:
+$$
+\frac{\Delta,\alpha\Provnd\bot}{\Delta\Provnd\Not\alpha}\;\Not\mathrm I(a).
+$$
+</li><li>$\Not\mathrm E$: las premisas son $\Gamma\Provnd\Not\alpha$
+y $\Gamma\Provnd\alpha$. Las dos hipótesis inductivas, instanciadas con
+$\Theta=\Delta$ y $\Gamma\subseteq\Delta$, dan el numerador:
+$$
+\frac{\Delta\Provnd\Not\alpha\qquad\Delta\Provnd\alpha}
+{\Delta\Provnd\bot}\;\Not\mathrm E.
+$$
+</li><li>$\bot\mathrm E$: la premisa es $\Gamma\Provnd\bot$. La hipótesis
+inductiva, instanciada con $\Theta=\Delta$ y $\Gamma\subseteq\Delta$, da
+$\Delta\Provnd\bot$:
+$$
+\frac{\Delta\Provnd\bot}{\Delta\Provnd\alpha}\;\bot\mathrm E.
+$$
+</li><li>RAA: la premisa es $\Gamma,\Not\alpha\Provnd\bot$. Se abre
+$[\Not\alpha]^{(a)}$ en $\Delta$. La hipótesis inductiva se instancia con
+$\Sigma=\Gamma\cup\{\Not\alpha\}$, $\Theta=\Delta\cup\{\Not\alpha\}$ y
+$\theta=\bot$, con la inclusión
+$\Gamma\cup\{\Not\alpha\}\subseteq\Delta\cup\{\Not\alpha\}$ probada arriba;
+$\mathrm{RAA}(a)$ descarga $[\Not\alpha]^{(a)}$:
+$$
+\frac{\Delta,\Not\alpha\Provnd\bot}{\Delta\Provnd\alpha}\;\mathrm{RAA}(a).
+$$
+</li></ol>
+En los siete casos la conclusión tiene contexto $\Delta$; como $\Delta$ era
+arbitrario, queda probado el enunciado cuantificado, y su instancia en el
+$\Delta$ del lema da la meta.
+$$
+\therefore\quad \Delta\Provnd\varphi.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem debilitamiento {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := by
+  -- A probar: la misma conclusión bajo cualquier contexto mayor Δ.
+  -- Método: inducción sobre d; Δ permanece cuantificado en cada hipótesis inductiva.
+  induction d with
+  | @hyp Γ φ hmem =&gt;
+      intro Δ hsub
+      have hEnDelta : φ ∈ Δ := hsub hmem
+      exact ND.hyp hEnDelta
+  | @impI Γ φ ψ _ hipInd =&gt;
+      intro Δ hsub
+      have hAmpliado : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub
+      have dCuerpo : ND (insert φ Δ) ψ := hipInd hAmpliado
+      -- impI descarga φ; las fórmulas de Δ permanecen.
+      exact ND.impI dCuerpo
+  | @impE Γ φ ψ _ _ hipIndImp hipIndAntecedente =&gt;
+      intro Δ hsub
+      have dImp : ND Δ (φ ⟶ ψ) := hipIndImp hsub
+      have dAntecedente : ND Δ φ := hipIndAntecedente hsub
+      exact ND.impE dImp dAntecedente
+  | @negI Γ φ _ hipInd =&gt;
+      intro Δ hsub
+      have hAmpliado : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub
+      have dFalsedad : ND (insert φ Δ) Falsedad := hipInd hAmpliado
+      exact ND.negI dFalsedad
+  | @negE Γ φ _ _ hipIndNeg hipIndPos =&gt;
+      intro Δ hsub
+      have dNeg : ND Δ (~φ) := hipIndNeg hsub
+      have dPos : ND Δ φ := hipIndPos hsub
+      exact ND.negE dNeg dPos
+  | @botE Γ φ _ hipInd =&gt;
+      intro Δ hsub
+      have dFalsedad : ND Δ Falsedad := hipInd hsub
+      exact ND.botE dFalsedad
+  | @classical Γ φ _ hipInd =&gt;
+      intro Δ hsub
+      have hAmpliado : insert (~φ) Γ ⊆ insert (~φ) Δ := Set.insert_subset_insert hsub
+      have dFalsedad : ND (insert (~φ) Δ) Falsedad := hipInd hAmpliado
+      -- Por RAA objeto, se descarga ~φ y se concluye φ bajo Δ.
+      exact ND.classical dFalsedad</pre></div>
+</section>
+<h4>Introducción de doble negación</h4>
+<section class="result" id="lem:dni"><h5>Lema 11.9 (Introducción de doble negación)</h5>
+<div class="statement"><p>
+Si $\Gamma \Provnd \varphi$ entonces $\Gamma \Provnd \Not\Not\varphi$.
+</p></div>
+<div class="preface"><p>
+La derivación de $\Not\Not\mathrm I$ aparece en
+Huth y Ryan&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2.2, p. 24]</span>.
+Aquí se explicita el contexto $\Gamma$ mediante debilitamiento.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\Gamma\Provnd\Not\Not\varphi$.
+</p><p>
+Por introducción de negación, se abre $[\Not\varphi]^{(a)}$.
+El contexto ampliado es $\Gamma,\Not\varphi:=\Gamma\cup\{\Not\varphi\}$:
+contiene el supuesto nuevo y, como contiene a $\Gamma$, permite usar la premisa
+$\Gamma\Provnd\varphi$ por debilitamiento (Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>).
+</p><p>
+$$
+\dfrac{\dfrac{\dfrac{\phantom{x}}{\Gamma,\Not\varphi\Provnd\Not\varphi}\;{\scriptstyle \text{hip.}}\qquad \dfrac{\genfrac{}{}{0pt}{0}{\vdots}{\Gamma\Provnd\varphi}}{\Gamma,\Not\varphi\Provnd\varphi}\;{\scriptstyle \text{debil.}}}{\Gamma,\Not\varphi\Provnd\bot}\;{\scriptstyle \Not\mathrm E}}{\Gamma\Provnd\Not\Not\varphi}\;{\scriptstyle \Not\mathrm I(a)}
+$$
+</p><p>
+En el contexto $\Gamma\cup\{\Not\varphi\}$: la regla de hipótesis da
+$\Not\varphi$, pues $\Not\varphi\in\Gamma\cup\{\Not\varphi\}$; el
+Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>, con la inclusión $\Gamma\subseteq\Gamma\cup\{\Not\varphi\}$,
+transporta la premisa y da $\varphi$; $\Not\mathrm E$ con ambas da $\bot$; y
+$\Not\mathrm I(a)$ descarga $[\Not\varphi]^{(a)}$ y concluye
+$\Gamma\Provnd\Not(\Not\varphi)$, que es la meta.
+$$
+\therefore\quad \Gamma\Provnd\Not\Not\varphi.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem introduccion_doble_negacion {Γ φ} (d : ND Γ φ) : ND Γ (~~φ) := by
+  -- A probar: ND Γ (~~φ). Método: introducción de negación, no RAA.
+  let Δ := insert (~φ) Γ
+  have hNeg : (~φ) ∈ Δ := Set.mem_insert _ _
+  have hInclusion : Γ ⊆ Δ := Set.subset_insert _ _
+  have dNeg : ND Δ (~φ) := ND.hyp hNeg
+  have dPos : ND Δ φ := debilitamiento d hInclusion
+  have dFalsedad : ND Δ Falsedad := ND.negE dNeg dPos
+  -- negI descarga el supuesto ~φ, no la premisa d.
+  exact ND.negI dFalsedad</pre></div>
+</section>
+<h4>Demostración por casos clásica</h4>
+<section class="result" id="lem:bycases"><h5>Lema 11.10 (Análisis por casos derivado)</h5>
+<div class="statement"><p>
+Si $\Gamma,\varphi \Provnd \chi$ y $\Gamma,\Not\varphi \Provnd \chi$, entonces $\Gamma \Provnd \chi$.
+</p></div>
+<div class="preface"><p>
+Corresponde al esquema $(B\Imp C)\Imp((\Not B\Imp C)\Imp C)$ de
+Mendelson&nbsp;<span class="cite">[Mendelson 2015, lema 1.11(g), pp. 31–33]</span>
+y al lema&nbsp;10 de Stansifer&nbsp;<span class="cite">[Stansifer 2001, sec. 3.4, p. 10]</span>.
+Aquí se reconstruye con RAA y reglas de negación, sin introducir $\lor$.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\Gamma\Provnd\chi$.
+</p><p>
+Las premisas son $\Gamma,\varphi\Provnd\chi$ y
+$\Gamma,\Not\varphi\Provnd\chi$.
+Por RAA, se abre $[\Not\chi]^{(a)}$ y se busca una contradicción en
+$\Delta:=\Gamma\cup\{\Not\chi\}$.
+</p><p>
+Se abre primero $[\varphi]^{(b)}$. En $\Delta,\varphi$ se dispone de
+$\Not\chi$ por hipótesis y de $\chi$ por debilitamiento de la primera premisa,
+pues $\Gamma\cup\{\varphi\}\subseteq\Delta\cup\{\varphi\}$
+(Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>):
+</p><p>
+$$
+\dfrac{\dfrac{\dfrac{\phantom{x}}{\Delta,\varphi\Provnd\Not\chi}\;{\scriptstyle \text{hip.}}\qquad \dfrac{\genfrac{}{}{0pt}{0}{\vdots}{\Gamma,\varphi\Provnd\chi}}{\Delta,\varphi\Provnd\chi}\;{\scriptstyle \text{debil.}}}{\Delta,\varphi\Provnd\bot}\;{\scriptstyle \Not\mathrm E}}{\Delta\Provnd\Not\varphi}\;{\scriptstyle \Not\mathrm I(b)}
+$$
+</p><p>
+Con $\Not\mathrm I(b)$ se cierra $[\varphi]^{(b)}$; $[\Not\chi]^{(a)}$ sigue abierto.
+</p><p>
+Se abre ahora $[\Not\varphi]^{(c)}$. La inclusión
+$\Gamma\cup\{\Not\varphi\}\subseteq\Delta\cup\{\Not\varphi\}$
+permite debilitar la segunda premisa (Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>), y $\Not\chi$
+se obtiene por la regla de hipótesis, pues $\Not\chi\in\Delta\cup\{\Not\varphi\}$.
+$\Not\mathrm E$ da $\bot$ y $\Not\mathrm I(c)$ descarga $[\Not\varphi]^{(c)}$:
+</p><p>
+$$
+\dfrac{\dfrac{\dfrac{\phantom{x}}{\Delta,\Not\varphi\Provnd\Not\chi}\;{\scriptstyle \text{hip.}}\qquad \dfrac{\genfrac{}{}{0pt}{0}{\vdots}{\Gamma,\Not\varphi\Provnd\chi}}{\Delta,\Not\varphi\Provnd\chi}\;{\scriptstyle \text{debil.}}}{\Delta,\Not\varphi\Provnd\bot}\;{\scriptstyle \Not\mathrm E}}{\Delta\Provnd\Not\Not\varphi}\;{\scriptstyle \Not\mathrm I(c)}
+$$
+</p><p>
+Las dos conclusiones se contradicen por $\Not\mathrm E$:
+$$
+\frac{\Delta\Provnd\Not\Not\varphi\qquad\Delta\Provnd\Not\varphi}
+{\Delta\Provnd\bot}\;\Not\mathrm E.
+$$
+Por RAA, esta contradicción permite descargar $[\Not\chi]^{(a)}$;
+el contexto restante es $\Gamma$.
+$$
+\therefore\quad \Gamma\Provnd\chi.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem analisis_por_casos {Γ φ χ} (d1 : ND (insert φ Γ) χ) (d2 : ND (insert (~φ) Γ) χ) :
+    ND Γ χ := by
+  -- A probar: ND Γ χ. Método: Por RAA objeto, basta Falsedad bajo Γ, ~χ.
+  let Δ := insert (~χ) Γ
+  have dNeg : ND Δ (~φ) := by
+    let Θ := insert φ Δ
+    have hNoChi : (~χ) ∈ Θ :=
+      Set.mem_insert_of_mem _ (Set.mem_insert _ _)
+    have hInclusion : insert φ Γ ⊆ Θ :=
+      Set.insert_subset_insert (Set.subset_insert _ _)
+    have dNoChi : ND Θ (~χ) := ND.hyp hNoChi
+    have dChi : ND Θ χ := debilitamiento d1 hInclusion
+    have dFalsedad : ND Θ Falsedad := ND.negE dNoChi dChi
+    -- Se descarga φ; ~χ permanece en Δ.
+    exact ND.negI dFalsedad
+  have dDobleNeg : ND Δ (~~φ) := by
+    let Θ := insert (~φ) Δ
+    have hNoChi : (~χ) ∈ Θ :=
+      Set.mem_insert_of_mem _ (Set.mem_insert _ _)
+    have hInclusion : insert (~φ) Γ ⊆ Θ :=
+      Set.insert_subset_insert (Set.subset_insert _ _)
+    have dNoChi : ND Θ (~χ) := ND.hyp hNoChi
+    have dChi : ND Θ χ := debilitamiento d2 hInclusion
+    have dFalsedad : ND Θ Falsedad := ND.negE dNoChi dChi
+    -- Se descarga ~φ; ~χ permanece en Δ.
+    exact ND.negI dFalsedad
+  have dFalsedad : ND Δ Falsedad := ND.negE dDobleNeg dNeg
+  -- Por RAA, se descarga únicamente el supuesto adicional ~χ.
+  exact ND.classical dFalsedad</pre></div>
+</section>
+<h3>Corrección y consistencia</h3>
+<h4>Pruebas y formalización</h4>
+<section class="result" id="lem:satinsert"><h5>Lema 11.11 (Satisfacción de un contexto extendido)</h5>
+<div class="statement"><p>
+Si $\sem{\chi}_v$ se cumple y $v\models\Gamma$, entonces
+$v\models\Gamma\cup\{\chi\}$.
+</p></div>
+<div class="preface"></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $v\models\Gamma\cup\{\chi\}$.
+</p><p>
+Sea $\psi$ una fórmula arbitraria y supóngase $\psi\in\Gamma\cup\{\chi\}$. Por
+la caracterización de la pertenencia a una unión
+(Sección&nbsp;11.3.2), $\psi=\chi$ o $\psi\in\Gamma$. Si $\psi=\chi$,
+al sustituir en la premisa $\sem\chi_v$ se obtiene $\sem\psi_v$. Si
+$\psi\in\Gamma$, la premisa $v\models\Gamma$, instanciada en $\psi$, da
+$\sem\psi_v$. Los dos casos agotan la disyunción. Al descargar el supuesto de
+pertenencia y cuantificar sobre $\psi$ queda
+$\forall\psi,\ \psi\in\Gamma\cup\{\chi\}\Rightarrow\sem\psi_v$, que es
+$v\models\Gamma\cup\{\chi\}$.
+$$
+\therefore\quad v\models\Gamma\cup\{\chi\}.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem satisfaccion_insertar {v : Valuacion} {Γ : Set Formula} {χ : Formula}
+    (hχ : evaluar v χ) (hΓ : ∀ ψ ∈ Γ, evaluar v ψ) :
+    ∀ ψ ∈ insert χ Γ, evaluar v ψ := by
+  -- A probar: cada fórmula del contexto extendido es verdadera bajo v.
+  -- Método: casos de pertenencia; ψ = χ o ψ ∈ Γ.
+  intro ψ hψ
+  have hCasos : ψ = χ ∨ ψ ∈ Γ := Set.mem_insert_iff.mp hψ
+  rcases hCasos with hIgualdad | hEnGamma
+  · subst ψ
+    exact hχ
+  · exact hΓ ψ hEnGamma</pre></div>
+</section>
+<section class="result" id="thm:soundness"><h5>Teorema 11.12 (Corrección)</h5>
+<div class="statement"><p>
+Si $\Gamma \Provnd \varphi$, entonces para toda valuación $v$ con $v\models\Gamma$ se cumple
+$\sem{\varphi}_v$.
+</p></div>
+<div class="preface"><p>
+Se adapta el teorema&nbsp;1.35 de Huth y Ryan&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.4.3, pp. 45–49]</span>:
+la inducción sobre la longitud de pruebas se reemplaza por inducción sobre
+derivaciones, con $\Gamma$ arbitrario y las siete reglas de este cálculo.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\forall v,\ v\models\Gamma\Rightarrow\sem\varphi_v$.
+</p><p>
+Por inducción sobre la derivación de $\Gamma\Provnd\varphi$. El enunciado que
+se prueba por inducción es el cuantificado,
+$\forall v,\ v\models\Gamma\Rightarrow\sem\varphi_v$; por eso, para cada
+subderivación $\Sigma\Provnd\theta$, la hipótesis inductiva es
+$\forall w,\ w\models\Sigma\Rightarrow\sem\theta_w$, y en cada caso se
+instancia en la valuación del caso y en el contexto de la premisa
+correspondiente. En cada caso, sea $v$ una valuación arbitraria con
+$v\models\Gamma$; se analiza la última regla (Sección&nbsp;11.3), y las
+cláusulas semánticas son las de la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a>.
+<ol><li>Hipótesis: $\varphi\in\Gamma$. La premisa $v\models\Gamma$, instanciada
+en $\varphi$, da $\sem\varphi_v$.
+</li><li>$\Imp\mathrm I$: la premisa es $\Gamma,\alpha\Provnd\beta$ y la meta es
+$\sem{\alpha\Imp\beta}_v$, es decir, $\sem\alpha_v\Rightarrow\sem\beta_v$.
+Supóngase $\sem\alpha_v$. Con $v\models\Gamma$, el Lema&nbsp;<a class="xref" href="#lem:satinsert">11.11</a>
+da $v\models\Gamma\cup\{\alpha\}$; la hipótesis inductiva, instanciada en $v$
+y en ese contexto, da $\sem\beta_v$. Se descarga el supuesto $\sem\alpha_v$
+por introducción de implicación.
+</li><li>$\Imp\mathrm E$: las premisas son $\Gamma\Provnd\alpha\Imp\beta$ y
+$\Gamma\Provnd\alpha$. Como $v\models\Gamma$, las dos hipótesis inductivas dan
+$\sem\alpha_v\Rightarrow\sem\beta_v$ y $\sem\alpha_v$; la eliminación de
+implicación da $\sem\beta_v$.
+</li><li>$\Not\mathrm I$: la premisa es $\Gamma,\alpha\Provnd\bot$ y la meta es
+$\sem{\Not\alpha}_v$, es decir, $\Not\sem\alpha_v$. Supóngase $\sem\alpha_v$.
+El Lema&nbsp;<a class="xref" href="#lem:satinsert">11.11</a> da $v\models\Gamma\cup\{\alpha\}$ y la hipótesis
+inductiva da $\sem\bot_v$, que el Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> declara falsa:
+$$
+\sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
+$$
+Por lo tanto, el supuesto $\sem\alpha_v$ no puede sostenerse: se descarga por
+introducción de negación y queda $\Not\sem\alpha_v$.
+</li><li>$\Not\mathrm E$: las premisas son $\Gamma\Provnd\Not\alpha$ y
+$\Gamma\Provnd\alpha$ y la meta es $\sem\bot_v$. Las hipótesis inductivas dan
+$$
+\sem\alpha_v,\qquad\Not\sem\alpha_v\qquad\Contra
+$$
+Entonces la eliminación de negación da $\mathrm{Falso}$, y de
+$\mathrm{Falso}$ se sigue $\sem\bot_v$ por eliminación de falsedad (es la
+dirección $(\Leftarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a>).
+</li><li>$\bot\mathrm E$: la premisa es $\Gamma\Provnd\bot$ y la meta es
+$\sem\alpha_v$. La hipótesis inductiva da $\sem\bot_v$, que el
+Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> declara falsa:
+$$
+\sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
+$$
+Se tiene entonces $\mathrm{Falso}$, y la eliminación de falsedad da
+$\sem\alpha_v$.
+</li><li>RAA: la premisa es $\Gamma,\Not\alpha\Provnd\bot$ y la meta es
+$\sem\alpha_v$. Se razona por reducción al absurdo en la metateoría: supóngase
+$\Not\sem\alpha_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a> es
+$\sem{\Not\alpha}_v$. El Lema&nbsp;<a class="xref" href="#lem:satinsert">11.11</a> da
+$v\models\Gamma\cup\{\Not\alpha\}$, y la hipótesis inductiva da $\sem\bot_v$,
+que el Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> declara falsa:
+$$
+\sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
+$$
+Por lo tanto, la reducción al absurdo descarga el supuesto $\Not\sem\alpha_v$ y
+concluye $\sem\alpha_v$. Este supuesto
+metateórico es distinto del supuesto $[\Not\alpha]^{(a)}$ que descarga la
+regla RAA en la derivación objeto; es el único caso que usa lógica clásica en
+la metateoría.
+</li></ol>
+Como $v$ era arbitraria, se cuantifica.
+$$
+\therefore\quad \forall v,\ v\models\Gamma\Rightarrow\sem\varphi_v.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem correccion {Γ φ} (d : ND Γ φ) :
+    ∀ v, (∀ ψ ∈ Γ, evaluar v ψ) → evaluar v φ := by
+  -- A probar: verdad semántica de la conclusión bajo toda valuación del contexto.
+  -- Método: inducción sobre d, con v y la satisfacción aún cuantificados.
+  induction d with
+  | @hyp Γ φ hmem =&gt;
+      intro v hv
+      exact hv φ hmem
+  | @impI Γ φ ψ _ hipInd =&gt;
+      intro v hv
+      change evaluar v φ → evaluar v ψ
+      intro hPhi
+      have hAmpliado : ∀ θ ∈ insert φ Γ, evaluar v θ := satisfaccion_insertar hPhi hv
+      have hPsi : evaluar v ψ := hipInd v hAmpliado
+      exact hPsi
+  | @impE Γ φ ψ _ _ hipIndImp hipIndAntecedente =&gt;
+      intro v hv
+      have hImp : evaluar v φ → evaluar v ψ := hipIndImp v hv
+      have hPhi : evaluar v φ := hipIndAntecedente v hv
+      exact hImp hPhi
+  | @negI Γ φ _ hipInd =&gt;
+      intro v hv
+      change ¬ evaluar v φ
+      intro hPhi
+      have hAmpliado : ∀ θ ∈ insert φ Γ, evaluar v θ := satisfaccion_insertar hPhi hv
+      have hFalsedad : evaluar v Falsedad := hipInd v hAmpliado
+      exact (evaluar_falsedad v).mp hFalsedad
+  | @negE Γ φ _ _ hipIndNeg hipIndPos =&gt;
+      intro v hv
+      have hNeg : ¬ evaluar v φ := hipIndNeg v hv
+      have hPos : evaluar v φ := hipIndPos v hv
+      have hFalso : False := hNeg hPos
+      -- Dirección inversa: False → evaluar v Falsedad.
+      exact (evaluar_falsedad v).mpr hFalso
+  | @botE Γ φ _ hipInd =&gt;
+      intro v hv
+      have hFalsedad : evaluar v Falsedad := hipInd v hv
+      have hFalso : False := (evaluar_falsedad v).mp hFalsedad
+      exact False.elim hFalso
+  | @classical Γ φ _ hipInd =&gt;
+      intro v hv
+      -- Por RAA metateórica, se supone ¬ evaluar v φ, no ND Γ (~φ).
+      by_contra hnp
+      have hNeg : evaluar v (~φ) := hnp
+      have hAmpliado : ∀ θ ∈ insert (~φ) Γ, evaluar v θ := satisfaccion_insertar hNeg hv
+      have hFalsedad : evaluar v Falsedad := hipInd v hAmpliado
+      exact (evaluar_falsedad v).mp hFalsedad</pre></div>
+</section>
+<section class="result" id="cor:taut"><h5>Corolario 11.13 (Los teoremas son tautologías)</h5>
+<div class="statement"><p>
+Si $\varnothing \Provnd \varphi$ entonces $\mathrm{Taut}(\varphi)$.
+</p></div>
+<div class="preface"><p>
+Es el caso $\Gamma=\varnothing$ del Teorema&nbsp;<a class="xref" href="#thm:soundness">11.12</a>.
+El resultado análogo para el sistema de Hilbert $L$ es la
+proposición&nbsp;1.12 de Mendelson&nbsp;<span class="cite">[Mendelson 2015, p. 34]</span>.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\operatorname{Taut}(\varphi)$.
+</p><p>
+Sea $v$ una valuación arbitraria. Primero, $v\models\varnothing$: sea $\psi$
+cualquier fórmula y supóngase $\psi\in\varnothing$; como el conjunto vacío no
+tiene elementos, el supuesto choca con la definición de $\varnothing$:
+$$
+\psi\in\varnothing,\qquad\psi\notin\varnothing\qquad\Contra
+$$
+De modo que se tiene $\mathrm{Falso}$, y la eliminación de falsedad da
+$\sem\psi_v$. Al descargar el supuesto y cuantificar sobre $\psi$ queda
+$\forall\psi,\ \psi\in\varnothing\Rightarrow\sem\psi_v$, que es
+$v\models\varnothing$. El Teorema&nbsp;<a class="xref" href="#thm:soundness">11.12</a>, aplicado a la premisa
+$\varnothing\Provnd\varphi$ y a $v\models\varnothing$, da $\sem\varphi_v$.
+Como $v$ era arbitraria, la Definición&nbsp;<a class="xref" href="#def:tautology">11.4</a> da
+$\operatorname{Taut}(\varphi)$.
+$$
+\therefore\quad \operatorname{Taut}(\varphi).
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem tautologia_de_derivable {φ} (d : ND (∅ : Set Formula) φ) : EsTautologia φ := by
+  -- A probar: ∀ v, evaluar v φ. Método: corrección con contexto vacío.
+  intro v
+  have hVacio : ∀ ψ ∈ (∅ : Set Formula), evaluar v ψ := by
+    intro ψ hψ
+    have hFalso : False := hψ
+    exact False.elim hFalso
+  exact correccion d v hVacio</pre></div>
+</section>
+<section class="result" id="cor:consistency"><h5>Corolario 11.14 (Consistencia)</h5>
+<div class="statement"><p>
+$\bot$ no es derivable a partir del contexto vacío: $\;\Not(\varnothing \Provnd \bot)$.
+</p></div>
+<div class="preface"><p>
+Se usa el argumento semántico del corolario&nbsp;1.16 de
+Mendelson&nbsp;<span class="cite">[Mendelson 2015, p. 36]</span>. Allí se excluyen teoremas opuestos;
+aquí se excluye $\bot$ mediante el Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a>.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\Not(\varnothing\Provnd\bot)$.
+</p><p>
+Por introducción de negación, supóngase una derivación
+$d:\varnothing\Provnd\bot$. El Corolario&nbsp;<a class="xref" href="#cor:taut">11.13</a> da
+$\operatorname{Taut}(\bot)$. Sea $v_0$ la valuación que asigna $\mathrm{Verdadero}$ a todo
+átomo; por la Definición&nbsp;<a class="xref" href="#def:tautology">11.4</a>, $\sem\bot_{v_0}$ se cumple, y el
+Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> dice que es falsa:
+$$
+\sem\bot_{v_0},\qquad\Not\sem\bot_{v_0}\qquad\Contra
+$$
+Por lo tanto, la derivación $d$ no puede existir: se descarga por introducción
+de negación.
+$$
+\therefore\quad \Not(\varnothing\Provnd\bot).
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem no_derivable_falsedad : ¬ ND (∅ : Set Formula) Falsedad := by
+  -- A probar: la inexistencia de una derivación cerrada de Falsedad.
+  -- Método: introducción de negación; una tautología no puede ser siempre falsa.
+  intro d
+  let v : Valuacion := fun _ =&gt; True
+  have hTautologia : EsTautologia Falsedad := tautologia_de_derivable d
+  have hFalsedad : evaluar v Falsedad := hTautologia v
+  exact (evaluar_falsedad v).mp hFalsedad</pre></div>
+</section>
+<h3>Completitud mediante el lema de Kalmár</h3>
+<h4>Átomos, literales y contextos de literales</h4>
+<section class="result" id="def:atoms"><h5>Definición 11.15 (Átomos de una fórmula)</h5>
+<div class="statement"><p>
+$\mathrm{atomos}(\varphi)$ es la lista de átomos que aparecen en $\varphi$ (con repetición):
+$$
+\mathrm{atomos}(p)=[p],\quad
+\mathrm{atomos}(\Not\varphi)=\mathrm{atomos}(\varphi),\quad
+\mathrm{atomos}(\varphi\Imp\psi)=\mathrm{atomos}(\varphi)\,{+}\!{+}\,\mathrm{atomos}(\psi).
+$$
+</p></div>
+</section>
+<section class="result" id="def:litctx"><h5>Definición 11.16 (Literal y contexto de literales)</h5>
+<div class="statement"><p>
+Para una valuación $v$ y un átomo $p$,
+$$
+\mathrm{literal}_v(p) \;=\;
+\begin{cases}
+p &amp; \text{si } v(p)=\mathsf{V},\\
+\Not p &amp; \text{si } v(p)=\mathsf{F}.
+\end{cases}
+$$
+Para una lista de átomos $A$ (<code>listaAtomos</code> en Lean), el <em>contexto de literales</em> es
+$$
+\Gamma_v(A) \;=\; \{\, \mathrm{literal}_v(p) : p \in A \,\},
+$$
+definido por recursión: $\Gamma_v([])=\varnothing$ y
+$\Gamma_v(p::r) = \{\mathrm{literal}_v(p)\}\cup \Gamma_v(r)$.
+</p></div>
+<div class="lean"><div class="cap">Lean</div><pre>def atomos : Formula → List String
+| .atom s   =&gt; [s]
+| .neg p    =&gt; atomos p
+| .impl p q =&gt; atomos p ++ atomos q
+
+noncomputable def literal (v : Valuacion) (p : String) : Formula :=
+  if v p then .atom p else ~(.atom p)
+
+noncomputable def contextoLiterales (v : Valuacion) : List String → Set Formula
+| []        =&gt; ∅
+| p :: cola =&gt; insert (literal v p) (contextoLiterales v cola)</pre></div>
+</section>
+<section class="result" id="lem:litmem"><h5>Lema 11.17 (Pertenencia del literal)</h5>
+<div class="statement"><p>
+Si $p \in A$ entonces $\mathrm{literal}_v(p)\in\Gamma_v(A)$.
+</p></div>
+<div class="preface"></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\mathrm{literal}_v(p)\in\Gamma_v(A)$.
+</p><p>
+Por inducción sobre $A$, con $p$ y $v$ fijos, para el predicado
+$P(s):\Longleftrightarrow p\in s\Rightarrow\mathrm{literal}_v(p)\in\Gamma_v(s)$.
+<ol><li>$A=[]$: supóngase $p\in[]$. Ninguna cadena pertenece a la lista vacía:
+$$
+p\in[],\qquad p\notin[]\qquad\Contra
+$$
+Se sigue $\mathrm{Falso}$, y la eliminación de falsedad da
+$\mathrm{literal}_v(p)\in\Gamma_v([])$. Se descarga el supuesto.
+</li><li>$A=a::r$: supóngase $p\in a::r$. Por la pertenencia a una lista
+(Sección&nbsp;11.6.1), $p=a$ o $p\in r$, y por la
+Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
+$\Gamma_v(a::r)=\{\mathrm{literal}_v(a)\}\cup\Gamma_v(r)$.
+Si $p=a$, entonces $\mathrm{literal}_v(p)=\mathrm{literal}_v(a)$, que
+pertenece a la unión por su primer miembro. Si $p\in r$, la hipótesis
+inductiva $P(r)$ da $\mathrm{literal}_v(p)\in\Gamma_v(r)$, que pertenece a la
+unión por su segundo miembro. Los dos casos agotan la disyunción; se descarga
+el supuesto.
+</li></ol>
+$$
+\therefore\quad \mathrm{literal}_v(p)\in\Gamma_v(A).
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem pertenencia_literal {v : Valuacion} {p : String} {listaAtomos : List String}
+    (h : p ∈ listaAtomos) : literal v p ∈ contextoLiterales v listaAtomos := by
+  -- A probar: pertenencia del literal correspondiente al átomo p.
+  -- Método: inducción en listaAtomos; la premisa p ∈ listaAtomos se conserva en la hipótesis inductiva.
+  induction listaAtomos with
+  | nil =&gt;
+      have hFalso : False := List.not_mem_nil h
+      exact False.elim hFalso
+  | cons a cola hipInd =&gt;
+      have hCasos : p = a ∨ p ∈ cola := List.mem_cons.mp h
+      rcases hCasos with hIgualdad | hCola
+      · subst p
+        exact Set.mem_insert _ _
+      · have hLiteralCola : literal v p ∈ contextoLiterales v cola := hipInd hCola
+        exact Set.mem_insert_of_mem (literal v a) hLiteralCola</pre></div>
+</section>
+<h4>El lema de Kalmár</h4>
+<section class="result" id="lem:kalmar"><h5>Lema 11.18 (Kalmár)</h5>
+<div class="statement"><p>
+Sean $v$ una valuación, $\varphi$ una fórmula y $A$ una lista con
+$\mathrm{atomos}(\varphi)\subseteq A$. Entonces
+$$
+\big(\sem{\varphi}_v \Rightarrow \Gamma_v(A)\Provnd\varphi\big)
+\quad\text{y}\quad
+\big(\Not\sem{\varphi}_v \Rightarrow \Gamma_v(A)\Provnd\Not\varphi\big).
+$$
+</p></div>
+<div class="preface"></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong>
+$$
+(\sem{\varphi}_v\Rightarrow\Gamma_v(A)\Provnd\varphi)\wedge(\Not\sem{\varphi}_v\Rightarrow\Gamma_v(A)\Provnd\Not\varphi).
+$$
+Por inducción estructural sobre $\varphi$, con $v$ y $A$ fijos.
+Sea $\Gamma:=\Gamma_v(A)$. Se mantiene la cobertura como premisa
+del predicado inductivo:
+$$
+K(\theta):\Longleftrightarrow
+\mathrm{atomos}(\theta)\subseteq A\Rightarrow
+\bigl((\sem\theta_v\Rightarrow\Gamma\Provnd\theta)
+\wedge(\Not\sem\theta_v\Rightarrow\Gamma\Provnd\Not\theta)\bigr).
+$$
+Para cada subfórmula inmediata $\theta$, la hipótesis inductiva $K(\theta)$
+proporciona ambas implicaciones una vez verificada su cobertura.
+Las cláusulas semánticas provienen de la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a>; los pasos
+<em>debil.</em> usan el Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>; y los árboles usan las reglas de la
+Sección&nbsp;11.3.<sup class="fn">1</sup>
+</p><p>
+ Si $\varphi=s$:
+Por la Definición&nbsp;<a class="xref" href="#def:atoms">11.15</a>, $\mathrm{atomos}(s)=[s]$, y $s\in[s]$ por la
+pertenencia a una lista. La cobertura $\mathrm{atomos}(s)\subseteq A$,
+instanciada en $s$, da $s\in A$, y el Lema&nbsp;<a class="xref" href="#lem:litmem">11.17</a>, con la lista $A$,
+da $\mathrm{literal}_v(s)\in\Gamma$.
+Parte positiva: supóngase $\sem s_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a> es
+$v(s)$. Por la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>, $\mathrm{literal}_v(s)=s$; luego
+$s\in\Gamma$ y la regla de hipótesis da $\Gamma\Provnd s$.
+Parte negativa: supóngase $\Not\sem s_v$, es decir, $\Not v(s)$. Entonces
+$\mathrm{literal}_v(s)=\Not s$; luego $\Not s\in\Gamma$ y la regla de hipótesis
+da $\Gamma\Provnd\Not s$.
+</p><p>
+ Si $\varphi=\Not p$:
+La cobertura necesaria se obtiene de
+$$
+\mathrm{atomos}(p)=\mathrm{atomos}(\Not p)\subseteq A
+\qquad\text{(Def.~\ref{def:atoms}).}
+$$
+Parte positiva: supóngase $\sem{\Not p}_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a>
+es $\Not\sem p_v$. La parte negativa de la hipótesis inductiva $K(p)$ da
+$\Gamma\Provnd\Not p$.
+Parte negativa: supóngase $\Not\sem{\Not p}_v$, es decir, $\Not\Not\sem p_v$.
+Se obtiene $\sem p_v$ por eliminación clásica de doble negación en la
+metateoría: se supone $\Not\sem p_v$ y se confronta con lo ya supuesto,
+$$
+\Not\sem p_v,\qquad\Not\Not\sem p_v\qquad\Contra
+$$
+Entonces la reducción al absurdo descarga $\Not\sem p_v$ y concluye
+$\sem p_v$. La parte positiva de $K(p)$ da
+$\Gamma\Provnd p$, y el Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a> da $\Gamma\Provnd\Not\Not p$, que
+es la meta $\Gamma\Provnd\Not(\Not p)$.
+</p><p>
+ Si $\varphi=p\Imp q$:
+Por la Definición&nbsp;<a class="xref" href="#def:atoms">11.15</a>,
+$\mathrm{atomos}(p\Imp q)=\mathrm{atomos}(p)\,{+}\!{+}\,\mathrm{atomos}(q)$.
+Sea $a\in\mathrm{atomos}(p)$; por la pertenencia a una concatenación
+(Sección&nbsp;11.6.1), $a\in\mathrm{atomos}(p\Imp q)$, y la
+cobertura da $a\in A$. Como $a$ era arbitrario, $\mathrm{atomos}(p)\subseteq A$.
+El mismo argumento con la segunda mitad de la concatenación da
+$\mathrm{atomos}(q)\subseteq A$. Las dos coberturas permiten aplicar las
+hipótesis inductivas $K(p)$ y $K(q)$:
+$$
+\begin{array}{c|cc}
+&amp;\text{parte positiva}&amp;\text{parte negativa}\\ \hline
+K(p)&amp;\sem p_v\Rightarrow\Gamma\Provnd p&amp;\Not\sem p_v\Rightarrow\Gamma\Provnd\Not p\\
+K(q)&amp;\sem q_v\Rightarrow\Gamma\Provnd q&amp;\Not\sem q_v\Rightarrow\Gamma\Provnd\Not q.
+\end{array}
+$$
+</p><p>
+Para la conclusión positiva, se supone $\sem{p}_v\Rightarrow\sem{q}_v$. Por
+tercero excluido en la metateoría, o bien $\sem p_v$ o bien $\Not\sem p_v$.
+Este análisis por casos ocurre en la metateoría y no aparece en ninguna
+derivación: en cada caso se construye una derivación distinta de
+$\Gamma\Provnd p\Imp q$, y basta con que exista una en cada caso. Las dos
+derivaciones abren el supuesto objeto $[p]^{(a)}$ y terminan en
+$\Imp\mathrm I(a)$, que lo descarga; la hipótesis semántica del caso no se
+descarga, porque no es una fórmula del cálculo.
+<ul><li>Si $\sem p_v$, la implicación supuesta da $\sem q_v$.
+La parte positiva de la hipótesis inductiva para $q$ da $\Gamma\Provnd q$:
+</p><p>
+$$
+\dfrac{\dfrac{\genfrac{}{}{0pt}{0}{\vdots}{\Gamma\Provnd q}}{\Gamma,p\Provnd q}\;{\scriptstyle \text{debil.}}}{\Gamma\Provnd p\Imp q}\;{\scriptstyle \Imp\mathrm{I}(a)}
+$$
+</p><p>
+El Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a> transporta $\Gamma\Provnd q$ a $\Gamma\cup\{p\}$, y
+$\Imp\mathrm I(a)$ descarga $[p]^{(a)}$; el supuesto no llega a usarse.
+</li><li>Si $\Not\sem p_v$, la parte negativa de la hipótesis inductiva para $p$
+da $\Gamma\Provnd\Not p$:
+</p><p>
+$$
+\dfrac{\dfrac{\dfrac{\dfrac{\genfrac{}{}{0pt}{0}{\vdots}{\Gamma\Provnd\Not p}}{\Gamma,p\Provnd\Not p}\;{\scriptstyle \text{debil.}}\qquad \dfrac{\phantom{x}}{\Gamma,p\Provnd p}\;{\scriptstyle \text{hip.}}}{\Gamma,p\Provnd\bot}\;{\scriptstyle \Not\mathrm{E}}}{\Gamma,p\Provnd q}\;{\scriptstyle \bot\mathrm{E}}}{\Gamma\Provnd p\Imp q}\;{\scriptstyle \Imp\mathrm{I}(a)}
+$$
+</p><p>
+En $\Gamma\cup\{p\}$: $\Not p$ por debilitamiento de $\Gamma\Provnd\Not p$ y
+$p$ por la regla de hipótesis; $\Not\mathrm E$ da $\bot$; $\bot\mathrm E$ da
+$q$; y $\Imp\mathrm I(a)$ descarga $[p]^{(a)}$.
+</li></ul>
+</p><p>
+Para la conclusión negativa, se supone $\Not(P\Rightarrow Q)$, con
+$P:=\sem p_v$ y $Q:=\sem q_v$. Primero se obtiene $P$ por reducción al absurdo
+en la metateoría: supóngase $\Not P$. Entonces $P\Rightarrow Q$ se prueba
+suponiendo $P$: con $\Not P$ se tiene
+$$
+P,\qquad\Not P\qquad\Contra
+$$
+luego $\mathrm{Falso}$ por eliminación de negación y $Q$ por eliminación de
+falsedad. La implicación así obtenida choca con lo supuesto:
+$$
+P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
+$$
+Por lo tanto, la reducción al absurdo descarga $\Not P$ y concluye $P$.
+Después se obtiene $\Not Q$ por introducción de negación: supóngase $Q$;
+entonces $P\Rightarrow Q$ se prueba devolviendo $Q$ bajo cualquier supuesto
+$P$, y de nuevo
+$$
+P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
+$$
+Se descarga entonces $Q$ y queda $\Not Q$.
+La parte positiva de $K(p)$, por eliminación de implicación con $P$, da
+$\Gamma\Provnd p$; la parte negativa de $K(q)$, con $\Not Q$, da
+$\Gamma\Provnd\Not q$.
+Para introducir $\Not(p\Imp q)$, se abre $[p\Imp q]^{(b)}$.
+En el contexto $\Delta:=\Gamma\cup\{p\Imp q\}$,
+$$
+\Gamma\subseteq\Delta,\qquad p\Imp q\in\Delta.
+$$
+</p><p>
+El debilitamiento transporta las dos derivaciones a $\Delta$ y el árbol cierra con
+$\Not\mathrm I(b)$:
+</p><p>
+$$
+\dfrac{\dfrac{\dfrac{\genfrac{}{}{0pt}{0}{\vdots}{\Gamma\Provnd\Not q}}{\Gamma,(p\Imp q)\Provnd\Not q}\;{\scriptstyle \text{debil.}}\qquad \dfrac{\dfrac{\phantom{x}}{\Gamma,(p\Imp q)\Provnd p\Imp q}\;{\scriptstyle \text{hip.}}\qquad \dfrac{\genfrac{}{}{0pt}{0}{\vdots}{\Gamma\Provnd p}}{\Gamma,(p\Imp q)\Provnd p}\;{\scriptstyle \text{debil.}}}{\Gamma,(p\Imp q)\Provnd q}\;{\scriptstyle \Imp\mathrm{E}}}{\Gamma,(p\Imp q)\Provnd\bot}\;{\scriptstyle \Not\mathrm{E}}}{\Gamma\Provnd\Not(p\Imp q)}\;{\scriptstyle \Not\mathrm{I}(b)}
+$$
+</p><p>
+En $\Delta$: $p\Imp q$ por la regla de hipótesis; $p$ y $\Not q$ por
+debilitamiento (Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>, con $\Gamma\subseteq\Delta$);
+$\Imp\mathrm E$ con $p\Imp q$ y $p$ da $q$; $\Not\mathrm E$ con $\Not q$ y $q$
+da $\bot$; y $\Not\mathrm I(b)$ descarga $[p\Imp q]^{(b)}$ y concluye
+$\Gamma\Provnd\Not(p\Imp q)$.
+$$
+\therefore\quad \begin{aligned}
+&amp;(\sem\varphi_v\Rightarrow\Gamma_v(A)\Provnd\varphi)\\
+&amp;\quad\wedge(\Not\sem\varphi_v\Rightarrow\Gamma_v(A)\Provnd\Not\varphi)
+\end{aligned}.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem kalmar (v : Valuacion) (listaAtomos : List String) :
+    ∀ φ : Formula, atomos φ ⊆ listaAtomos →
+      (evaluar v φ → ND (contextoLiterales v listaAtomos) φ) ∧ (¬ evaluar v φ → ND (contextoLiterales v listaAtomos) (~φ)) := by
+  -- A probar: las conclusiones positiva y negativa, bajo cobertura de átomos.
+  -- Método: inducción en la fórmula; v y listaAtomos están fijos, la cobertura no.
+  intro φ
+  induction φ with
+  | atom s =&gt;
+      intro hsub
+      have hAtomo : s ∈ atomos (.atom s) := List.mem_singleton_self s
+      have hs : s ∈ listaAtomos := hsub hAtomo
+      refine ⟨?_, ?_⟩
+      · intro hev
+        have hvs : v s := hev
+        have hmem : literal v s ∈ contextoLiterales v listaAtomos := pertenencia_literal (v := v) hs
+        rw [literal, if_pos hvs] at hmem
+        exact ND.hyp hmem
+      · intro hev
+        have hvs : ¬ v s := hev
+        have hmem : literal v s ∈ contextoLiterales v listaAtomos := pertenencia_literal (v := v) hs
+        rw [literal, if_neg hvs] at hmem
+        exact ND.hyp hmem
+  | neg p hipInd =&gt;
+      intro hsub
+      have hsub' : atomos p ⊆ listaAtomos := hsub
+      obtain ⟨hipIndPos, hipIndNeg⟩ := hipInd hsub'
+      refine ⟨?_, ?_⟩
+      · intro hev
+        have hNoP : ¬ evaluar v p := hev
+        exact hipIndNeg hNoP
+      · intro hev
+        have hDobleNeg : ¬ ¬ evaluar v p := hev
+        -- Eliminación de doble negación metateórica, mediante lógica clásica.
+        have hP : evaluar v p := Classical.byContradiction hDobleNeg
+        have dP : ND (contextoLiterales v listaAtomos) p := hipIndPos hP
+        -- Introducción de doble negación objeto; no es la eliminación anterior.
+        exact introduccion_doble_negacion dP
+  | impl p q hipIndP hipIndQ =&gt;
+      intro hsub
+      have hsp : atomos p ⊆ listaAtomos := by
+        intro a ha
+        have hUnion : a ∈ atomos p ++ atomos q := List.mem_append.mpr (Or.inl ha)
+        exact hsub hUnion
+      have hsq : atomos q ⊆ listaAtomos := by
+        intro a ha
+        have hUnion : a ∈ atomos p ++ atomos q := List.mem_append.mpr (Or.inr ha)
+        exact hsub hUnion
+      obtain ⟨hipIndPPos, hipIndPNeg⟩ := hipIndP hsp
+      obtain ⟨hipIndQPos, hipIndQNeg⟩ := hipIndQ hsq
+      refine ⟨?_, ?_⟩
+      · intro hev
+        -- Casos semánticos sobre evaluar v p; no se usa el lema objeto analisis_por_casos.
+        by_cases hp : evaluar v p
+        · have hq : evaluar v q := hev hp
+          have dQ : ND (contextoLiterales v listaAtomos) q := hipIndQPos hq
+          have hInclusion : contextoLiterales v listaAtomos ⊆ insert p (contextoLiterales v listaAtomos) := Set.subset_insert _ _
+          have dQAmpliada : ND (insert p (contextoLiterales v listaAtomos)) q := debilitamiento dQ hInclusion
+          -- Se descarga p, aunque esta rama no necesita usarlo.
+          exact ND.impI dQAmpliada
+        · have dNoP : ND (contextoLiterales v listaAtomos) (~p) := hipIndPNeg hp
+          have hInclusion : contextoLiterales v listaAtomos ⊆ insert p (contextoLiterales v listaAtomos) := Set.subset_insert _ _
+          have h1 : ND (insert p (contextoLiterales v listaAtomos)) (~p) :=
+            debilitamiento dNoP hInclusion
+          have h2 : ND (insert p (contextoLiterales v listaAtomos)) p := ND.hyp (Set.mem_insert _ _)
+          have dFalsedad : ND (insert p (contextoLiterales v listaAtomos)) Falsedad := ND.negE h1 h2
+          have dQ : ND (insert p (contextoLiterales v listaAtomos)) q := ND.botE dFalsedad
+          exact ND.impI dQ
+      · intro hev
+        have hNoImp : ¬ (evaluar v p → evaluar v q) := hev
+        have hp : evaluar v p := by
+          -- Por RAA metateórica, se supone que evaluar v p es falsa.
+          by_contra hNoP
+          have hImp : evaluar v p → evaluar v q := by
+            intro hP
+            have hFalso : False := hNoP hP
+            exact False.elim hFalso
+          exact hNoImp hImp
+        have hq : ¬ evaluar v q := by
+          intro hQ
+          have hImp : evaluar v p → evaluar v q := by
+            intro _
+            exact hQ
+          exact hNoImp hImp
+        have dP : ND (contextoLiterales v listaAtomos) p := hipIndPPos hp
+        have dNoQ : ND (contextoLiterales v listaAtomos) (~q) := hipIndQNeg hq
+        have hInclusion : contextoLiterales v listaAtomos ⊆ insert (p ⟶ q) (contextoLiterales v listaAtomos) :=
+          Set.subset_insert _ _
+        have hpq : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) (p ⟶ q) := ND.hyp (Set.mem_insert _ _)
+        have hpp : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) p :=
+          debilitamiento dP hInclusion
+        have hnq : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) (~q) :=
+          debilitamiento dNoQ hInclusion
+        have dQ : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) q := ND.impE hpq hpp
+        have dFalsedad : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) Falsedad := ND.negE hnq dQ
+        -- negI descarga p ⟶ q y concluye su negación bajo el contexto original.
+        exact ND.negI dFalsedad</pre></div>
+<ol class="footnotes"><li><p>Conviene distinguir dos pasos que se parecen: la eliminación clásica
+de doble negación en la metateoría, $\Not\Not A\Rightarrow A$ (en Lean,
+<code>Classical.byContradiction</code>), y la introducción de doble negación en el
+cálculo objeto, $\Gamma\Provnd A\Rightarrow\Gamma\Provnd\Not\Not A$
+(Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a>). No son la misma regla.</p></li></ol>
+</section>
+<h4>El contexto de literales depende solo de los valores de verdad</h4>
+<section class="result" id="lem:congr"><h5>Lema 11.19 (Congruencia de literales y contextos)</h5>
+<div class="statement"><p>
+Si dos valuaciones $v,w$ coinciden en un átomo $x$ (es decir, $v(x)\leftrightarrow w(x)$),
+entonces $\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)$. En consecuencia, si $v,w$ coinciden en
+todos los átomos de una lista $A$, entonces
+$\Gamma_{v}(A)=\Gamma_{w}(A)$.
+</p></div>
+<div class="preface"></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong>
+$$
+\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x),\qquad
+\Gamma_{v}(A)=\Gamma_{w}(A).
+$$
+Por casos sobre $v(x)$ y luego por inducción sobre $A$. Sea
+$h:v(x)\leftrightarrow w(x)$. Si $v(x)$, la dirección $(\Rightarrow)$ de $h$ da
+$w(x)$. Si $\Not v(x)$, también $\Not w(x)$: supóngase $w(x)$; la dirección
+$(\Leftarrow)$ de $h$ da $v(x)$, y entonces
+$$
+v(x),\qquad\Not v(x)\qquad\Contra
+$$
+Entonces se descarga $w(x)$ por introducción de negación y queda $\Not w(x)$.
+Así, $v(x)$ y $w(x)$ tienen el mismo valor, y la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
+que calcula cada literal por casos sobre ese valor, da el mismo resultado para
+ambas valuaciones:
+$$
+\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)=
+\begin{cases}
+x,&amp;v(x),\\
+\Not x,&amp;\Not v(x).
+\end{cases}
+$$
+Para los contextos, la premisa es
+$H:\forall x\in A,\ v(x)\leftrightarrow w(x)$.
+La inducción mantiene esa premisa:
+$$
+P(s):\Longleftrightarrow
+(\forall x\in s,\ v(x)\leftrightarrow w(x))
+\Rightarrow\Gamma_{v}(s)=\Gamma_{w}(s).
+$$
+<ol><li>$A=[]$: por la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
+$\Gamma_{v}([])=\varnothing=\Gamma_{w}([])$.
+</li><li>$A=a::r$: supóngase $H:\forall x\in a::r,\ v(x)\leftrightarrow w(x)$.
+Como $a\in a::r$ (pertenencia a una lista), $H$ instanciada en $a$ da
+$v(a)\leftrightarrow w(a)$, y la primera parte del lema da
+$\mathrm{literal}_{v}(a)=\mathrm{literal}_{w}(a)$. Sea ahora $x\in r$; entonces
+$x\in a::r$, y $H$ instanciada en $x$ da $v(x)\leftrightarrow w(x)$; como $x$
+era arbitrario, $\forall x\in r,\ v(x)\leftrightarrow w(x)$, que es la premisa
+de la hipótesis inductiva $P(r)$; esta da $\Gamma_v(r)=\Gamma_w(r)$.
+Se sustituyen la igualdad de literales y esta igualdad de contextos:
+$$
+\begin{aligned}
+\Gamma_{v}(a::r)
+&amp;=\{\mathrm{literal}_{v}(a)\}\cup\Gamma_{v}(r)\\
+&amp;=\{\mathrm{literal}_{w}(a)\}\cup\Gamma_{v}(r)\\
+&amp;=\{\mathrm{literal}_{w}(a)\}\cup\Gamma_{w}(r)
+=\Gamma_{w}(a::r).
+\end{aligned}
+$$
+</li></ol>
+$$
+\therefore\quad \begin{aligned}
+\mathrm{literal}_{v}(x)&amp;=\mathrm{literal}_{w}(x),\\
+\Gamma_{v}(A)&amp;=\Gamma_{w}(A)
+\end{aligned}.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem congruencia_literal {w1 w2 : Valuacion} {x : String} (h : w1 x ↔ w2 x) :
+    literal w1 x = literal w2 x := by
+  -- A probar: igualdad de literales. Método: casos sobre w1 x.
+  by_cases hx : w1 x
+  · have hx2 : w2 x := h.mp hx
+    rw [literal, literal, if_pos hx, if_pos hx2]
+  · have hx2 : ¬ w2 x := by
+      intro hVerdadero
+      have hx1 : w1 x := h.mpr hVerdadero
+      exact hx hx1
+    rw [literal, literal, if_neg hx, if_neg hx2]
+
+theorem congruencia_contextoLiterales {w1 w2 : Valuacion} :
+    ∀ (listaAtomos : List String), (∀ x ∈ listaAtomos, (w1 x ↔ w2 x)) → contextoLiterales w1 listaAtomos = contextoLiterales w2 listaAtomos := by
+  -- A probar: igualdad de contextos. Método: inducción sobre listaAtomos.
+  intro listaAtomos
+  induction listaAtomos with
+  | nil =&gt; intro _; rfl
+  | cons a cola hipInd =&gt;
+      intro h
+      have hCabeza : a ∈ a :: cola := List.mem_cons.mpr (Or.inl rfl)
+      have ha : w1 a ↔ w2 a := h a hCabeza
+      have hLiteral : literal w1 a = literal w2 a := congruencia_literal ha
+      have hCola : ∀ x ∈ cola, w1 x ↔ w2 x := by
+        intro x hx
+        have hEnLista : x ∈ a :: cola := List.mem_cons.mpr (Or.inr hx)
+        exact h x hEnLista
+      have hr : contextoLiterales w1 cola = contextoLiterales w2 cola :=
+        hipInd hCola
+      -- Las igualdades de la cabeza y de la cola se sustituyen en insert.
+      change insert (literal w1 a) (contextoLiterales w1 cola) = insert (literal w2 a) (contextoLiterales w2 cola)
+      rw [hLiteral, hr]</pre></div>
+</section>
+<h4>Descarga de los átomos</h4>
+<section class="result" id="lem:discharge"><h5>Lema 11.20 (Descarga)</h5>
+<div class="statement"><p>
+Sea $A$ una lista de átomos sin repeticiones. Si $\Gamma_v(A)\Provnd\varphi$
+se cumple para <em>toda</em> valuación $v$, entonces $\varnothing\Provnd\varphi$.
+</p></div>
+<div class="preface"></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\varnothing\Provnd\varphi$.
+</p><p>
+Por inducción sobre $A$, manteniendo ambas premisas:
+$$
+\mathrm{Nodup}(A)\Rightarrow
+\bigl(\forall v,\ \Gamma_v(A)\Provnd\varphi\bigr)
+\Rightarrow\varnothing\Provnd\varphi.
+$$
+<ol><li>$A=[]$: se aplica la premisa universal a la valuación constante
+$v(x):=\mathrm{Verdadero}$. Como $\Gamma_v([])=\varnothing$
+(Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>), se obtiene $\varnothing\Provnd\varphi$.
+</li><li>$A=p::r$: por la ecuación de $\mathrm{Nodup}$ para $p::r$
+(Sección&nbsp;11.6.4), de $\mathrm{Nodup}(p::r)$ se obtienen,
+por eliminación de conjunción, $p\notin r$ y
+$\mathrm{Nodup}(r)$.<sup class="fn">1</sup>
+La instancia de la hipótesis inductiva en la cola $r$ es
+$$
+\mathrm{Nodup}(r)\Rightarrow
+\bigl(\forall v,\ \Gamma_v(r)\Provnd\varphi\bigr)
+\Rightarrow\varnothing\Provnd\varphi.
+$$
+La primera premisa está disponible; falta la segunda.
+</p><p>
+Sea $v$ una valuación arbitraria y defínanse dos valuaciones:
+$$
+u(x):=\begin{cases}\mathrm{Verdadero},&amp;x=p,\\v(x),&amp;x\ne p,\end{cases}
+\qquad
+w(x):=\begin{cases}\mathrm{Falso},&amp;x=p,\\v(x),&amp;x\ne p.\end{cases}
+$$
+En la cabeza, $u(p)$ es verdadera y $w(p)$ es falsa. Por definición de literal,
+$$
+\mathrm{literal}_u(p)=p,\qquad\mathrm{literal}_w(p)=\Not p.
+$$
+Sea $x\in r$. Si fuera $x=p$, entonces $p\in r$, y se tendría
+$$
+p\in r,\qquad p\notin r\qquad\Contra
+$$
+Por lo tanto, $x\ne p$ por introducción de negación, y por definición de $u$ y
+$w$, $u(x)=v(x)=w(x)$. Como $x$ era arbitrario,
+$\forall x\in r,\ u(x)\leftrightarrow v(x)$ y
+$\forall x\in r,\ v(x)\leftrightarrow w(x)$. El Lema&nbsp;<a class="xref" href="#lem:congr">11.19</a>,
+instanciado en la lista $r$ con cada uno de esos pares de valuaciones, da
+$$
+\Gamma_u(r)=\Gamma_v(r)=\Gamma_w(r).
+$$
+Con $\Delta:=\Gamma_v(r)$, la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a> permite escribir
+$$
+\begin{aligned}
+\Gamma_u(p::r)&amp;=\{\mathrm{literal}_u(p)\}\cup\Gamma_u(r)=\{p\}\cup\Delta,\\
+\Gamma_w(p::r)&amp;=\{\mathrm{literal}_w(p)\}\cup\Gamma_w(r)=\{\Not p\}\cup\Delta.
+\end{aligned}
+$$
+La premisa universal, instanciada en $u$ y en $w$, da
+$\Gamma_u(p::r)\Provnd\varphi$ y $\Gamma_w(p::r)\Provnd\varphi$, que por las
+igualdades anteriores son las dos derivaciones del numerador. El
+Lema&nbsp;<a class="xref" href="#lem:bycases">11.10</a>, con contexto $\Delta$, fórmula $p$ y conclusión
+$\varphi$, da
+$$
+\frac{\Delta,p\Provnd\varphi\qquad\Delta,\Not p\Provnd\varphi}
+{\Delta\Provnd\varphi}\;\text{(análisis por casos)}.
+$$
+Se usa $\{p\}\cup\Delta=\Delta\cup\{p\}$, y análogamente para $\Not p$.
+La RAA empleada es la del lema citado: se supone $\Not\varphi$,
+se obtiene una contradicción mediante las dos derivaciones del numerador
+y se descarga $\Not\varphi$ para concluir $\Delta\Provnd\varphi$.
+</p><p>
+Como $v$ es arbitraria, se obtiene $\forall v,\ \Gamma_v(r)\Provnd\varphi$.
+La instancia anterior se aplica a las dos premisas ya obtenidas:
+$$
+\frac{\mathrm{Nodup}(r)\qquad\forall v,\ \Gamma_v(r)\Provnd\varphi}
+{\varnothing\Provnd\varphi}\;\text{(hipótesis inductiva en $r$).}
+$$
+</li></ol>
+$$
+\therefore\quad \varnothing\Provnd\varphi.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem descarga {φ : Formula} :
+    ∀ (listaAtomos : List String), listaAtomos.Nodup → (∀ v, ND (contextoLiterales v listaAtomos) φ) → ND (∅ : Set Formula) φ := by
+  -- A probar: ND ∅ φ. Método: inducción en listaAtomos con Nodup y la premisa universal.
+  intro listaAtomos
+  induction listaAtomos with
+  | nil =&gt;
+      intro _ H
+      let v : Valuacion := fun _ =&gt; True
+      have h : ND (contextoLiterales v []) φ := H v
+      simpa only [contextoLiterales] using h
+  | cons p cola hipInd =&gt;
+      intro hnd H
+      have hPartes : p ∉ cola ∧ cola.Nodup := List.nodup_cons.mp hnd
+      have hpr : p ∉ cola := hPartes.left
+      have hColaSinRepeticiones : cola.Nodup := hPartes.right
+      -- La hipótesis inductiva exige una derivación para TODA valuación de cola.
+      have hUniversal : ∀ v, ND (contextoLiterales v cola) φ := by
+        intro v
+        have hp_verdadero : (Function.update v p True) p := by simp
+        have hp_falso : ¬ (Function.update v p False) p := by simp
+        have hLiteralVerdadero : literal (Function.update v p True) p = Formula.atom p := by
+          rw [literal, if_pos hp_verdadero]
+        have hLiteralFalso : literal (Function.update v p False) p = ~(Formula.atom p) := by
+          rw [literal, if_neg hp_falso]
+        have hContextoVerdadero : contextoLiterales (Function.update v p True) cola = contextoLiterales v cola := by
+          apply congruencia_contextoLiterales
+          intro x hx
+          have hxp : x ≠ p := by
+            intro hIgualdad
+            have hpEnCola : p ∈ cola := hIgualdad ▸ hx
+            exact hpr hpEnCola
+          -- Fuera de p, Function.update conserva v x.
+          simp only [Function.update_of_ne hxp]
+        have hContextoFalso : contextoLiterales (Function.update v p False) cola = contextoLiterales v cola := by
+          apply congruencia_contextoLiterales
+          intro x hx
+          have hxp : x ≠ p := by
+            intro hIgualdad
+            have hpEnCola : p ∈ cola := hIgualdad ▸ hx
+            exact hpr hpEnCola
+          simp only [Function.update_of_ne hxp]
+        have d1 : ND (insert (Formula.atom p) (contextoLiterales v cola)) φ := by
+          have h : ND (contextoLiterales (Function.update v p True) (p :: cola)) φ :=
+            H (Function.update v p True)
+          -- Se reescribe primero la cabeza y después el contexto de cola.
+          rw [contextoLiterales, hLiteralVerdadero, hContextoVerdadero] at h
+          exact h
+        have d2 : ND (insert (~(Formula.atom p)) (contextoLiterales v cola)) φ := by
+          have h : ND (contextoLiterales (Function.update v p False) (p :: cola)) φ :=
+            H (Function.update v p False)
+          rw [contextoLiterales, hLiteralFalso, hContextoFalso] at h
+          exact h
+        -- analisis_por_casos se instancia con Γ := contextoLiterales v cola, fórmula := atom p, conclusión := φ.
+        -- Su RAA interno descarga ~φ; el resultado no contiene el literal de p.
+        exact analisis_por_casos (Γ := contextoLiterales v cola) (φ := Formula.atom p) (χ := φ) d1 d2
+      -- Se aplica la hipótesis inductiva después de construir su premisa universal.
+      exact hipInd hColaSinRepeticiones hUniversal</pre></div>
+<ol class="footnotes"><li><p>En Lean, son las componentes de
+<code>List.nodup_cons.mp hnd</code>.</p></li></ol>
+</section>
+<h4>El teorema de completitud</h4>
+<section class="result" id="thm:completeness"><h5>Teorema 11.21 (Completitud de ND)</h5>
+<div class="statement"><p>
+Toda tautología es derivable a partir del contexto vacío:
+$\;\mathrm{Taut}(\varphi)\Rightarrow \varnothing\Provnd\varphi$.
+</p></div>
+<div class="preface"></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\operatorname{Taut}(\varphi)\Rightarrow\varnothing\Provnd\varphi$.
+</p><p>
+Por composición de Kalmár y descarga, siguiendo la proposición&nbsp;1.14 de
+Mendelson&nbsp;<span class="cite">[Mendelson 2015, p. 35]</span> y el teorema&nbsp;1.37 de
+Huth y Ryan&nbsp;<span class="cite">[Huth y Ryan 2004, pp. 50–53]</span>. Sean
+$h:\operatorname{Taut}(\varphi)$ y $A:=\mathrm{dedup}(\mathrm{atomos}(\varphi))$.
+Por las propiedades de $\mathrm{dedup}$,<sup class="fn">1</sup> $\mathrm{Nodup}(A)$ y, para todo
+átomo $a$, $a\in\mathrm{atomos}(\varphi)\Rightarrow a\in A$; es decir,
+$\mathrm{atomos}(\varphi)\subseteq A$.
+</p><p>
+Sea $v$ una valuación arbitraria. Por la Definición&nbsp;<a class="xref" href="#def:tautology">11.4</a>, $h$
+instanciada en $v$ da $\sem\varphi_v$. El Lema&nbsp;<a class="xref" href="#lem:kalmar">11.18</a>, con
+parámetros $(v,A,\varphi)$ y la cobertura anterior, proporciona en su primera
+componente $\sem\varphi_v\Rightarrow\Gamma_v(A)\Provnd\varphi$; la eliminación
+de implicación da $\Gamma_v(A)\Provnd\varphi$. Como $v$ era arbitraria,
+$\forall v,\ \Gamma_v(A)\Provnd\varphi$. El Lema&nbsp;<a class="xref" href="#lem:discharge">11.20</a>, con la
+lista $A$, la fórmula $\varphi$, $\mathrm{Nodup}(A)$ y esta premisa universal,
+da $\varnothing\Provnd\varphi$. Se descarga $h$ por introducción de
+implicación.
+$$
+\therefore\quad \operatorname{Taut}(\varphi)\Rightarrow\varnothing\Provnd\varphi.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem completitud_ND (φ : Formula) (h : EsTautologia φ) : ND (∅ : Set Formula) φ := by
+  -- A probar: ND ∅ φ. Método: Kalmár para cada valuación, seguido de descarga.
+  let listaAtomos := (atomos φ).dedup
+  have hSinRepeticiones : listaAtomos.Nodup := List.nodup_dedup _
+  have hCobertura : atomos φ ⊆ listaAtomos := by
+    intro a ha
+    exact List.mem_dedup.mpr ha
+  have hUniversal : ∀ v, ND (contextoLiterales v listaAtomos) φ := by
+    intro v
+    have hVerdadero : evaluar v φ := h v
+    have hPositiva : evaluar v φ → ND (contextoLiterales v listaAtomos) φ :=
+      (kalmar v listaAtomos φ hCobertura).left
+    exact hPositiva hVerdadero
+  exact descarga listaAtomos hSinRepeticiones hUniversal</pre></div>
+<ol class="footnotes"><li><p>En Mathlib&nbsp;<span class="cite">[Community 2020]</span>,
+son <code>List.nodup_dedup</code> y la dirección $(\Leftarrow)$ de
+<code>List.mem_dedup</code>, respectivamente.</p></li></ol>
+</section>
+<h4>Corrección y completitud juntas</h4>
+<section class="result" id="thm:adequacy"><h5>Teorema 11.22 (Adecuación)</h5>
+<div class="statement"><p>
+Para toda fórmula $\varphi$, $\;\mathrm{Taut}(\varphi)\ \leftrightarrow\ \varnothing\Provnd\varphi$.
+</p></div>
+<div class="preface"><p>
+Es la instancia sin premisas del corolario&nbsp;1.39 de
+Huth y Ryan&nbsp;<span class="cite">[Huth y Ryan 2004, p. 53]</span>, reconstruida aquí a partir de
+la corrección y la completitud ya demostradas.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong>
+$$
+\operatorname{Taut}(\varphi)\Longleftrightarrow\varnothing\Provnd\varphi.
+$$
+Por introducción del bicondicional. Dirección $(\Rightarrow)$: dada
+$\operatorname{Taut}(\varphi)$, el Teorema&nbsp;<a class="xref" href="#thm:completeness">11.21</a> da
+$\varnothing\Provnd\varphi$. Dirección $(\Leftarrow)$: dada
+$\varnothing\Provnd\varphi$, el Corolario&nbsp;<a class="xref" href="#cor:taut">11.13</a> da
+$\operatorname{Taut}(\varphi)$.
+$$
+\therefore\quad \operatorname{Taut}(\varphi)\Longleftrightarrow\varnothing\Provnd\varphi.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem correccion_completitud (φ : Formula) : EsTautologia φ ↔ ND (∅ : Set Formula) φ := by
+  -- A probar: ambas direcciones. Método: introducción del bicondicional.
+  constructor
+  · intro hTautologia
+    exact completitud_ND φ hTautologia
+  · intro d
+    exact tautologia_de_derivable d</pre></div>
+</section>
+<h3>Ejemplos resueltos (Main.lean)</h3>
+<div class="lean standalone"><div class="cap">Lean</div><pre>import Thesis.Prop.Completeness
+
+namespace Thesis.Prop
+
+open Set
+
+def P : Formula := .atom "P"
+def Q : Formula := .atom "Q"
+def tautologiaIdentidad : Formula := P ⟶ P
+
+theorem identidad_es_tautologia : EsTautologia tautologiaIdentidad := by
+  -- A probar: P → P bajo toda valuación. Método: introducción de →.
+  intro v
+  change evaluar v P → evaluar v P
+  intro hP
+  exact hP
+
+theorem identidad_por_completitud : ND (∅ : Set Formula) tautologiaIdentidad :=
+  completitud_ND tautologiaIdentidad identidad_es_tautologia
+
+theorem ej_identidad : ND (∅ : Set Formula) (P ⟶ P) := by
+  -- A probar: ⊢ P → P. Método: hipótesis y descarga por impI.
+  have hP : P ∈ insert P (∅ : Set Formula) := Set.mem_insert _ _
+  have dP : ND (insert P (∅ : Set Formula)) P := ND.hyp hP
+  exact ND.impI dP
+
+theorem ej_k : ND (∅ : Set Formula) (P ⟶ (Q ⟶ P)) := by
+  -- A probar: ⊢ P → (Q → P). Método: dos introducciones de →.
+  let Γ := insert P (∅ : Set Formula)
+  let Δ := insert Q Γ
+  have hP : P ∈ Γ := Set.mem_insert _ _
+  have hPDelta : P ∈ Δ := Set.mem_insert_of_mem Q hP
+  have dP : ND Δ P := ND.hyp hPDelta
+  have dQP : ND Γ (Q ⟶ P) := ND.impI dP
+  -- Se descarga Q primero, y P después.
+  exact ND.impI dQP
+
+theorem ej_eliminacion_doble_negacion : ND (∅ : Set Formula) ((~~P) ⟶ P) := by
+  -- A probar: ⊢ ~~P → P. Método: impI y RAA objeto bajo ~~P.
+  let Γ := insert (~~P) (∅ : Set Formula)
+  let Δ := insert (~P) Γ
+  have hDoble : (~~P) ∈ Γ := Set.mem_insert _ _
+  have hDobleDelta : (~~P) ∈ Δ := Set.mem_insert_of_mem _ hDoble
+  have hNeg : (~P) ∈ Δ := Set.mem_insert _ _
+  have dDoble : ND Δ (~~P) := ND.hyp hDobleDelta
+  have dNeg : ND Δ (~P) := ND.hyp hNeg
+  have dFalsedad : ND Δ Falsedad := ND.negE dDoble dNeg
+  have dP : ND Γ P := ND.classical dFalsedad
+  -- RAA descarga ~P; impI descarga después ~~P.
+  exact ND.impI dP
+
+end Thesis.Prop</pre></div>
+<h3>Verificación: la auditoría de axiomas</h3>
+<div class="lean standalone"><div class="cap">Lean</div><pre>#print axioms completitud_ND
+-- 'Thesis.Prop.completitud_ND' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms correccion_completitud
+-- 'Thesis.Prop.correccion_completitud' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms correccion
+-- 'Thesis.Prop.correccion' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms ej_identidad
+-- 'Thesis.Prop.ej_identidad' does not depend on any axioms
+#print axioms ej_eliminacion_doble_negacion
+-- 'Thesis.Prop.ej_eliminacion_doble_negacion' does not depend on any axioms</pre></div>
+<h3>Conclusión</h3>
+<h3>Material complementario</h3>
+<h4>Glosario de la formalización</h4>
+<h4>Lectura de los listados</h4>
+<h4>Correspondencia con Stansifer</h4>
+<h2 class="chapter" id="cap12">Capítulo 12. Corrección del algoritmo Quicksort</h2>
+<h3>Resumen</h3>
+<h3>Problema de verificación</h3>
+<h3>Preliminares y especificación</h3>
+<h4>El ordenamiento y su especificación</h4>
+<section class="result" id="def:qs-spec"><h5>Definición 12.1 (Función de ordenamiento)</h5>
+<div class="statement"><p>
+Sea $(\alpha,\leq)$ un tipo linealmente ordenado. Una función $f:\Lista\,\alpha\to
+\Lista\,\alpha$ <em>ordena</em> si para toda lista $\ell$,
+$$
+  f(\ell)\ \Perm\ \ell
+  \qquad\text{y}\qquad
+  \Sorted\big(f(\ell)\big),
+$$
+donde $\Perm$ denota «es una permutación de» y $\Sorted$ «está en orden no decreciente». El objetivo
+es probar que quicksort cumple ambas condiciones.
+</p></div>
+</section>
+<h4>Qué significa que una lista esté ordenada</h4>
+<section class="result" id="def:qs-sorted"><h5>Definición 12.2 (Ordenada)</h5>
+<div class="statement"><p>
+Una lista $\ell=[a_0,a_1,\dots,a_{n-1}]$ está <em>ordenada</em> si
+$\Pairwise\,(\leq)\,\ell$. Por la caracterización anterior,
+$$
+  \Sorted(\ell)
+  \ \Longleftrightarrow\
+  \Pairwise\,(\leq)\,\ell
+  \ \Longleftrightarrow\
+  \forall i,j,\ (0\leq i&lt;j&lt;n)\Rightarrow a_i\leq a_j.
+$$
+</p></div>
+</section>
+<h4>Qué significa que dos listas sean permutaciones</h4>
+<section class="result" id="def:qs-perm"><h5>Definición 12.3 (Permutación)</h5>
+<div class="statement"><p>
+$\ell_1\Perm\ell_2$ significa que $\ell_1$ y $\ell_2$ difieren solo en el orden. Equivalentemente,
+$$
+\ell_1\Perm\ell_2
+\quad\Longleftrightarrow\quad
+\forall a,\ \cuenta(a,\ell_1)=\cuenta(a,\ell_2).
+$$
+Se usarán
+$$
+\begin{gathered}
+\underbrace{\ell\Perm\ell}_{\text{reflexividad}},
+\qquad
+\underbrace{\ell_1\Perm\ell_2\Rightarrow\ell_2\Perm\ell_1}_{\text{simetría}},
+\qquad
+\underbrace{(\ell_1\Perm\ell_2\wedge\ell_2\Perm\ell_3)\Rightarrow\ell_1\Perm\ell_3}
+_{\text{transitividad}},\\
+\ell_1\Perm\ell_1'\ \wedge\ \ell_2\Perm\ell_2'
+\Rightarrow
+\ell_1\concat\ell_2\Perm\ell_1'\concat\ell_2',\\
+\ell_1\Perm\ell_2
+\Rightarrow
+a::\ell_1\Perm a::\ell_2,
+\qquad
+L\concat(a::R)\Perm a::(L\concat R),\\
+\ell_1\Perm\ell_2\Rightarrow
+\bigl(a\in\ell_1\Longleftrightarrow a\in\ell_2\bigr).
+\end{gathered}
+$$
+Las cuatro reglas finales expresan, respectivamente, congruencia de $\concat$,
+congruencia de $::$, permutación del elemento intermedio e invariancia de pertenencia.
+</p></div>
+</section>
+<h3>El algoritmo</h3>
+<section class="result" id="def:qs-def"><h5>Definición 12.4 (Quicksort funcional)</h5>
+<div class="statement"><p>
+Sobre un tipo linealmente ordenado $\alpha$, se define $\qs:\Lista\,\alpha\to\Lista\,\alpha$
+por
+$$
+  \qs([]) = [], \qquad
+  \qs(p :: r) = \qs(\ell_{\leq})\ \concat\ \big(p :: \qs(\ell_{&gt;})\big),
+$$
+donde los predicados booleanos de partición son
+$$
+q_{\leq p}(x):=\decidir(x\leq p),
+\qquad
+q_{&gt;p}(x):=q_{\leq p}^{c}(x)=\neg_{\mathbb B}q_{\leq p}(x),
+$$
+y, a partir de la cola $r$,
+$$
+  \ell_{\leq} := \filt(q_{\leq p})(r),
+  \qquad
+  \ell_{&gt;} := \filt(q_{&gt;p})(r).
+$$
+Aquí $p$ es el pivote y $\concat$ es concatenación. Por
+(?) y (?),
+$$
+\begin{aligned}
+x\in\ell_{\leq}
+&amp;\Longleftrightarrow x\in r\wedge q_{\leq p}(x)=\verd
+\Longleftrightarrow x\in r\wedge x\leq p,\\
+x\in\ell_{&gt;}
+&amp;\Longleftrightarrow x\in r\wedge q_{&gt;p}(x)=\verd\\
+&amp;\Longleftrightarrow x\in r\wedge\neg(x\leq p)
+\Longleftrightarrow x\in r\wedge p&lt;x.
+\end{aligned}
+$$
+La última equivalencia es la ley de orden lineal en
+(?): $\neg(x\leq p)\Longleftrightarrow p&lt;x$.
+</p></div>
+</section>
+<h4>Ilustración: un nivel de divide y vencerás</h4>
+<h4>Ilustración: el árbol de recursión</h4>
+<h4>Notación del algoritmo en Lean</h4>
+<h3>Terminación</h3>
+<section class="result" id="lem:qs-filter-le"><h5>Lema 12.5 (El filtrado no aumenta la longitud)</h5>
+<div class="statement"><p>
+Para todo predicado booleano $q$ y lista $\ell$,
+$\ \len{\filt(q)(\ell)}\leq\len{\ell}$.
+</p></div>
+<div class="preface"><p>
+Thompson usa esta cota
+para justificar las llamadas recursivas de Quicksort
+<span class="cite">[Thompson 1991, sec. 6.2.1, pp. 208–209]</span>. La demostración inductiva que sigue
+la obtiene de (F) y (L).
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\len{\filt(q)(\ell)}\leq\len\ell$.
+</p><p>
+Por inducción sobre $\ell$, con $q$ fijo.
+<ol><li>$\ell=[]$: por (?) y (?),
+$\len{\filt(q)([])}=0\leq0=\len{[]}$.
+</li><li>$\ell=a::r$: la hipótesis inductiva es
+$\len{\filt(q)(r)}\leq\len r$.
+<ul><li>Si $q(a)=\verd$,
+$$
+\begin{aligned}
+\len{\filt(q)(a::r)}
+&amp;=\len{a::\filt(q)(r)}&amp;&amp;\text{por \eqref{eq:qs-filter-def}}\\
+&amp;=1+\len{\filt(q)(r)}&amp;&amp;\text{por \eqref{eq:qs-list-operations}}\\
+&amp;\leq1+\len r&amp;&amp;\text{(sumar $1$ a la hipótesis inductiva)}\\
+&amp;=\len{a::r}&amp;&amp;\text{por \eqref{eq:qs-list-operations}}.
+\end{aligned}
+$$
+</li><li>Si $q(a)=\fals$,
+$$
+\begin{aligned}
+\len{\filt(q)(a::r)}
+&amp;=\len{\filt(q)(r)}&amp;&amp;\text{por \eqref{eq:qs-filter-def}}\\
+&amp;\leq\len r&amp;&amp;\text{(hipótesis inductiva)}\\
+&amp;&lt;1+\len r=\len{a::r}&amp;&amp;\text{por $n&lt;n+1$ y \eqref{eq:qs-list-operations}}.
+\end{aligned}
+$$
+</p><p>
+Por transitividad, y porque en $\mathbb N$ toda desigualdad estricta implica la
+no estricta,
+$$
+\len{\filt(q)(a::r)}&lt;\len{a::r}
+\Longrightarrow\len{\filt(q)(a::r)}\leq\len{a::r}.
+$$
+</li></ul>
+</li></ol>
+$$
+\therefore\quad \len{\filt(q)(\ell)}\leq\len\ell.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>omit [LinearOrder α] in
+theorem longitud_filtro_le (q : α → Bool) (l : List α) :
+    (l.filter q).length ≤ l.length := by
+  -- A probar: el filtro no aumenta la longitud.
+  -- Por inducción sobre l; hipInd es la cota para la cola.
+  induction l with
+  | nil =&gt; exact Nat.le_refl 0
+  | cons a cola hipInd =&gt;
+      cases hq : q a with
+      | true =&gt;
+          -- Se conserva a: sumar 1 a ambos lados de hipInd.
+          simp only [List.filter_cons, hq, ↓reduceIte, List.length_cons]
+          exact Nat.succ_le_succ hipInd
+      | false =&gt;
+          -- Se descarta a: longitud del filtro ≤ longitud de cola &lt; longitud de a :: cola.
+          simp only [List.filter_cons, hq, Bool.false_eq_true, ↓reduceIte]
+          exact le_of_lt (lt_of_le_of_lt hipInd (Nat.lt_succ_self cola.length))</pre></div>
+</section>
+<section class="result" id="prop:qs-term"><h5>Proposición 12.6 (Terminación)</h5>
+<div class="statement"><p>
+Cada llamada recursiva de $\qs(p::r)$ es sobre una lista estrictamente más corta, de modo que $\qs$ es
+una función total.
+</p></div>
+<div class="preface"><p>
+La prueba de terminación sigue el argumento de Thompson basado en la disminución de la longitud
+<span class="cite">[Thompson 1991, sec. 6.2.1, pp. 208–209]</span>; Bove y Capretta lo presentan como
+ejemplo de recursión general en teoría de tipos <span class="cite">[Bove y Capretta 2005, pp. 676–677]</span>.
+Ellos usan un predicado de accesibilidad y las particiones $&lt;p$ y $\geq p$; aquí,
+la medida $\mu(\ell)=\len\ell$, con las dos desigualdades del
+Lema&nbsp;<a class="xref" href="#lem:qs-filter-le">12.5</a>.<sup class="fn">1</sup>
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\qs$ es total.
+</p><p>
+Por inducción bien fundamentada sobre $\len\ell$: la hipótesis inductiva es
+que $\qs(s)$ está definida para toda lista $s$ con $\len s&lt;\len\ell$.
+<ol><li>$\ell=[]$: $\qs([])=[]$ por la Definición&nbsp;<a class="xref" href="#def:qs-def">12.4</a>, sin llamadas
+recursivas.
+</li><li>$\ell=p::r$: sean $L:=\filt(q_{\leq p})(r)$ y $R:=\filt(q_{&gt;p})(r)$ las
+particiones de la Definición&nbsp;<a class="xref" href="#def:qs-def">12.4</a>. El Lema&nbsp;<a class="xref" href="#lem:qs-filter-le">12.5</a>,
+aplicado a cada filtro sobre $r$, da $\len L\leq\len r$ y $\len R\leq\len r$;
+por $n&lt;n+1$ y (?), $\len r&lt;\len r+1=\len{p::r}$.
+Por transitividad, $\len L&lt;\len{p::r}$ y $\len R&lt;\len{p::r}$, y la hipótesis
+inductiva, instanciada en $s=L$ y en $s=R$, da que $\qs(L)$ y $\qs(R)$ están
+definidas. Como $\filt$ y $\concat$ son funciones totales definidas por
+recursión estructural, la ecuación $\qs(p::r)=\qs(L)\concat(p::\qs(R))$ define
+$\qs(p::r)$.
+</li></ol>
+La inducción es válida porque $(\mathbb N,&lt;)$ es bien fundado
+<span class="cite">[Community, sec. 7.6.3, «Well-Founded Recursion»]</span>.
+$$
+\therefore\quad \qs\text{ es total}.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>omit [LinearOrder α] in
+/-- Obligación común a las dos llamadas recursivas. -/
+theorem longitud_filtro_lt_cons (q : α → Bool) (p : α) (cola : List α) :
+    (cola.filter q).length &lt; (p :: cola).length := by
+  -- A probar: longitud del filtro &lt; longitud de la lista con pivote.
+  -- Método: cota del filtro, seguida de n &lt; n + 1.
+  have hFiltro : (cola.filter q).length ≤ cola.length :=
+    longitud_filtro_le q cola
+  have hCola : cola.length &lt; (p :: cola).length := by
+    -- La longitud de p :: cola es cola.length + 1.
+    change cola.length &lt; cola.length + 1
+    exact Nat.lt_succ_self cola.length
+  exact lt_of_le_of_lt hFiltro hCola</pre></div>
+<div class="lean"><div class="cap">Lean</div><pre>def quicksort : List α → List α
+  | [] =&gt; []
+  | p :: cola =&gt;
+      quicksort (cola.filter (fun x =&gt; decide (x ≤ p)))
+        ++ p :: quicksort (cola.filter (fun x =&gt; ! decide (x ≤ p)))
+  termination_by l =&gt; l.length
+  decreasing_by
+    -- Cada meta compara una partición con p :: cola, no con cola.
+    -- Lean añade pruebas de pertenencia con attach; se eliminan de las listas.
+    · rw [List.unattach_filter (l := cola.attach)
+          (f := fun x =&gt; decide (x.val ≤ p))
+          (g := fun x =&gt; decide (x ≤ p)) (hf := fun _ _ =&gt; rfl),
+          List.unattach_attach]
+      exact longitud_filtro_lt_cons (fun x =&gt; decide (x ≤ p)) p cola
+    · rw [List.unattach_filter (l := cola.attach)
+          (f := fun x =&gt; ! decide (x.val ≤ p))
+          (g := fun x =&gt; ! decide (x ≤ p)) (hf := fun _ _ =&gt; rfl),
+          List.unattach_attach]
+      exact longitud_filtro_lt_cons (fun x =&gt; ! decide (x ≤ p)) p cola</pre></div>
+<ol class="footnotes"><li><p>Para seguir la prueba de Thompson:
+su Lema&nbsp;6.1 es $\#\operatorname{filter}(q,\ell)\leq\#\ell$; los términos
+$p_1,p_2$ certifican que ambas sublistas satisfacen la nueva cota $\leq n$.
+En Lean, esas dos obligaciones son las desigualdades estrictas exigidas por
+<code>termination_by</code>.</p></li></ol>
+</section>
+<h4>Lean: demostrar la terminación</h4>
+<div class="lean standalone"><div class="cap">Lean</div><pre>@[simp] theorem quicksort_vacia : quicksort ([] : List α) = [] := by
+  -- A probar: la ecuación del caso vacío. Se despliega quicksort.
+  rw [quicksort]
+
+/-- Ecuación de reescritura para la lista no vacía. -/
+theorem quicksort_cons (p : α) (cola : List α) :
+    quicksort (p :: cola) =
+      quicksort (cola.filter (fun x =&gt; decide (x ≤ p)))
+        ++ p :: quicksort (cola.filter (fun x =&gt; ! decide (x ≤ p))) := by
+  rw [quicksort]</pre></div>
+<h3>La especificación en Lean</h3>
+<div class="lean standalone"><div class="cap">Lean</div><pre>def Ordenada (l : List α) : Prop := l.Pairwise (· ≤ ·)</pre></div>
+<h3>Corrección, parte I: la salida es una permutación</h3>
+<h4>Pruebas y formalización</h4>
+<section class="result" id="lem:qs-filter-perm"><h5>Lema 12.7 (La partición por filtro es una permutación)</h5>
+<div class="statement"><p>
+Para todo predicado booleano $q$ y toda lista $\ell$,
+$$
+  \filt(q)(\ell)\ \concat\ \filt(q^c)(\ell)\ \ \Perm\ \ \ell .
+$$
+</p></div>
+<div class="preface"><p>
+Este lema generaliza
+el Lema&nbsp;6.2(11) de Thompson <span class="cite">[Thompson 1991, p. 211]</span><sup class="fn">1</sup>
+al considerar un predicado booleano arbitrario y su complemento. La demostración
+se divide según los dos valores posibles del predicado.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\filt(q)(\ell)\concat\filt(q^c)(\ell)\Perm\ell$.
+</p><p>
+Por inducción sobre $\ell$, con $q$ fijo y $q^c$ su complemento.
+Se usan las ecuaciones (?), (?)
+y las reglas de permutación de la Definición&nbsp;<a class="xref" href="#def:qs-perm">12.3</a>.
+<ol><li>$\ell=[]$:
+$$
+\filt(q)([])\concat\filt(q^c)([])=[]\concat[]=[]\Perm[]
+\qquad\text{(reflexividad).}
+$$
+</li><li>$\ell=a::r$: sean $L:=\filt(q)(r)$, $R:=\filt(q^c)(r)$.
+La hipótesis inductiva y la congruencia de $::$ dan
+$$
+L\concat R\Perm r\quad\Longrightarrow\quad
+a::(L\concat R)\Perm a::r.
+$$
+<ul><li>$q(a)=\verd$, $q^c(a)=\fals$:
+$$
+\begin{aligned}
+\filt(q)(a::r)\concat\filt(q^c)(a::r)
+&amp;=(a::L)\concat R&amp;&amp;\text{por \eqref{eq:qs-filter-def}}\\
+&amp;=a::(L\concat R)&amp;&amp;\text{por \eqref{eq:qs-list-operations}}\\
+&amp;\Perm a::r&amp;&amp;\text{(congruencia de $::$).}
+\end{aligned}
+$$
+</li><li>$q(a)=\fals$, $q^c(a)=\verd$:
+$$
+\begin{aligned}
+\filt(q)(a::r)\concat\filt(q^c)(a::r)
+&amp;=L\concat(a::R)&amp;&amp;\text{por \eqref{eq:qs-filter-def}}\\
+&amp;\Perm a::(L\concat R)&amp;&amp;\text{(elemento intermedio: $L,a,R$)}\\
+&amp;\Perm a::r&amp;&amp;\text{(congruencia de $::$).}
+\end{aligned}
+$$
+Las dos permutaciones se componen por transitividad.
+</li></ul>
+</li></ol>
+$$
+\therefore\quad \filt(q)(\ell)\concat\filt(q^c)(\ell)\Perm\ell.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>omit [LinearOrder α] in
+theorem particion_filtros_permutacion (q : α → Bool) (l : List α) :
+    l.filter q ++ l.filter (fun x =&gt; !q x) ~ l := by
+  -- A probar: los filtros complementarios forman una permutación de l.
+  -- Por inducción sobre l y casos sobre q a.
+  induction l with
+  | nil =&gt; exact List.Perm.refl []
+  | cons a cola hipInd =&gt;
+      have hCons := hipInd.cons a
+      -- hCons añade a al inicio de ambos lados de la permutación inductiva.
+      cases hq : q a with
+      | true =&gt;
+          -- a queda en el filtro izquierdo; cons_append permite aplicar hCons.
+          simp only [List.filter_cons, hq, Bool.not_true, Bool.false_eq_true,
+            ↓reduceIte, List.cons_append]
+          exact hCons
+      | false =&gt;
+          -- a queda en el derecho; perm_middle lo lleva al inicio y trans compone.
+          simp only [List.filter_cons, hq, Bool.not_false, Bool.false_eq_true,
+            ↓reduceIte]
+          exact List.perm_middle.trans hCons</pre></div>
+<ol class="footnotes"><li><p>Thompson escribe
+$\operatorname{perm}(\ell,
+\operatorname{filter}(\operatorname{lesseq}p,\ell)\mathbin{++}
+\operatorname{filter}(\operatorname{greater}p,\ell))$ sobre $\mathbb N$.
+Aquí se invierte la orientación de $\Perm$, lo cual es válido por simetría,
+y se usa un predicado booleano arbitrario $q$ junto con $q^c$.</p></li></ol>
+</section>
+<section class="result" id="thm:qs-perm"><h5>Teorema 12.8 (Permutación)</h5>
+<div class="statement"><p>
+Para toda lista $\ell$, $\ \qs(\ell)\Perm\ell$.
+</p></div>
+<div class="preface"><p>
+La demostración sigue la parte de permutación del Teorema&nbsp;6.4 de Thompson
+<span class="cite">[Thompson 1991, pp. 211–212]</span>.<sup class="fn">1</sup>
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\qs(\ell)\Perm\ell$.
+</p><p>
+Por inducción bien fundamentada sobre $\len\ell$, con hipótesis inductiva
+$$
+\forall s,\quad\len s&lt;\len\ell\Rightarrow\qs(s)\Perm s.
+$$
+<ol><li>$\ell=[]$: $\qs([])=[]\Perm[]$, por la Definición&nbsp;<a class="xref" href="#def:qs-def">12.4</a>
+y la reflexividad de $\Perm$ (Definición&nbsp;<a class="xref" href="#def:qs-perm">12.3</a>).
+</li><li>$\ell=p::r$: sean
+$$
+L:=\filt(q_{\leq p})(r),\qquad R:=\filt(q_{&gt;p})(r).
+$$
+El Lema&nbsp;<a class="xref" href="#lem:qs-filter-le">12.5</a>, aplicado a ambos filtros sobre $r$, junto
+con $n&lt;n+1$ y (?), da
+$$
+\len L\leq\len r&lt;1+\len r=\len{p::r},\qquad
+\len R\leq\len r&lt;1+\len r=\len{p::r},
+$$
+y por transitividad $\len L&lt;\len{p::r}$ y $\len R&lt;\len{p::r}$.
+Las instancias de la hipótesis inductiva son
+$$
+\frac{\len L&lt;\len{p::r}}{\qs(L)\Perm L}\;(s=L),
+\qquad
+\frac{\len R&lt;\len{p::r}}{\qs(R)\Perm R}\;(s=R).
+$$
+Además, $q_{&gt;p}=q_{\leq p}^{c}$, de modo que el Lema&nbsp;<a class="xref" href="#lem:qs-filter-perm">12.7</a>,
+aplicado a $r$ y $q_{\leq p}$, da $L\concat R\Perm r$.
+Con las reglas de la Definición&nbsp;<a class="xref" href="#def:qs-perm">12.3</a>,
+$$
+\begin{aligned}
+\qs(p::r)
+&amp;=\qs(L)\concat(p::\qs(R))&amp;&amp;\text{(Def.~\ref{def:qs-def})}\\
+&amp;\Perm L\concat(p::R)&amp;&amp;\text{(hipótesis inductiva; congruencia)}\\
+&amp;\Perm p::(L\concat R)&amp;&amp;\text{(elemento intermedio: $L,p,R$)}\\
+&amp;\Perm p::r&amp;&amp;\text{(partición; congruencia de $::$).}
+\end{aligned}
+$$
+En la segunda línea, la congruencia de $::$ da
+$p::\qs(R)\Perm p::R$; la de $\concat$ la combina con $\qs(L)\Perm L$.
+En la última, la misma congruencia, aplicada a $L\concat R\Perm r$, da
+$p::(L\concat R)\Perm p::r$.
+Las tres permutaciones se componen por transitividad.
+</li></ol>
+$$
+\therefore\quad\forall\ell,\ \qs(\ell)\Perm\ell.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem quicksort_permutacion : ∀ l : List α, quicksort l ~ l
+  | [] =&gt; by
+      -- A probar: quicksort [] ~ []. Reescritura y reflexividad.
+      simpa only [quicksort_vacia] using (List.Perm.refl ([] : List α))
+  | p :: cola =&gt; by
+      -- A probar: quicksort (p :: cola) ~ p :: cola.
+      -- Método: inducción por longitud; las particiones son menores.
+      let menoresIguales := cola.filter (fun x =&gt; decide (x ≤ p))
+      let mayores := cola.filter (fun x =&gt; ! decide (x ≤ p))
+      have hMenoresIgualesLt : menoresIguales.length &lt; (p :: cola).length :=
+        longitud_filtro_lt_cons (fun x =&gt; decide (x ≤ p)) p cola
+      have hMayoresLt : mayores.length &lt; (p :: cola).length :=
+        longitud_filtro_lt_cons (fun x =&gt; ! decide (x ≤ p)) p cola
+      -- Las cotas anteriores legitiman estas dos instancias inductivas.
+      have hipIndMenoresIguales : quicksort menoresIguales ~ menoresIguales := quicksort_permutacion menoresIguales
+      have hipIndMayores : quicksort mayores ~ mayores := quicksort_permutacion mayores
+      have hParticion : menoresIguales ++ mayores ~ cola :=
+        particion_filtros_permutacion (fun x =&gt; decide (x ≤ p)) cola
+      -- 1. Añadir el mismo pivote conserva la permutación derecha.
+      have hDerecha : p :: quicksort mayores ~ p :: mayores := hipIndMayores.cons p
+      -- 2. Concatenar las dos permutaciones conserva ambas listas.
+      have hConcatenacion : quicksort menoresIguales ++ (p :: quicksort mayores)
+          ~ menoresIguales ++ (p :: mayores) := hipIndMenoresIguales.append hDerecha
+      -- 3. perm_middle desplaza el pivote al principio.
+      have hPivote : menoresIguales ++ (p :: mayores) ~ p :: (menoresIguales ++ mayores) :=
+        List.perm_middle
+      -- 4. La congruencia de :: se aplica a la partición anterior.
+      have hCons : p :: (menoresIguales ++ mayores) ~ p :: cola := hParticion.cons p
+      -- Reescritura de quicksort, seguida de las tres permutaciones.
+      rw [quicksort_cons]
+      change quicksort menoresIguales ++ (p :: quicksort mayores) ~ p :: cola
+      calc
+        quicksort menoresIguales ++ (p :: quicksort mayores)
+            ~ menoresIguales ++ (p :: mayores) := hConcatenacion
+        _ ~ p :: (menoresIguales ++ mayores) := hPivote
+        _ ~ p :: cola := hCons
+  termination_by l =&gt; l.length
+  decreasing_by
+    · exact hMenoresIgualesLt
+    · exact hMayoresLt</pre></div>
+<ol class="footnotes"><li><p>La rama de permutación en Thompson
+usa el Lema&nbsp;6.2(11) para la partición, 6.2(10) para concatenar permutaciones,
+6.2(9) para insertar el pivote y 6.2(12) para reflexividad, simetría y
+transitividad. Estos pasos corresponden, respectivamente, al
+Lema&nbsp;<a class="xref" href="#lem:qs-filter-perm">12.7</a> y a las reglas de la
+Definición&nbsp;<a class="xref" href="#def:qs-perm">12.3</a>.</p></li></ol>
+</section>
+<section class="result" id="cor:qs-mem"><h5>Corolario 12.9 (Se preserva la pertenencia)</h5>
+<div class="statement"><p>
+Para todo $a$ y $\ell$, $\ a\in\qs(\ell)\leftrightarrow a\in\ell$.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $a\in\qs(\ell)\Longleftrightarrow a\in\ell$.
+</p><p>
+Por el Teorema&nbsp;<a class="xref" href="#thm:qs-perm">12.8</a>, $\qs(\ell)\Perm\ell$. La invariancia de
+pertenencia de la Definición&nbsp;<a class="xref" href="#def:qs-perm">12.3</a>, aplicada a las listas
+$\qs(\ell)$ y $\ell$ y al elemento $a$, da
+$a\in\qs(\ell)\Longleftrightarrow a\in\ell$.
+$$
+\therefore\quad a\in\qs(\ell)\Longleftrightarrow a\in\ell.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>/-- La pertenencia es invariante bajo la permutación ya demostrada. -/
+theorem pertenencia_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l := by
+  -- A probar: las dos direcciones de la equivalencia de pertenencia.
+  -- Método: aplicar mem_iff a quicksort_permutacion, sin nueva inducción.
+  have hPermutacion : quicksort l ~ l := quicksort_permutacion l
+  have hPertenencia : a ∈ quicksort l ↔ a ∈ l := hPermutacion.mem_iff
+  constructor
+  · intro hEnSalida
+    exact hPertenencia.mp hEnSalida
+  · intro hEnEntrada
+    exact hPertenencia.mpr hEnEntrada</pre></div>
+</section>
+<h3>Corrección, parte II: la salida está ordenada</h3>
+<h4>Pruebas y formalización</h4>
+<section class="result" id="lem:qs-pairwise-append"><h5>Lema 12.10 (Relación por pares sobre la concatenación)</h5>
+<div class="statement"><p>
+Para una relación $R$ y listas $\ell_1,\ell_2$,
+$$
+  \Pairwise\,R\,(\ell_1\concat\ell_2)
+  \ \Longleftrightarrow\
+  \Pairwise\,R\,\ell_1 \ \wedge\ \Pairwise\,R\,\ell_2 \ \wedge\
+  \big(\forall a\in\ell_1,\ \forall b\in\ell_2,\ R\,a\,b\big).
+$$
+Asimismo $\Pairwise\,R\,(a::\ell)\Leftrightarrow(\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell$.
+</p></div>
+<div class="preface"><p>
+El Lema&nbsp;6.3 de Thompson contiene el caso particular que permite insertar el
+pivote entre dos listas ordenadas&nbsp;<span class="cite">[Thompson 1991, p. 211]</span>. Aquí se formula
+la propiedad para una relación $R$ arbitraria.
+La demostración siguiente reconstruye la equivalencia general por inducción sobre
+$\ell_1$.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong>
+$$
+\begin{aligned}
+\Pairwise\,R\,(\ell_1\concat\ell_2)
+&amp;\Longleftrightarrow
+\Pairwise\,R\,\ell_1\wedge\Pairwise\,R\,\ell_2
+\wedge C(\ell_1,\ell_2),\\
+\Pairwise\,R\,(a::\ell)
+&amp;\Longleftrightarrow
+\bigl(\forall b\in\ell,\ R\,a\,b\bigr)\wedge\Pairwise\,R\,\ell,
+\end{aligned}
+$$
+donde $C(s,t):\Longleftrightarrow\forall x\in s,\ \forall y\in t,\ R\,x\,y$.
+</p><p>
+Por prueba directa para $::$, seguida de inducción sobre $\ell_1$ para $\concat$.
+La equivalencia para $::$ es la segunda ecuación de (?).
+Se demuestra de todos modos porque, en Lean, $\Pairwise$ es un predicado
+inductivo y esa ecuación no es su definición sino un lema sobre sus dos
+constructores, $\Pairwise\,R\,[]$ y
+$$
+\frac{\forall b\in\ell,\ R\,a\,b\qquad\Pairwise\,R\,\ell}
+{\Pairwise\,R\,(a::\ell)}.
+$$
+Para $(\Rightarrow)$, una prueba de $\Pairwise\,R\,(a::\ell)$ no puede
+proceder del constructor vacío. Al descomponer el constructor no vacío,
+se obtienen sus dos premisas: $\forall b\in\ell,\ R\,a\,b$ y
+$\Pairwise\,R\,\ell$; se reúnen por introducción de $\wedge$.
+Para $(\Leftarrow)$, se extraen ambas premisas de la conjunción y se aplica
+el constructor no vacío. Por lo tanto,
+$$
+\Pairwise\,R\,(a::\ell)\Longleftrightarrow
+(\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell.
+\tag{\dagger}
+$$
+</p><p>
+Para $\concat$, se fijan $R,\ell_2$ y se aplica inducción sobre $\ell_1$.
+<ol><li>$\ell_1=[]$: por (?),
+$[]\concat\ell_2=\ell_2$ y $C([],\ell_2)$ es verdadera por vacuidad, pues
+ningún $x$ pertenece a $[]$; además
+$\Pairwise\,R\,[]\Longleftrightarrow\top$ por (?).
+Luego ambos miembros equivalen a $\Pairwise\,R\,\ell_2$.
+</li><li>$\ell_1=a::r$: la hipótesis inductiva es
+$$
+\Pairwise\,R\,(r\concat\ell_2)
+\Longleftrightarrow
+\Pairwise\,R\,r\wedge\Pairwise\,R\,\ell_2\wedge C(r,\ell_2).
+$$
+Para abreviar, sea $H(s):\Longleftrightarrow\forall z\in s,\ R\,a\,z$.
+Las ecuaciones de pertenencia de (?) dan
+$$
+\begin{aligned}
+H(r\concat\ell_2)&amp;\Longleftrightarrow H(r)\wedge H(\ell_2),\\
+C(a::r,\ell_2)&amp;\Longleftrightarrow H(\ell_2)\wedge C(r,\ell_2).
+\end{aligned}
+\tag{\ast}
+$$
+Para la primera equivalencia, supóngase $H(r\concat\ell_2)$. Sea $z\in r$;
+por la pertenencia a la concatenación en (?),
+$z\in r\concat\ell_2$, y la premisa instanciada en $z$ da $R\,a\,z$; como $z$
+era arbitrario, $H(r)$. Del mismo modo, de $z\in\ell_2$ se sigue
+$z\in r\concat\ell_2$ y $R\,a\,z$, lo que da $H(\ell_2)$. Recíprocamente,
+supónganse $H(r)$ y $H(\ell_2)$ y sea $z\in r\concat\ell_2$; por la misma
+ecuación, $z\in r$ o $z\in\ell_2$; en el primer caso $H(r)$ da $R\,a\,z$ y en
+el segundo lo da $H(\ell_2)$; los dos casos agotan la disyunción y, como $z$ era
+arbitrario, $H(r\concat\ell_2)$.
+</p><p>
+Para la segunda, supóngase $C(a::r,\ell_2)$ y sea $y\in\ell_2$. Como
+$a\in a::r$, la premisa instanciada en $a$ e $y$ da $R\,a\,y$; al cuantificar
+sobre $y$, $H(\ell_2)$. Para $x\in r$ se tiene $x\in a::r$, y la premisa da
+$R\,x\,y$; al cuantificar sobre $x$ e $y$, $C(r,\ell_2)$. Recíprocamente,
+supónganse $H(\ell_2)$ y $C(r,\ell_2)$, y sean $x\in a::r$ e $y\in\ell_2$; por
+la pertenencia a una lista, $x=a$ o $x\in r$; si $x=a$, $H(\ell_2)$ da
+$R\,x\,y$; si $x\in r$, $C(r,\ell_2)$ da $R\,x\,y$; al cuantificar sobre $x$ e
+$y$, $C(a::r,\ell_2)$.
+</p><p>
+Por (?), $(\dagger)$, $(\ast)$ y la hipótesis inductiva,
+$$
+\begin{aligned}
+\Pairwise\,R\,((a::r)\concat\ell_2)
+&amp;\Longleftrightarrow\Pairwise\,R\,(a::(r\concat\ell_2))\\
+&amp;\Longleftrightarrow H(r\concat\ell_2)\wedge\Pairwise\,R\,(r\concat\ell_2)\\
+&amp;\Longleftrightarrow H(r)\wedge H(\ell_2)\wedge
+  \Pairwise\,R\,r\wedge\Pairwise\,R\,\ell_2\wedge C(r,\ell_2)\\
+&amp;\Longleftrightarrow
+  \bigl(H(r)\wedge\Pairwise\,R\,r\bigr)
+  \wedge\Pairwise\,R\,\ell_2
+  \wedge\bigl(H(\ell_2)\wedge C(r,\ell_2)\bigr)\\
+&amp;\Longleftrightarrow
+  \Pairwise\,R\,(a::r)\wedge\Pairwise\,R\,\ell_2\wedge C(a::r,\ell_2).
+\end{aligned}
+$$
+La penúltima línea usa asociatividad y conmutatividad de $\wedge$; la última,
+$(\dagger)$ con cola $r$ y la segunda equivalencia de $(\ast)$.
+La tercera sustituye $H(r\concat\ell_2)$ por $(\ast)$ y
+$\Pairwise\,R\,(r\concat\ell_2)$ por la hipótesis inductiva.
+Todas las transformaciones son equivalencias, por lo que también prueban la dirección inversa.
+</li></ol>
+$$
+\therefore\quad \begin{aligned}
+\Pairwise\,R\,(\ell_1\concat\ell_2)
+&amp;\Longleftrightarrow\Pairwise\,R\,\ell_1\wedge\Pairwise\,R\,\ell_2\wedge C(\ell_1,\ell_2),\\
+\Pairwise\,R\,(a::\ell)
+&amp;\Longleftrightarrow(\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell
+\end{aligned}.
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>omit [LinearOrder α] in
+theorem relacion_pares_cons_iff (R : α → α → Prop) (a : α) (l : List α) :
+    List.Pairwise R (a :: l) ↔ (∀ b ∈ l, R a b) ∧ List.Pairwise R l := by
+  -- A probar: equivalencia entre Pairwise y las dos premisas del constructor cons.
+  -- Por eliminación del constructor en una dirección e introducción en la otra.
+  constructor
+  · intro h
+    -- Se extraen la relación de la cabeza con la cola y Pairwise de la cola.
+    cases h with
+    | cons hCabeza hCola =&gt; exact ⟨hCabeza, hCola⟩
+  · rintro ⟨hCabeza, hCola⟩
+    -- Las mismas premisas reconstruyen Pairwise para a :: l.
+    exact List.Pairwise.cons hCabeza hCola
+
+omit [LinearOrder α] in
+theorem relacion_pares_concatenacion_iff (R : α → α → Prop) (l₁ l₂ : List α) :
+    List.Pairwise R (l₁ ++ l₂) ↔
+      List.Pairwise R l₁ ∧ List.Pairwise R l₂ ∧
+        (∀ a ∈ l₁, ∀ b ∈ l₂, R a b) := by
+  -- A probar: Pairwise de la concatenación equivale a las tres condiciones.
+  -- Por inducción sobre l₁, con l₂ fija.
+  induction l₁ with
+  | nil =&gt;
+      -- [] ++ l₂ = l₂; Pairwise [] y la condición cruzada vacía se satisfacen.
+      constructor
+      · intro h
+        exact ⟨List.Pairwise.nil, h, fun a ha =&gt; False.elim (List.not_mem_nil ha)⟩
+      · rintro ⟨_, h, _⟩
+        exact h
+  | cons a cola hipInd =&gt;
+      -- H expresa la relación de a con una lista; C, la relación entre dos listas.
+      let H := fun s : List α =&gt; ∀ z ∈ s, R a z
+      let C := fun s t : List α =&gt; ∀ x ∈ s, ∀ y ∈ t, R x y
+      have hCabeza : H (cola ++ l₂) ↔ H cola ∧ H l₂ := by
+        -- Pertenecer a cola ++ l₂ equivale a pertenecer a uno de los dos bloques.
+        constructor
+        · intro h
+          exact ⟨fun z hz =&gt; h z (List.mem_append_left l₂ hz),
+            fun z hz =&gt; h z (List.mem_append_right cola hz)⟩
+        · rintro ⟨hCola, hUltima⟩ z hz
+          rcases List.mem_append.mp hz with hr | hl
+          · exact hCola z hr
+          · exact hUltima z hl
+      have hCruce : C (a :: cola) l₂ ↔ H l₂ ∧ C cola l₂ := by
+        -- Se separan la cabeza a y los elementos de cola, en ambas direcciones.
+        constructor
+        · intro h
+          exact ⟨fun y hy =&gt; h a List.mem_cons_self y hy,
+            fun x hx y hy =&gt; h x (List.mem_cons_of_mem a hx) y hy⟩
+        · rintro ⟨hA, hCola⟩ x hx y hy
+          rcases List.mem_cons.mp hx with ha | hr
+          · subst x
+            exact hA y hy
+          · exact hCola x hr y hy
+      -- Se despliegan la concatenación y las dos apariciones de Pairwise sobre ::.
+      change List.Pairwise R ((a :: cola) ++ l₂) ↔
+        List.Pairwise R (a :: cola) ∧ List.Pairwise R l₂ ∧ C (a :: cola) l₂
+      rw [List.cons_append, relacion_pares_cons_iff, relacion_pares_cons_iff]
+      change (H (cola ++ l₂) ∧ List.Pairwise R (cola ++ l₂)) ↔
+        (H cola ∧ List.Pairwise R cola) ∧ List.Pairwise R l₂ ∧ C (a :: cola) l₂
+      rw [hCabeza, hipInd, hCruce]
+      -- Tras sustituir las tres equivalencias, solo se reagrupan las conjunciones.
+      constructor
+      · rintro ⟨⟨hr, hl⟩, hp, hq, hc⟩
+        exact ⟨⟨hr, hp⟩, hq, hl, hc⟩
+      · rintro ⟨⟨hr, hp⟩, hq, hl, hc⟩
+        exact ⟨⟨hr, hl⟩, hp, hq, hc⟩</pre></div>
+</section>
+<section class="result" id="thm:qs-sorted"><h5>Teorema 12.11 (Ordenamiento)</h5>
+<div class="statement"><p>
+Para toda lista $\ell$, $\ \Sorted(\qs(\ell))$.
+</p></div>
+<div class="preface"><p>
+La prueba de ordenamiento sigue la segunda parte del Teorema&nbsp;6.4 de
+Thompson&nbsp;<span class="cite">[Thompson 1991, pp. 211–212]</span>.<sup class="fn">1</sup>
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\Sorted(\qs(\ell))$.
+</p><p>
+Por inducción bien fundamentada sobre $\len\ell$, con hipótesis inductiva
+$$
+\forall s,\quad\len s&lt;\len\ell\Rightarrow\Sorted(\qs(s)).
+$$
+<ol><li>$\ell=[]$: por las Definiciones&nbsp;<a class="xref" href="#def:qs-def">12.4</a>, <a class="xref" href="#def:qs-sorted">12.2</a>
+y (?),
+$$
+\Sorted(\qs([]))\Longleftrightarrow\Sorted([])
+\Longleftrightarrow\Pairwise\,(\leq)\,[]\Longleftrightarrow\top.
+$$
+</li><li>$\ell=p::r$: sean
+$$
+L:=\filt(q_{\leq p})(r),\quad R:=\filt(q_{&gt;p})(r),\quad
+A:=\qs(L),\quad B:=\qs(R).
+$$
+La Definición&nbsp;<a class="xref" href="#def:qs-def">12.4</a> da $\qs(p::r)=A\concat(p::B)$.
+El Lema&nbsp;<a class="xref" href="#lem:qs-filter-le">12.5</a>, aplicado a los dos filtros, proporciona
+$$
+\len L\leq\len r&lt;1+\len r=\len{p::r},\qquad
+\len R\leq\len r&lt;1+\len r=\len{p::r}.
+$$
+Por la hipótesis inductiva, instanciada en $s=L,R$,
+$$
+\frac{\len L&lt;\len{p::r}}{\Sorted(\qs(L))}\;(s=L),
+\qquad
+\frac{\len R&lt;\len{p::r}}{\Sorted(\qs(R))}\;(s=R).
+$$
+Al sustituir $A=\qs(L)$ y $B=\qs(R)$, se obtienen $\Sorted(A),\Sorted(B)$.
+</p><p>
+El Corolario&nbsp;<a class="xref" href="#cor:qs-mem">12.9</a>, con listas $L,R$, y la pertenencia al filtro
+(?) dan
+$$
+\begin{aligned}
+a\in A&amp;\Longleftrightarrow a\in L
+\Longleftrightarrow(a\in r\wedge a\leq p),\\
+b\in B&amp;\Longleftrightarrow b\in R
+\Longleftrightarrow(b\in r\wedge p&lt;b).
+\end{aligned}
+$$
+Las últimas equivalencias usan la Definición&nbsp;<a class="xref" href="#def:qs-def">12.4</a>:
+$q_{\leq p}(a)=\verd\Longleftrightarrow a\leq p$ y
+$q_{&gt;p}(b)=\verd\Longleftrightarrow\Not(b\leq p)\Longleftrightarrow p&lt;b$,
+por (?) y (?).
+Por eliminación de conjunción y $p&lt;b\Rightarrow p\leq b$,
+$$
+\forall a\in A,\ a\leq p,\qquad
+\forall b\in B,\ p\leq b.
+$$
+Por la Definición&nbsp;<a class="xref" href="#def:qs-sorted">12.2</a>, $\Sorted(B)\Longleftrightarrow\Pairwise\,(\leq)\,B$.
+El caso $::$ del Lema&nbsp;<a class="xref" href="#lem:qs-pairwise-append">12.10</a>, con cabeza $p$ y cola $B$, da
+$$
+\frac{\forall b\in B,\ p\leq b\qquad\Pairwise\,(\leq)\,B}
+{\Pairwise\,(\leq)\,(p::B)}.
+$$
+La conclusión es $\Sorted(p::B)$ por la misma definición.
+</p><p>
+Para concatenar, sean $a\in A$ y $c\in p::B$. Por
+(?), $c=p$ o $c\in B$; con las cotas anteriores,
+$$
+\begin{array}{ll}
+c=p:&amp;a\leq p\text{ y }p=c,\text{ luego }a\leq c;\\
+c\in B:&amp;a\leq p\text{ y }p\leq c,\text{ luego }a\leq c.
+\end{array}
+$$
+La primera línea sustituye $c$ por $p$; la segunda usa la transitividad de $\leq$.
+Al cuantificar sobre $a,c$, las tres premisas del lema
+de concatenación, con listas $A,p::B$ y relación $\leq$, son
+$$
+\Sorted(A),\qquad\Sorted(p::B),\qquad
+\forall a\in A,\ \forall c\in p::B,\ a\leq c.
+$$
+Por la Definición&nbsp;<a class="xref" href="#def:qs-sorted">12.2</a>, las dos primeras son las condiciones
+$\Pairwise$ requeridas. La dirección $(\Leftarrow)$ del
+Lema&nbsp;<a class="xref" href="#lem:qs-pairwise-append">12.10</a> da $\Sorted(A\concat(p::B))$,
+que es $\Sorted(\qs(p::r))$ por la ecuación recursiva.
+</li></ol>
+$$
+\therefore\quad \Sorted(\qs(\ell)).
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem quicksort_ordenada : ∀ l : List α, Ordenada (quicksort l)
+  | [] =&gt; by
+      -- A probar: Ordenada (quicksort []). La lista vacía no tiene pares.
+      rw [quicksort_vacia]
+      change List.Pairwise (· ≤ ·) ([] : List α)
+      exact List.Pairwise.nil
+  | p :: cola =&gt; by
+      -- A probar: Ordenada (quicksort (p :: cola)).
+      -- Método: inducción por longitud, cotas del pivote y concatenación.
+      let menoresIguales := cola.filter (fun x =&gt; decide (x ≤ p))
+      let mayores := cola.filter (fun x =&gt; ! decide (x ≤ p))
+      have hMenoresIgualesLt : menoresIguales.length &lt; (p :: cola).length :=
+        longitud_filtro_lt_cons (fun x =&gt; decide (x ≤ p)) p cola
+      have hMayoresLt : mayores.length &lt; (p :: cola).length :=
+        longitud_filtro_lt_cons (fun x =&gt; ! decide (x ≤ p)) p cola
+      have hipIndMenoresIguales : Ordenada (quicksort menoresIguales) := quicksort_ordenada menoresIguales
+      have hipIndMayores : Ordenada (quicksort mayores) := quicksort_ordenada mayores
+      -- Cota izquierda: pertenencia en la salida → filtro → a ≤ p.
+      have hCotaMenoresIguales : ∀ a ∈ quicksort menoresIguales, a ≤ p := by
+        intro a hEnSalida
+        have hEnFiltro : a ∈ menoresIguales := pertenencia_quicksort.mp hEnSalida
+        have hPartes : a ∈ cola ∧ decide (a ≤ p) = true :=
+          List.mem_filter.mp hEnFiltro
+        have hDecision : decide (a ≤ p) = true := hPartes.right
+        exact of_decide_eq_true hDecision
+      -- Cota derecha: pertenencia → ¬(b ≤ p) → p &lt; b → p ≤ b.
+      have hCotaMayores : ∀ b ∈ quicksort mayores, p ≤ b := by
+        intro b hEnSalida
+        have hEnFiltro : b ∈ mayores := pertenencia_quicksort.mp hEnSalida
+        have hPartes : b ∈ cola ∧ (! decide (b ≤ p)) = true :=
+          List.mem_filter.mp hEnFiltro
+        have hNegado : (! decide (b ≤ p)) = true := hPartes.right
+        have hFalso : decide (b ≤ p) = false := by
+          simpa only [Bool.not_eq_true'] using hNegado
+        have hNoLe : ¬ (b ≤ p) := of_decide_eq_false hFalso
+        have hEstricto : p &lt; b := lt_of_not_ge hNoLe
+        exact le_of_lt hEstricto
+      -- Ordenada se despliega para cambiar a su predicado Pairwise.
+      have hParesMenoresIguales : List.Pairwise (· ≤ ·) (quicksort menoresIguales) := hipIndMenoresIguales
+      have hParesMayores : List.Pairwise (· ≤ ·) (quicksort mayores) := hipIndMayores
+      -- pairwise_cons: cabeza ≤ cada elemento de la cola, y cola ordenada.
+      -- Se usa la dirección que construye Pairwise para p :: quicksort mayores.
+      have hParesDerecha : List.Pairwise (· ≤ ·) (p :: quicksort mayores) := by
+        apply (relacion_pares_cons_iff _ _ _).mpr
+        constructor
+        · exact hCotaMayores
+        · exact hParesMayores
+      -- Condición cruzada: salida izquierda frente a todo el bloque derecho.
+      have hCruce : ∀ a ∈ quicksort menoresIguales,
+          ∀ b ∈ p :: quicksort mayores, a ≤ b := by
+        intro a hEnMenoresIguales b hEnDerecha
+        have hCasos : b = p ∨ b ∈ quicksort mayores := List.mem_cons.mp hEnDerecha
+        rcases hCasos with hEsPivote | hEnMayores
+        · -- b es el pivote: se sustituye b por p en la meta.
+          subst b
+          exact hCotaMenoresIguales a hEnMenoresIguales
+        · -- b está en la salida derecha: a ≤ p y p ≤ b.
+          have hAP : a ≤ p := hCotaMenoresIguales a hEnMenoresIguales
+          have hPB : p ≤ b := hCotaMayores b hEnMayores
+          exact le_trans hAP hPB
+      -- pairwise_append exige tres pruebas: izquierda, derecha y cruce.
+      have hTodosPares : List.Pairwise (· ≤ ·)
+          (quicksort menoresIguales ++ (p :: quicksort mayores)) := by
+        apply (relacion_pares_concatenacion_iff _ _ _).mpr
+        exact ⟨hParesMenoresIguales, hParesDerecha, hCruce⟩
+      -- La ecuación de quicksort identifica esta concatenación con la salida.
+      rw [quicksort_cons]
+      change List.Pairwise (· ≤ ·) (quicksort menoresIguales ++ (p :: quicksort mayores))
+      exact hTodosPares
+  termination_by l =&gt; l.length
+  decreasing_by
+    · exact hMenoresIgualesLt
+    · exact hMayoresLt</pre></div>
+<ol class="footnotes"><li><p>La rama de
+orden en Thompson aplica el Lema&nbsp;6.2(5) para la cota del bloque izquierdo,
+6.2(7) para transportar pertenencia a través de permutaciones y el Lema&nbsp;6.3
+para insertar el pivote entre dos listas ordenadas. En esta tesis, esas
+obligaciones son las cotas de la partición y el
+Lema&nbsp;<a class="xref" href="#lem:qs-pairwise-append">12.10</a>.</p></li></ol>
+</section>
+<h4>Ilustración: por qué la lista ensamblada está ordenada</h4>
+<h3>Corrección</h3>
+<section class="result" id="thm:qs-correct"><h5>Teorema 12.12 (Corrección de quicksort)</h5>
+<div class="statement"><p>
+Para toda lista $\ell$ sobre un tipo linealmente ordenado,
+$$
+  \qs(\ell)\Perm\ell \quad\text{y}\quad \Sorted(\qs(\ell)).
+$$
+Es decir, quicksort devuelve una permutación ordenada de su entrada.
+</p></div>
+<div class="preface"><p>
+Al reunir permutación y ordenamiento se obtiene la especificación del problema.
+El resultado corresponde al Teorema&nbsp;6.4 y al Corolario&nbsp;6.5 de Thompson
+<span class="cite">[Thompson 1991, pp. 211–213]</span>.<sup class="fn">1</sup>
+La versión general sobre <code>LinearOrder</code>
+se obtiene aquí de los Teoremas&nbsp;<a class="xref" href="#thm:qs-perm">12.8</a> y&nbsp;<a class="xref" href="#thm:qs-sorted">12.11</a>.
+</p></div>
+<div class="proof"><span class="proof-head">Demostración.</span><p>
+<strong>A probar:</strong> $\bigl(\qs(\ell)\Perm\ell\bigr)\wedge\Sorted(\qs(\ell))$.
+</p><p>
+Por introducción de la conjunción. Sea $\ell$ una lista arbitraria sobre el
+tipo dado. El Teorema&nbsp;<a class="xref" href="#thm:qs-perm">12.8</a> da $\qs(\ell)\Perm\ell$ y el
+Teorema&nbsp;<a class="xref" href="#thm:qs-sorted">12.11</a> da $\Sorted(\qs(\ell))$; la introducción de
+$\wedge$ reúne ambas. Como $\ell$ era arbitraria, se cuantifica.
+$$
+\therefore\quad\forall\ell,\ \bigl(\qs(\ell)\Perm\ell\bigr)\wedge\Sorted(\qs(\ell)).
+$$
+</p><span class="qed">■</span></div>
+<div class="lean"><div class="cap">Lean</div><pre>theorem quicksort_correcto (l : List α) :
+    quicksort l ~ l ∧ Ordenada (quicksort l) := by
+  -- A probar: permutación ∧ ordenamiento para la misma lista l.
+  -- Método: introducción de la conjunción a partir de los dos teoremas.
+  have hPermutacion : quicksort l ~ l := quicksort_permutacion l
+  have hOrdenada : Ordenada (quicksort l) := quicksort_ordenada l
+  exact And.intro hPermutacion hOrdenada</pre></div>
+<ol class="footnotes"><li><p>El Teorema&nbsp;6.4 de Thompson prueba
+la conjunción para $\operatorname{qsort}'(m,\ell,h)$ por inducción sobre $m$;
+el Corolario&nbsp;6.5 toma $m=\#\ell$. Aquí, los Teoremas&nbsp;<a class="xref" href="#thm:qs-perm">12.8</a>
+y&nbsp;<a class="xref" href="#thm:qs-sorted">12.11</a> usan inducción bien fundamentada sobre $\len\ell$,
+para todo $\alpha$ con <code>LinearOrder</code>; el resultado final los reúne
+por introducción de $\wedge$.</p></li></ol>
+</section>
+<h3>Ejemplos resueltos</h3>
+<div class="lean standalone"><div class="cap">Lean</div><pre>open List
+
+-- Ejecutar quicksort sobre entradas concretas (evaluadas por el compilador).
+#eval quicksort [3, 1, 2]            -- [1, 2, 3]
+#eval quicksort [5, 5, 1, 4, 1, 3]   -- [1, 1, 3, 4, 5, 5]
+#eval quicksort ([] : List Nat)      -- []
+#eval quicksort [2, 1, 2, 1]         -- [1, 1, 2, 2]  (se conservan los duplicados)
+
+-- Los teoremas generales se especializan a cualquier lista concreta, sin trabajo extra.
+example : quicksort [3, 1, 2] ~ [3, 1, 2] := quicksort_permutacion _
+example : Ordenada (quicksort [5, 5, 1, 4, 1, 3]) := quicksort_ordenada _
+example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3, 4]) :=
+  quicksort_correcto _</pre></div>
+<h3>Verificación: la auditoría de axiomas</h3>
+<div class="lean standalone"><div class="cap">Lean</div><pre>#print axioms quicksort_correcto
+-- 'Thesis.Sort.quicksort_correcto' depends on axioms: [propext, Quot.sound]
+#print axioms quicksort_permutacion
+-- 'Thesis.Sort.quicksort_permutacion' depends on axioms: [propext, Quot.sound]
+#print axioms quicksort_ordenada
+-- 'Thesis.Sort.quicksort_ordenada' depends on axioms: [propext, Quot.sound]</pre></div>
+<h3>Conclusión</h3>
+</main>
+<footer>
+  Generado desde <code>tesis-mate</code> en la revisión <code>940b3b7</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>972a1e6</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
+</footer>
+</body>
+</html>

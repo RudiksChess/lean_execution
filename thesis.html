@@ -62,6 +62,7 @@
   <div class="links">
     <a href="./overview.html">← Overview</a>
     <a href="./verification.html">Verification status</a>
+    <a href="./demostraciones.html">Demostraciones uno a uno (español)</a>
     <a href="https://github.com/RudiksChess/lean_execution">Repository</a>
     <a href="https://github.com/RudiksChess/lean_execution/releases">Report PDFs (ND + quicksort)</a>
     <a href="https://github.com/RudiksChess/lean_execution/releases">Aristotle proofs (PDF)</a>
@@ -103,6 +104,10 @@ should be comfortable with:</p>
 </ol>
 <p>That is the whole prerequisite for the <em>mathematics</em>. To read the <em>code</em>, you need a
 little about how Lean represents proofs — Section&nbsp;1.</p>
+<div class="note"><strong>Looking for the proofs exactly as written in the thesis?</strong> This page is a guided
+summary in English. The page <a href="./demostraciones.html"><em>Demostraciones y código, uno a uno</em></a> is
+generated from the thesis source and shows every definition and result of Chapters&nbsp;11 and&nbsp;12 with its
+full written proof (in Spanish) next to the exact Lean listing.</div>
 
 <h2 id="lean"><span class="n">1.</span>How Lean works (a primer)</h2>
 <p class="lead">Lean 4 is both a programming language and a proof assistant. Five ideas are enough to read
@@ -439,16 +444,25 @@ recursive call is strictly shorter.</p>
     arguments are strictly shorter; well-founded recursion on length is justified.
   </div></div>
   <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
-<pre><span class="kw">def</span> quicksort : List α → List α
-  | [] => []
-  | p :: cola =>
-      quicksort (cola.filter (fun x => decide (x ≤ p)))
-        ++ p :: quicksort (cola.filter (fun x => ! decide (x ≤ p)))
-  <span class="kw">termination_by</span> l => l.length
-  <span class="kw">decreasing_by</span>
-    all_goals simp_wf
-    all_goals exact le_trans (length_filter_le _ _)
-                            (le_of_eq (by simp))</pre>
+<pre><span class=\"kw\">def</span> quicksort : List α → List α
+  | [] =&gt; []
+  | p :: cola =&gt;
+      quicksort (cola.filter (fun x =&gt; decide (x ≤ p)))
+        ++ p :: quicksort (cola.filter (fun x =&gt; ! decide (x ≤ p)))
+  <span class=\"kw\">termination_by</span> l =&gt; l.length
+  <span class=\"kw\">decreasing_by</span>
+    <span class=\"cm\">-- Cada meta compara una partición con p :: cola, no con cola.</span>
+    <span class=\"cm\">-- Lean añade pruebas de pertenencia con attach; se eliminan de las listas.</span>
+    · rw [List.unattach_filter (l := cola.attach)
+          (f := fun x =&gt; decide (x.val ≤ p))
+          (g := fun x =&gt; decide (x ≤ p)) (hf := fun _ _ =&gt; rfl),
+          List.unattach_attach]
+      exact longitud_filtro_lt_cons (fun x =&gt; decide (x ≤ p)) p cola
+    · rw [List.unattach_filter (l := cola.attach)
+          (f := fun x =&gt; ! decide (x.val ≤ p))
+          (g := fun x =&gt; ! decide (x ≤ p)) (hf := fun _ _ =&gt; rfl),
+          List.unattach_attach]
+      exact longitud_filtro_lt_cons (fun x =&gt; ! decide (x ≤ p)) p cola</pre>
   </div>
 </div>
 
@@ -466,16 +480,57 @@ halves recovers $p::r$.</p>
     <em>Corollary.</em> membership is preserved: $a\in\mathrm{qsort}(\ell)\iff a\in\ell$.
   </div></div>
   <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
-<pre><span class="kw">theorem</span> quicksort_permutacion :
-    ∀ l : List α, quicksort l ~ l
-  | [] => by simp
-  | p :: cola => by
+<pre><span class=\"kw\">theorem</span> quicksort_permutacion : ∀ l : List α, quicksort l ~ l
+  | [] =&gt; by
+      <span class=\"cm\">-- A probar: quicksort [] ~ []. Reescritura y reflexividad.</span>
+      simpa only [quicksort_vacia] using (List.Perm.refl ([] : List α))
+  | p :: cola =&gt; by
+      <span class=\"cm\">-- A probar: quicksort (p :: cola) ~ p :: cola.</span>
+      <span class=\"cm\">-- Método: inducción por longitud; las particiones son menores.</span>
+      let menoresIguales := cola.filter (fun x =&gt; decide (x ≤ p))
+      let mayores := cola.filter (fun x =&gt; ! decide (x ≤ p))
+      have hMenoresIgualesLt : menoresIguales.length &lt; (p :: cola).length :=
+        longitud_filtro_lt_cons (fun x =&gt; decide (x ≤ p)) p cola
+      have hMayoresLt : mayores.length &lt; (p :: cola).length :=
+        longitud_filtro_lt_cons (fun x =&gt; ! decide (x ≤ p)) p cola
+      <span class=\"cm\">-- Las cotas anteriores legitiman estas dos instancias inductivas.</span>
+      have hipIndMenoresIguales : quicksort menoresIguales ~ menoresIguales := quicksort_permutacion menoresIguales
+      have hipIndMayores : quicksort mayores ~ mayores := quicksort_permutacion mayores
+      have hParticion : menoresIguales ++ mayores ~ cola :=
+        particion_filtros_permutacion (fun x =&gt; decide (x ≤ p)) cola
+      <span class=\"cm\">-- 1. Añadir el mismo pivote conserva la permutación derecha.</span>
+      have hDerecha : p :: quicksort mayores ~ p :: mayores := hipIndMayores.cons p
+      <span class=\"cm\">-- 2. Concatenar las dos permutaciones conserva ambas listas.</span>
+      have hConcatenacion : quicksort menoresIguales ++ (p :: quicksort mayores)
+          ~ menoresIguales ++ (p :: mayores) := hipIndMenoresIguales.append hDerecha
+      <span class=\"cm\">-- 3. perm_middle desplaza el pivote al principio.</span>
+      have hPivote : menoresIguales ++ (p :: mayores) ~ p :: (menoresIguales ++ mayores) :=
+        List.perm_middle
+      <span class=\"cm\">-- 4. La congruencia de :: se aplica a la partición anterior.</span>
+      have hCons : p :: (menoresIguales ++ mayores) ~ p :: cola := hParticion.cons p
+      <span class=\"cm\">-- Reescritura de quicksort, seguida de las tres permutaciones.</span>
       rw [quicksort_cons]
-      have ih1 := quicksort_permutacion (cola.filter _)
-      have ih2 := quicksort_permutacion (cola.filter _)
-      refine (ih1.append (ih2.cons p)).trans ?_
-      refine (perm_middle).trans ?_
-      exact (filter_append_perm _ cola).cons p</pre>
+      change quicksort menoresIguales ++ (p :: quicksort mayores) ~ p :: cola
+      calc
+        quicksort menoresIguales ++ (p :: quicksort mayores)
+            ~ menoresIguales ++ (p :: mayores) := hConcatenacion
+        _ ~ p :: (menoresIguales ++ mayores) := hPivote
+        _ ~ p :: cola := hCons
+  <span class=\"kw\">termination_by</span> l =&gt; l.length
+  <span class=\"kw\">decreasing_by</span>
+    · exact hMenoresIgualesLt
+    · exact hMayoresLt
+
+<span class=\"kw\">theorem</span> pertenencia_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l := by
+  <span class=\"cm\">-- A probar: las dos direcciones de la equivalencia de pertenencia.</span>
+  <span class=\"cm\">-- Método: aplicar mem_iff a quicksort_permutacion, sin nueva inducción.</span>
+  have hPermutacion : quicksort l ~ l := quicksort_permutacion l
+  have hPertenencia : a ∈ quicksort l ↔ a ∈ l := hPermutacion.mem_iff
+  constructor
+  · intro hEnSalida
+    exact hPertenencia.mp hEnSalida
+  · intro hEnEntrada
+    exact hPertenencia.mpr hEnEntrada</pre>
   </div>
 </div>
 
@@ -493,20 +548,79 @@ bounds supply.</p>
     cross-bound (every $a\in A$ is $\le$ everything in $p::B$, by transitivity through $p$).
   </div></div>
   <div class="panel code"><div class="cap">Lean — Quicksort.lean</div>
-<pre><span class="kw">theorem</span> quicksort_ordenada :
-    ∀ l : List α, Ordenada (quicksort l)
-  | [] => by simp [Ordenada]
-  | p :: cola => by
-      -- IHs: both halves sorted
-      -- hsmall: every elt of the ≤-half is ≤ p
-      -- hlarge: every elt of the >-half is ≥ p
-      rw [quicksort_cons, pairwise_append]
-      refine ⟨ih1, ?_, ?_⟩
-      · rw [pairwise_cons]; exact ⟨hlarge, ih2⟩
-      · intro a ha b hb
-        rcases List.mem_cons.1 hb with h | h
-        · subst h; exact hsmall a ha
-        · exact le_trans (hsmall a ha) (hlarge b h)</pre>
+<pre><span class=\"kw\">theorem</span> quicksort_ordenada : ∀ l : List α, Ordenada (quicksort l)
+  | [] =&gt; by
+      <span class=\"cm\">-- A probar: Ordenada (quicksort []). La lista vacía no tiene pares.</span>
+      rw [quicksort_vacia]
+      change List.Pairwise (· ≤ ·) ([] : List α)
+      exact List.Pairwise.nil
+  | p :: cola =&gt; by
+      <span class=\"cm\">-- A probar: Ordenada (quicksort (p :: cola)).</span>
+      <span class=\"cm\">-- Método: inducción por longitud, cotas del pivote y concatenación.</span>
+      let menoresIguales := cola.filter (fun x =&gt; decide (x ≤ p))
+      let mayores := cola.filter (fun x =&gt; ! decide (x ≤ p))
+      have hMenoresIgualesLt : menoresIguales.length &lt; (p :: cola).length :=
+        longitud_filtro_lt_cons (fun x =&gt; decide (x ≤ p)) p cola
+      have hMayoresLt : mayores.length &lt; (p :: cola).length :=
+        longitud_filtro_lt_cons (fun x =&gt; ! decide (x ≤ p)) p cola
+      have hipIndMenoresIguales : Ordenada (quicksort menoresIguales) := quicksort_ordenada menoresIguales
+      have hipIndMayores : Ordenada (quicksort mayores) := quicksort_ordenada mayores
+      <span class=\"cm\">-- Cota izquierda: pertenencia en la salida → filtro → a ≤ p.</span>
+      have hCotaMenoresIguales : ∀ a ∈ quicksort menoresIguales, a ≤ p := by
+        intro a hEnSalida
+        have hEnFiltro : a ∈ menoresIguales := pertenencia_quicksort.mp hEnSalida
+        have hPartes : a ∈ cola ∧ decide (a ≤ p) = true :=
+          List.mem_filter.mp hEnFiltro
+        have hDecision : decide (a ≤ p) = true := hPartes.right
+        exact of_decide_eq_true hDecision
+      <span class=\"cm\">-- Cota derecha: pertenencia → ¬(b ≤ p) → p &lt; b → p ≤ b.</span>
+      have hCotaMayores : ∀ b ∈ quicksort mayores, p ≤ b := by
+        intro b hEnSalida
+        have hEnFiltro : b ∈ mayores := pertenencia_quicksort.mp hEnSalida
+        have hPartes : b ∈ cola ∧ (! decide (b ≤ p)) = true :=
+          List.mem_filter.mp hEnFiltro
+        have hNegado : (! decide (b ≤ p)) = true := hPartes.right
+        have hFalso : decide (b ≤ p) = false := by
+          simpa only [Bool.not_eq_true'] using hNegado
+        have hNoLe : ¬ (b ≤ p) := of_decide_eq_false hFalso
+        have hEstricto : p &lt; b := lt_of_not_ge hNoLe
+        exact le_of_lt hEstricto
+      <span class=\"cm\">-- Ordenada se despliega para cambiar a su predicado Pairwise.</span>
+      have hParesMenoresIguales : List.Pairwise (· ≤ ·) (quicksort menoresIguales) := hipIndMenoresIguales
+      have hParesMayores : List.Pairwise (· ≤ ·) (quicksort mayores) := hipIndMayores
+      <span class=\"cm\">-- pairwise_cons: cabeza ≤ cada elemento de la cola, y cola ordenada.</span>
+      <span class=\"cm\">-- Se usa la dirección que construye Pairwise para p :: quicksort mayores.</span>
+      have hParesDerecha : List.Pairwise (· ≤ ·) (p :: quicksort mayores) := by
+        apply (relacion_pares_cons_iff _ _ _).mpr
+        constructor
+        · exact hCotaMayores
+        · exact hParesMayores
+      <span class=\"cm\">-- Condición cruzada: salida izquierda frente a todo el bloque derecho.</span>
+      have hCruce : ∀ a ∈ quicksort menoresIguales,
+          ∀ b ∈ p :: quicksort mayores, a ≤ b := by
+        intro a hEnMenoresIguales b hEnDerecha
+        have hCasos : b = p ∨ b ∈ quicksort mayores := List.mem_cons.mp hEnDerecha
+        rcases hCasos with hEsPivote | hEnMayores
+        · -- b es el pivote: se sustituye b por p en la meta.
+          subst b
+          exact hCotaMenoresIguales a hEnMenoresIguales
+        · -- b está en la salida derecha: a ≤ p y p ≤ b.
+          have hAP : a ≤ p := hCotaMenoresIguales a hEnMenoresIguales
+          have hPB : p ≤ b := hCotaMayores b hEnMayores
+          exact le_trans hAP hPB
+      <span class=\"cm\">-- pairwise_append exige tres pruebas: izquierda, derecha y cruce.</span>
+      have hTodosPares : List.Pairwise (· ≤ ·)
+          (quicksort menoresIguales ++ (p :: quicksort mayores)) := by
+        apply (relacion_pares_concatenacion_iff _ _ _).mpr
+        exact ⟨hParesMenoresIguales, hParesDerecha, hCruce⟩
+      <span class=\"cm\">-- La ecuación de quicksort identifica esta concatenación con la salida.</span>
+      rw [quicksort_cons]
+      change List.Pairwise (· ≤ ·) (quicksort menoresIguales ++ (p :: quicksort mayores))
+      exact hTodosPares
+  <span class=\"kw\">termination_by</span> l =&gt; l.length
+  <span class=\"kw\">decreasing_by</span>
+    · exact hMenoresIgualesLt
+    · exact hMayoresLt</pre>
   </div>
 </div>
 
@@ -527,11 +641,12 @@ rests only on the standard classical axioms.</p>
 
 <span class="cm">-- audit.txt:</span>
 <span class="cm">-- quicksort_correcto depends on axioms:</span>
-<span class="cm">--   [propext, Classical.choice, Quot.sound]</span></pre>
+<span class="cm">--   [propext, Quot.sound]</span></pre>
   </div>
 </div>
-<p>No <code class="inl">sorryAx</code>, no postulated sorting lemma — quicksort's correctness carries the
-identical three-axiom footprint as the completeness theorem of Part&nbsp;I.</p>
+<p>No <code class="inl">sorryAx</code>, no postulated sorting lemma — and, with the explicit termination
+proof, quicksort's correctness needs only <code class="inl">propext</code> and <code class="inl">Quot.sound</code>:
+<code class="inl">Classical.choice</code> no longer appears (it does in Part&nbsp;I, where the metatheory reasons classically).</p>
 
 <h2 id="qs-aristotle"><span class="n">15.</span>Cross-validation by an automated prover</h2>
 <p class="lead">As with Part&nbsp;I, we gave the automated prover <strong>Harmonic Aristotle</strong> the
@@ -549,8 +664,9 @@ hand proof rearranges the partitions structurally, Aristotle reduced "is a permu
     the front, recombine the filtered partitions ($\mathrm{perm\_middle}$, $\mathrm{filter\_append}$).<br><br>
     <strong>Aristotle:</strong> $\;a\sim b \iff \forall x,\ \mathrm{count}(x,a)=\mathrm{count}(x,b)$,
     then close the arithmetic of counts automatically.<br><br>
-    Same theorem, same three axioms (<code class="inl">propext, Classical.choice, Quot.sound</code>), no
-    <code class="inl">sorry</code>.
+    Same theorem, no <code class="inl">sorry</code>. The reconstruction reports the three standard axioms
+    (<code class="inl">propext, Classical.choice, Quot.sound</code>); the hand proof above needs only
+    <code class="inl">propext</code> and <code class="inl">Quot.sound</code>.
   </div></div>
   <div class="panel code"><div class="cap">Lean — aristotle/QuicksortFull.lean</div>
 <pre><span class="kw">theorem</span> quicksort_permutacion (l : List α) :
