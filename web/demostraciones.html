@@ -205,7 +205,7 @@ theorem evaluar_falsedad (v : Valuacion) : evaluar v Falsedad ↔ False := by
   · intro hFalso
     exact False.elim hFalso</pre></div>
 <ol class="footnotes"><li><p>Las reglas de
-introducción y eliminación que se nombran en la metateoría son las de la
+introducción y eliminación que se nombran en la lógica de Lean son las de la
 deducción natural del Capítulo&nbsp;9, aplicadas a
 proposiciones de Lean; el bicondicional $P\leftrightarrow Q$ se introduce
 probando $P\Rightarrow Q$ y $Q\Rightarrow P$&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2]</span>.</p></li></ol>
@@ -568,7 +568,7 @@ $$
 $$
 Se tiene entonces $\mathrm{Falso}$; la eliminación de falsedad da $\sem\alpha_v$.
 </li><li>RAA: la premisa es $\Gamma,\Not\alpha\Provnd\bot$ y la meta es
-$\sem\alpha_v$. Se razona por reducción al absurdo en la metateoría:<sup class="fn">1</sup> supóngase
+$\sem\alpha_v$. Se razona por reducción al absurdo en la lógica de Lean:<sup class="fn">1</sup> supóngase
 $\Not\sem\alpha_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a> es
 $\sem{\Not\alpha}_v$. El Lema&nbsp;<a class="xref" href="#lem:satinsert">11.11</a> da $v\models\Gamma\cup\{\Not\alpha\}$; la hipótesis inductiva da $\sem\bot_v$,
 que el Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> declara falsa:
@@ -576,10 +576,9 @@ $$
 \sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
 $$
 Por lo tanto, la reducción al absurdo descarga el supuesto $\Not\sem\alpha_v$ y
-concluye $\sem\alpha_v$. Este supuesto
-metateórico es distinto del supuesto $[\Not\alpha]^{(a)}$ que descarga la
-regla RAA en la derivación de $\Provnd$; es el único caso que usa lógica clásica en
-la metateoría.
+concluye $\sem\alpha_v$. Este supuesto de la lógica de Lean es distinto del supuesto $[\Not\alpha]^{(a)}$ que descarga la
+regla RAA en la derivación de $\Provnd$; es el único caso que usa un principio
+clásico de la lógica de Lean.
 </li></ol>
 Como $v$ era arbitraria, se cuantifica.
 $$
@@ -636,8 +635,7 @@ $$
 <ol class="footnotes"><li><p>La
 <em>reducción al absurdo</em> prueba $P$ suponiendo $\Not P$ y obteniendo una
 contradicción; es la regla clásica RAA de la deducción
-natural&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2]</span>, aplicada aquí a proposiciones de la
-metateoría y no a fórmulas del cálculo. En Lean corresponde a
+natural&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2]</span>, aplicada aquí a proposiciones de la lógica de Lean y no a fórmulas del cálculo. En Lean corresponde a
 <code>by_contra</code>.</p></li></ol>
 </section>
 <section class="result" id="cor:taut"><h5>Corolario 11.13 (Los teoremas son tautologías)</h5>
@@ -852,8 +850,7 @@ Parte positiva: supóngase $\sem{\Not p}_v$, que por la Definición&nbsp;<a clas
 es $\Not\sem p_v$. La parte negativa de la hipótesis inductiva $K(p)$ da
 $\Gamma\Provnd\Not p$.
 Parte negativa: supóngase $\Not\sem{\Not p}_v$, es decir, $\Not\Not\sem p_v$.
-Se obtiene $\sem p_v$ por eliminación clásica de doble negación en la
-metateoría: se supone $\Not\sem p_v$ y se confronta con lo ya supuesto,
+Se obtiene $\sem p_v$ por eliminación clásica de doble negación en la lógica de Lean: se supone $\Not\sem p_v$ y se confronta con lo ya supuesto,
 $$
 \Not\sem p_v,\qquad\Not\Not\sem p_v\qquad\Contra
 $$
@@ -878,8 +875,8 @@ K(q)&amp;\sem q_v\Rightarrow\Gamma\Provnd q&amp;\Not\sem q_v\Rightarrow\Gamma\Pr
 $$
 </p><p>
 Para la conclusión positiva, se supone $\sem{p}_v\Rightarrow\sem{q}_v$. Por
-tercero excluido en la metateoría,<sup class="fn">2</sup> o bien $\sem p_v$ o bien $\Not\sem p_v$.
-Este análisis por casos ocurre en la metateoría y no aparece en ninguna
+tercero excluido en la lógica de Lean,<sup class="fn">2</sup> o bien $\sem p_v$ o bien $\Not\sem p_v$.
+Este análisis por casos ocurre en la lógica de Lean y no aparece en ninguna
 derivación: en cada caso se construye una derivación distinta de $\Gamma\Provnd p\Imp q$; basta con que exista una en cada caso. Las dos
 derivaciones abren el supuesto $[p]^{(a)}$ del cálculo y terminan en
 $\Imp\mathrm I(a)$, que lo descarga; la hipótesis semántica del caso no se
@@ -906,7 +903,7 @@ $q$; y $\Imp\mathrm I(a)$ descarga $[p]^{(a)}$.
 </p><p>
 Para la conclusión negativa, se supone $\Not(P\Rightarrow Q)$, con
 $P:=\sem p_v$ y $Q:=\sem q_v$. Primero se obtiene $P$ por reducción al absurdo
-en la metateoría: supóngase $\Not P$. Entonces $P\Rightarrow Q$ se prueba
+en la lógica de Lean: supóngase $\Not P$. Entonces $P\Rightarrow Q$ se prueba
 suponiendo $P$: con $\Not P$ se tiene
 $$
 P,\qquad\Not P\qquad\Contra
@@ -1048,13 +1045,12 @@ $$
         -- negI descarga p ⟶ q y concluye su negación bajo el contexto original.
         exact ND.negI dFalsedad</pre></div>
 <ol class="footnotes"><li><p>Conviene distinguir dos pasos que se parecen: la eliminación clásica
-de doble negación en la metateoría, $\Not\Not A\Rightarrow A$ (en Lean, <code>Classical.byContradiction</code>) y la introducción de doble negación en el
+de doble negación en la lógica de Lean, $\Not\Not A\Rightarrow A$ (en Lean, <code>Classical.byContradiction</code>) y la introducción de doble negación en el
 cálculo $\Provnd$, $\Gamma\Provnd A\Rightarrow\Gamma\Provnd\Not\Not A$
 (Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a>). No son la misma regla.</p></li><li><p>El <em>tercero excluido</em> afirma
 $P\vee\Not P$ para toda proposición $P$ y permite dividir una prueba en dos
 casos; sobre el núcleo intuicionista es equivalente a
-RAA&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2.2]</span>. En Lean, <code>by_cases</code> lo aplica en
-la metateoría.</p></li></ol>
+RAA&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2.2]</span>. En Lean lo aplica la táctica <code>by_cases</code>.</p></li></ol>
 </section>
 <h4>El contexto de literales depende solo de los valores de verdad</h4>
 <section class="result" id="lem:congr"><h5>Lema 11.19 (Congruencia de literales y contextos)</h5>
@@ -2366,8 +2362,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>7ee248f</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>af55660</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>67b4ff2</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>cbd4b1e</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
