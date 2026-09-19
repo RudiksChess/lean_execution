@@ -182,8 +182,7 @@ $\Not(A\Rightarrow A)$. Junto con $A\Rightarrow A$ se tiene
 $$
 A\Rightarrow A,\qquad\Not(A\Rightarrow A)\qquad\Contra
 $$
-Entonces, de $\sem{\bot}_v$ se sigue $\mathrm{Falso}$ por eliminación de
-negación, y se descarga el supuesto por introducción de implicación.
+Entonces, de $\sem{\bot}_v$ se sigue $\mathrm{Falso}$ por eliminación de negación; se descarga el supuesto por introducción de implicación.
 Dirección $(\Leftarrow)$: de $\mathrm{Falso}$ se sigue cualquier proposición
 por eliminación de falsedad, en particular $\sem{\bot}_v$. Ambas direcciones
 se reúnen por introducción del bicondicional.<sup class="fn">1</sup>
@@ -247,8 +246,7 @@ cuantificado es lo que permite que, en cada caso, la hipótesis inductiva se
 aplique a un contexto distinto del original. Antes de los casos, se observa
 que la inclusión se conserva al añadir una misma fórmula $\psi$ a ambos contextos:
 sea $\chi\in\Gamma\cup\{\psi\}$; por la caracterización de la unión
-(Sección&nbsp;11.3.2), $\chi\in\Gamma$ o $\chi=\psi$; en el primer
-caso $\Gamma\subseteq\Delta$ da $\chi\in\Delta$, y en el segundo $\chi=\psi$;
+(Sección&nbsp;11.3.2), $\chi\in\Gamma$ o $\chi=\psi$; en el primer caso $\Gamma\subseteq\Delta$ da $\chi\in\Delta$ y en el segundo $\chi=\psi$;
 en ambos, $\chi\in\Delta\cup\{\psi\}$. Así,
 $\Gamma\cup\{\psi\}\subseteq\Delta\cup\{\psi\}$.
 </p><p>
@@ -257,13 +255,11 @@ $\forall\Theta,\ \Sigma\subseteq\Theta\Rightarrow\Theta\Provnd\theta$.
 En cada caso, sea $\Delta$ un contexto arbitrario con $\Gamma\subseteq\Delta$;
 se instancia $\Theta$ en el contexto indicado, se prueba la inclusión requerida
 y se reaplica la última regla (Sección&nbsp;11.3):
-<ol><li>Hipótesis: $\varphi\in\Gamma$. Como $\Gamma\subseteq\Delta$,
-$\varphi\in\Delta$, y la regla de hipótesis da $\Delta\Provnd\varphi$.
+<ol><li>Hipótesis: $\varphi\in\Gamma$. Como $\Gamma\subseteq\Delta$, $\varphi\in\Delta$; la regla de hipótesis da $\Delta\Provnd\varphi$.
 </li><li>$\Imp\mathrm I$: la premisa es $\Gamma,\alpha\Provnd\beta$.
 Se abre $[\alpha]^{(a)}$ en $\Delta$. La hipótesis inductiva se instancia con
 $\Sigma=\Gamma\cup\{\alpha\}$, $\Theta=\Delta\cup\{\alpha\}$ y $\theta=\beta$;
-la inclusión $\Gamma\cup\{\alpha\}\subseteq\Delta\cup\{\alpha\}$ probada arriba
-da el numerador, y $\Imp\mathrm I(a)$ descarga $[\alpha]^{(a)}$:
+la inclusión $\Gamma\cup\{\alpha\}\subseteq\Delta\cup\{\alpha\}$ probada arriba da el numerador; $\Imp\mathrm I(a)$ descarga $[\alpha]^{(a)}$:
 $$
 \frac{\Delta,\alpha\Provnd\beta}{\Delta\Provnd\alpha\Imp\beta}\;\Imp\mathrm I(a).
 $$
@@ -307,8 +303,7 @@ $$
 $$
 </li></ol>
 En los siete casos la conclusión tiene contexto $\Delta$; como $\Delta$ era
-arbitrario, queda probado el enunciado cuantificado, y su instancia en el
-$\Delta$ del lema da la meta.
+arbitrario, queda probado el enunciado cuantificado; su instancia en el $\Delta$ del lema da la meta.
 $$
 \therefore\quad \Delta\Provnd\varphi.
 $$
@@ -373,7 +368,7 @@ Aquí se explicita el contexto $\Gamma$ mediante debilitamiento.
 </p><p>
 Por introducción de negación, se abre $[\Not\varphi]^{(a)}$.
 El contexto ampliado es $\Gamma,\Not\varphi:=\Gamma\cup\{\Not\varphi\}$:
-contiene el supuesto nuevo y, como contiene a $\Gamma$, permite usar la premisa
+contiene el supuesto nuevo y también a $\Gamma$, de modo que permite usar la premisa
 $\Gamma\Provnd\varphi$ por debilitamiento (Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>).
 </p><p>
 $$
@@ -433,8 +428,7 @@ Con $\Not\mathrm I(b)$ se cierra $[\varphi]^{(b)}$; $[\Not\chi]^{(a)}$ sigue abi
 </p><p>
 Se abre ahora $[\Not\varphi]^{(c)}$. La inclusión
 $\Gamma\cup\{\Not\varphi\}\subseteq\Delta\cup\{\Not\varphi\}$
-permite debilitar la segunda premisa (Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>), y $\Not\chi$
-se obtiene por la regla de hipótesis, pues $\Not\chi\in\Delta\cup\{\Not\varphi\}$.
+permite debilitar la segunda premisa (Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a>); $\Not\chi$ se obtiene por la regla de hipótesis, pues $\Not\chi\in\Delta\cup\{\Not\varphi\}$.
 $\Not\mathrm E$ da $\bot$ y $\Not\mathrm I(c)$ descarga $[\Not\varphi]^{(c)}$:
 </p><p>
 $$
@@ -535,11 +529,9 @@ Por inducción sobre la derivación de $\Gamma\Provnd\varphi$. El enunciado que
 se prueba por inducción es el cuantificado,
 $\forall v,\ v\models\Gamma\Rightarrow\sem\varphi_v$; por eso, para cada
 subderivación $\Sigma\Provnd\theta$, la hipótesis inductiva es
-$\forall w,\ w\models\Sigma\Rightarrow\sem\theta_w$, y en cada caso se
-instancia en la valuación del caso y en el contexto de la premisa
+$\forall w,\ w\models\Sigma\Rightarrow\sem\theta_w$; en cada caso se instancia en la valuación del caso y en el contexto de la premisa
 correspondiente. En cada caso, sea $v$ una valuación arbitraria con
-$v\models\Gamma$; se analiza la última regla (Sección&nbsp;11.3), y las
-cláusulas semánticas son las de la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a>.
+$v\models\Gamma$; se analiza la última regla (Sección&nbsp;11.3); las cláusulas semánticas son las de la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a>.
 <ol><li>Hipótesis: $\varphi\in\Gamma$. La premisa $v\models\Gamma$, instanciada
 en $\varphi$, da $\sem\varphi_v$.
 </li><li>$\Imp\mathrm I$: la premisa es $\Gamma,\alpha\Provnd\beta$ y la meta es
@@ -566,8 +558,7 @@ $\Gamma\Provnd\alpha$ y la meta es $\sem\bot_v$. Las hipótesis inductivas dan
 $$
 \sem\alpha_v,\qquad\Not\sem\alpha_v\qquad\Contra
 $$
-Entonces la eliminación de negación da $\mathrm{Falso}$, y de
-$\mathrm{Falso}$ se sigue $\sem\bot_v$ por eliminación de falsedad (es la
+Entonces la eliminación de negación da $\mathrm{Falso}$; de $\mathrm{Falso}$ se sigue $\sem\bot_v$ por eliminación de falsedad (es la
 dirección $(\Leftarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a>).
 </li><li>$\bot\mathrm E$: la premisa es $\Gamma\Provnd\bot$ y la meta es
 $\sem\alpha_v$. La hipótesis inductiva da $\sem\bot_v$, que el
@@ -575,13 +566,11 @@ Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> declara falsa:
 $$
 \sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
 $$
-Se tiene entonces $\mathrm{Falso}$, y la eliminación de falsedad da
-$\sem\alpha_v$.
+Se tiene entonces $\mathrm{Falso}$; la eliminación de falsedad da $\sem\alpha_v$.
 </li><li>RAA: la premisa es $\Gamma,\Not\alpha\Provnd\bot$ y la meta es
 $\sem\alpha_v$. Se razona por reducción al absurdo en la metateoría:<sup class="fn">1</sup> supóngase
 $\Not\sem\alpha_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a> es
-$\sem{\Not\alpha}_v$. El Lema&nbsp;<a class="xref" href="#lem:satinsert">11.11</a> da
-$v\models\Gamma\cup\{\Not\alpha\}$, y la hipótesis inductiva da $\sem\bot_v$,
+$\sem{\Not\alpha}_v$. El Lema&nbsp;<a class="xref" href="#lem:satinsert">11.11</a> da $v\models\Gamma\cup\{\Not\alpha\}$; la hipótesis inductiva da $\sem\bot_v$,
 que el Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> declara falsa:
 $$
 \sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
@@ -669,8 +658,7 @@ tiene elementos, el supuesto choca con la definición de $\varnothing$:
 $$
 \psi\in\varnothing,\qquad\psi\notin\varnothing\qquad\Contra
 $$
-De modo que se tiene $\mathrm{Falso}$, y la eliminación de falsedad da
-$\sem\psi_v$. Al descargar el supuesto y cuantificar sobre $\psi$ queda
+De modo que se tiene $\mathrm{Falso}$; la eliminación de falsedad da $\sem\psi_v$. Al descargar el supuesto y cuantificar sobre $\psi$ queda
 $\forall\psi,\ \psi\in\varnothing\Rightarrow\sem\psi_v$, que es
 $v\models\varnothing$. El Teorema&nbsp;<a class="xref" href="#thm:soundness">11.12</a>, aplicado a la premisa
 $\varnothing\Provnd\varphi$ y a $v\models\varnothing$, da $\sem\varphi_v$.
@@ -704,8 +692,7 @@ aquí se excluye $\bot$ mediante el Lema&nbsp;<a class="xref" href="#lem:evalBot
 Por introducción de negación, supóngase una derivación
 $d:\varnothing\Provnd\bot$. El Corolario&nbsp;<a class="xref" href="#cor:taut">11.13</a> da
 $\operatorname{Taut}(\bot)$. Sea $v_0$ la valuación que asigna $\mathrm{Verdadero}$ a todo
-átomo; por la Definición&nbsp;<a class="xref" href="#def:tautology">11.4</a>, $\sem\bot_{v_0}$ se cumple, y el
-Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> dice que es falsa:
+átomo; por la Definición&nbsp;<a class="xref" href="#def:tautology">11.4</a>, $\sem\bot_{v_0}$ se cumple; el Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> dice que es falsa:
 $$
 \sem\bot_{v_0},\qquad\Not\sem\bot_{v_0}\qquad\Contra
 $$
@@ -779,11 +766,10 @@ $P(s):\Longleftrightarrow p\in s\Rightarrow\mathrm{literal}_v(p)\in\Gamma_v(s)$.
 $$
 p\in[],\qquad p\notin[]\qquad\Contra
 $$
-Se sigue $\mathrm{Falso}$, y la eliminación de falsedad da
+Se sigue $\mathrm{Falso}$; la eliminación de falsedad da
 $\mathrm{literal}_v(p)\in\Gamma_v([])$. Se descarga el supuesto.
 </li><li>$A=a::r$: supóngase $p\in a::r$. Por la pertenencia a una lista
-(Sección&nbsp;11.6.1), $p=a$ o $p\in r$, y por la
-Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
+(Sección&nbsp;11.6.1), $p=a$ o $p\in r$; por la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
 $\Gamma_v(a::r)=\{\mathrm{literal}_v(a)\}\cup\Gamma_v(r)$.
 Si $p=a$, entonces $\mathrm{literal}_v(p)=\mathrm{literal}_v(a)$, que
 pertenece a la unión por su primer miembro. Si $p\in r$, la hipótesis
@@ -847,10 +833,8 @@ Las cláusulas semánticas provienen de la Definición&nbsp;<a class="xref" href
 Sección&nbsp;11.3.<sup class="fn">1</sup>
 </p><p>
  Si $\varphi=s$:
-Por la Definición&nbsp;<a class="xref" href="#def:atoms">11.15</a>, $\mathrm{atomos}(s)=[s]$, y $s\in[s]$ por la
-pertenencia a una lista. La cobertura $\mathrm{atomos}(s)\subseteq A$,
-instanciada en $s$, da $s\in A$, y el Lema&nbsp;<a class="xref" href="#lem:litmem">11.17</a>, con la lista $A$,
-da $\mathrm{literal}_v(s)\in\Gamma$.
+Por la Definición&nbsp;<a class="xref" href="#def:atoms">11.15</a>, $\mathrm{atomos}(s)=[s]$; además $s\in[s]$ por la pertenencia a una lista. La cobertura $\mathrm{atomos}(s)\subseteq A$,
+instanciada en $s$, da $s\in A$; el Lema&nbsp;<a class="xref" href="#lem:litmem">11.17</a>, con la lista $A$, da $\mathrm{literal}_v(s)\in\Gamma$.
 Parte positiva: supóngase $\sem s_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a> es
 $v(s)$. Por la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>, $\mathrm{literal}_v(s)=s$; luego
 $s\in\Gamma$ y la regla de hipótesis da $\Gamma\Provnd s$.
@@ -874,16 +858,14 @@ $$
 \Not\sem p_v,\qquad\Not\Not\sem p_v\qquad\Contra
 $$
 Entonces la reducción al absurdo descarga $\Not\sem p_v$ y concluye
-$\sem p_v$. La parte positiva de $K(p)$ da
-$\Gamma\Provnd p$, y el Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a> da $\Gamma\Provnd\Not\Not p$, que
+$\sem p_v$. La parte positiva de $K(p)$ da $\Gamma\Provnd p$; el Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a> da $\Gamma\Provnd\Not\Not p$, que
 es la meta $\Gamma\Provnd\Not(\Not p)$.
 </p><p>
  Si $\varphi=p\Imp q$:
 Por la Definición&nbsp;<a class="xref" href="#def:atoms">11.15</a>,
 $\mathrm{atomos}(p\Imp q)=\mathrm{atomos}(p)\,{+}\!{+}\,\mathrm{atomos}(q)$.
 Sea $a\in\mathrm{atomos}(p)$; por la pertenencia a una concatenación
-(Sección&nbsp;11.6.1), $a\in\mathrm{atomos}(p\Imp q)$, y la
-cobertura da $a\in A$. Como $a$ era arbitrario, $\mathrm{atomos}(p)\subseteq A$.
+(Sección&nbsp;11.6.1), $a\in\mathrm{atomos}(p\Imp q)$; la cobertura da $a\in A$. Como $a$ era arbitrario, $\mathrm{atomos}(p)\subseteq A$.
 El mismo argumento con la segunda mitad de la concatenación da
 $\mathrm{atomos}(q)\subseteq A$. Las dos coberturas permiten aplicar las
 hipótesis inductivas $K(p)$ y $K(q)$:
@@ -898,8 +880,7 @@ $$
 Para la conclusión positiva, se supone $\sem{p}_v\Rightarrow\sem{q}_v$. Por
 tercero excluido en la metateoría,<sup class="fn">2</sup> o bien $\sem p_v$ o bien $\Not\sem p_v$.
 Este análisis por casos ocurre en la metateoría y no aparece en ninguna
-derivación: en cada caso se construye una derivación distinta de
-$\Gamma\Provnd p\Imp q$, y basta con que exista una en cada caso. Las dos
+derivación: en cada caso se construye una derivación distinta de $\Gamma\Provnd p\Imp q$; basta con que exista una en cada caso. Las dos
 derivaciones abren el supuesto objeto $[p]^{(a)}$ y terminan en
 $\Imp\mathrm I(a)$, que lo descarga; la hipótesis semántica del caso no se
 descarga, porque no es una fórmula del cálculo.
@@ -910,8 +891,7 @@ $$
 \dfrac{\dfrac{\genfrac{}{}{0pt}{0}{\vdots}{\Gamma\Provnd q}}{\Gamma,p\Provnd q}\;{\scriptstyle \text{debil.}}}{\Gamma\Provnd p\Imp q}\;{\scriptstyle \Imp\mathrm{I}(a)}
 $$
 </p><p>
-El Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a> transporta $\Gamma\Provnd q$ a $\Gamma\cup\{p\}$, y
-$\Imp\mathrm I(a)$ descarga $[p]^{(a)}$; el supuesto no llega a usarse.
+El Lema&nbsp;<a class="xref" href="#lem:weak">11.8</a> transporta $\Gamma\Provnd q$ a $\Gamma\cup\{p\}$; $\Imp\mathrm I(a)$ descarga $[p]^{(a)}$; el supuesto no llega a usarse.
 </li><li>Si $\Not\sem p_v$, la parte negativa de la hipótesis inductiva para $p$
 da $\Gamma\Provnd\Not p$:
 </p><p>
@@ -938,8 +918,7 @@ P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
 $$
 Por lo tanto, la reducción al absurdo descarga $\Not P$ y concluye $P$.
 Después se obtiene $\Not Q$ por introducción de negación: supóngase $Q$;
-entonces $P\Rightarrow Q$ se prueba devolviendo $Q$ bajo cualquier supuesto
-$P$, y de nuevo
+entonces $P\Rightarrow Q$ se prueba devolviendo $Q$ bajo cualquier supuesto $P$; de nuevo
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
 $$
@@ -1095,13 +1074,12 @@ $$
 Por casos sobre $v(x)$ y luego por inducción sobre $A$. Sea
 $h:v(x)\leftrightarrow w(x)$. Si $v(x)$, la dirección $(\Rightarrow)$ de $h$ da
 $w(x)$. Si $\Not v(x)$, también $\Not w(x)$: supóngase $w(x)$; la dirección
-$(\Leftarrow)$ de $h$ da $v(x)$, y entonces
+$(\Leftarrow)$ de $h$ da $v(x)$; entonces
 $$
 v(x),\qquad\Not v(x)\qquad\Contra
 $$
 Entonces se descarga $w(x)$ por introducción de negación y queda $\Not w(x)$.
-Así, $v(x)$ y $w(x)$ tienen el mismo valor, y la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
-que calcula cada literal por casos sobre ese valor, da el mismo resultado para
+Así, $v(x)$ y $w(x)$ tienen el mismo valor; la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>, que calcula cada literal por casos sobre ese valor, da el mismo resultado para
 ambas valuaciones:
 $$
 \mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)=
@@ -1121,10 +1099,8 @@ $$
 <ol><li>$A=[]$: por la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
 $\Gamma_{v}([])=\varnothing=\Gamma_{w}([])$.
 </li><li>$A=a::r$: supóngase $H:\forall x\in a::r,\ v(x)\leftrightarrow w(x)$.
-Como $a\in a::r$ (pertenencia a una lista), $H$ instanciada en $a$ da
-$v(a)\leftrightarrow w(a)$, y la primera parte del lema da
-$\mathrm{literal}_{v}(a)=\mathrm{literal}_{w}(a)$. Sea ahora $x\in r$; entonces
-$x\in a::r$, y $H$ instanciada en $x$ da $v(x)\leftrightarrow w(x)$; como $x$
+Como $a\in a::r$ (pertenencia a una lista), $H$ instanciada en $a$ da $v(a)\leftrightarrow w(a)$; la primera parte del lema da
+$\mathrm{literal}_{v}(a)=\mathrm{literal}_{w}(a)$. Sea ahora $x\in r$; entonces $x\in a::r$; $H$ instanciada en $x$ da $v(x)\leftrightarrow w(x)$; como $x$
 era arbitrario, $\forall x\in r,\ v(x)\leftrightarrow w(x)$, que es la premisa
 de la hipótesis inductiva $P(r)$; esta da $\Gamma_v(r)=\Gamma_w(r)$.
 Se sustituyen la igualdad de literales y esta igualdad de contextos:
@@ -1219,12 +1195,11 @@ En la cabeza, $u(p)$ es verdadera y $w(p)$ es falsa. Por definición de literal,
 $$
 \mathrm{literal}_u(p)=p,\qquad\mathrm{literal}_w(p)=\Not p.
 $$
-Sea $x\in r$. Si fuera $x=p$, entonces $p\in r$, y se tendría
+Sea $x\in r$. Si fuera $x=p$, entonces $p\in r$; se tendría
 $$
 p\in r,\qquad p\notin r\qquad\Contra
 $$
-Por lo tanto, $x\ne p$ por introducción de negación, y por definición de $u$ y
-$w$, $u(x)=v(x)=w(x)$. Como $x$ era arbitrario,
+Por lo tanto, $x\ne p$ por introducción de negación; por definición de $u$ y $w$, $u(x)=v(x)=w(x)$. Como $x$ era arbitrario,
 $\forall x\in r,\ u(x)\leftrightarrow v(x)$ y
 $\forall x\in r,\ v(x)\leftrightarrow w(x)$. El Lema&nbsp;<a class="xref" href="#lem:congr">11.19</a>,
 instanciado en la lista $r$ con cada uno de esos pares de valuaciones, da
@@ -1247,7 +1222,7 @@ $$
 \frac{\Delta,p\Provnd\varphi\qquad\Delta,\Not p\Provnd\varphi}
 {\Delta\Provnd\varphi}\;\text{(análisis por casos)}.
 $$
-Se usa $\{p\}\cup\Delta=\Delta\cup\{p\}$, y análogamente para $\Not p$.
+Se usa $\{p\}\cup\Delta=\Delta\cup\{p\}$ y análogamente para $\Not p$.
 La RAA empleada es la del lema citado: se supone $\Not\varphi$,
 se obtiene una contradicción mediante las dos derivaciones del numerador
 y se descarga $\Not\varphi$ para concluir $\Delta\Provnd\varphi$.
@@ -1337,8 +1312,7 @@ Por composición de Kalmár y descarga, siguiendo la proposición&nbsp;1.14 de
 Mendelson&nbsp;<span class="cite">[Mendelson 2015, p. 35]</span> y el teorema&nbsp;1.37 de
 Huth y Ryan&nbsp;<span class="cite">[Huth y Ryan 2004, pp. 50–53]</span>. Sean
 $h:\operatorname{Taut}(\varphi)$ y $A:=\mathrm{dedup}(\mathrm{atomos}(\varphi))$.
-Por las propiedades de $\mathrm{dedup}$,<sup class="fn">1</sup> $\mathrm{Nodup}(A)$ y, para todo
-átomo $a$, $a\in\mathrm{atomos}(\varphi)\Rightarrow a\in A$; es decir,
+Por las propiedades de $\mathrm{dedup}$,<sup class="fn">1</sup> $\mathrm{Nodup}(A)$ y también $a\in\mathrm{atomos}(\varphi)\Rightarrow a\in A$ para todo átomo $a$; es decir,
 $\mathrm{atomos}(\varphi)\subseteq A$.
 </p><p>
 Sea $v$ una valuación arbitraria. Por la Definición&nbsp;<a class="xref" href="#def:tautology">11.4</a>, $h$
@@ -1554,7 +1528,7 @@ q_{\leq p}(x):=\decidir(x\leq p),
 \qquad
 q_{&gt;p}(x):=q_{\leq p}^{c}(x)=\neg_{\mathbb B}q_{\leq p}(x),
 $$
-y, a partir de la cola $r$,
+y a partir de la cola $r$
 $$
   \ell_{\leq} := \filt(q_{\leq p})(r),
   \qquad
@@ -1620,8 +1594,7 @@ $$
 \end{aligned}
 $$
 </p><p>
-Por transitividad, y porque en $\mathbb N$ toda desigualdad estricta implica la
-no estricta,
+Por transitividad y porque en $\mathbb N$ toda desigualdad estricta implica la no estricta,
 $$
 \len{\filt(q)(a::r)}&lt;\len{a::r}
 \Longrightarrow\len{\filt(q)(a::r)}\leq\len{a::r}.
@@ -1678,8 +1651,7 @@ recursivas.
 particiones de la Definición&nbsp;<a class="xref" href="#def:qs-def">12.4</a>. El Lema&nbsp;<a class="xref" href="#lem:qs-filter-le">12.5</a>,
 aplicado a cada filtro sobre $r$, da $\len L\leq\len r$ y $\len R\leq\len r$;
 por $n&lt;n+1$ y (?), $\len r&lt;\len r+1=\len{p::r}$.
-Por transitividad, $\len L&lt;\len{p::r}$ y $\len R&lt;\len{p::r}$, y la hipótesis
-inductiva, instanciada en $s=L$ y en $s=R$, da que $\qs(L)$ y $\qs(R)$ están
+Por transitividad, $\len L&lt;\len{p::r}$ y $\len R&lt;\len{p::r}$; la hipótesis inductiva, instanciada en $s=L$ y en $s=R$, da que $\qs(L)$ y $\qs(R)$ están
 definidas. Como $\filt$ y $\concat$ son funciones totales definidas por
 recursión estructural,<sup class="fn">3</sup> la
 ecuación $\qs(p::r)=\qs(L)\concat(p::\qs(R))$ define
@@ -2043,19 +2015,17 @@ C(a::r,\ell_2)&amp;\Longleftrightarrow H(\ell_2)\wedge C(r,\ell_2).
 $$
 Para la primera equivalencia, supóngase $H(r\concat\ell_2)$. Sea $z\in r$;
 por la pertenencia a la concatenación en (?),
-$z\in r\concat\ell_2$, y la premisa instanciada en $z$ da $R\,a\,z$; como $z$
+$z\in r\concat\ell_2$; la premisa instanciada en $z$ da $R\,a\,z$; como $z$
 era arbitrario, $H(r)$. Del mismo modo, de $z\in\ell_2$ se sigue
 $z\in r\concat\ell_2$ y $R\,a\,z$, lo que da $H(\ell_2)$. Recíprocamente,
 supónganse $H(r)$ y $H(\ell_2)$ y sea $z\in r\concat\ell_2$; por la misma
 ecuación, $z\in r$ o $z\in\ell_2$; en el primer caso $H(r)$ da $R\,a\,z$ y en
-el segundo lo da $H(\ell_2)$; los dos casos agotan la disyunción y, como $z$ era
-arbitrario, $H(r\concat\ell_2)$.
+el segundo lo da $H(\ell_2)$; los dos casos agotan la disyunción; como $z$ era arbitrario, $H(r\concat\ell_2)$.
 </p><p>
 Para la segunda, supóngase $C(a::r,\ell_2)$ y sea $y\in\ell_2$. Como
 $a\in a::r$, la premisa instanciada en $a$ e $y$ da $R\,a\,y$; al cuantificar
-sobre $y$, $H(\ell_2)$. Para $x\in r$ se tiene $x\in a::r$, y la premisa da
-$R\,x\,y$; al cuantificar sobre $x$ e $y$, $C(r,\ell_2)$. Recíprocamente,
-supónganse $H(\ell_2)$ y $C(r,\ell_2)$, y sean $x\in a::r$ e $y\in\ell_2$; por
+sobre $y$, $H(\ell_2)$. Para $x\in r$ se tiene $x\in a::r$; la premisa da $R\,x\,y$; al cuantificar sobre $x$ e $y$, $C(r,\ell_2)$. Recíprocamente,
+supónganse $H(\ell_2)$ y $C(r,\ell_2)$; sean $x\in a::r$ e $y\in\ell_2$; por
 la pertenencia a una lista, $x=a$ o $x\in r$; si $x=a$, $H(\ell_2)$ da
 $R\,x\,y$; si $x\in r$, $C(r,\ell_2)$ da $R\,x\,y$; al cuantificar sobre $x$ e
 $y$, $C(a::r,\ell_2)$.
@@ -2199,7 +2169,7 @@ $$
 $$
 Al sustituir $A=\qs(L)$ y $B=\qs(R)$, se obtienen $\Sorted(A),\Sorted(B)$.
 </p><p>
-El Corolario&nbsp;<a class="xref" href="#cor:qs-mem">12.9</a>, con listas $L,R$, y la pertenencia al filtro
+El Corolario&nbsp;<a class="xref" href="#cor:qs-mem">12.9</a> con listas $L,R$ y la pertenencia al filtro
 (?) dan
 $$
 \begin{aligned}
@@ -2396,8 +2366,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>a99c8d8</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>e6da020</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>05a6885</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>5341dc8</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
