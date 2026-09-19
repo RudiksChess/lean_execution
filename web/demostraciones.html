@@ -582,18 +582,14 @@ $$
 Por lo tanto, se descarga el supuesto $\sem\alpha_v$ y queda $\Not\sem\alpha_v$.
 </li><li>$\Not\mathrm E$: las premisas son $\Gamma\Provnd\Not\alpha$ y
 $\Gamma\Provnd\alpha$ y la meta es $\sem\bot_v$. Las hipótesis inductivas dan
-$$
-\sem\alpha_v,\qquad\Not\sem\alpha_v\qquad\Contra
-$$
-Entonces la eliminación de negación da $\mathrm{Falso}$; de $\mathrm{Falso}$ se sigue $\sem\bot_v$ por eliminación de falsedad (es la
-dirección $(\Leftarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a>).
+$\sem\alpha_v$ y $\Not\sem\alpha_v$; la eliminación de negación da
+$\mathrm{Falso}$. De $\mathrm{Falso}$ se sigue $\sem\bot_v$ por eliminación de
+falsedad (es la dirección $(\Leftarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a>). No hay
+supuesto que descargar.
 </li><li>$\bot\mathrm E$: la premisa es $\Gamma\Provnd\bot$ y la meta es
-$\sem\alpha_v$. La hipótesis inductiva da $\sem\bot_v$, que el
-Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> declara falsa:
-$$
-\sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
-$$
-Se tiene entonces $\mathrm{Falso}$; la eliminación de falsedad da $\sem\alpha_v$.
+$\sem\alpha_v$. La hipótesis inductiva da $\sem\bot_v$; la dirección
+$(\Rightarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.7</a> da $\mathrm{Falso}$. La eliminación
+de falsedad da $\sem\alpha_v$. No hay supuesto que descargar.
 </li><li>RAA: la premisa es $\Gamma,\Not\alpha\Provnd\bot$ y la meta es
 $\sem\alpha_v$. Se razona por reducción al absurdo clásica en la lógica de Lean:<sup class="fn">1</sup> supóngase
 $\Not\sem\alpha_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a> es
@@ -682,12 +678,11 @@ contexto vacío. La premisa $v\models\varnothing$ se prueba por introducción de
 implicación y eliminación de falsedad.
 </p><p>
 Sea $v$ una valuación arbitraria. Primero, $v\models\varnothing$: sea $\psi$
-cualquier fórmula; por introducción de implicación, supóngase $\psi\in\varnothing$; como el conjunto vacío no
-tiene elementos, el supuesto choca con la definición de $\varnothing$:
-$$
-\psi\in\varnothing,\qquad\psi\notin\varnothing\qquad\Contra
-$$
-De modo que se tiene $\mathrm{Falso}$; la eliminación de falsedad da $\sem\psi_v$. Al descargar el supuesto y cuantificar sobre $\psi$ queda
+cualquier fórmula; por introducción de implicación, supóngase
+$\psi\in\varnothing$. Como el conjunto vacío no tiene elementos, $\psi\in\varnothing$
+da $\mathrm{Falso}$; la eliminación de falsedad da $\sem\psi_v$. No es una
+reducción al absurdo: la meta es $\sem\psi_v$ y no una negación. Al descargar
+el supuesto $\psi\in\varnothing$ y cuantificar sobre $\psi$ queda
 $\forall\psi,\ \psi\in\varnothing\Rightarrow\sem\psi_v$, que es
 $v\models\varnothing$. El Teorema&nbsp;<a class="xref" href="#thm:soundness">11.12</a>, aplicado a la premisa
 $\varnothing\Provnd\varphi$ y a $v\models\varnothing$, da $\sem\varphi_v$.
@@ -798,12 +793,10 @@ sobre la pertenencia.
 </p><p>
 Por inducción sobre $A$,<sup class="fn">1</sup> con $p$ y $v$ fijos, para el predicado
 $P(s):\Longleftrightarrow p\in s\Rightarrow\mathrm{literal}_v(p)\in\Gamma_v(s)$.
-<ol><li>$A=[]$: por introducción de implicación, supóngase $p\in[]$. Ninguna cadena pertenece a la lista vacía:
-$$
-p\in[],\qquad p\notin[]\qquad\Contra
-$$
-Se sigue $\mathrm{Falso}$; la eliminación de falsedad da
-$\mathrm{literal}_v(p)\in\Gamma_v([])$. Se descarga el supuesto.
+<ol><li>$A=[]$: por introducción de implicación, supóngase $p\in[]$. Ninguna
+cadena pertenece a la lista vacía, así que $p\in[]$ da $\mathrm{Falso}$; la
+eliminación de falsedad da $\mathrm{literal}_v(p)\in\Gamma_v([])$. Se descarga
+el supuesto $p\in[]$.
 </li><li>$A=a::r$: por introducción de implicación, supóngase $p\in a::r$. Por la pertenencia a una lista
 (Sección&nbsp;11.6.1), $p=a$ o $p\in r$; por la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
 $\Gamma_v(a::r)=\{\mathrm{literal}_v(a)\}\cup\Gamma_v(r)$.
@@ -856,7 +849,9 @@ $$
 <strong>Método:</strong> inducción estructural sobre $\varphi$, con $v$ y $A$
 fijos y la cobertura conservada en el predicado. En cada caso, las dos partes
 se prueban por introducción de implicación. El caso $\Not p$ usa eliminación
-clásica de doble negación. El caso $p\Imp q$ usa tercero excluido en la parte positiva; en la negativa, dos subpruebas: una por reducción al absurdo clásica y otra por reducción al absurdo.
+clásica de doble negación. El caso $p\Imp q$ usa tercero excluido en la parte positiva; en la negativa, dos subpruebas: una por reducción al absurdo
+clásica, con una eliminación de falsedad en su interior, y otra por reducción
+al absurdo.
 </p><p>
 Sea $\Gamma:=\Gamma_v(A)$. Se mantiene la cobertura como premisa
 del predicado inductivo:
@@ -949,19 +944,15 @@ construye $P\Rightarrow Q$ y se confronta con $\Not(P\Rightarrow Q)$, lo que
 descarga el supuesto auxiliar.
 <ul><li><strong>Subprueba 1: $P$, por reducción al absurdo clásica.</strong>
 Supóngase $\Not P$. Bajo ese supuesto se construye $P\Rightarrow Q$ por
-introducción de implicación: supóngase $P$; junto con $\Not P$,
-$$
-P,\qquad\Not P\qquad\Contra
-$$
-luego $\mathrm{Falso}$ por eliminación de negación y $Q$ por eliminación de
-falsedad. Esta primera contradicción solo cierra la introducción de
-implicación: descarga $P$ y deja $P\Rightarrow Q$; el supuesto $\Not P$ sigue
-abierto. Ahora
+introducción de implicación: supóngase $P$; con $\Not P$, la eliminación de
+negación da $\mathrm{Falso}$ y la eliminación de falsedad da $Q$. Este paso no
+es una reducción al absurdo: solo cierra la introducción de implicación, que
+descarga $P$ y deja $P\Rightarrow Q$; el supuesto $\Not P$ sigue abierto. Ahora
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
 $$
-y esta segunda contradicción es la que descarga $\Not P$: la reducción al
-absurdo clásica concluye $P$. En el código, <code>by_contra hNoP</code> abre la
+y esta contradicción es la que descarga $\Not P$: la reducción al absurdo
+clásica concluye $P$. En el código, <code>by_contra hNoP</code> abre la
 subprueba y <code>exact hNoImp hImp</code> la cierra.
 </li><li><strong>Subprueba 2: $\Not Q$, por reducción al absurdo.</strong>
 Supóngase $Q$. Entonces $P\Rightarrow Q$ se prueba por introducción de
@@ -2467,8 +2458,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>71cd228</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>678e60b</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>4141e06</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>d21ead2</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
