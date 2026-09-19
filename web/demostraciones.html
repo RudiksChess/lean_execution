@@ -186,7 +186,7 @@ Entonces, de $\sem{\bot}_v$ se sigue $\mathrm{Falso}$ por eliminación de
 negación, y se descarga el supuesto por introducción de implicación.
 Dirección $(\Leftarrow)$: de $\mathrm{Falso}$ se sigue cualquier proposición
 por eliminación de falsedad, en particular $\sem{\bot}_v$. Ambas direcciones
-se reúnen por introducción del bicondicional.
+se reúnen por introducción del bicondicional.<sup class="fn">1</sup>
 $$
 \therefore\quad \sem{\bot}_v\Longleftrightarrow\mathrm{Falso}.
 $$
@@ -205,6 +205,11 @@ theorem evaluar_falsedad (v : Valuacion) : evaluar v Falsedad ↔ False := by
     exact hNoIdentidad hIdentidad
   · intro hFalso
     exact False.elim hFalso</pre></div>
+<ol class="footnotes"><li><p>Las reglas de
+introducción y eliminación que se nombran en la metateoría son las de la
+deducción natural del Capítulo&nbsp;9, aplicadas a
+proposiciones de Lean; el bicondicional $P\leftrightarrow Q$ se introduce
+probando $P\Rightarrow Q$ y $Q\Rightarrow P$&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2]</span>.</p></li></ol>
 </section>
 <h4>Convenios sobre el juicio</h4>
 <h4>Matemática: las reglas</h4>
@@ -232,7 +237,7 @@ sobre los siete constructores de $\Provnd$, incluidas sus descargas.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Delta\Provnd\varphi$.
 </p><p>
-La inducción sobre la derivación de $\Gamma\Provnd\varphi$ prueba el enunciado
+La inducción sobre la derivación<sup class="fn">1</sup> de $\Gamma\Provnd\varphi$ prueba el enunciado
 más fuerte
 $$
 \forall\Delta,\quad\Gamma\subseteq\Delta\Rightarrow\Delta\Provnd\varphi,
@@ -347,6 +352,13 @@ $$
       have dFalsedad : ND (insert (~φ) Δ) Falsedad := hipInd hAmpliado
       -- Por RAA objeto, se descarga ~φ y se concluye φ bajo Δ.
       exact ND.classical dFalsedad</pre></div>
+<ol class="footnotes"><li><p>La <em>inducción sobre la
+derivación</em> (o inducción sobre reglas) prueba una propiedad de todos los juicios
+derivables analizando la última regla aplicada: hay un caso por regla y, en cada
+uno, la propiedad se supone para las premisas (hipótesis inductiva) y se prueba
+para la conclusión. Es el principio de eliminación del tipo inductivo
+<code>ND</code>; véase Winskel&nbsp;<span class="cite">[Winskel 1993, cap. 4]</span> y
+Pierce&nbsp;<span class="cite">[Pierce 2002, cap. 3]</span>.</p></li></ol>
 </section>
 <h4>Introducción de doble negación</h4>
 <section class="result" id="lem:dni"><h5>Lema 11.9 (Introducción de doble negación)</h5>
@@ -568,7 +580,7 @@ $$
 Se tiene entonces $\mathrm{Falso}$, y la eliminación de falsedad da
 $\sem\alpha_v$.
 </li><li>RAA: la premisa es $\Gamma,\Not\alpha\Provnd\bot$ y la meta es
-$\sem\alpha_v$. Se razona por reducción al absurdo en la metateoría: supóngase
+$\sem\alpha_v$. Se razona por reducción al absurdo en la metateoría:<sup class="fn">1</sup> supóngase
 $\Not\sem\alpha_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.3</a> es
 $\sem{\Not\alpha}_v$. El Lema&nbsp;<a class="xref" href="#lem:satinsert">11.11</a> da
 $v\models\Gamma\cup\{\Not\alpha\}$, y la hipótesis inductiva da $\sem\bot_v$,
@@ -634,6 +646,12 @@ $$
       have hAmpliado : ∀ θ ∈ insert (~φ) Γ, evaluar v θ := satisfaccion_insertar hNeg hv
       have hFalsedad : evaluar v Falsedad := hipInd v hAmpliado
       exact (evaluar_falsedad v).mp hFalsedad</pre></div>
+<ol class="footnotes"><li><p>La
+<em>reducción al absurdo</em> prueba $P$ suponiendo $\Not P$ y obteniendo una
+contradicción; es la regla clásica RAA de la deducción
+natural&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2]</span>, aplicada aquí a proposiciones de la
+metateoría y no a fórmulas del cálculo. En Lean corresponde a
+<code>by_contra</code>.</p></li></ol>
 </section>
 <section class="result" id="cor:taut"><h5>Corolario 11.13 (Los teoremas son tautologías)</h5>
 <div class="statement"><p>
@@ -757,7 +775,7 @@ Si $p \in A$ entonces $\mathrm{literal}_v(p)\in\Gamma_v(A)$.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\mathrm{literal}_v(p)\in\Gamma_v(A)$.
 </p><p>
-Por inducción sobre $A$, con $p$ y $v$ fijos, para el predicado
+Por inducción sobre $A$,<sup class="fn">1</sup> con $p$ y $v$ fijos, para el predicado
 $P(s):\Longleftrightarrow p\in s\Rightarrow\mathrm{literal}_v(p)\in\Gamma_v(s)$.
 <ol><li>$A=[]$: supóngase $p\in[]$. Ninguna cadena pertenece a la lista vacía:
 $$
@@ -794,6 +812,10 @@ $$
         exact Set.mem_insert _ _
       · have hLiteralCola : literal v p ∈ contextoLiterales v cola := hipInd hCola
         exact Set.mem_insert_of_mem (literal v a) hLiteralCola</pre></div>
+<ol class="footnotes"><li><p>La <em>inducción sobre listas</em> prueba una
+propiedad para toda lista probándola para $[]$ y, suponiéndola para la cola $r$,
+para $a::r$; es la inducción estructural del tipo
+<code>List</code>&nbsp;<span class="cite">[Hutton 2016, cap. 16]</span>.</p></li></ol>
 </section>
 <h4>El lema de Kalmár</h4>
 <section class="result" id="lem:kalmar"><h5>Lema 11.18 (Kalmár)</h5>
@@ -877,7 +899,7 @@ K(q)&amp;\sem q_v\Rightarrow\Gamma\Provnd q&amp;\Not\sem q_v\Rightarrow\Gamma\Pr
 $$
 </p><p>
 Para la conclusión positiva, se supone $\sem{p}_v\Rightarrow\sem{q}_v$. Por
-tercero excluido en la metateoría, o bien $\sem p_v$ o bien $\Not\sem p_v$.
+tercero excluido en la metateoría,<sup class="fn">2</sup> o bien $\sem p_v$ o bien $\Not\sem p_v$.
 Este análisis por casos ocurre en la metateoría y no aparece en ninguna
 derivación: en cada caso se construye una derivación distinta de
 $\Gamma\Provnd p\Imp q$, y basta con que exista una en cada caso. Las dos
@@ -1053,7 +1075,11 @@ $$
 de doble negación en la metateoría, $\Not\Not A\Rightarrow A$ (en Lean,
 <code>Classical.byContradiction</code>), y la introducción de doble negación en el
 cálculo objeto, $\Gamma\Provnd A\Rightarrow\Gamma\Provnd\Not\Not A$
-(Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a>). No son la misma regla.</p></li></ol>
+(Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a>). No son la misma regla.</p></li><li><p>El <em>tercero excluido</em> afirma
+$P\vee\Not P$ para toda proposición $P$ y permite dividir una prueba en dos
+casos; sobre el núcleo intuicionista es equivalente a
+RAA&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2.2]</span>. En Lean, <code>by_cases</code> lo aplica en
+la metateoría.</p></li></ol>
 </section>
 <h4>El contexto de literales depende solo de los valores de verdad</h4>
 <section class="result" id="lem:congr"><h5>Lema 11.19 (Congruencia de literales y contextos)</h5>
@@ -1573,7 +1599,7 @@ la obtiene de (F) y (L).
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\len{\filt(q)(\ell)}\leq\len\ell$.
 </p><p>
-Por inducción sobre $\ell$, con $q$ fijo.
+Por inducción sobre $\ell$,<sup class="fn">1</sup> con $q$ fijo.
 <ol><li>$\ell=[]$: por (?) y (?),
 $\len{\filt(q)([])}=0\leq0=\len{[]}$.
 </li><li>$\ell=a::r$: la hipótesis inductiva es
@@ -1627,6 +1653,10 @@ theorem longitud_filtro_le (q : α → Bool) (l : List α) :
           -- Se descarta a: longitud del filtro ≤ longitud de cola &lt; longitud de a :: cola.
           simp only [List.filter_cons, hq, Bool.false_eq_true, ↓reduceIte]
           exact le_of_lt (lt_of_le_of_lt hipInd (Nat.lt_succ_self cola.length))</pre></div>
+<ol class="footnotes"><li><p>La <em>inducción sobre listas</em> prueba una
+propiedad para toda lista probándola para $[]$ y, suponiéndola para la cola $r$,
+para $a::r$; es la inducción estructural del tipo
+<code>List</code>&nbsp;<span class="cite">[Hutton 2016, cap. 16]</span>.</p></li></ol>
 </section>
 <section class="result" id="prop:qs-term"><h5>Proposición 12.6 (Terminación)</h5>
 <div class="statement"><p>
@@ -1644,7 +1674,8 @@ Lema&nbsp;<a class="xref" href="#lem:qs-filter-le">12.5</a>.<sup class="fn">1</s
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\qs$ es total.
 </p><p>
-Por inducción bien fundamentada sobre $\len\ell$: la hipótesis inductiva es
+Por inducción bien fundamentada<sup class="fn">2</sup>
+sobre $\len\ell$: la hipótesis inductiva es
 que $\qs(s)$ está definida para toda lista $s$ con $\len s&lt;\len\ell$.
 <ol><li>$\ell=[]$: $\qs([])=[]$ por la Definición&nbsp;<a class="xref" href="#def:qs-def">12.4</a>, sin llamadas
 recursivas.
@@ -1655,7 +1686,8 @@ por $n&lt;n+1$ y (?), $\len r&lt;\len r+1=\len{p::r}$.
 Por transitividad, $\len L&lt;\len{p::r}$ y $\len R&lt;\len{p::r}$, y la hipótesis
 inductiva, instanciada en $s=L$ y en $s=R$, da que $\qs(L)$ y $\qs(R)$ están
 definidas. Como $\filt$ y $\concat$ son funciones totales definidas por
-recursión estructural, la ecuación $\qs(p::r)=\qs(L)\concat(p::\qs(R))$ define
+recursión estructural,<sup class="fn">3</sup> la
+ecuación $\qs(p::r)=\qs(L)\concat(p::\qs(R))$ define
 $\qs(p::r)$.
 </li></ol>
 La inducción es válida porque $(\mathbb N,&lt;)$ es bien fundado
@@ -1700,7 +1732,15 @@ theorem longitud_filtro_lt_cons (q : α → Bool) (p : α) (cola : List α) :
 su Lema&nbsp;6.1 es $\#\operatorname{filter}(q,\ell)\leq\#\ell$; los términos
 $p_1,p_2$ certifican que ambas sublistas satisfacen la nueva cota $\leq n$.
 En Lean, esas dos obligaciones son las desigualdades estrictas exigidas por
-<code>termination_by</code>.</p></li></ol>
+<code>termination_by</code>.</p></li><li><p>La <em>inducción bien fundamentada</em>
+sobre $(\mathbb N,&lt;)$ permite suponer la propiedad para toda lista $s$ con
+$\len s&lt;\len\ell$, no solo para la de longitud $\len\ell-1$; es válida porque
+$&lt;$ no admite cadenas descendentes infinitas y coincide con la inducción fuerte
+sobre los naturales. Véase Winskel&nbsp;<span class="cite">[Winskel 1993, cap. 3]</span> y, para su uso en
+las definiciones recursivas de Lean, el manual&nbsp;<span class="cite">[Community, sec. 7.6.3]</span>.</p></li><li><p>Una función se define por <em>recursión
+estructural</em> cuando cada llamada recursiva se aplica a una componente inmediata
+del argumento, como la cola de una lista; Lean acepta esas definiciones sin una
+prueba de terminación adicional (Capítulo&nbsp;10).</p></li></ol>
 </section>
 <h4>Lean: demostrar la terminación</h4>
 <div class="lean standalone"><div class="cap">Lean</div><pre>@[simp] theorem quicksort_vacia : quicksort ([] : List α) = [] := by
@@ -2362,8 +2402,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>bf6a192</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>0224105</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>62cde14</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>53011a8</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
