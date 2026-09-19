@@ -63,7 +63,7 @@
 <li><a href="#def:formula-syntax">Definición 11.2 (Fórmulas)</a></li>
 <li><a href="#def:eval">Definición 11.3 (Valuación y evaluación)</a></li>
 <li><a href="#def:tautology">Definición 11.4 (Tautología)</a></li>
-<li><a href="#def:falsedad">Definición 11.6 (Falsedad objeto)</a></li>
+<li><a href="#def:falsedad">Definición 11.6 (La fórmula $\bot$)</a></li>
 <li><a href="#lem:evalBot">Lema 11.7 ($\bot$ es semánticamente falsa)</a></li>
 <li><a href="#lem:weak">Lema 11.8 (Debilitamiento)</a></li>
 <li><a href="#lem:dni">Lema 11.9 (Introducción de doble negación)</a></li>
@@ -153,7 +153,7 @@ def EsTautologia (φ : Formula) : Prop :=
 end Thesis.Prop</pre></div>
 <h3>El cálculo de deducción natural</h3>
 <h4>Codificar la falsedad dentro del fragmento neg,imp</h4>
-<section class="result" id="def:falsedad"><h5>Definición 11.6 (Falsedad objeto)</h5>
+<section class="result" id="def:falsedad"><h5>Definición 11.6 (La fórmula $\bot$)</h5>
 <div class="statement"><p>
 Se fija un átomo distinguido $p_0$ (en el código, la cadena <code>"$\bot$"</code>). Se define
 $$
@@ -578,7 +578,7 @@ $$
 Por lo tanto, la reducción al absurdo descarga el supuesto $\Not\sem\alpha_v$ y
 concluye $\sem\alpha_v$. Este supuesto
 metateórico es distinto del supuesto $[\Not\alpha]^{(a)}$ que descarga la
-regla RAA en la derivación objeto; es el único caso que usa lógica clásica en
+regla RAA en la derivación de $\Provnd$; es el único caso que usa lógica clásica en
 la metateoría.
 </li></ol>
 Como $v$ era arbitraria, se cuantifica.
@@ -881,7 +881,7 @@ Para la conclusión positiva, se supone $\sem{p}_v\Rightarrow\sem{q}_v$. Por
 tercero excluido en la metateoría,<sup class="fn">2</sup> o bien $\sem p_v$ o bien $\Not\sem p_v$.
 Este análisis por casos ocurre en la metateoría y no aparece en ninguna
 derivación: en cada caso se construye una derivación distinta de $\Gamma\Provnd p\Imp q$; basta con que exista una en cada caso. Las dos
-derivaciones abren el supuesto objeto $[p]^{(a)}$ y terminan en
+derivaciones abren el supuesto $[p]^{(a)}$ del cálculo y terminan en
 $\Imp\mathrm I(a)$, que lo descarga; la hipótesis semántica del caso no se
 descarga, porque no es una fórmula del cálculo.
 <ul><li>Si $\sem p_v$, la implicación supuesta da $\sem q_v$.
@@ -1049,7 +1049,7 @@ $$
         exact ND.negI dFalsedad</pre></div>
 <ol class="footnotes"><li><p>Conviene distinguir dos pasos que se parecen: la eliminación clásica
 de doble negación en la metateoría, $\Not\Not A\Rightarrow A$ (en Lean, <code>Classical.byContradiction</code>) y la introducción de doble negación en el
-cálculo objeto, $\Gamma\Provnd A\Rightarrow\Gamma\Provnd\Not\Not A$
+cálculo $\Provnd$, $\Gamma\Provnd A\Rightarrow\Gamma\Provnd\Not\Not A$
 (Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a>). No son la misma regla.</p></li><li><p>El <em>tercero excluido</em> afirma
 $P\vee\Not P$ para toda proposición $P$ y permite dividir una prueba en dos
 casos; sobre el núcleo intuicionista es equivalente a
@@ -2366,8 +2366,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>05a6885</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>5341dc8</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>7ee248f</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>af55660</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
