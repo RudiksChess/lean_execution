@@ -354,9 +354,7 @@ $$
       exact ND.classical dFalsedad</pre></div>
 <ol class="footnotes"><li><p>La <em>inducción sobre la
 derivación</em> (o inducción sobre reglas) prueba una propiedad de todos los juicios
-derivables analizando la última regla aplicada: hay un caso por regla y, en cada
-uno, la propiedad se supone para las premisas (hipótesis inductiva) y se prueba
-para la conclusión. Es el principio de eliminación del tipo inductivo
+derivables analizando la última regla aplicada: hay un caso por regla; en cada uno la propiedad se supone para las premisas (hipótesis inductiva) y se prueba para la conclusión. Es el principio de eliminación del tipo inductivo
 <code>ND</code>; véase Winskel&nbsp;<span class="cite">[Winskel 1993, cap. 4]</span> y
 Pierce&nbsp;<span class="cite">[Pierce 2002, cap. 3]</span>.</p></li></ol>
 </section>
@@ -813,8 +811,7 @@ $$
       · have hLiteralCola : literal v p ∈ contextoLiterales v cola := hipInd hCola
         exact Set.mem_insert_of_mem (literal v a) hLiteralCola</pre></div>
 <ol class="footnotes"><li><p>La <em>inducción sobre listas</em> prueba una
-propiedad para toda lista probándola para $[]$ y, suponiéndola para la cola $r$,
-para $a::r$; es la inducción estructural del tipo
+propiedad para toda lista probándola para $[]$ y después para $a::r$ suponiéndola para la cola $r$; es la inducción estructural del tipo
 <code>List</code>&nbsp;<span class="cite">[Hutton 2016, cap. 16]</span>.</p></li></ol>
 </section>
 <h4>El lema de Kalmár</h4>
@@ -1072,8 +1069,7 @@ $$
         -- negI descarga p ⟶ q y concluye su negación bajo el contexto original.
         exact ND.negI dFalsedad</pre></div>
 <ol class="footnotes"><li><p>Conviene distinguir dos pasos que se parecen: la eliminación clásica
-de doble negación en la metateoría, $\Not\Not A\Rightarrow A$ (en Lean,
-<code>Classical.byContradiction</code>), y la introducción de doble negación en el
+de doble negación en la metateoría, $\Not\Not A\Rightarrow A$ (en Lean, <code>Classical.byContradiction</code>) y la introducción de doble negación en el
 cálculo objeto, $\Gamma\Provnd A\Rightarrow\Gamma\Provnd\Not\Not A$
 (Lema&nbsp;<a class="xref" href="#lem:dni">11.9</a>). No son la misma regla.</p></li><li><p>El <em>tercero excluido</em> afirma
 $P\vee\Not P$ para toda proposición $P$ y permite dividir una prueba en dos
@@ -1654,8 +1650,7 @@ theorem longitud_filtro_le (q : α → Bool) (l : List α) :
           simp only [List.filter_cons, hq, Bool.false_eq_true, ↓reduceIte]
           exact le_of_lt (lt_of_le_of_lt hipInd (Nat.lt_succ_self cola.length))</pre></div>
 <ol class="footnotes"><li><p>La <em>inducción sobre listas</em> prueba una
-propiedad para toda lista probándola para $[]$ y, suponiéndola para la cola $r$,
-para $a::r$; es la inducción estructural del tipo
+propiedad para toda lista probándola para $[]$ y después para $a::r$ suponiéndola para la cola $r$; es la inducción estructural del tipo
 <code>List</code>&nbsp;<span class="cite">[Hutton 2016, cap. 16]</span>.</p></li></ol>
 </section>
 <section class="result" id="prop:qs-term"><h5>Proposición 12.6 (Terminación)</h5>
@@ -1736,8 +1731,7 @@ En Lean, esas dos obligaciones son las desigualdades estrictas exigidas por
 sobre $(\mathbb N,&lt;)$ permite suponer la propiedad para toda lista $s$ con
 $\len s&lt;\len\ell$, no solo para la de longitud $\len\ell-1$; es válida porque
 $&lt;$ no admite cadenas descendentes infinitas y coincide con la inducción fuerte
-sobre los naturales. Véase Winskel&nbsp;<span class="cite">[Winskel 1993, cap. 3]</span> y, para su uso en
-las definiciones recursivas de Lean, el manual&nbsp;<span class="cite">[Community, sec. 7.6.3]</span>.</p></li><li><p>Una función se define por <em>recursión
+sobre los naturales. Véase Winskel&nbsp;<span class="cite">[Winskel 1993, cap. 3]</span>; para su uso en las definiciones recursivas de Lean, véase el manual&nbsp;<span class="cite">[Community, sec. 7.6.3]</span>.</p></li><li><p>Una función se define por <em>recursión
 estructural</em> cuando cada llamada recursiva se aplica a una componente inmediata
 del argumento, como la cola de una lista; Lean acepta esas definiciones sin una
 prueba de terminación adicional (Capítulo&nbsp;10).</p></li></ol>
@@ -2402,8 +2396,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>62cde14</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>53011a8</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>a99c8d8</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>e6da020</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
