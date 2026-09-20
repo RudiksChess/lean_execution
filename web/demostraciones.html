@@ -2049,26 +2049,51 @@ $$
 $$
 donde $C(s,t):\Longleftrightarrow\forall x\in s,\ \forall y\in t,\ R\,x\,y$.
 </p><p>
-Por análisis del constructor de $\Pairwise$ en las dos direcciones del
-bicondicional para $::$; por inducción sobre $\ell_1$, con $R$ y $\ell_2$ fijos,
-para $\concat$. En el caso $a::r$ se prueban dos equivalencias auxiliares
+Por introducción del bicondicional para $::$, con análisis de casos sobre la
+última regla de la derivación en la dirección $(\Rightarrow)$; por inducción
+sobre $\ell_1$, con $R$ y $\ell_2$ fijos, para $\concat$. En el caso $a::r$ se prueban dos equivalencias auxiliares
 $(\ast)$ por introducción del bicondicional y se encadenan con la hipótesis
 inductiva.
 </p><p>
-<strong>Parte 1 (la equivalencia para $::$).</strong> Por análisis del constructor de $\Pairwise$. La equivalencia para $::$ es la segunda ecuación de (?).
-Se demuestra de todos modos porque, en Lean, $\Pairwise$ es un predicado
-inductivo y esa ecuación no es su definición sino un lema sobre sus dos
-constructores, $\Pairwise\,R\,[]$ y
+<strong>Parte 1 (la equivalencia para $::$).</strong> Por introducción del
+bicondicional: la dirección $(\Rightarrow)$ por análisis de casos sobre la
+última regla de la derivación (la eliminación del predicado inductivo) y la
+dirección $(\Leftarrow)$ por la regla <code>cons</code>. El predicado
+$\Pairwise\,R$ es inductivo con dos reglas,
 $$
+\frac{}{\Pairwise\,R\,[]}\;TnilT
+\qquad\qquad
 \frac{\forall b\in\ell,\ R\,a\,b\qquad\Pairwise\,R\,\ell}
-{\Pairwise\,R\,(a::\ell)}.
+{\Pairwise\,R\,(a::\ell)}\;TconsT,
 $$
-<strong>Dirección $(\Rightarrow)$.</strong> Una prueba de $\Pairwise\,R\,(a::\ell)$ no puede
-proceder del constructor vacío. Al descomponer el constructor no vacío,
-se obtienen sus dos premisas: $\forall b\in\ell,\ R\,a\,b$ y
-$\Pairwise\,R\,\ell$; se reúnen por introducción de $\wedge$.
-<strong>Dirección $(\Leftarrow)$.</strong> Se extraen ambas premisas de la conjunción y se aplica
-el constructor no vacío. Por lo tanto,
+de modo que toda derivación de $\Pairwise\,R\,xs$ termina en una de ellas y
+puede analizarse por casos sobre esa última regla
+(Capítulo&nbsp;10; en Lean, la táctica <code>cases</code>). La
+segunda ecuación de (?) es la lectura de la regla
+<code>cons</code> como equivalencia; no es la definición, así que hay que
+demostrarla.
+</p><p>
+<strong>Dirección $(\Rightarrow)$.</strong> Sea $h$ una derivación de
+$\Pairwise\,R\,(a::\ell)$. Por casos sobre su última regla:
+<ul><li><strong>Caso <code>nil</code>.</strong> Su conclusión es $\Pairwise\,R\,[]$; como
+$a::\ell\neq[]$ (los constructores de <code>List</code> son distintos), esta regla
+no puede haber producido $h$. El caso se descarta.
+</li><li><strong>Caso <code>cons</code>.</strong> Su conclusión es $\Pairwise\,R\,(a'::\ell')$
+para ciertos $a',\ell'$; al coincidir con $\Pairwise\,R\,(a::\ell)$ se tiene
+$a'=a$ y $\ell'=\ell$ (los constructores de <code>List</code> son inyectivos). Sus
+premisas son entonces $h_1:\forall b\in\ell,\ R\,a\,b$ y
+$h_2:\Pairwise\,R\,\ell$. La introducción de conjunción da
+$(\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell$.
+</li></ul>
+En el código, <code>cases h with | cons hCabeza hCola</code> realiza este
+análisis; Lean descarta el caso <code>nil</code> por la misma unificación.
+</p><p>
+<strong>Dirección $(\Leftarrow)$.</strong> Por eliminación de conjunción se
+obtienen $h_1:\forall b\in\ell,\ R\,a\,b$ y $h_2:\Pairwise\,R\,\ell$; la regla
+<code>cons</code> aplicada a $h_1$ y $h_2$ da $\Pairwise\,R\,(a::\ell)$. En el
+código, <code>List.Pairwise.cons hCabeza hCola</code>.
+</p><p>
+ Ambas direcciones se reúnen por introducción del bicondicional:
 $$
 \Pairwise\,R\,(a::\ell)\Longleftrightarrow
 (\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell.
@@ -2455,8 +2480,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>670ab4f</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>b3eaeec</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>334e085</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>93c3a7b</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
