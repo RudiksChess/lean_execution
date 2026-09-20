@@ -15,7 +15,7 @@ from spanish_migration import CONFIG as SPANISH_CONFIG, translate
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "artifacts/explorer/proofs.json"
-SOURCE_COMMIT = "6eecf5afeba4af39280bd98d2667f295baa94973"
+SOURCE_COMMIT = "346b38b3f2ebad28615add9b05d9485689828f69"
 LEAN_TOOLCHAIN = "leanprover/lean4:v4.29.0"
 LEAN_VERSION = "4.29.0"
 SUBVERSO_REVISION = "52b9dfbd2658408e37ae6e8b72601ddeaaa25a0c"
