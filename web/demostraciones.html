@@ -163,7 +163,7 @@ $$
 </section>
 <section class="result" id="lem:evalBot"><h5>Lema 11.7 ($\bot$ es semánticamente falsa)</h5>
 <div class="statement"><p>
-Para toda valuación $v$, $\;\sem{\bot}_v \leftrightarrow \mathrm{Falso}$.
+Para toda valuación $v$, $\;\sem{\bot}_v \Longleftrightarrow \mathrm{Falso}$.
 </p></div>
 <div class="preface"><p>
 La prueba verifica la codificación de la Definición&nbsp;<a class="xref" href="#def:falsedad">11.6</a> mediante las
@@ -213,7 +213,7 @@ theorem evaluar_falsedad (v : Valuacion) : evaluar v Falsedad ↔ False := by
 <ol class="footnotes"><li><p>Las reglas de
 introducción y eliminación que se nombran en la lógica de Lean son las de la
 deducción natural del Capítulo&nbsp;9, aplicadas a
-proposiciones de Lean; el bicondicional $P\leftrightarrow Q$ se introduce
+proposiciones de Lean; el bicondicional $P\Longleftrightarrow Q$ se introduce
 probando $P\Rightarrow Q$ y $Q\Rightarrow P$&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2]</span>.</p></li></ol>
 </section>
 <h4>Convenios sobre el juicio</h4>
@@ -1104,7 +1104,7 @@ RAA&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2.2]</span>. En Lean lo ap
 <h4>El contexto de literales depende solo de los valores de verdad</h4>
 <section class="result" id="lem:congr"><h5>Lema 11.19 (Congruencia de literales y contextos)</h5>
 <div class="statement"><p>
-Si dos valuaciones $v,w$ coinciden en un átomo $x$ (es decir, $v(x)\leftrightarrow w(x)$),
+Si dos valuaciones $v,w$ coinciden en un átomo $x$ (es decir, $v(x)\Longleftrightarrow w(x)$),
 entonces $\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)$. En consecuencia, si $v,w$ coinciden en
 todos los átomos de una lista $A$, entonces
 $\Gamma_{v}(A)=\Gamma_{w}(A)$.
@@ -1121,7 +1121,7 @@ $\Not v(x)$; por inducción sobre $A$ para los contextos, con la premisa de
 coincidencia conservada en el predicado.
 </p><p>
 <strong>Parte 1 ($\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)$).</strong>
-Por casos sobre $v(x)$. Sea $h:v(x)\leftrightarrow w(x)$.
+Por casos sobre $v(x)$. Sea $h:v(x)\Longleftrightarrow w(x)$.
 <ul><li><strong>Caso $v(x)$.</strong> La dirección $(\Rightarrow)$ de $h$ da $w(x)$.
 </li><li><strong>Caso $\Not v(x)$.</strong> Por reducción al absurdo: supóngase $w(x)$;
 la dirección $(\Leftarrow)$ de $h$ da $v(x)$; entonces
@@ -1140,19 +1140,19 @@ x,&amp;v(x),\\
 \end{cases}
 $$
 <strong>Parte 2 ($\Gamma_{v}(A)=\Gamma_{w}(A)$).</strong> Por inducción
-sobre $A$. La premisa es $H:\forall x\in A,\ v(x)\leftrightarrow w(x)$ y la
+sobre $A$. La premisa es $H:\forall x\in A,\ v(x)\Longleftrightarrow w(x)$ y la
 inducción la mantiene en el predicado:
 $$
 P(s):\Longleftrightarrow
-(\forall x\in s,\ v(x)\leftrightarrow w(x))
+(\forall x\in s,\ v(x)\Longleftrightarrow w(x))
 \Rightarrow\Gamma_{v}(s)=\Gamma_{w}(s).
 $$
 <ol><li><strong>Caso $A=[]$.</strong> Por la Definición&nbsp;<a class="xref" href="#def:litctx">11.16</a>,
 $\Gamma_{v}([])=\varnothing=\Gamma_{w}([])$.
-</li><li><strong>Caso $A=a::r$.</strong> Por introducción de implicación: supóngase $H:\forall x\in a::r,\ v(x)\leftrightarrow w(x)$.
-Como $a\in a::r$ (pertenencia a una lista), $H$ instanciada en $a$ da $v(a)\leftrightarrow w(a)$; la primera parte del lema da
-$\mathrm{literal}_{v}(a)=\mathrm{literal}_{w}(a)$. Sea ahora $x\in r$; entonces $x\in a::r$; $H$ instanciada en $x$ da $v(x)\leftrightarrow w(x)$; como $x$
-era arbitrario, $\forall x\in r,\ v(x)\leftrightarrow w(x)$, que es la premisa
+</li><li><strong>Caso $A=a::r$.</strong> Por introducción de implicación: supóngase $H:\forall x\in a::r,\ v(x)\Longleftrightarrow w(x)$.
+Como $a\in a::r$ (pertenencia a una lista), $H$ instanciada en $a$ da $v(a)\Longleftrightarrow w(a)$; la primera parte del lema da
+$\mathrm{literal}_{v}(a)=\mathrm{literal}_{w}(a)$. Sea ahora $x\in r$; entonces $x\in a::r$; $H$ instanciada en $x$ da $v(x)\Longleftrightarrow w(x)$; como $x$
+era arbitrario, $\forall x\in r,\ v(x)\Longleftrightarrow w(x)$, que es la premisa
 de la hipótesis inductiva $P(r)$; esta da $\Gamma_v(r)=\Gamma_w(r)$.
 Se sustituyen la igualdad de literales y esta igualdad de contextos:
 $$
@@ -1258,8 +1258,8 @@ $$
 p\in r,\qquad p\notin r\qquad\Contra
 $$
 Se descarga $x=p$ y queda $x\ne p$; por definición de $u$ y $w$, $u(x)=v(x)=w(x)$. Como $x$ era arbitrario,
-$\forall x\in r,\ u(x)\leftrightarrow v(x)$ y
-$\forall x\in r,\ v(x)\leftrightarrow w(x)$. El Lema&nbsp;<a class="xref" href="#lem:congr">11.19</a>,
+$\forall x\in r,\ u(x)\Longleftrightarrow v(x)$ y
+$\forall x\in r,\ v(x)\Longleftrightarrow w(x)$. El Lema&nbsp;<a class="xref" href="#lem:congr">11.19</a>,
 instanciado en la lista $r$ con cada uno de esos pares de valuaciones, da
 $$
 \Gamma_u(r)=\Gamma_v(r)=\Gamma_w(r).
@@ -1411,7 +1411,7 @@ son <code>List.nodup_dedup</code> y la dirección $(\Leftarrow)$ de
 <h4>Corrección y completitud juntas</h4>
 <section class="result" id="thm:adequacy"><h5>Teorema 11.22 (Adecuación)</h5>
 <div class="statement"><p>
-Para toda fórmula $\varphi$, $\;\mathrm{Taut}(\varphi)\ \leftrightarrow\ \varnothing\Provnd\varphi$.
+Para toda fórmula $\varphi$, $\;\mathrm{Taut}(\varphi)\ \Longleftrightarrow\ \varnothing\Provnd\varphi$.
 </p></div>
 <div class="preface"><p>
 Es la instancia sin premisas del corolario&nbsp;1.39 de
@@ -1986,7 +1986,7 @@ Definición&nbsp;<a class="xref" href="#def:qs-perm">12.3</a>.</p></li></ol>
 </section>
 <section class="result" id="cor:qs-mem"><h5>Corolario 12.9 (Se preserva la pertenencia)</h5>
 <div class="statement"><p>
-Para todo $a$ y $\ell$, $\ a\in\qs(\ell)\leftrightarrow a\in\ell$.
+Para todo $a$ y $\ell$, $\ a\in\qs(\ell)\Longleftrightarrow a\in\ell$.
 </p></div>
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $a\in\qs(\ell)\Longleftrightarrow a\in\ell$.
@@ -2455,8 +2455,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>01ce80c</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>70a05a9</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>670ab4f</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>b3eaeec</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
