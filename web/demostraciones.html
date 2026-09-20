@@ -184,7 +184,7 @@ tablas de $\Not$ e $\Imp$&nbsp;<span class="cite">[Mendelson 2015, sec. 1.1]</sp
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\sem{\bot}_v\Longleftrightarrow\mathrm{Falso}$.
 </p><p>
-Por introducción del bicondicional&nbsp;(R7) (pasos según la Nota&nbsp;11.2).
+Por introducción del bicondicional&nbsp;(R7).
 </p><p>
 Sea $A:=v(p_0)$. Por las Definiciones&nbsp;<a class="xref" href="#def:eval">11.4</a> y&nbsp;<a class="xref" href="#def:falsedad">11.8</a>,
 $\sem{\bot}_v$ es la proposición $\Not(A\Rightarrow A)$.
@@ -250,8 +250,7 @@ sobre los siete constructores de $\Provnd$, incluidas sus descargas.
 <strong>A probar:</strong> $\Delta\Provnd\varphi$.
 </p><p>
 Por inducción sobre la derivación de $\Gamma\Provnd\varphi$, con la premisa
-$\Gamma\subseteq\Delta$ conservada en el predicado (pasos según la
-Nota&nbsp;11.2).<sup class="fn">1</sup> El predicado es
+$\Gamma\subseteq\Delta$ conservada en el predicado.<sup class="fn">1</sup> El predicado es
 $$
 \forall\Delta,\quad\Gamma\subseteq\Delta\Rightarrow\Delta\Provnd\varphi.
 $$
@@ -418,7 +417,7 @@ Aquí se explicita el contexto $\Gamma$ mediante debilitamiento.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Gamma\Provnd\Not\Not\varphi$.
 </p><p>
-Por $\Not\mathrm I(a)$ en el cálculo $\Provnd$ (pasos según la Nota&nbsp;11.2): se abre
+Por $\Not\mathrm I(a)$ en el cálculo $\Provnd$: se abre
 $[\Not\varphi]^{(a)}$; el contexto ampliado
 es $\Gamma,\Not\varphi:=\Gamma\cup\{\Not\varphi\}$.
 </p><p>
@@ -462,7 +461,7 @@ Aquí se reconstruye con RAA y reglas de negación, sin introducir $\lor$.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Gamma\Provnd\chi$.
 </p><p>
-Por $\mathrm{RAA}(a)$ en el cálculo $\Provnd$ (pasos según la Nota&nbsp;11.2): se abre
+Por $\mathrm{RAA}(a)$ en el cálculo $\Provnd$: se abre
 $[\Not\chi]^{(a)}$; el contexto ampliado es
 $\Delta:=\Gamma\cup\{\Not\chi\}$. Las premisas son $\Gamma,\varphi\Provnd\chi$ y
 $\Gamma,\Not\varphi\Provnd\chi$.
@@ -547,7 +546,7 @@ $v\models\Gamma\cup\{\chi\}$.
 <strong>A probar:</strong> $v\models\Gamma\cup\{\chi\}$.
 </p><p>
 Por generalización&nbsp;(R15), introducción de implicación&nbsp;(R1)
-y análisis por casos&nbsp;(R6) (pasos según la Nota&nbsp;11.2).
+y análisis por casos&nbsp;(R6).
 </p><p>
 La meta es $\forall\psi,\ \psi\in\Gamma\cup\{\chi\}\Rightarrow\sem\psi_v$
 (Definición&nbsp;<a class="xref" href="#def:sat">11.6</a>). Sea $\psi$ una fórmula arbitraria; por
@@ -595,7 +594,7 @@ derivaciones, con $\Gamma$ arbitrario y las siete reglas de este cálculo.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\forall v,\ v\models\Gamma\Rightarrow\sem\varphi_v$.
 </p><p>
-Por inducción sobre la derivación de $\Gamma\Provnd\varphi$ (pasos según la Nota&nbsp;11.2).
+Por inducción sobre la derivación de $\Gamma\Provnd\varphi$.
 </p><p>
 El enunciado que se prueba por inducción es el cuantificado,
 $\forall v,\ v\models\Gamma\Rightarrow\sem\varphi_v$; por eso, para cada
@@ -742,7 +741,7 @@ proposición&nbsp;1.12 de Mendelson&nbsp;<span class="cite">[Mendelson 2015, p. 
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\operatorname{Taut}(\varphi)$.
 </p><p>
-Por corrección (Teorema&nbsp;<a class="xref" href="#thm:soundness">11.14</a>) con contexto vacío (pasos según la Nota&nbsp;11.2).
+Por corrección (Teorema&nbsp;<a class="xref" href="#thm:soundness">11.14</a>) con contexto vacío.
 </p><p>
 Sea $v$ una valuación arbitraria.
 </p><p>
@@ -786,7 +785,7 @@ aquí se excluye $\bot$ mediante el Lema&nbsp;<a class="xref" href="#lem:evalBot
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Not(\varnothing\Provnd\bot)$.
 </p><p>
-Por reducción al absurdo&nbsp;(R9) (pasos según la Nota&nbsp;11.2).
+Por reducción al absurdo&nbsp;(R9).
 </p><p>
 Se supone una derivación $d:\varnothing\Provnd\bot$. El
 Corolario&nbsp;<a class="xref" href="#cor:taut">11.15</a>, aplicado a $d$, da $\operatorname{Taut}(\bot)$. Sea
@@ -862,8 +861,7 @@ Si $p \in A$ entonces $\mathrm{literal}_v(p)\in\Gamma_v(A)$.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\mathrm{literal}_v(p)\in\Gamma_v(A)$.
 </p><p>
-Por inducción sobre $A$, con $p$ y $v$ fijos (pasos según la
-Nota&nbsp;11.2).<sup class="fn">1</sup> La premisa $p\in A$ se conserva en el predicado $P(s):\Longleftrightarrow p\in s\Rightarrow\mathrm{literal}_v(p)\in\Gamma_v(s)$.
+Por inducción sobre $A$, con $p$ y $v$ fijos.<sup class="fn">1</sup> La premisa $p\in A$ se conserva en el predicado $P(s):\Longleftrightarrow p\in s\Rightarrow\mathrm{literal}_v(p)\in\Gamma_v(s)$.
 <ol><li><strong>Caso $A=[]$.</strong> Por introducción de implicación&nbsp;(R1): se supone $p\in[]$. Ninguna
 cadena pertenece a la lista vacía (Sección&nbsp;11.6.1), así que $p\in[]$ da $\mathrm{Falso}$; la
 eliminación de falsedad&nbsp;(R11) da $\mathrm{literal}_v(p)\in\Gamma_v([])$. Se descarga
@@ -925,7 +923,7 @@ $$
 $$
 (\sem\varphi_v\Rightarrow\Gamma_v(A)\Provnd\varphi)\wedge(\Not\sem\varphi_v\Rightarrow\Gamma_v(A)\Provnd\Not\varphi).
 $$
-Por inducción estructural sobre $\varphi$, con $v$ y $A$ fijos (pasos según la Nota&nbsp;11.2).
+Por inducción estructural sobre $\varphi$, con $v$ y $A$ fijos.
 </p><p>
 Sea $\Gamma:=\Gamma_v(A)$, con la premisa de cobertura conservada en el
 predicado:
@@ -1225,7 +1223,7 @@ $$
 \mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x),\qquad
 \Gamma_{v}(A)=\Gamma_{w}(A).
 $$
-Por casos sobre $v(x)$ ((R13), (R6)) para los literales y por inducción sobre $A$ para los contextos (pasos según la Nota&nbsp;11.2).
+Por casos sobre $v(x)$ ((R13), (R6)) para los literales y por inducción sobre $A$ para los contextos.
 </p><p>
 <strong>Parte 1 ($\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)$).</strong>
 Sea $h:v(x)\Longleftrightarrow w(x)$ la premisa.
@@ -1335,7 +1333,7 @@ se cumple para <em>toda</em> valuación $v$, entonces $\varnothing\Provnd\varphi
 <strong>A probar:</strong> $\varnothing\Provnd\varphi$.
 </p><p>
 Por inducción sobre $A$, con las premisas $\mathrm{Nodup}(A)$ y la universal
-conservadas en el predicado (pasos según la Nota&nbsp;11.2):
+conservadas en el predicado:
 $$
 D(s):\Longleftrightarrow
 \mathrm{Nodup}(s)\Rightarrow
@@ -1503,7 +1501,7 @@ de Huth y Ryan&nbsp;<span class="cite">[Huth y Ryan 2004, pp. 50–53]</span>.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\operatorname{Taut}(\varphi)\Rightarrow\varnothing\Provnd\varphi$.
 </p><p>
-Por introducción de implicación&nbsp;(R1) (pasos según la Nota&nbsp;11.2): se supone
+Por introducción de implicación&nbsp;(R1): se supone
 $h:\operatorname{Taut}(\varphi)$; sea
 $A:=\mathrm{dedup}(\mathrm{atomos}(\varphi))$. Por la primera propiedad de
 $\mathrm{dedup}$ (Sección&nbsp;11.6.5), $\mathrm{Nodup}(A)$.
@@ -1561,7 +1559,7 @@ la corrección y la completitud ya demostradas.
 $$
 \operatorname{Taut}(\varphi)\Longleftrightarrow\varnothing\Provnd\varphi.
 $$
-Por introducción del bicondicional&nbsp;(R7) (pasos según la Nota&nbsp;11.2).
+Por introducción del bicondicional&nbsp;(R7).
 </p><p>
 $(\Rightarrow)$ Por introducción de implicación&nbsp;(R1): se
 supone $\operatorname{Taut}(\varphi)$; el Teorema&nbsp;<a class="xref" href="#thm:completeness">11.23</a>, por
@@ -1731,7 +1729,7 @@ Sobre un tipo linealmente ordenado $\alpha$, se define $\qs:\Lista\,\alpha\to\Li
 por
 $$
   \qs([]) = [], \qquad
-  \qs(p :: r) = \qs(\ell_{\leq})\ \concat\ \big(p :: \qs(\ell_{&gt;})\big),
+  \qs(p :: r) = \qs(L)\ \concat\ \big(p :: \qs(R)\big),
 $$
 donde los predicados booleanos de partición son
 $$
@@ -1741,18 +1739,18 @@ q_{&gt;p}(x):=q_{\leq p}^{c}(x)=\neg_{\mathbb B}q_{\leq p}(x),
 $$
 y a partir de la cola $r$
 $$
-  \ell_{\leq} := \filt(q_{\leq p})(r),
+  L := \filt(q_{\leq p})(r),
   \qquad
-  \ell_{&gt;} := \filt(q_{&gt;p})(r).
+  R := \filt(q_{&gt;p})(r).
 $$
 Aquí $p$ es el pivote y $\concat$ es concatenación. Por
 ($F_\in $) y (D),
 $$
 \begin{aligned}
-x\in\ell_{\leq}
+x\in L
 &amp;\Longleftrightarrow x\in r\wedge q_{\leq p}(x)=\verd
 \Longleftrightarrow x\in r\wedge x\leq p,\\
-x\in\ell_{&gt;}
+x\in R
 &amp;\Longleftrightarrow x\in r\wedge q_{&gt;p}(x)=\verd\\
 &amp;\Longleftrightarrow x\in r\wedge\neg(x\leq p)
 \Longleftrightarrow x\in r\wedge p&lt;x.
@@ -1780,7 +1778,7 @@ la obtiene de (F) y (L).
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\len{\filt(q)(\ell)}\leq\len\ell$.
 </p><p>
-Por inducción sobre $\ell$, con $q$ fijo (pasos según la Nota&nbsp;11.2).<sup class="fn">1</sup>
+Por inducción sobre $\ell$, con $q$ fijo.<sup class="fn">1</sup>
 <ol><li><strong>Caso $\ell=[]$.</strong> Por (F) y (L),
 $\len{\filt(q)([])}=0\leq0=\len{[]}$.
 </li><li><strong>Caso $\ell=a::r$.</strong> La hipótesis inductiva es
@@ -1853,7 +1851,7 @@ Lema&nbsp;<a class="xref" href="#lem:qs-filter-le">12.5</a>.<sup class="fn">1</s
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\qs$ es total.
 </p><p>
-Por inducción bien fundamentada sobre $\len\ell$ (pasos según la Nota&nbsp;11.2).<sup class="fn">2</sup>
+Por inducción bien fundamentada sobre $\len\ell$.<sup class="fn">2</sup>
 La hipótesis inductiva es que $\qs(s)$ está definida para toda lista $s$ con $\len s&lt;\len\ell$.
 <ol><li><strong>Caso $\ell=[]$.</strong> $\qs([])=[]$ por la Definición&nbsp;<a class="xref" href="#def:qs-def">12.4</a>, sin llamadas
 recursivas.
@@ -1946,7 +1944,7 @@ se divide según los dos valores posibles del predicado.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\filt(q)(\ell)\concat\filt(q^c)(\ell)\Perm\ell$.
 </p><p>
-Por inducción sobre $\ell$, con $q$ fijo y $q^c$ su complemento (pasos según la Nota&nbsp;11.2).
+Por inducción sobre $\ell$, con $q$ fijo y $q^c$ su complemento.
 <ol><li><strong>Caso $\ell=[]$.</strong>
 $$
 \begin{aligned}
@@ -2025,7 +2023,7 @@ La demostración sigue la parte de permutación del Teorema&nbsp;6.4 de Thompson
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\qs(\ell)\Perm\ell$.
 </p><p>
-Por inducción bien fundamentada sobre $\len\ell$ (pasos según la Nota&nbsp;11.2). La hipótesis inductiva es
+Por inducción bien fundamentada sobre $\len\ell$. La hipótesis inductiva es
 $$
 \forall s,\quad\len s&lt;\len\ell\Rightarrow\qs(s)\Perm s.
 $$
@@ -2125,7 +2123,7 @@ Para todo $a$ y $\ell$, $\ a\in\qs(\ell)\Longleftrightarrow a\in\ell$.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $a\in\qs(\ell)\Longleftrightarrow a\in\ell$.
 </p><p>
-Por aplicación directa del Teorema&nbsp;<a class="xref" href="#thm:qs-perm">12.8</a> y de la invariancia de pertenencia de la Definición&nbsp;<a class="xref" href="#def:qs-perm">12.3</a> (pasos según la Nota&nbsp;11.2).
+Por aplicación directa del Teorema&nbsp;<a class="xref" href="#thm:qs-perm">12.8</a> y de la invariancia de pertenencia de la Definición&nbsp;<a class="xref" href="#def:qs-perm">12.3</a>.
 </p><p>
 El Teorema&nbsp;<a class="xref" href="#thm:qs-perm">12.8</a>, aplicado a $\ell$, da $\qs(\ell)\Perm\ell$. La invariancia de
 pertenencia, aplicada a las listas
@@ -2177,7 +2175,7 @@ $$
 donde $C(s,t):\Longleftrightarrow\forall x\in s,\ \forall y\in t,\ R\,x\,y$.
 </p><p>
 Por introducción del bicondicional&nbsp;(R7) para $::$ y por inducción sobre $\ell_1$,
-con $R$ y $\ell_2$ fijos, para $\concat$ (pasos según la Nota&nbsp;11.2).
+con $R$ y $\ell_2$ fijos, para $\concat$.
 </p><p>
 <strong>Parte 1 (la equivalencia para $::$).</strong> Las reglas de $\Pairwise\,R$ son
 $$
@@ -2429,7 +2427,7 @@ Thompson&nbsp;<span class="cite">[Thompson 1991, pp. 211–212]</span>.<sup clas
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Sorted(\qs(\ell))$.
 </p><p>
-Por inducción bien fundamentada sobre $\len\ell$ (pasos según la Nota&nbsp;11.2). La hipótesis inductiva es
+Por inducción bien fundamentada sobre $\len\ell$. La hipótesis inductiva es
 $$
 \forall s,\quad\len s&lt;\len\ell\Rightarrow\Sorted(\qs(s)).
 $$
@@ -2633,7 +2631,7 @@ se obtiene aquí de los Teoremas&nbsp;<a class="xref" href="#thm:qs-perm">12.8</
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\bigl(\qs(\ell)\Perm\ell\bigr)\wedge\Sorted(\qs(\ell))$.
 </p><p>
-Por introducción de conjunción&nbsp;(R3) (pasos según la Nota&nbsp;11.2).
+Por introducción de conjunción&nbsp;(R3).
 </p><p>
 El Teorema&nbsp;<a class="xref" href="#thm:qs-perm">12.8</a>, aplicado a $\ell$, da $\qs(\ell)\Perm\ell$ y el
 Teorema&nbsp;<a class="xref" href="#thm:qs-sorted">12.11</a>, aplicado a $\ell$, da $\Sorted(\qs(\ell))$; la
@@ -2680,8 +2678,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>2ae556f</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>17c54eb</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>e8c8926</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>dd8e2aa</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
