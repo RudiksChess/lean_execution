@@ -263,19 +263,17 @@ $\forall\Theta,\ \Sigma\subseteq\Theta\Rightarrow\Theta\Provnd\theta$.
 fórmula $\psi$ cualesquiera).</strong> Por introducción de implicación&nbsp;(R1):
 se supone $\Gamma\subseteq\Delta$. Sea $\chi$ una fórmula arbitraria; por
 introducción de implicación&nbsp;(R1): se supone
-$\chi\in\Gamma\cup\{\psi\}$. La dirección $(\Rightarrow)$ de la caracterización
-de la unión&nbsp;(R8) (Sección&nbsp;11.3.2) da
-$\chi=\psi\vee\chi\in\Gamma$. Por casos&nbsp;(R6) sobre esa disyunción:
-<ul><li><strong>Caso $\chi=\psi$.</strong> Por introducción de disyunción&nbsp;(R5),
-$\chi=\psi\vee\chi\in\Delta$; la dirección $(\Leftarrow)$ de la caracterización
-de la unión&nbsp;(R8) da $\chi\in\Delta\cup\{\psi\}$.
+$\chi\in\Gamma\cup\{\psi\}$. Por la pertenencia a una unión
+(Sección&nbsp;11.3.2), $\chi=\psi\vee\chi\in\Gamma$. Por
+casos&nbsp;(R6) sobre esa disyunción:
+<ul><li><strong>Caso $\chi=\psi$.</strong> Como $\chi=\psi$,
+$\chi\in\Delta\cup\{\psi\}$ (Sección&nbsp;11.3.2).
 </li><li><strong>Caso $\chi\in\Gamma$.</strong> El supuesto $\Gamma\subseteq\Delta$, es
 decir, $\forall\xi\,(\xi\in\Gamma\Rightarrow\xi\in\Delta)$
 (Sección&nbsp;11.3.2), instanciado&nbsp;(R16) en $\chi$ y
 aplicado por eliminación de implicación&nbsp;(R2) a $\chi\in\Gamma$, da
-$\chi\in\Delta$. Por introducción de disyunción&nbsp;(R5),
-$\chi=\psi\vee\chi\in\Delta$; la dirección $(\Leftarrow)$ de la caracterización
-de la unión&nbsp;(R8) da $\chi\in\Delta\cup\{\psi\}$.
+$\chi\in\Delta$; luego $\chi\in\Delta\cup\{\psi\}$
+(Sección&nbsp;11.3.2).
 </li></ul>
 Los dos casos agotan la disyunción&nbsp;(R6). Se descarga
 $\chi\in\Gamma\cup\{\psi\}$ y queda
@@ -554,9 +552,8 @@ y análisis por casos&nbsp;(R6) (pasos según la Nota&nbsp;11.2).
 La meta es $\forall\psi,\ \psi\in\Gamma\cup\{\chi\}\Rightarrow\sem\psi_v$
 (Definición&nbsp;<a class="xref" href="#def:sat">11.6</a>). Sea $\psi$ una fórmula arbitraria; por
 introducción de implicación&nbsp;(R1): se supone
-$\psi\in\Gamma\cup\{\chi\}$. La dirección $(\Rightarrow)$ de la caracterización
-de la pertenencia a una unión&nbsp;(R8)
-(Sección&nbsp;11.3.2) da $\psi=\chi\vee\psi\in\Gamma$. Por
+$\psi\in\Gamma\cup\{\chi\}$. Por la pertenencia a una unión
+(Sección&nbsp;11.3.2), $\psi=\chi\vee\psi\in\Gamma$. Por
 casos&nbsp;(R6) sobre esa disyunción:
 <ul><li><strong>Caso $\psi=\chi$.</strong> Por sustitución de iguales&nbsp;(R17):
 la premisa $\sem\chi_v$ con $\psi=\chi$ da $\sem\psi_v$.
@@ -872,9 +869,8 @@ cadena pertenece a la lista vacía (Sección&nbsp;11.6.1), así que $p\in[]$ da 
 eliminación de falsedad&nbsp;(R11) da $\mathrm{literal}_v(p)\in\Gamma_v([])$. Se descarga
 el supuesto $p\in[]$.
 </li><li><strong>Caso $A=a::r$.</strong> Por introducción de implicación&nbsp;(R1): se supone
-$p\in a::r$. La dirección $(\Rightarrow)$ de la caracterización de la
-pertenencia a una lista&nbsp;(R8)
-(Sección&nbsp;11.6.1) da $p=a\vee p\in r$; por la
+$p\in a::r$. Por la pertenencia a una lista
+(Sección&nbsp;11.6.1), $p=a\vee p\in r$; por la
 Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>,
 $\Gamma_v(a::r)=\{\mathrm{literal}_v(a)\}\cup\Gamma_v(r)$. Por casos sobre la
 disyunción&nbsp;(R6):
@@ -946,10 +942,8 @@ Sección&nbsp;11.3.
 <strong>Caso $\varphi=s$.</strong> Por introducción de
 implicación&nbsp;(R1) e introducción de conjunción&nbsp;(R3): se
 supone $\mathrm{atomos}(s)\subseteq A$. Por la Definición&nbsp;<a class="xref" href="#def:atoms">11.17</a>,
-$\mathrm{atomos}(s)=[s]$; la introducción de disyunción&nbsp;(R5) sobre
-$s=s$ da $s=s\vee s\in[]$ y la dirección $(\Leftarrow)$ de la caracterización
-de la pertenencia a una lista&nbsp;(R8)
-(Sección&nbsp;11.6.1) da $s\in[s]$. La cobertura,
+$\mathrm{atomos}(s)=[s]$ y $s\in[s]$ (Sección&nbsp;11.6.1).
+La cobertura,
 instanciada&nbsp;(R16) en $s$ y aplicada por eliminación de
 implicación&nbsp;(R2) a $s\in[s]$, da $s\in A$.
 </p><p>
@@ -1007,17 +1001,15 @@ supone $\mathrm{atomos}(p\Imp q)\subseteq A$. Por la
 Definición&nbsp;<a class="xref" href="#def:atoms">11.17</a>,
 $\mathrm{atomos}(p\Imp q)=\mathrm{atomos}(p)\,{+}\!{+}\,\mathrm{atomos}(q)$.
 Sea $a$ arbitrario; por introducción de implicación&nbsp;(R1): se supone
-$a\in\mathrm{atomos}(p)$. La introducción de disyunción&nbsp;(R5) da
-$a\in\mathrm{atomos}(p)\vee a\in\mathrm{atomos}(q)$ y la dirección
-$(\Leftarrow)$ de la caracterización de la pertenencia a una
-concatenación&nbsp;(R8) (Sección&nbsp;11.6.1) da
-$a\in\mathrm{atomos}(p)\,{+}\!{+}\,\mathrm{atomos}(q)$. La cobertura,
+$a\in\mathrm{atomos}(p)$, que da
+$a\in\mathrm{atomos}(p)\,{+}\!{+}\,\mathrm{atomos}(q)$
+(Sección&nbsp;11.6.1). La cobertura,
 instanciada&nbsp;(R16) en $a$ y aplicada por eliminación de
 implicación&nbsp;(R2) a esta pertenencia, da $a\in A$. Se descarga
 $a\in\mathrm{atomos}(p)$; como $a$ era arbitrario, se
 cuantifica&nbsp;(R15) y queda $\mathrm{atomos}(p)\subseteq A$. El mismo
-argumento, con la introducción de disyunción&nbsp;(R5) en el segundo
-miembro, da $\mathrm{atomos}(q)\subseteq A$. Las hipótesis inductivas $K(p)$
+argumento, con $a\in\mathrm{atomos}(q)$ en lugar de $a\in\mathrm{atomos}(p)$,
+da $\mathrm{atomos}(q)\subseteq A$. Las hipótesis inductivas $K(p)$
 y $K(q)$, por eliminación de implicación&nbsp;(R2) con estas coberturas
 y eliminación de conjunción&nbsp;(R4), dan
 $$
@@ -1265,16 +1257,12 @@ $$
 se supone la premisa, que no se usa. Por la Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>,
 $\Gamma_{v}([])=\varnothing=\Gamma_{w}([])$. Se descarga la premisa.
 </li><li><strong>Caso $A=a::r$.</strong> Por introducción de implicación&nbsp;(R1): se supone $H:\forall x\in a::r,\ v(x)\Longleftrightarrow w(x)$.
-La introducción de disyunción&nbsp;(R5) sobre $a=a$ da $a=a\vee a\in r$
-y la dirección $(\Leftarrow)$ de la caracterización de la pertenencia a una
-lista&nbsp;(R8) (Sección&nbsp;11.6.1) da $a\in a::r$;
+Como $a\in a::r$ (Sección&nbsp;11.6.1),
 $H$ instanciada&nbsp;(R16) en $a$ y aplicada&nbsp;(R2) a
 $a\in a::r$ da $v(a)\Longleftrightarrow w(a)$; la Parte 1, aplicada a esta
 equivalencia, da $\mathrm{literal}_{v}(a)=\mathrm{literal}_{w}(a)$. Sea ahora
 $x$ arbitrario; por introducción de implicación&nbsp;(R1): se supone
-$x\in r$. La introducción de disyunción&nbsp;(R5) da $x=a\vee x\in r$ y la
-dirección $(\Leftarrow)$ de la caracterización de la pertenencia a una
-lista&nbsp;(R8) (Sección&nbsp;11.6.1) da $x\in a::r$;
+$x\in r$, que da $x\in a::r$ (Sección&nbsp;11.6.1);
 $H$ instanciada&nbsp;(R16) en $x$ y aplicada&nbsp;(R2) a
 $x\in a::r$ da $v(x)\Longleftrightarrow w(x)$. Se descarga $x\in r$; como $x$
 era arbitrario, se cuantifica&nbsp;(R15) y queda
@@ -2262,16 +2250,15 @@ Por introducción del bicondicional&nbsp;(R7).
 </p><p>
 $(\Rightarrow)$ Por introducción de implicación&nbsp;(R1): se supone
 $H(r\concat\ell_2)$. Sea $z$ arbitrario; por introducción de
-implicación&nbsp;(R1): se supone $z\in r$. Por introducción de
-disyunción&nbsp;(R5), $z\in r\vee z\in\ell_2$; la dirección
-$(\Leftarrow)$&nbsp;(R8) de la pertenencia a la concatenación en
-(L) da $z\in r\concat\ell_2$; el supuesto
+implicación&nbsp;(R1): se supone $z\in r$. Como $z\in r$, también
+$z\in r\concat\ell_2$ (L); el supuesto
 $H(r\concat\ell_2)$, instanciado&nbsp;(R16) en $z$ y aplicado por
 eliminación de implicación&nbsp;(R2) a $z\in r\concat\ell_2$, da
 $R\,a\,z$. Se descarga $z\in r$ y queda $z\in r\Rightarrow R\,a\,z$; como $z$
 era arbitrario, se cuantifica&nbsp;(R15): $H(r)$. Del mismo modo, con el
-supuesto $z\in\ell_2$ y los mismos pasos (R5), (R8),
-(R16), (R2), (R1) y (R15), se obtiene
+supuesto $z\in\ell_2$ (de nuevo $z\in r\concat\ell_2$ por
+(L)) y los mismos pasos (R16),
+(R2), (R1) y (R15), se obtiene
 $H(\ell_2)$. Por introducción de conjunción&nbsp;(R3),
 $H(r)\wedge H(\ell_2)$; se descarga $H(r\concat\ell_2)$ y queda
 $H(r\concat\ell_2)\Rightarrow H(r)\wedge H(\ell_2)$.
@@ -2279,8 +2266,8 @@ $H(r\concat\ell_2)\Rightarrow H(r)\wedge H(\ell_2)$.
 $(\Leftarrow)$ Por introducción de implicación&nbsp;(R1): se supone
 $H(r)\wedge H(\ell_2)$; por eliminación de conjunción&nbsp;(R4), $H(r)$
 y $H(\ell_2)$. Sea $z$ arbitrario; por introducción de
-implicación&nbsp;(R1): se supone $z\in r\concat\ell_2$; la dirección
-$(\Rightarrow)$&nbsp;(R8) de la misma ecuación da $z\in r\vee z\in\ell_2$.
+implicación&nbsp;(R1): se supone $z\in r\concat\ell_2$; por
+(L), $z\in r$ o $z\in\ell_2$.
 Por casos&nbsp;(R6): si $z\in r$, $H(r)$, instanciada&nbsp;(R16) en
 $z$ y aplicada&nbsp;(R2) a $z\in r$, da $R\,a\,z$; si $z\in\ell_2$,
 $H(\ell_2)$, instanciada&nbsp;(R16) en $z$ y aplicada&nbsp;(R2) a
@@ -2295,17 +2282,15 @@ Por introducción del bicondicional&nbsp;(R7).
 </p><p>
 $(\Rightarrow)$ Por introducción de implicación&nbsp;(R1): se supone
 $C(a::r,\ell_2)$. Para $H(\ell_2)$: sea $y$ arbitrario; por introducción de
-implicación&nbsp;(R1): se supone $y\in\ell_2$. Por reflexividad de la
-igualdad, $a=a$; por introducción de disyunción&nbsp;(R5),
-$a=a\vee a\in r$; la dirección $(\Leftarrow)$&nbsp;(R8) de la
-pertenencia a $a::r$ en (L) da $a\in a::r$. El
+implicación&nbsp;(R1): se supone $y\in\ell_2$. Como $a\in a::r$
+(L), el
 supuesto $C(a::r,\ell_2)$, instanciado&nbsp;(R16) en $x=a$ e $y$ y
 aplicado&nbsp;(R2) a $a\in a::r$ y a $y\in\ell_2$, da $R\,a\,y$. Se
 descarga $y\in\ell_2$; como $y$ era arbitrario, se cuantifica&nbsp;(R15):
 $H(\ell_2)$. Para $C(r,\ell_2)$: sean $x$ e $y$ arbitrarios; por introducción
-de implicación&nbsp;(R1): se suponen $x\in r$ e $y\in\ell_2$. Por
-introducción de disyunción&nbsp;(R5), $x=a\vee x\in r$; la misma
-dirección&nbsp;(R8) da $x\in a::r$; el supuesto $C(a::r,\ell_2)$,
+de implicación&nbsp;(R1): se suponen $x\in r$ e $y\in\ell_2$. Como
+$x\in r$, también $x\in a::r$ (L); el supuesto
+$C(a::r,\ell_2)$,
 instanciado&nbsp;(R16) en $x$ e $y$ y aplicado&nbsp;(R2) a
 $x\in a::r$ y a $y\in\ell_2$, da $R\,x\,y$. Se descargan $x\in r$ e
 $y\in\ell_2$; como $x$ e $y$ eran arbitrarios, se cuantifica&nbsp;(R15):
@@ -2316,9 +2301,8 @@ $C(a::r,\ell_2)\Rightarrow H(\ell_2)\wedge C(r,\ell_2)$.
 $(\Leftarrow)$ Por introducción de implicación&nbsp;(R1): se supone
 $H(\ell_2)\wedge C(r,\ell_2)$; por eliminación de conjunción&nbsp;(R4),
 $H(\ell_2)$ y $C(r,\ell_2)$. Sean $x$ e $y$ arbitrarios; por introducción de
-implicación&nbsp;(R1): se suponen $x\in a::r$ e $y\in\ell_2$. La
-dirección $(\Rightarrow)$&nbsp;(R8) de la pertenencia a $a::r$ en
-(L) da $x=a\vee x\in r$. Por casos&nbsp;(R6):
+implicación&nbsp;(R1): se suponen $x\in a::r$ e $y\in\ell_2$. Por
+(L), $x=a$ o $x\in r$; por casos&nbsp;(R6):
 si $x=a$, $H(\ell_2)$, instanciada&nbsp;(R16) en $y$ y
 aplicada&nbsp;(R2) a $y\in\ell_2$, da $R\,a\,y$; por
 sustitución&nbsp;(R17) con $x=a$, $R\,x\,y$. Si $x\in r$,
@@ -2517,9 +2501,8 @@ es decir, $\Sorted(p::B)$ por la misma definición.
 <strong>Concatenación.</strong> Por casos&nbsp;(R6) sobre $c\in p::B$. Sean $a$ y
 $c$ arbitrarios; por introducción de implicación&nbsp;(R1): se suponen
 $a\in A$ y $c\in p::B$. La cota izquierda, instanciada&nbsp;(R16) en $a$
-y aplicada&nbsp;(R2) a $a\in A$, da $a\leq p$; la dirección
-$(\Rightarrow)$&nbsp;(R8) de la pertenencia a $p::B$ en
-(L) da $c=p\vee c\in B$.
+y aplicada&nbsp;(R2) a $a\in A$, da $a\leq p$; por
+(L), $c=p$ o $c\in B$.
 <ul><li><strong>Caso $c=p$.</strong> Por sustitución&nbsp;(R17) de $p$ por $c$ en
 $a\leq p$, $a\leq c$.
 </li><li><strong>Caso $c\in B$.</strong> La cota derecha, instanciada&nbsp;(R16) en
@@ -2697,8 +2680,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>f3775e9</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>7bf3a9b</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>2ae556f</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>17c54eb</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
