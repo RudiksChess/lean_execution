@@ -380,7 +380,7 @@ Aquí se explicita el contexto $\Gamma$ mediante debilitamiento.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Gamma\Provnd\Not\Not\varphi$.
 </p><p>
-Por $\Not\mathrm I$ en el cálculo $\Provnd$ (pasos según la Nota&nbsp;11.2); no se usa RAA.
+Por $\Not\mathrm I$ en el cálculo $\Provnd$ (pasos según la Nota&nbsp;11.2).
 </p><p>
 Para $\Not\mathrm I(a)$, se abre $[\Not\varphi]^{(a)}$.
 El contexto ampliado es $\Gamma,\Not\varphi:=\Gamma\cup\{\Not\varphi\}$:
@@ -580,11 +580,10 @@ Por lo tanto, se descarga el supuesto $\sem\alpha_v$ y queda $\Not\sem\alpha_v$.
 </li><li><strong>Caso $\Not\mathrm E$.</strong> Las premisas son $\Gamma\Provnd\Not\alpha$ y
 $\Gamma\Provnd\alpha$ y la meta es $\sem\bot_v$. Las hipótesis inductivas dan
 $\sem\alpha_v$ y $\Not\sem\alpha_v$; la eliminación de negación&nbsp;(R10) da
-$\mathrm{Falso}$. De $\mathrm{Falso}$ se sigue $\sem\bot_v$ por eliminación de falsedad&nbsp;(R11) (es la dirección $(\Leftarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.9</a>). No hay
-supuesto que descargar.
+$\mathrm{Falso}$. De $\mathrm{Falso}$ se sigue $\sem\bot_v$ por eliminación de falsedad&nbsp;(R11) (es la dirección $(\Leftarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.9</a>). 
 </li><li><strong>Caso $\bot\mathrm E$.</strong> La premisa es $\Gamma\Provnd\bot$ y la meta es
 $\sem\alpha_v$. La hipótesis inductiva da $\sem\bot_v$; la dirección
-$(\Rightarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.9</a> da $\mathrm{Falso}$. La eliminación de falsedad&nbsp;(R11) da $\sem\alpha_v$. No hay supuesto que descargar.
+$(\Rightarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.9</a> da $\mathrm{Falso}$. La eliminación de falsedad&nbsp;(R11) da $\sem\alpha_v$. 
 </li><li><strong>Caso RAA.</strong> La premisa es $\Gamma,\Not\alpha\Provnd\bot$ y la meta es
 $\sem\alpha_v$. Se razona por reducción al absurdo clásica&nbsp;(R12) en la lógica de Lean:<sup class="fn">1</sup> se supone
 $\Not\sem\alpha_v$, que por la Definición&nbsp;<a class="xref" href="#def:eval">11.4</a> es
@@ -594,9 +593,8 @@ $$
 \sem\bot_v,\qquad\Not\sem\bot_v\qquad\Contra
 $$
 Por lo tanto, la reducción al absurdo clásica&nbsp;(R12) descarga el supuesto $\Not\sem\alpha_v$ y
-concluye $\sem\alpha_v$. Este supuesto de la lógica de Lean es distinto del supuesto $[\Not\alpha]^{(a)}$ que descarga la
-regla RAA en la derivación de $\Provnd$; es el único caso que usa un principio
-clásico de la lógica de Lean.
+concluye $\sem\alpha_v$. Es el único caso que usa un principio clásico de la
+lógica de Lean.
 </li></ol>
 Como $v$ era arbitraria&nbsp;(R15), se cuantifica&nbsp;(R15).
 $$
@@ -673,8 +671,7 @@ Por corrección (Teorema&nbsp;<a class="xref" href="#thm:soundness">11.14</a>) c
 Sea $v$ una valuación arbitraria.
 </p><p>
 <strong>Paso 1 ($v\models\varnothing$).</strong> Por introducción de implicación&nbsp;(R1): sea $\psi$ cualquier fórmula y se supone $\psi\in\varnothing$. Como el conjunto vacío no tiene elementos, $\psi\in\varnothing$
-da $\mathrm{Falso}$; la eliminación de falsedad&nbsp;(R11) da $\sem\psi_v$. No es una
-reducción al absurdo&nbsp;(R9): la meta es $\sem\psi_v$ y no una negación. Al descargar
+da $\mathrm{Falso}$; la eliminación de falsedad&nbsp;(R11) da $\sem\psi_v$.  Al descargar
 el supuesto $\psi\in\varnothing$ y cuantificar sobre $\psi$ queda
 $\forall\psi,\ \psi\in\varnothing\Rightarrow\sem\psi_v$, que es
 $v\models\varnothing$.
@@ -853,7 +850,7 @@ Para cada subfórmula inmediata $\theta$, la hipótesis inductiva $K(\theta)$
 proporciona ambas implicaciones una vez verificada su cobertura.
 Las cláusulas semánticas provienen de la Definición&nbsp;<a class="xref" href="#def:eval">11.4</a>; los pasos
 <em>debil.</em> usan el Lema&nbsp;<a class="xref" href="#lem:weak">11.10</a>; y los árboles usan las reglas de la
-Sección&nbsp;11.3.<sup class="fn">1</sup>
+Sección&nbsp;11.3.
 </p><p>
 <strong>Caso $\varphi=s$.</strong> Por la Definición&nbsp;<a class="xref" href="#def:atoms">11.17</a>, $\mathrm{atomos}(s)=[s]$; además $s\in[s]$ por la pertenencia a una lista. La cobertura $\mathrm{atomos}(s)\subseteq A$,
 instanciada&nbsp;(R16) en $s$, da $s\in A$; el Lema&nbsp;<a class="xref" href="#lem:litmem">11.19</a>, con la lista $A$, da $\mathrm{literal}_v(s)\in\Gamma$.
@@ -898,12 +895,10 @@ K(q)&amp;\sem q_v\Rightarrow\Gamma\Provnd q&amp;\Not\sem q_v\Rightarrow\Gamma\Pr
 $$
 </p><p>
 <strong>Parte positiva.</strong> Por introducción de implicación&nbsp;(R1): se supone $\sem{p}_v\Rightarrow\sem{q}_v$. Por
-tercero excluido&nbsp;(R13) en la lógica de Lean,<sup class="fn">2</sup> o bien $\sem p_v$ o bien $\Not\sem p_v$.
-Este análisis por casos&nbsp;(R6) ocurre en la lógica de Lean y no aparece en ninguna
-derivación: en cada caso se construye una derivación distinta de $\Gamma\Provnd p\Imp q$; basta con que exista una en cada caso. Las dos
-derivaciones abren el supuesto $[p]^{(a)}$ del cálculo y terminan en
-$\Imp\mathrm I(a)$, que lo descarga; la hipótesis semántica del caso no se
-descarga, porque no es una fórmula del cálculo.
+tercero excluido&nbsp;(R13) en la lógica de Lean,<sup class="fn">1</sup> o bien $\sem p_v$ o bien $\Not\sem p_v$.
+En cada caso se construye una derivación de $\Gamma\Provnd p\Imp q$; las dos
+abren el supuesto $[p]^{(a)}$ y terminan en $\Imp\mathrm I(a)$, que lo
+descarga.
 <ul><li><strong>Caso $\sem p_v$.</strong> La implicación supuesta da $\sem q_v$.
 La parte positiva de la hipótesis inductiva para $q$ da $\Gamma\Provnd q$:
 </p><p>
@@ -931,9 +926,8 @@ Las dos subpruebas siguen el mismo esquema: bajo un supuesto auxiliar se
 construye $P\Rightarrow Q$ y se confronta con $\Not(P\Rightarrow Q)$, lo que
 descarga el supuesto auxiliar.
 <ul><li><strong>Subprueba 1 ($P$).</strong> Por reducción al absurdo clásica&nbsp;(R12): se supone $\Not P$. Bajo ese supuesto se construye $P\Rightarrow Q$ por
-introducción de implicación&nbsp;(R1): se supone $P$; con $\Not P$, la eliminación de negación&nbsp;(R10) da $\mathrm{Falso}$ y la eliminación de falsedad&nbsp;(R11) da $Q$. Este paso no
-es una reducción al absurdo&nbsp;(R9): solo cierra la introducción de implicación&nbsp;(R1), que
-descarga $P$ y deja $P\Rightarrow Q$; el supuesto $\Not P$ sigue abierto. Ahora
+introducción de implicación&nbsp;(R1): se supone $P$; con $\Not P$, la eliminación de negación&nbsp;(R10) da $\mathrm{Falso}$ y la eliminación de falsedad&nbsp;(R11) da $Q$. La introducción de implicación&nbsp;(R1) descarga $P$ y deja
+$P\Rightarrow Q$; el supuesto $\Not P$ sigue abierto. Ahora
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
 $$
@@ -944,9 +938,7 @@ subprueba y <code>exact hNoImp hImp</code> la cierra.
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
 $$
-y esta contradicción descarga $Q$ y deja $\Not Q$. No interviene ningún
-principio clásico: es la introducción de negación del
-Capítulo&nbsp;9. En el código, <code>intro hQ</code> abre la
+y esta contradicción descarga $Q$ y deja $\Not Q$.  En el código, <code>intro hQ</code> abre la
 subprueba y <code>exact hNoImp hImp</code> la cierra.
 </li></ul>
 <strong>Cierre.</strong> Con $P$ y $\Not Q$ en mano, la parte positiva de $K(p)$, por eliminación de implicación&nbsp;(R2) con $P$, da $\Gamma\Provnd p$; la parte negativa de $K(q)$, con
@@ -1072,9 +1064,7 @@ $$
         have dFalsedad : ND (insert (p ⟶ q) (contextoLiterales v listaAtomos)) Falsedad := ND.negE hnq dQ
         -- negI descarga p ⟶ q y concluye su negación bajo el contexto original.
         exact ND.negI dFalsedad</pre></div>
-<ol class="footnotes"><li><p>Conviene distinguir dos pasos que se parecen: la eliminación clásica de doble negación&nbsp;(R14) en la lógica de Lean, $\Not\Not A\Rightarrow A$ (en Lean, <code>Classical.byContradiction</code>) y la introducción de doble negación en el
-cálculo $\Provnd$, $\Gamma\Provnd A\Rightarrow\Gamma\Provnd\Not\Not A$
-(Lema&nbsp;<a class="xref" href="#lem:dni">11.11</a>). No son la misma regla.</p></li><li><p>El <em>tercero excluido&nbsp;(R13)</em> afirma
+<ol class="footnotes"><li><p>El <em>tercero excluido&nbsp;(R13)</em> afirma
 $P\vee\Not P$ para toda proposición $P$ y permite dividir una prueba en dos
 casos; sobre el núcleo intuicionista es equivalente a
 RAA&nbsp;<span class="cite">[Huth y Ryan 2004, sec. 1.2.2]</span>. En Lean lo aplica la táctica <code>by_cases</code>.</p></li></ol>
@@ -2412,8 +2402,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>166c267</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>7b13dd1</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>c9f4af2</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>bfcc3fe</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
