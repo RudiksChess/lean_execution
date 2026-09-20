@@ -192,14 +192,14 @@ Sea $A:=v(p_0)$. Por las Definiciones&nbsp;<a class="xref" href="#def:eval">11.4
 $\sem{\bot}_v$ es la proposición $\Not(A\Rightarrow A)$. La implicación
 $A\Rightarrow A$ se prueba suponiendo $A$ y devolviéndola (introducción de implicación&nbsp;(R1)).
 </p><p>
-<strong>Dirección $(\Rightarrow)$.</strong> Por introducción de implicación&nbsp;(R1): se supone $\sem{\bot}_v$, es decir,
+$(\Rightarrow)$ Por introducción de implicación&nbsp;(R1): se supone $\sem{\bot}_v$, es decir,
 $\Not(A\Rightarrow A)$. Junto con $A\Rightarrow A$ se tiene
 $$
 A\Rightarrow A,\qquad\Not(A\Rightarrow A)\qquad\Contra
 $$
 Entonces, de $\sem{\bot}_v$ se sigue $\mathrm{Falso}$ por eliminación de negación&nbsp;(R10); se descarga el supuesto $\sem{\bot}_v$ y queda $\sem{\bot}_v\Rightarrow\mathrm{Falso}$.
 </p><p>
-<strong>Dirección $(\Leftarrow)$.</strong> Por eliminación de falsedad&nbsp;(R11): de
+$(\Leftarrow)$ Por eliminación de falsedad&nbsp;(R11): de
 $\mathrm{Falso}$ se sigue cualquier proposición, en particular $\sem{\bot}_v$.
 </p><p>
  Ambas direcciones se reúnen por introducción del bicondicional&nbsp;(R7).<sup class="fn">1</sup>
@@ -1427,11 +1427,11 @@ Por introducción del bicondicional&nbsp;(R7), con el
 Teorema&nbsp;<a class="xref" href="#thm:completeness">11.23</a> y el Corolario&nbsp;<a class="xref" href="#cor:taut">11.15</a> para las dos
 direcciones (pasos según la Nota&nbsp;11.2).
 </p><p>
-<strong>Dirección $(\Rightarrow)$.</strong> Por completitud: dada
+$(\Rightarrow)$ Por completitud: dada
 $\operatorname{Taut}(\varphi)$, el Teorema&nbsp;<a class="xref" href="#thm:completeness">11.23</a> da
 $\varnothing\Provnd\varphi$.
 </p><p>
-<strong>Dirección $(\Leftarrow)$.</strong> Por corrección: dada
+$(\Leftarrow)$ Por corrección: dada
 $\varnothing\Provnd\varphi$, el Corolario&nbsp;<a class="xref" href="#cor:taut">11.15</a> da
 $\operatorname{Taut}(\varphi)$.
 $$
@@ -2062,7 +2062,7 @@ $$
 \frac{\forall b\in\ell,\ R\,a\,b\qquad\Pairwise\,R\,\ell}
 {\Pairwise\,R\,(a::\ell)}\;TconsT.
 $$
-<strong>Dirección $(\Rightarrow)$.</strong> Por casos sobre la última regla de una
+$(\Rightarrow)$ Por casos sobre la última regla de una
 derivación de $\Pairwise\,R\,(a::\ell)$ (en Lean, <code>cases h</code>):
 <ul><li><strong>Caso <code>nil</code>.</strong> Concluye $\Pairwise\,R\,[]$, pero
 $a::\ell\neq[]$. Imposible.
@@ -2070,7 +2070,7 @@ $a::\ell\neq[]$. Imposible.
 premisas $h_1:\forall b\in\ell,\ R\,a\,b$ y $h_2:\Pairwise\,R\,\ell$. Por
 introducción de conjunción&nbsp;(R3), $h_1\wedge h_2$.
 </li></ul>
-<strong>Dirección $(\Leftarrow)$.</strong> De $h_1\wedge h_2$, por eliminación de conjunción&nbsp;(R4), $h_1$ y $h_2$; por la regla <code>cons</code>
+$(\Leftarrow)$ De $h_1\wedge h_2$, por eliminación de conjunción&nbsp;(R4), $h_1$ y $h_2$; por la regla <code>cons</code>
 (<code>List.Pairwise.cons</code>), $\Pairwise\,R\,(a::\ell)$.
 </p><p>
  Por lo tanto,
@@ -2102,18 +2102,18 @@ C(a::r,\ell_2)&amp;\Longleftrightarrow H(\ell_2)\wedge C(r,\ell_2).
 \end{aligned}
 \tag{\ast}
 $$
-<strong>Primera equivalencia de $(\ast)$.</strong> Por introducción del bicondicional&nbsp;(R7). <em>Dirección $(\Rightarrow)$</em>: se supone $H(r\concat\ell_2)$. Sea $z\in r$;
+<strong>Primera equivalencia de $(\ast)$.</strong> Por introducción del bicondicional&nbsp;(R7). $(\Rightarrow)$: se supone $H(r\concat\ell_2)$. Sea $z\in r$;
 por la pertenencia a la concatenación en (L),
 $z\in r\concat\ell_2$; la premisa instanciada&nbsp;(R16) en $z$ da $R\,a\,z$; como $z$
 era arbitrario&nbsp;(R15), $H(r)$. Del mismo modo, de $z\in\ell_2$ se sigue
-$z\in r\concat\ell_2$ y $R\,a\,z$, lo que da $H(\ell_2)$. <em>Dirección $(\Leftarrow)$</em>:
+$z\in r\concat\ell_2$ y $R\,a\,z$, lo que da $H(\ell_2)$. $(\Leftarrow)$:
 se suponen $H(r)$ y $H(\ell_2)$ y sea $z\in r\concat\ell_2$; por la misma
 ecuación, $z\in r$ o $z\in\ell_2$; en el primer caso $H(r)$ da $R\,a\,z$ y en
 el segundo lo da $H(\ell_2)$; los dos casos agotan la disyunción&nbsp;(R6); como $z$ era arbitrario&nbsp;(R15), $H(r\concat\ell_2)$.
 </p><p>
-<strong>Segunda equivalencia de $(\ast)$.</strong> Por introducción del bicondicional&nbsp;(R7). <em>Dirección $(\Rightarrow)$</em>: se supone $C(a::r,\ell_2)$ y sea $y\in\ell_2$. Como
+<strong>Segunda equivalencia de $(\ast)$.</strong> Por introducción del bicondicional&nbsp;(R7). $(\Rightarrow)$: se supone $C(a::r,\ell_2)$ y sea $y\in\ell_2$. Como
 $a\in a::r$, la premisa instanciada&nbsp;(R16) en $a$ e $y$ da $R\,a\,y$; al cuantificar&nbsp;(R15)
-sobre $y$, $H(\ell_2)$. Para $x\in r$ se tiene $x\in a::r$; la premisa da $R\,x\,y$; al cuantificar&nbsp;(R15) sobre $x$ e $y$, $C(r,\ell_2)$. <em>Dirección $(\Leftarrow)$</em>:
+sobre $y$, $H(\ell_2)$. Para $x\in r$ se tiene $x\in a::r$; la premisa da $R\,x\,y$; al cuantificar&nbsp;(R15) sobre $x$ e $y$, $C(r,\ell_2)$. $(\Leftarrow)$:
 se suponen $H(\ell_2)$ y $C(r,\ell_2)$; sean $x\in a::r$ e $y\in\ell_2$; por
 la pertenencia a una lista, $x=a$ o $x\in r$; si $x=a$, $H(\ell_2)$ da
 $R\,x\,y$; si $x\in r$, $C(r,\ell_2)$ da $R\,x\,y$; al cuantificar&nbsp;(R15) sobre $x$ e
@@ -2461,8 +2461,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>c97fb99</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>d8cffa3</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>85242c6</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>36d492b</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
