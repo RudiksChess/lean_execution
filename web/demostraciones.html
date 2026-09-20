@@ -420,9 +420,8 @@ Aquí se explicita el contexto $\Gamma$ mediante debilitamiento.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Gamma\Provnd\Not\Not\varphi$.
 </p><p>
-Por $\Not\mathrm I$ en el cálculo $\Provnd$ (pasos según la Nota&nbsp;11.2).
-</p><p>
-Por $\Not\mathrm I(a)$, se abre $[\Not\varphi]^{(a)}$; el contexto ampliado
+Por $\Not\mathrm I(a)$ en el cálculo $\Provnd$ (pasos según la Nota&nbsp;11.2): se abre
+$[\Not\varphi]^{(a)}$; el contexto ampliado
 es $\Gamma,\Not\varphi:=\Gamma\cup\{\Not\varphi\}$.
 </p><p>
 $$
@@ -465,12 +464,10 @@ Aquí se reconstruye con RAA y reglas de negación, sin introducir $\lor$.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\Gamma\Provnd\chi$.
 </p><p>
-Por RAA en el cálculo $\Provnd$ (pasos según la Nota&nbsp;11.2).
-</p><p>
-Las premisas son $\Gamma,\varphi\Provnd\chi$ y
+Por $\mathrm{RAA}(a)$ en el cálculo $\Provnd$ (pasos según la Nota&nbsp;11.2): se abre
+$[\Not\chi]^{(a)}$; el contexto ampliado es
+$\Delta:=\Gamma\cup\{\Not\chi\}$. Las premisas son $\Gamma,\varphi\Provnd\chi$ y
 $\Gamma,\Not\varphi\Provnd\chi$.
-Por $\mathrm{RAA}(a)$, se abre $[\Not\chi]^{(a)}$; el contexto ampliado es
-$\Delta:=\Gamma\cup\{\Not\chi\}$.
 </p><p>
 <strong>Subprueba 1 ($\Delta\Provnd\Not\varphi$).</strong> Por
 $\Not\mathrm I(b)$: se abre $[\varphi]^{(b)}$; el contexto es
@@ -1236,10 +1233,10 @@ $$
 \mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x),\qquad
 \Gamma_{v}(A)=\Gamma_{w}(A).
 $$
-Por casos sobre $v(x)$ para los literales y por inducción sobre $A$ para los contextos (pasos según la Nota&nbsp;11.2).
+Por casos sobre $v(x)$ ((R13), (R6)) para los literales y por inducción sobre $A$ para los contextos (pasos según la Nota&nbsp;11.2).
 </p><p>
 <strong>Parte 1 ($\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)$).</strong>
-Por casos sobre $v(x)$ ((R13), (R6)). Sea $h:v(x)\Longleftrightarrow w(x)$ la premisa.
+Sea $h:v(x)\Longleftrightarrow w(x)$ la premisa.
 <ul><li><strong>Caso $v(x)$.</strong> La dirección $(\Rightarrow)$ de $h$&nbsp;(R8),
 aplicada&nbsp;(R2) a $v(x)$, da $w(x)$. Por la
 Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>,
@@ -1518,9 +1515,7 @@ de Huth y Ryan&nbsp;<span class="cite">[Huth y Ryan 2004, pp. 50–53]</span>.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\operatorname{Taut}(\varphi)\Rightarrow\varnothing\Provnd\varphi$.
 </p><p>
-Por introducción de implicación&nbsp;(R1) (pasos según la Nota&nbsp;11.2).
-</p><p>
-Por introducción de implicación&nbsp;(R1): se supone
+Por introducción de implicación&nbsp;(R1) (pasos según la Nota&nbsp;11.2): se supone
 $h:\operatorname{Taut}(\varphi)$; sea
 $A:=\mathrm{dedup}(\mathrm{atomos}(\varphi))$. Por la primera propiedad de
 $\mathrm{dedup}$ (Sección&nbsp;11.6.5), $\mathrm{Nodup}(A)$.
@@ -2196,7 +2191,7 @@ donde $C(s,t):\Longleftrightarrow\forall x\in s,\ \forall y\in t,\ R\,x\,y$.
 Por introducción del bicondicional&nbsp;(R7) para $::$ y por inducción sobre $\ell_1$,
 con $R$ y $\ell_2$ fijos, para $\concat$ (pasos según la Nota&nbsp;11.2).
 </p><p>
-<strong>Parte 1 (la equivalencia para $::$).</strong> Por introducción del bicondicional&nbsp;(R7). Las reglas de $\Pairwise\,R$ son
+<strong>Parte 1 (la equivalencia para $::$).</strong> Las reglas de $\Pairwise\,R$ son
 $$
 \frac{}{\Pairwise\,R\,[]}\;TnilT
 \qquad\qquad
@@ -2702,8 +2697,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>25313f2</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>25456da</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>a01688c</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>7e6f0c7</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
