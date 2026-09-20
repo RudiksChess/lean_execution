@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "repositoryCommit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+    "repositoryCommit": "346b38b3f2ebad28615add9b05d9485689828f69",
     "leanToolchain": "leanprover/lean4:v4.29.0",
     "subversoRevision": "52b9dfbd2658408e37ae6e8b72601ddeaaa25a0c",
     "exporterSourceHash": "0442b88462f776c36a16b88925e535b6f6961d01e5b1a088d90ada3ba6da6786"
@@ -11,7 +11,7 @@
       "id": "weakening",
       "declaration": "Thesis.Prop.debilitamiento",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/NaturalDeduction.lean",
         "sha256": "ef2f6445126c2cf4a0da42954761a90b1f2f242a84cec20d8d2f47b702b0c6f7",
         "codeSha256": "b0c06b7e8edcaecc381c12018ad6344d2b2a25a8f53385efa39dc6aaae5a50c7",
@@ -2328,9 +2328,9 @@
       "id": "quicksort_perm",
       "declaration": "Thesis.Sort.quicksort_permutacion",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "62d5a58a4179c42461f051dd7709dfe689cd9c99c60320b3668a0ce5787e7b70",
         "code": "/-- La salida conserva los elementos y sus multiplicidades. -/\n-- ANCHOR: perm\ntheorem quicksort_permutacion : ∀ l : List α, quicksort l ~ l\n  | [] => by\n      -- A probar: quicksort [] ~ []. Reescritura y reflexividad.\n      simpa only [quicksort_vacia] using (List.Perm.refl ([] : List α))\n  | p :: cola => by\n      -- A probar: quicksort (p :: cola) ~ p :: cola.\n      -- Método: inducción por longitud; las particiones son menores.\n      let menoresIguales := cola.filter (fun x => decide (x ≤ p))\n      let mayores := cola.filter (fun x => ! decide (x ≤ p))\n      have hMenoresIgualesLt : menoresIguales.length < (p :: cola).length :=\n        longitud_filtro_lt_cons (fun x => decide (x ≤ p)) p cola\n      have hMayoresLt : mayores.length < (p :: cola).length :=\n        longitud_filtro_lt_cons (fun x => ! decide (x ≤ p)) p cola\n      -- Las cotas anteriores legitiman estas dos instancias inductivas.\n      have hipIndMenoresIguales : quicksort menoresIguales ~ menoresIguales := quicksort_permutacion menoresIguales\n      have hipIndMayores : quicksort mayores ~ mayores := quicksort_permutacion mayores\n      have hParticion : menoresIguales ++ mayores ~ cola :=\n        particion_filtros_permutacion (fun x => decide (x ≤ p)) cola\n      -- 1. Añadir el mismo pivote conserva la permutación derecha.\n      have hDerecha : p :: quicksort mayores ~ p :: mayores := hipIndMayores.cons p\n      -- 2. Concatenar las dos permutaciones conserva ambas listas.\n      have hConcatenacion : quicksort menoresIguales ++ (p :: quicksort mayores)\n          ~ menoresIguales ++ (p :: mayores) := hipIndMenoresIguales.append hDerecha\n      -- 3. perm_middle desplaza el pivote al principio.\n      have hPivote : menoresIguales ++ (p :: mayores) ~ p :: (menoresIguales ++ mayores) :=\n        List.perm_middle\n      -- 4. La congruencia de :: se aplica a la partición anterior.\n      have hCons : p :: (menoresIguales ++ mayores) ~ p :: cola := hParticion.cons p\n      -- Reescritura de quicksort, seguida de las tres permutaciones.\n      rw [quicksort_cons]\n      change quicksort menoresIguales ++ (p :: quicksort mayores) ~ p :: cola\n      calc\n        quicksort menoresIguales ++ (p :: quicksort mayores)\n            ~ menoresIguales ++ (p :: mayores) := hConcatenacion\n        _ ~ p :: (menoresIguales ++ mayores) := hPivote\n        _ ~ p :: cola := hCons\n  termination_by l => l.length\n  decreasing_by\n    · exact hMenoresIgualesLt\n    · exact hMayoresLt",
         "startLine": 193,
@@ -3978,7 +3978,7 @@
       "id": "eval_Bot",
       "declaration": "Thesis.Prop.evaluar_falsedad",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/NaturalDeduction.lean",
         "sha256": "ef2f6445126c2cf4a0da42954761a90b1f2f242a84cec20d8d2f47b702b0c6f7",
         "codeSha256": "e7093408b43719fe1e5bc465433a04cce6b9af4b05ad5f4f4713c6cb594488c8",
@@ -4358,7 +4358,7 @@
       "id": "dni",
       "declaration": "Thesis.Prop.introduccion_doble_negacion",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/NaturalDeduction.lean",
         "sha256": "ef2f6445126c2cf4a0da42954761a90b1f2f242a84cec20d8d2f47b702b0c6f7",
         "codeSha256": "d6ed1193df5455bc59c5a70ba193b809473e29dff2bf02107e2f73905a13bee0",
@@ -4867,7 +4867,7 @@
       "id": "byCases",
       "declaration": "Thesis.Prop.analisis_por_casos",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/NaturalDeduction.lean",
         "sha256": "ef2f6445126c2cf4a0da42954761a90b1f2f242a84cec20d8d2f47b702b0c6f7",
         "codeSha256": "4887dfb3c27c9ffa25648447ce81cab58bfacc319db3e3cbe33de2f5bd675197",
@@ -6611,7 +6611,7 @@
       "id": "sat_insert",
       "declaration": "Thesis.Prop.satisfaccion_insertar",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/NaturalDeduction.lean",
         "sha256": "ef2f6445126c2cf4a0da42954761a90b1f2f242a84cec20d8d2f47b702b0c6f7",
         "codeSha256": "b536be63c8a4c291f6720a58b040a3e8041464b6a9aa14020a14e5c3676d9836",
@@ -7086,7 +7086,7 @@
       "id": "soundness",
       "declaration": "Thesis.Prop.correccion",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/NaturalDeduction.lean",
         "sha256": "ef2f6445126c2cf4a0da42954761a90b1f2f242a84cec20d8d2f47b702b0c6f7",
         "codeSha256": "5b5fdd99e30fb852748238a7a18b468450a5fe893b470e2e47308b0b7bd2d8b9",
@@ -10202,7 +10202,7 @@
       "id": "isTautology_of_provable",
       "declaration": "Thesis.Prop.tautologia_de_derivable",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/NaturalDeduction.lean",
         "sha256": "ef2f6445126c2cf4a0da42954761a90b1f2f242a84cec20d8d2f47b702b0c6f7",
         "codeSha256": "590613237edd78b1b3e33ed48941d2a3f50df6884a21a43d8aac72fc31a3ecce",
@@ -10520,7 +10520,7 @@
       "id": "not_provable_Bot",
       "declaration": "Thesis.Prop.no_derivable_falsedad",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/NaturalDeduction.lean",
         "sha256": "ef2f6445126c2cf4a0da42954761a90b1f2f242a84cec20d8d2f47b702b0c6f7",
         "codeSha256": "b12a4b415aa817e5c8066d349439297a76c001b562432d8ea60bc0b228ad1811",
@@ -10734,7 +10734,7 @@
       "id": "lit_mem",
       "declaration": "Thesis.Prop.pertenencia_literal",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/Completeness.lean",
         "sha256": "35bb98144e6d4c4bdf4ab1029f24ee9986d290d726ed9ea30df086ba4d04ebb7",
         "codeSha256": "1a53449fca2b29e5e722d97fa1dc26ee5aab31fcf782b39c8e24c192bef06d3a",
@@ -11311,7 +11311,7 @@
       "id": "kalmar",
       "declaration": "Thesis.Prop.kalmar",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/Completeness.lean",
         "sha256": "35bb98144e6d4c4bdf4ab1029f24ee9986d290d726ed9ea30df086ba4d04ebb7",
         "codeSha256": "d1d8ceb11a0d18f547fee96112f4ddb32fce370c55da529e037fbf20aaae3283",
@@ -20669,7 +20669,7 @@
       "id": "lit_congr",
       "declaration": "Thesis.Prop.congruencia_literal",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/Completeness.lean",
         "sha256": "35bb98144e6d4c4bdf4ab1029f24ee9986d290d726ed9ea30df086ba4d04ebb7",
         "codeSha256": "31660fe3f75e4e0f704a296653195cec7f6e970179cb720f69985f4818019917",
@@ -21188,7 +21188,7 @@
       "id": "litCtx_congr",
       "declaration": "Thesis.Prop.congruencia_contextoLiterales",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/Completeness.lean",
         "sha256": "35bb98144e6d4c4bdf4ab1029f24ee9986d290d726ed9ea30df086ba4d04ebb7",
         "codeSha256": "e531701b309f5e9f48b1f87982417e1ba904e56680aeecb592f62b6e5273debd",
@@ -22353,7 +22353,7 @@
       "id": "discharge",
       "declaration": "Thesis.Prop.descarga",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/Completeness.lean",
         "sha256": "35bb98144e6d4c4bdf4ab1029f24ee9986d290d726ed9ea30df086ba4d04ebb7",
         "codeSha256": "e9bc271e57b0493930bd84231416692af5561eca2959fe42a52ece7c727a4b91",
@@ -27399,7 +27399,7 @@
       "id": "completeness_ND",
       "declaration": "Thesis.Prop.completitud_ND",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/Completeness.lean",
         "sha256": "35bb98144e6d4c4bdf4ab1029f24ee9986d290d726ed9ea30df086ba4d04ebb7",
         "codeSha256": "e9ecbea255975fab3a6ad79ff09ab98d9814d39dc7fd34fa5bac6389e4d88d92",
@@ -28075,7 +28075,7 @@
       "id": "soundComplete",
       "declaration": "Thesis.Prop.correccion_completitud",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/Completeness.lean",
         "sha256": "35bb98144e6d4c4bdf4ab1029f24ee9986d290d726ed9ea30df086ba4d04ebb7",
         "codeSha256": "640ecd551683c46acd36ae78992b395f159aca48d1572dad35bd8c07cccb38a1",
@@ -28261,7 +28261,7 @@
       "id": "eval_tr",
       "declaration": "Thesis.Prop.evaluar_traduccion",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/BridgeLemma.lean",
         "sha256": "ce0af76e82c16620f8d70014f9f4f44276d2e38f279a8899f4cd4c0d0930a964",
         "codeSha256": "f34f2e1615d560aa4c9cfb6ee80cd3fe16e970aaeef02426a5864ddd3b114adc",
@@ -30260,7 +30260,7 @@
       "id": "provable_tr_of_tautology",
       "declaration": "Thesis.Prop.traduccion_derivable_de_tautologia",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Prop/CompletenessViaFoundation.lean",
         "sha256": "901815b9198bc5e7dc4d3134ac2e272160a8b33d9249e34c0e10da255f48dac1",
         "codeSha256": "1cd1675640542932f1431f20896fd5bc153cef7cf450fbb752db8a0159c14bbd",
@@ -30657,9 +30657,9 @@
       "id": "filter_length_le",
       "declaration": "Thesis.Sort.longitud_filtro_le",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "8a7102210306f78f629fa0574da5db8ead5d12c52887e5f543db80262f7533d9",
         "code": "omit [LinearOrder α] in\ntheorem longitud_filtro_le (q : α → Bool) (l : List α) :\n    (l.filter q).length ≤ l.length := by\n  -- A probar: el filtro no aumenta la longitud.\n  -- Por inducción sobre l; hipInd es la cota para la cola.\n  induction l with\n  | nil => exact Nat.le_refl 0\n  | cons a cola hipInd =>\n      cases hq : q a with\n      | true =>\n          -- Se conserva a: sumar 1 a ambos lados de hipInd.\n          simp only [List.filter_cons, hq, ↓reduceIte, List.length_cons]\n          exact Nat.succ_le_succ hipInd\n      | false =>\n          -- Se descarta a: longitud del filtro ≤ longitud de cola < longitud de a :: cola.\n          simp only [List.filter_cons, hq, Bool.false_eq_true, ↓reduceIte]\n          exact le_of_lt (lt_of_le_of_lt hipInd (Nat.lt_succ_self cola.length))",
         "startLine": 28,
@@ -30999,9 +30999,9 @@
       "id": "filter_length_lt_cons",
       "declaration": "Thesis.Sort.longitud_filtro_lt_cons",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "2991a8d4ea559374b5570561ec818a6e2407a3e685f84e1d82ec040d74be2021",
         "code": "omit [LinearOrder α] in\n/-- Obligación común a las dos llamadas recursivas. -/\ntheorem longitud_filtro_lt_cons (q : α → Bool) (p : α) (cola : List α) :\n    (cola.filter q).length < (p :: cola).length := by\n  -- A probar: longitud del filtro < longitud de la lista con pivote.\n  -- Método: cota del filtro, seguida de n < n + 1.\n  have hFiltro : (cola.filter q).length ≤ cola.length :=\n    longitud_filtro_le q cola\n  have hCola : cola.length < (p :: cola).length := by\n    -- La longitud de p :: cola es cola.length + 1.\n    change cola.length < cola.length + 1\n    exact Nat.lt_succ_self cola.length\n  exact lt_of_le_of_lt hFiltro hCola",
         "startLine": 142,
@@ -31292,9 +31292,9 @@
       "id": "quicksort",
       "declaration": "Thesis.Sort.quicksort",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "52139e4baa13d0fd25118026ec36cd9ea8e25af749190941e914e51b138a2f53",
         "code": "/-- El pivote es la cabeza; las particiones contienen los elementos ≤ p y > p. -/\n-- ANCHOR: qsdef\ndef quicksort : List α → List α\n  | [] => []\n  | p :: cola =>\n      quicksort (cola.filter (fun x => decide (x ≤ p)))\n        ++ p :: quicksort (cola.filter (fun x => ! decide (x ≤ p)))\n  termination_by l => l.length\n  decreasing_by\n    -- Cada meta compara una partición con p :: cola, no con cola.\n    -- Lean añade pruebas de pertenencia con attach; se eliminan de las listas.\n    · rw [List.unattach_filter (l := cola.attach)\n          (f := fun x => decide (x.val ≤ p))\n          (g := fun x => decide (x ≤ p)) (hf := fun _ _ => rfl),\n          List.unattach_attach]\n      exact longitud_filtro_lt_cons (fun x => decide (x ≤ p)) p cola\n    · rw [List.unattach_filter (l := cola.attach)\n          (f := fun x => ! decide (x.val ≤ p))\n          (g := fun x => ! decide (x ≤ p)) (hf := fun _ _ => rfl),\n          List.unattach_attach]\n      exact longitud_filtro_lt_cons (fun x => ! decide (x ≤ p)) p cola",
         "startLine": 157,
@@ -31491,9 +31491,9 @@
       "id": "filter_partition_perm",
       "declaration": "Thesis.Sort.particion_filtros_permutacion",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "c25b156bbe7a2ebaeca1a89289883434f5fb733b130b2c96d6a10cab4abb5f1e",
         "code": "omit [LinearOrder α] in\ntheorem particion_filtros_permutacion (q : α → Bool) (l : List α) :\n    l.filter q ++ l.filter (fun x => !q x) ~ l := by\n  -- A probar: los filtros complementarios forman una permutación de l.\n  -- Por inducción sobre l y casos sobre q a.\n  induction l with\n  | nil => exact List.Perm.refl []\n  | cons a cola hipInd =>\n      have hCons := hipInd.cons a\n      -- hCons añade a al inicio de ambos lados de la permutación inductiva.\n      cases hq : q a with\n      | true =>\n          -- a queda en el filtro izquierdo; cons_append permite aplicar hCons.\n          simp only [List.filter_cons, hq, Bool.not_true, Bool.false_eq_true,\n            ↓reduceIte, List.cons_append]\n          exact hCons\n      | false =>\n          -- a queda en el derecho; perm_middle lo lleva al inicio y trans compone.\n          simp only [List.filter_cons, hq, Bool.not_false, Bool.false_eq_true,\n            ↓reduceIte]\n          exact List.perm_middle.trans hCons",
         "startLine": 48,
@@ -31930,20 +31930,20 @@
       "id": "mem_quicksort",
       "declaration": "Thesis.Sort.pertenencia_quicksort",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
-        "codeSha256": "0736722db5cc3230e4ea9032f62e73b4402d5280f14cc0a8930d9a35dd72a046",
-        "code": "/-- La pertenencia es invariante bajo la permutación ya demostrada. -/\ntheorem pertenencia_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l := by\n  -- A probar: las dos direcciones de la equivalencia de pertenencia.\n  -- Método: aplicar mem_iff a quicksort_permutacion, sin nueva inducción.\n  have hPermutacion : quicksort l ~ l := quicksort_permutacion l\n  have hPertenencia : a ∈ quicksort l ↔ a ∈ l := hPermutacion.mem_iff\n  constructor\n  · intro hEnSalida\n    exact hPertenencia.mp hEnSalida\n  · intro hEnEntrada\n    exact hPertenencia.mpr hEnEntrada",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
+        "codeSha256": "84a882117fea75908f1a06a8c115076aed624b7a698c653964be32eda587076e",
+        "code": "/-- La pertenencia es invariante bajo la permutación ya demostrada. -/\ntheorem pertenencia_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l := by\n  -- A probar: la equivalencia de pertenencia.\n  -- Método: aplicar mem_iff a quicksort_permutacion, sin nueva inducción.\n  exact (quicksort_permutacion l).mem_iff",
         "startLine": 236,
-        "endLine": 246
+        "endLine": 240
       },
       "leanVersion": "4.29.0",
       "steps": [
         {
-          "id": "mem_quicksort.e5ad2aeff181.1",
+          "id": "mem_quicksort.7b58010995c7.1",
           "branch": "mem_quicksort.principal",
-          "label": "have hPermutacion : quicksort l ~ l := quicksort_permutacion l",
+          "label": "exact (quicksort_permutacion l).mem_iff",
           "startLine": 240,
           "endLine": 240,
           "before": [
@@ -31967,457 +31967,12 @@
                   "name": "l"
                 }
               ],
-              "id": "mem_quicksort.e5ad2aeff181.1.before.goal-1"
-            }
-          ],
-          "after": [
-            {
-              "target": "a ∈ quicksort l ↔ a ∈ l",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                }
-              ],
-              "id": "mem_quicksort.e5ad2aeff181.1.after.goal-1"
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "have hPermutacion : quicksort l ~ l := quicksort_permutacion l"
-        },
-        {
-          "id": "mem_quicksort.f01ce7e5fc0c.1",
-          "branch": "mem_quicksort.principal",
-          "label": "have hPertenencia : a ∈ quicksort l ↔ a ∈ l := hPermutacion.mem_iff",
-          "startLine": 241,
-          "endLine": 241,
-          "before": [
-            {
-              "target": "a ∈ quicksort l ↔ a ∈ l",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                }
-              ],
-              "id": "mem_quicksort.f01ce7e5fc0c.1.before.goal-1"
-            }
-          ],
-          "after": [
-            {
-              "target": "a ∈ quicksort l ↔ a ∈ l",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                }
-              ],
-              "id": "mem_quicksort.f01ce7e5fc0c.1.after.goal-1"
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "have hPertenencia : a ∈ quicksort l ↔ a ∈ l := hPermutacion.mem_iff"
-        },
-        {
-          "id": "mem_quicksort.e3c1703abf8a.1",
-          "branch": "mem_quicksort.principal",
-          "label": "constructor",
-          "startLine": 242,
-          "endLine": 242,
-          "before": [
-            {
-              "target": "a ∈ quicksort l ↔ a ∈ l",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                }
-              ],
-              "id": "mem_quicksort.e3c1703abf8a.1.before.goal-1"
-            }
-          ],
-          "after": [
-            {
-              "target": "a ∈ quicksort l → a ∈ l",
-              "id": "mp",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                }
-              ]
-            },
-            {
-              "target": "a ∈ l → a ∈ quicksort l",
-              "id": "mpr",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                }
-              ]
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "constructor"
-        },
-        {
-          "id": "mem_quicksort.ab23302ea11f.1",
-          "branch": "mem_quicksort.mp",
-          "label": "intro hEnSalida",
-          "startLine": 243,
-          "endLine": 243,
-          "before": [
-            {
-              "target": "a ∈ quicksort l → a ∈ l",
-              "id": "mp",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                }
-              ]
-            }
-          ],
-          "after": [
-            {
-              "target": "a ∈ l",
-              "id": "mp",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                },
-                {
-                  "type": "a ∈ quicksort l",
-                  "name": "hEnSalida"
-                }
-              ]
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "intro hEnSalida"
-        },
-        {
-          "id": "mem_quicksort.09750eab59c6.1",
-          "branch": "mem_quicksort.mp",
-          "label": "exact hPertenencia.mp hEnSalida",
-          "startLine": 244,
-          "endLine": 244,
-          "before": [
-            {
-              "target": "a ∈ l",
-              "id": "mp",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                },
-                {
-                  "type": "a ∈ quicksort l",
-                  "name": "hEnSalida"
-                }
-              ]
+              "id": "mem_quicksort.7b58010995c7.1.before.goal-1"
             }
           ],
           "after": [],
           "kind": "closure",
-          "sourceText": "exact hPertenencia.mp hEnSalida"
-        },
-        {
-          "id": "mem_quicksort.bccba33e29f8.1",
-          "branch": "mem_quicksort.mpr",
-          "label": "intro hEnEntrada",
-          "startLine": 245,
-          "endLine": 245,
-          "before": [
-            {
-              "target": "a ∈ l → a ∈ quicksort l",
-              "id": "mpr",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                }
-              ]
-            }
-          ],
-          "after": [
-            {
-              "target": "a ∈ quicksort l",
-              "id": "mpr",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                },
-                {
-                  "type": "a ∈ l",
-                  "name": "hEnEntrada"
-                }
-              ]
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "intro hEnEntrada"
-        },
-        {
-          "id": "mem_quicksort.32c9f249da7b.1",
-          "branch": "mem_quicksort.mpr",
-          "label": "exact hPertenencia.mpr hEnEntrada",
-          "startLine": 246,
-          "endLine": 246,
-          "before": [
-            {
-              "target": "a ∈ quicksort l",
-              "id": "mpr",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "a"
-                },
-                {
-                  "type": "List α",
-                  "name": "l"
-                },
-                {
-                  "type": "quicksort l ~ l",
-                  "name": "hPermutacion"
-                },
-                {
-                  "type": "a ∈ quicksort l ↔ a ∈ l",
-                  "name": "hPertenencia"
-                },
-                {
-                  "type": "a ∈ l",
-                  "name": "hEnEntrada"
-                }
-              ]
-            }
-          ],
-          "after": [],
-          "kind": "closure",
-          "sourceText": "exact hPertenencia.mpr hEnEntrada"
+          "sourceText": "exact (quicksort_permutacion l).mem_iff"
         }
       ],
       "blocks": []
@@ -32426,9 +31981,9 @@
       "id": "pairwise_cons_iff",
       "declaration": "Thesis.Sort.relacion_pares_cons_iff",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "f0c82314aabc50f0786526b365c87d493f7cf369a23f6dc993ef27bd337ecf76",
         "code": "omit [LinearOrder α] in\ntheorem relacion_pares_cons_iff (R : α → α → Prop) (a : α) (l : List α) :\n    List.Pairwise R (a :: l) ↔ (∀ b ∈ l, R a b) ∧ List.Pairwise R l := by\n  -- A probar: equivalencia entre Pairwise y las dos premisas del constructor cons.\n  -- Por eliminación del constructor en una dirección e introducción en la otra.\n  constructor\n  · intro h\n    -- Se extraen la relación de la cabeza con la cola y Pairwise de la cola.\n    cases h with\n    | cons hCabeza hCola => exact ⟨hCabeza, hCola⟩\n  · rintro ⟨hCabeza, hCola⟩\n    -- Las mismas premisas reconstruyen Pairwise para a :: l.\n    exact List.Pairwise.cons hCabeza hCola",
         "startLine": 72,
@@ -32771,9 +32326,9 @@
       "id": "pairwise_append_iff",
       "declaration": "Thesis.Sort.relacion_pares_concatenacion_iff",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "1b8d3ffabcf39bbf7fa99fcb4939cdf4fc76f5fa0c1cfaef0f1417ecc99254fe",
         "code": "omit [LinearOrder α] in\ntheorem relacion_pares_concatenacion_iff (R : α → α → Prop) (l₁ l₂ : List α) :\n    List.Pairwise R (l₁ ++ l₂) ↔\n      List.Pairwise R l₁ ∧ List.Pairwise R l₂ ∧\n        (∀ a ∈ l₁, ∀ b ∈ l₂, R a b) := by\n  -- A probar: Pairwise de la concatenación equivale a las tres condiciones.\n  -- Por inducción sobre l₁, con l₂ fija.\n  induction l₁ with\n  | nil =>\n      -- [] ++ l₂ = l₂; Pairwise [] y la condición cruzada vacía se satisfacen.\n      constructor\n      · intro h\n        exact ⟨List.Pairwise.nil, h, fun a ha => False.elim (List.not_mem_nil ha)⟩\n      · rintro ⟨_, h, _⟩\n        exact h\n  | cons a cola hipInd =>\n      -- H expresa la relación de a con una lista; C, la relación entre dos listas.\n      let H := fun s : List α => ∀ z ∈ s, R a z\n      let C := fun s t : List α => ∀ x ∈ s, ∀ y ∈ t, R x y\n      have hCabeza : H (cola ++ l₂) ↔ H cola ∧ H l₂ := by\n        -- Pertenecer a cola ++ l₂ equivale a pertenecer a uno de los dos bloques.\n        constructor\n        · intro h\n          exact ⟨fun z hz => h z (List.mem_append_left l₂ hz),\n            fun z hz => h z (List.mem_append_right cola hz)⟩\n        · rintro ⟨hCola, hUltima⟩ z hz\n          rcases List.mem_append.mp hz with hr | hl\n          · exact hCola z hr\n          · exact hUltima z hl\n      have hCruce : C (a :: cola) l₂ ↔ H l₂ ∧ C cola l₂ := by\n        -- Se separan la cabeza a y los elementos de cola, en ambas direcciones.\n        constructor\n        · intro h\n          exact ⟨fun y hy => h a List.mem_cons_self y hy,\n            fun x hx y hy => h x (List.mem_cons_of_mem a hx) y hy⟩\n        · rintro ⟨hA, hCola⟩ x hx y hy\n          rcases List.mem_cons.mp hx with ha | hr\n          · subst x\n            exact hA y hy\n          · exact hCola x hr y hy\n      -- Se despliegan la concatenación y las dos apariciones de Pairwise sobre ::.\n      change List.Pairwise R ((a :: cola) ++ l₂) ↔\n        List.Pairwise R (a :: cola) ∧ List.Pairwise R l₂ ∧ C (a :: cola) l₂\n      rw [List.cons_append, relacion_pares_cons_iff, relacion_pares_cons_iff]\n      change (H (cola ++ l₂) ∧ List.Pairwise R (cola ++ l₂)) ↔\n        (H cola ∧ List.Pairwise R cola) ∧ List.Pairwise R l₂ ∧ C (a :: cola) l₂\n      rw [hCabeza, hipInd, hCruce]\n      -- Tras sustituir las tres equivalencias, solo se reagrupan las conjunciones.\n      constructor\n      · rintro ⟨⟨hr, hl⟩, hp, hq, hc⟩\n        exact ⟨⟨hr, hp⟩, hq, hl, hc⟩\n      · rintro ⟨⟨hr, hp⟩, hq, hl, hc⟩\n        exact ⟨⟨hr, hl⟩, hp, hq, hc⟩",
         "startLine": 86,
@@ -36054,22 +35609,22 @@
       "id": "quicksort_sorted",
       "declaration": "Thesis.Sort.quicksort_ordenada",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "1d122bf540f42415c40b3a5eb7ff6d620074f8c1a3901e66993fca15327f7a00",
         "code": "/-- La salida está ordenada de forma no decreciente. -/\n-- ANCHOR: sorted_thm\ntheorem quicksort_ordenada : ∀ l : List α, Ordenada (quicksort l)\n  | [] => by\n      -- A probar: Ordenada (quicksort []). La lista vacía no tiene pares.\n      rw [quicksort_vacia]\n      change List.Pairwise (· ≤ ·) ([] : List α)\n      exact List.Pairwise.nil\n  | p :: cola => by\n      -- A probar: Ordenada (quicksort (p :: cola)).\n      -- Método: inducción por longitud, cotas del pivote y concatenación.\n      let menoresIguales := cola.filter (fun x => decide (x ≤ p))\n      let mayores := cola.filter (fun x => ! decide (x ≤ p))\n      have hMenoresIgualesLt : menoresIguales.length < (p :: cola).length :=\n        longitud_filtro_lt_cons (fun x => decide (x ≤ p)) p cola\n      have hMayoresLt : mayores.length < (p :: cola).length :=\n        longitud_filtro_lt_cons (fun x => ! decide (x ≤ p)) p cola\n      have hipIndMenoresIguales : Ordenada (quicksort menoresIguales) := quicksort_ordenada menoresIguales\n      have hipIndMayores : Ordenada (quicksort mayores) := quicksort_ordenada mayores\n      -- Cota izquierda: pertenencia en la salida → filtro → a ≤ p.\n      have hCotaMenoresIguales : ∀ a ∈ quicksort menoresIguales, a ≤ p := by\n        intro a hEnSalida\n        have hEnFiltro : a ∈ menoresIguales := pertenencia_quicksort.mp hEnSalida\n        have hPartes : a ∈ cola ∧ decide (a ≤ p) = true :=\n          List.mem_filter.mp hEnFiltro\n        have hDecision : decide (a ≤ p) = true := hPartes.right\n        exact of_decide_eq_true hDecision\n      -- Cota derecha: pertenencia → ¬(b ≤ p) → p < b → p ≤ b.\n      have hCotaMayores : ∀ b ∈ quicksort mayores, p ≤ b := by\n        intro b hEnSalida\n        have hEnFiltro : b ∈ mayores := pertenencia_quicksort.mp hEnSalida\n        have hPartes : b ∈ cola ∧ (! decide (b ≤ p)) = true :=\n          List.mem_filter.mp hEnFiltro\n        have hNegado : (! decide (b ≤ p)) = true := hPartes.right\n        have hFalso : decide (b ≤ p) = false := by\n          simpa only [Bool.not_eq_true'] using hNegado\n        have hNoLe : ¬ (b ≤ p) := of_decide_eq_false hFalso\n        have hEstricto : p < b := lt_of_not_ge hNoLe\n        exact le_of_lt hEstricto\n      -- Ordenada se despliega para cambiar a su predicado Pairwise.\n      have hParesMenoresIguales : List.Pairwise (· ≤ ·) (quicksort menoresIguales) := hipIndMenoresIguales\n      have hParesMayores : List.Pairwise (· ≤ ·) (quicksort mayores) := hipIndMayores\n      -- pairwise_cons: cabeza ≤ cada elemento de la cola, y cola ordenada.\n      -- Se usa la dirección que construye Pairwise para p :: quicksort mayores.\n      have hParesDerecha : List.Pairwise (· ≤ ·) (p :: quicksort mayores) := by\n        apply (relacion_pares_cons_iff _ _ _).mpr\n        constructor\n        · exact hCotaMayores\n        · exact hParesMayores\n      -- Condición cruzada: salida izquierda frente a todo el bloque derecho.\n      have hCruce : ∀ a ∈ quicksort menoresIguales,\n          ∀ b ∈ p :: quicksort mayores, a ≤ b := by\n        intro a hEnMenoresIguales b hEnDerecha\n        have hCasos : b = p ∨ b ∈ quicksort mayores := List.mem_cons.mp hEnDerecha\n        rcases hCasos with hEsPivote | hEnMayores\n        · -- b es el pivote: se sustituye b por p en la meta.\n          subst b\n          exact hCotaMenoresIguales a hEnMenoresIguales\n        · -- b está en la salida derecha: a ≤ p y p ≤ b.\n          have hAP : a ≤ p := hCotaMenoresIguales a hEnMenoresIguales\n          have hPB : p ≤ b := hCotaMayores b hEnMayores\n          exact le_trans hAP hPB\n      -- pairwise_append exige tres pruebas: izquierda, derecha y cruce.\n      have hTodosPares : List.Pairwise (· ≤ ·)\n          (quicksort menoresIguales ++ (p :: quicksort mayores)) := by\n        apply (relacion_pares_concatenacion_iff _ _ _).mpr\n        exact ⟨hParesMenoresIguales, hParesDerecha, hCruce⟩\n      -- La ecuación de quicksort identifica esta concatenación con la salida.\n      rw [quicksort_cons]\n      change List.Pairwise (· ≤ ·) (quicksort menoresIguales ++ (p :: quicksort mayores))\n      exact hTodosPares\n  termination_by l => l.length\n  decreasing_by\n    · exact hMenoresIgualesLt\n    · exact hMayoresLt",
-        "startLine": 249,
-        "endLine": 323
+        "startLine": 243,
+        "endLine": 317
       },
       "leanVersion": "4.29.0",
       "steps": [
         {
-          "id": "quicksort_sorted.bddbfece72ab.1",
+          "id": "quicksort_sorted.f0bbbc9d3c4e.1",
           "branch": "quicksort_sorted.principal",
           "label": "rw [quicksort_vacia]",
-          "startLine": 254,
-          "endLine": 254,
+          "startLine": 248,
+          "endLine": 248,
           "before": [
             {
               "target": "Ordenada (quicksort [])",
@@ -36083,7 +35638,7 @@
                   "name": "inst✝"
                 }
               ],
-              "id": "quicksort_sorted.bddbfece72ab.1.before.goal-1"
+              "id": "quicksort_sorted.f0bbbc9d3c4e.1.before.goal-1"
             }
           ],
           "after": [
@@ -36099,7 +35654,7 @@
                   "name": "inst✝"
                 }
               ],
-              "id": "quicksort_sorted.bddbfece72ab.1.after.goal-1"
+              "id": "quicksort_sorted.f0bbbc9d3c4e.1.after.goal-1"
             }
           ],
           "kind": "continuation",
@@ -36109,8 +35664,8 @@
           "id": "quicksort_sorted.60e0b2b497e7.1",
           "branch": "quicksort_sorted.principal",
           "label": "change List.Pairwise (· ≤ ·) ([] : List α)",
-          "startLine": 255,
-          "endLine": 255,
+          "startLine": 249,
+          "endLine": 249,
           "before": [
             {
               "target": "Ordenada []",
@@ -36150,8 +35705,8 @@
           "id": "quicksort_sorted.865391a74142.1",
           "branch": "quicksort_sorted.principal",
           "label": "exact List.Pairwise.nil",
-          "startLine": 256,
-          "endLine": 256,
+          "startLine": 250,
+          "endLine": 250,
           "before": [
             {
               "target": "List.Pairwise (fun x1 x2 => x1 ≤ x2) []",
@@ -36173,11 +35728,11 @@
           "sourceText": "exact List.Pairwise.nil"
         },
         {
-          "id": "quicksort_sorted.6de8d16bc03a.1",
+          "id": "quicksort_sorted.89a2695c29ab.1",
           "branch": "quicksort_sorted.principal",
           "label": "let menoresIguales := cola.filter (fun x => decide (x ≤ p))",
-          "startLine": 260,
-          "endLine": 260,
+          "startLine": 254,
+          "endLine": 254,
           "before": [
             {
               "target": "Ordenada (quicksort (p :: cola))",
@@ -36199,7 +35754,7 @@
                   "name": "cola"
                 }
               ],
-              "id": "quicksort_sorted.6de8d16bc03a.1.before.goal-1"
+              "id": "quicksort_sorted.89a2695c29ab.1.before.goal-1"
             }
           ],
           "after": [
@@ -36227,16 +35782,340 @@
                   "name": "menoresIguales"
                 }
               ],
-              "id": "quicksort_sorted.6de8d16bc03a.1.after.goal-1"
+              "id": "quicksort_sorted.89a2695c29ab.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "let menoresIguales := cola.filter (fun x => decide (x ≤ p))"
         },
         {
-          "id": "quicksort_sorted.92fbf10d3eed.1",
+          "id": "quicksort_sorted.6e6a8fc018a7.1",
           "branch": "quicksort_sorted.principal",
           "label": "let mayores := cola.filter (fun x => ! decide (x ≤ p))",
+          "startLine": 255,
+          "endLine": 255,
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                }
+              ],
+              "id": "quicksort_sorted.6e6a8fc018a7.1.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                }
+              ],
+              "id": "quicksort_sorted.6e6a8fc018a7.1.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "let mayores := cola.filter (fun x => ! decide (x ≤ p))"
+        },
+        {
+          "id": "quicksort_sorted.e0f46354c4e0.1",
+          "branch": "quicksort_sorted.principal",
+          "label": "have hMenoresIgualesLt : menoresIguales.length < (p :: cola).length :=",
+          "startLine": 256,
+          "endLine": 257,
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                }
+              ],
+              "id": "quicksort_sorted.e0f46354c4e0.1.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                }
+              ],
+              "id": "quicksort_sorted.e0f46354c4e0.1.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hMenoresIgualesLt : menoresIguales.length < (p :: cola).length :=\n        longitud_filtro_lt_cons (fun x => decide (x ≤ p)) p cola"
+        },
+        {
+          "id": "quicksort_sorted.269f2f3e08b9.1",
+          "branch": "quicksort_sorted.principal",
+          "label": "have hMayoresLt : mayores.length < (p :: cola).length :=",
+          "startLine": 258,
+          "endLine": 259,
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                }
+              ],
+              "id": "quicksort_sorted.269f2f3e08b9.1.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                }
+              ],
+              "id": "quicksort_sorted.269f2f3e08b9.1.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hMayoresLt : mayores.length < (p :: cola).length :=\n        longitud_filtro_lt_cons (fun x => ! decide (x ≤ p)) p cola"
+        },
+        {
+          "id": "quicksort_sorted.9cb9ef2e0848.1",
+          "branch": "quicksort_sorted.principal",
+          "label": "have hipIndMenoresIguales : Ordenada (quicksort menoresIguales) := quicksort_ordenada menoresIguales",
+          "startLine": 260,
+          "endLine": 260,
+          "before": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                }
+              ],
+              "id": "quicksort_sorted.9cb9ef2e0848.1.before.goal-1"
+            }
+          ],
+          "after": [
+            {
+              "target": "Ordenada (quicksort (p :: cola))",
+              "hypotheses": [
+                {
+                  "type": "Type u_1",
+                  "name": "α"
+                },
+                {
+                  "type": "LinearOrder α",
+                  "name": "inst✝"
+                },
+                {
+                  "type": "α",
+                  "name": "p"
+                },
+                {
+                  "type": "List α",
+                  "name": "cola"
+                },
+                {
+                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
+                  "name": "menoresIguales"
+                },
+                {
+                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
+                  "name": "mayores"
+                },
+                {
+                  "type": "menoresIguales.length < (p :: cola).length",
+                  "name": "hMenoresIgualesLt"
+                },
+                {
+                  "type": "mayores.length < (p :: cola).length",
+                  "name": "hMayoresLt"
+                },
+                {
+                  "type": "Ordenada (quicksort menoresIguales)",
+                  "name": "hipIndMenoresIguales"
+                }
+              ],
+              "id": "quicksort_sorted.9cb9ef2e0848.1.after.goal-1"
+            }
+          ],
+          "kind": "continuation",
+          "sourceText": "have hipIndMenoresIguales : Ordenada (quicksort menoresIguales) := quicksort_ordenada menoresIguales"
+        },
+        {
+          "id": "quicksort_sorted.08b7ba0c5f64.1",
+          "branch": "quicksort_sorted.principal",
+          "label": "have hipIndMayores : Ordenada (quicksort mayores) := quicksort_ordenada mayores",
           "startLine": 261,
           "endLine": 261,
           "before": [
@@ -36262,277 +36141,6 @@
                 {
                   "type": "List α := filter (fun x => decide (x ≤ p)) cola",
                   "name": "menoresIguales"
-                }
-              ],
-              "id": "quicksort_sorted.92fbf10d3eed.1.before.goal-1"
-            }
-          ],
-          "after": [
-            {
-              "target": "Ordenada (quicksort (p :: cola))",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "p"
-                },
-                {
-                  "type": "List α",
-                  "name": "cola"
-                },
-                {
-                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
-                  "name": "menoresIguales"
-                },
-                {
-                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
-                  "name": "mayores"
-                }
-              ],
-              "id": "quicksort_sorted.92fbf10d3eed.1.after.goal-1"
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "let mayores := cola.filter (fun x => ! decide (x ≤ p))"
-        },
-        {
-          "id": "quicksort_sorted.d6d984829caa.1",
-          "branch": "quicksort_sorted.principal",
-          "label": "have hMenoresIgualesLt : menoresIguales.length < (p :: cola).length :=",
-          "startLine": 262,
-          "endLine": 263,
-          "before": [
-            {
-              "target": "Ordenada (quicksort (p :: cola))",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "p"
-                },
-                {
-                  "type": "List α",
-                  "name": "cola"
-                },
-                {
-                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
-                  "name": "menoresIguales"
-                },
-                {
-                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
-                  "name": "mayores"
-                }
-              ],
-              "id": "quicksort_sorted.d6d984829caa.1.before.goal-1"
-            }
-          ],
-          "after": [
-            {
-              "target": "Ordenada (quicksort (p :: cola))",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "p"
-                },
-                {
-                  "type": "List α",
-                  "name": "cola"
-                },
-                {
-                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
-                  "name": "menoresIguales"
-                },
-                {
-                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
-                  "name": "mayores"
-                },
-                {
-                  "type": "menoresIguales.length < (p :: cola).length",
-                  "name": "hMenoresIgualesLt"
-                }
-              ],
-              "id": "quicksort_sorted.d6d984829caa.1.after.goal-1"
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "have hMenoresIgualesLt : menoresIguales.length < (p :: cola).length :=\n        longitud_filtro_lt_cons (fun x => decide (x ≤ p)) p cola"
-        },
-        {
-          "id": "quicksort_sorted.11540e5396c1.1",
-          "branch": "quicksort_sorted.principal",
-          "label": "have hMayoresLt : mayores.length < (p :: cola).length :=",
-          "startLine": 264,
-          "endLine": 265,
-          "before": [
-            {
-              "target": "Ordenada (quicksort (p :: cola))",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "p"
-                },
-                {
-                  "type": "List α",
-                  "name": "cola"
-                },
-                {
-                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
-                  "name": "menoresIguales"
-                },
-                {
-                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
-                  "name": "mayores"
-                },
-                {
-                  "type": "menoresIguales.length < (p :: cola).length",
-                  "name": "hMenoresIgualesLt"
-                }
-              ],
-              "id": "quicksort_sorted.11540e5396c1.1.before.goal-1"
-            }
-          ],
-          "after": [
-            {
-              "target": "Ordenada (quicksort (p :: cola))",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "p"
-                },
-                {
-                  "type": "List α",
-                  "name": "cola"
-                },
-                {
-                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
-                  "name": "menoresIguales"
-                },
-                {
-                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
-                  "name": "mayores"
-                },
-                {
-                  "type": "menoresIguales.length < (p :: cola).length",
-                  "name": "hMenoresIgualesLt"
-                },
-                {
-                  "type": "mayores.length < (p :: cola).length",
-                  "name": "hMayoresLt"
-                }
-              ],
-              "id": "quicksort_sorted.11540e5396c1.1.after.goal-1"
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "have hMayoresLt : mayores.length < (p :: cola).length :=\n        longitud_filtro_lt_cons (fun x => ! decide (x ≤ p)) p cola"
-        },
-        {
-          "id": "quicksort_sorted.83cd45f4f804.1",
-          "branch": "quicksort_sorted.principal",
-          "label": "have hipIndMenoresIguales : Ordenada (quicksort menoresIguales) := quicksort_ordenada menoresIguales",
-          "startLine": 266,
-          "endLine": 266,
-          "before": [
-            {
-              "target": "Ordenada (quicksort (p :: cola))",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "p"
-                },
-                {
-                  "type": "List α",
-                  "name": "cola"
-                },
-                {
-                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
-                  "name": "menoresIguales"
-                },
-                {
-                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
-                  "name": "mayores"
-                },
-                {
-                  "type": "menoresIguales.length < (p :: cola).length",
-                  "name": "hMenoresIgualesLt"
-                },
-                {
-                  "type": "mayores.length < (p :: cola).length",
-                  "name": "hMayoresLt"
-                }
-              ],
-              "id": "quicksort_sorted.83cd45f4f804.1.before.goal-1"
-            }
-          ],
-          "after": [
-            {
-              "target": "Ordenada (quicksort (p :: cola))",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "p"
-                },
-                {
-                  "type": "List α",
-                  "name": "cola"
-                },
-                {
-                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
-                  "name": "menoresIguales"
                 },
                 {
                   "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
@@ -36551,60 +36159,7 @@
                   "name": "hipIndMenoresIguales"
                 }
               ],
-              "id": "quicksort_sorted.83cd45f4f804.1.after.goal-1"
-            }
-          ],
-          "kind": "continuation",
-          "sourceText": "have hipIndMenoresIguales : Ordenada (quicksort menoresIguales) := quicksort_ordenada menoresIguales"
-        },
-        {
-          "id": "quicksort_sorted.4a45919af8de.1",
-          "branch": "quicksort_sorted.principal",
-          "label": "have hipIndMayores : Ordenada (quicksort mayores) := quicksort_ordenada mayores",
-          "startLine": 267,
-          "endLine": 267,
-          "before": [
-            {
-              "target": "Ordenada (quicksort (p :: cola))",
-              "hypotheses": [
-                {
-                  "type": "Type u_1",
-                  "name": "α"
-                },
-                {
-                  "type": "LinearOrder α",
-                  "name": "inst✝"
-                },
-                {
-                  "type": "α",
-                  "name": "p"
-                },
-                {
-                  "type": "List α",
-                  "name": "cola"
-                },
-                {
-                  "type": "List α := filter (fun x => decide (x ≤ p)) cola",
-                  "name": "menoresIguales"
-                },
-                {
-                  "type": "List α := filter (fun x => !decide (x ≤ p)) cola",
-                  "name": "mayores"
-                },
-                {
-                  "type": "menoresIguales.length < (p :: cola).length",
-                  "name": "hMenoresIgualesLt"
-                },
-                {
-                  "type": "mayores.length < (p :: cola).length",
-                  "name": "hMayoresLt"
-                },
-                {
-                  "type": "Ordenada (quicksort menoresIguales)",
-                  "name": "hipIndMenoresIguales"
-                }
-              ],
-              "id": "quicksort_sorted.4a45919af8de.1.before.goal-1"
+              "id": "quicksort_sorted.08b7ba0c5f64.1.before.goal-1"
             }
           ],
           "after": [
@@ -36652,18 +36207,18 @@
                   "name": "hipIndMayores"
                 }
               ],
-              "id": "quicksort_sorted.4a45919af8de.1.after.goal-1"
+              "id": "quicksort_sorted.08b7ba0c5f64.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hipIndMayores : Ordenada (quicksort mayores) := quicksort_ordenada mayores"
         },
         {
-          "id": "quicksort_sorted.3f4f55a6996d.1",
+          "id": "quicksort_sorted.329c153292cb.1",
           "branch": "quicksort_sorted.principal",
           "label": "intro a hEnSalida",
-          "startLine": 270,
-          "endLine": 270,
+          "startLine": 264,
+          "endLine": 264,
           "before": [
             {
               "target": "∀ a ∈ quicksort menoresIguales, a ≤ p",
@@ -36709,7 +36264,7 @@
                   "name": "hipIndMayores"
                 }
               ],
-              "id": "quicksort_sorted.3f4f55a6996d.1.before.goal-1"
+              "id": "quicksort_sorted.329c153292cb.1.before.goal-1"
             }
           ],
           "after": [
@@ -36765,18 +36320,18 @@
                   "name": "hEnSalida"
                 }
               ],
-              "id": "quicksort_sorted.3f4f55a6996d.1.after.goal-1"
+              "id": "quicksort_sorted.329c153292cb.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "intro a hEnSalida"
         },
         {
-          "id": "quicksort_sorted.dceb94ee15f9.1",
+          "id": "quicksort_sorted.b41f67e324de.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hEnFiltro : a ∈ menoresIguales := pertenencia_quicksort.mp hEnSalida",
-          "startLine": 271,
-          "endLine": 271,
+          "startLine": 265,
+          "endLine": 265,
           "before": [
             {
               "target": "a ≤ p",
@@ -36830,7 +36385,7 @@
                   "name": "hEnSalida"
                 }
               ],
-              "id": "quicksort_sorted.dceb94ee15f9.1.before.goal-1"
+              "id": "quicksort_sorted.b41f67e324de.1.before.goal-1"
             }
           ],
           "after": [
@@ -36890,18 +36445,18 @@
                   "name": "hEnFiltro"
                 }
               ],
-              "id": "quicksort_sorted.dceb94ee15f9.1.after.goal-1"
+              "id": "quicksort_sorted.b41f67e324de.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hEnFiltro : a ∈ menoresIguales := pertenencia_quicksort.mp hEnSalida"
         },
         {
-          "id": "quicksort_sorted.c468ea8ab648.1",
+          "id": "quicksort_sorted.5586b7ab3311.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hPartes : a ∈ cola ∧ decide (a ≤ p) = true :=",
-          "startLine": 272,
-          "endLine": 273,
+          "startLine": 266,
+          "endLine": 267,
           "before": [
             {
               "target": "a ≤ p",
@@ -36959,7 +36514,7 @@
                   "name": "hEnFiltro"
                 }
               ],
-              "id": "quicksort_sorted.c468ea8ab648.1.before.goal-1"
+              "id": "quicksort_sorted.5586b7ab3311.1.before.goal-1"
             }
           ],
           "after": [
@@ -37023,18 +36578,18 @@
                   "name": "hPartes"
                 }
               ],
-              "id": "quicksort_sorted.c468ea8ab648.1.after.goal-1"
+              "id": "quicksort_sorted.5586b7ab3311.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hPartes : a ∈ cola ∧ decide (a ≤ p) = true :=\n          List.mem_filter.mp hEnFiltro"
         },
         {
-          "id": "quicksort_sorted.d7f2a196254b.1",
+          "id": "quicksort_sorted.a1c3f67c6b83.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hDecision : decide (a ≤ p) = true := hPartes.right",
-          "startLine": 274,
-          "endLine": 274,
+          "startLine": 268,
+          "endLine": 268,
           "before": [
             {
               "target": "a ≤ p",
@@ -37096,7 +36651,7 @@
                   "name": "hPartes"
                 }
               ],
-              "id": "quicksort_sorted.d7f2a196254b.1.before.goal-1"
+              "id": "quicksort_sorted.a1c3f67c6b83.1.before.goal-1"
             }
           ],
           "after": [
@@ -37164,7 +36719,7 @@
                   "name": "hDecision"
                 }
               ],
-              "id": "quicksort_sorted.d7f2a196254b.1.after.goal-1"
+              "id": "quicksort_sorted.a1c3f67c6b83.1.after.goal-1"
             }
           ],
           "kind": "continuation",
@@ -37174,8 +36729,8 @@
           "id": "quicksort_sorted.1733b5800928.1",
           "branch": "quicksort_sorted.principal",
           "label": "exact of_decide_eq_true hDecision",
-          "startLine": 275,
-          "endLine": 275,
+          "startLine": 269,
+          "endLine": 269,
           "before": [
             {
               "target": "a ≤ p",
@@ -37249,11 +36804,11 @@
           "sourceText": "exact of_decide_eq_true hDecision"
         },
         {
-          "id": "quicksort_sorted.26f55a88f833.1",
+          "id": "quicksort_sorted.bf03c9e90ff0.1",
           "branch": "quicksort_sorted.principal",
           "label": "intro b hEnSalida",
-          "startLine": 278,
-          "endLine": 278,
+          "startLine": 272,
+          "endLine": 272,
           "before": [
             {
               "target": "∀ b ∈ quicksort mayores, p ≤ b",
@@ -37303,7 +36858,7 @@
                   "name": "hCotaMenoresIguales"
                 }
               ],
-              "id": "quicksort_sorted.26f55a88f833.1.before.goal-1"
+              "id": "quicksort_sorted.bf03c9e90ff0.1.before.goal-1"
             }
           ],
           "after": [
@@ -37363,18 +36918,18 @@
                   "name": "hEnSalida"
                 }
               ],
-              "id": "quicksort_sorted.26f55a88f833.1.after.goal-1"
+              "id": "quicksort_sorted.bf03c9e90ff0.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "intro b hEnSalida"
         },
         {
-          "id": "quicksort_sorted.fbccf44c70d9.1",
+          "id": "quicksort_sorted.cb5ace519965.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hEnFiltro : b ∈ mayores := pertenencia_quicksort.mp hEnSalida",
-          "startLine": 279,
-          "endLine": 279,
+          "startLine": 273,
+          "endLine": 273,
           "before": [
             {
               "target": "p ≤ b",
@@ -37432,7 +36987,7 @@
                   "name": "hEnSalida"
                 }
               ],
-              "id": "quicksort_sorted.fbccf44c70d9.1.before.goal-1"
+              "id": "quicksort_sorted.cb5ace519965.1.before.goal-1"
             }
           ],
           "after": [
@@ -37496,18 +37051,18 @@
                   "name": "hEnFiltro"
                 }
               ],
-              "id": "quicksort_sorted.fbccf44c70d9.1.after.goal-1"
+              "id": "quicksort_sorted.cb5ace519965.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hEnFiltro : b ∈ mayores := pertenencia_quicksort.mp hEnSalida"
         },
         {
-          "id": "quicksort_sorted.fdc1578c14b6.1",
+          "id": "quicksort_sorted.b88f27811e52.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hPartes : b ∈ cola ∧ (! decide (b ≤ p)) = true :=",
-          "startLine": 280,
-          "endLine": 281,
+          "startLine": 274,
+          "endLine": 275,
           "before": [
             {
               "target": "p ≤ b",
@@ -37569,7 +37124,7 @@
                   "name": "hEnFiltro"
                 }
               ],
-              "id": "quicksort_sorted.fdc1578c14b6.1.before.goal-1"
+              "id": "quicksort_sorted.b88f27811e52.1.before.goal-1"
             }
           ],
           "after": [
@@ -37637,18 +37192,18 @@
                   "name": "hPartes"
                 }
               ],
-              "id": "quicksort_sorted.fdc1578c14b6.1.after.goal-1"
+              "id": "quicksort_sorted.b88f27811e52.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hPartes : b ∈ cola ∧ (! decide (b ≤ p)) = true :=\n          List.mem_filter.mp hEnFiltro"
         },
         {
-          "id": "quicksort_sorted.1d5057400f21.1",
+          "id": "quicksort_sorted.5e1987397e9c.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hNegado : (! decide (b ≤ p)) = true := hPartes.right",
-          "startLine": 282,
-          "endLine": 282,
+          "startLine": 276,
+          "endLine": 276,
           "before": [
             {
               "target": "p ≤ b",
@@ -37714,7 +37269,7 @@
                   "name": "hPartes"
                 }
               ],
-              "id": "quicksort_sorted.1d5057400f21.1.before.goal-1"
+              "id": "quicksort_sorted.5e1987397e9c.1.before.goal-1"
             }
           ],
           "after": [
@@ -37786,18 +37341,18 @@
                   "name": "hNegado"
                 }
               ],
-              "id": "quicksort_sorted.1d5057400f21.1.after.goal-1"
+              "id": "quicksort_sorted.5e1987397e9c.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hNegado : (! decide (b ≤ p)) = true := hPartes.right"
         },
         {
-          "id": "quicksort_sorted.7d7a254e0655.1",
+          "id": "quicksort_sorted.663aff4da98f.1",
           "branch": "quicksort_sorted.principal",
           "label": "simpa only [Bool.not_eq_true'] using hNegado",
-          "startLine": 284,
-          "endLine": 284,
+          "startLine": 278,
+          "endLine": 278,
           "before": [
             {
               "target": "decide (b ≤ p) = false",
@@ -37867,7 +37422,7 @@
                   "name": "hNegado"
                 }
               ],
-              "id": "quicksort_sorted.7d7a254e0655.1.before.goal-1"
+              "id": "quicksort_sorted.663aff4da98f.1.before.goal-1"
             }
           ],
           "after": [],
@@ -37875,11 +37430,11 @@
           "sourceText": "simpa only [Bool.not_eq_true'] using hNegado"
         },
         {
-          "id": "quicksort_sorted.95c888a9ac0d.1",
+          "id": "quicksort_sorted.202b44ca5831.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hNoLe : ¬ (b ≤ p) := of_decide_eq_false hFalso",
-          "startLine": 285,
-          "endLine": 285,
+          "startLine": 279,
+          "endLine": 279,
           "before": [
             {
               "target": "p ≤ b",
@@ -37953,7 +37508,7 @@
                   "name": "hFalso"
                 }
               ],
-              "id": "quicksort_sorted.95c888a9ac0d.1.before.goal-1"
+              "id": "quicksort_sorted.202b44ca5831.1.before.goal-1"
             }
           ],
           "after": [
@@ -38033,18 +37588,18 @@
                   "name": "hNoLe"
                 }
               ],
-              "id": "quicksort_sorted.95c888a9ac0d.1.after.goal-1"
+              "id": "quicksort_sorted.202b44ca5831.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hNoLe : ¬ (b ≤ p) := of_decide_eq_false hFalso"
         },
         {
-          "id": "quicksort_sorted.9147af8557e9.1",
+          "id": "quicksort_sorted.eaf4aa1165bb.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hEstricto : p < b := lt_of_not_ge hNoLe",
-          "startLine": 286,
-          "endLine": 286,
+          "startLine": 280,
+          "endLine": 280,
           "before": [
             {
               "target": "p ≤ b",
@@ -38122,7 +37677,7 @@
                   "name": "hNoLe"
                 }
               ],
-              "id": "quicksort_sorted.9147af8557e9.1.before.goal-1"
+              "id": "quicksort_sorted.eaf4aa1165bb.1.before.goal-1"
             }
           ],
           "after": [
@@ -38206,18 +37761,18 @@
                   "name": "hEstricto"
                 }
               ],
-              "id": "quicksort_sorted.9147af8557e9.1.after.goal-1"
+              "id": "quicksort_sorted.eaf4aa1165bb.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hEstricto : p < b := lt_of_not_ge hNoLe"
         },
         {
-          "id": "quicksort_sorted.210215b3e58c.1",
+          "id": "quicksort_sorted.199c4b4795ee.1",
           "branch": "quicksort_sorted.principal",
           "label": "exact le_of_lt hEstricto",
-          "startLine": 287,
-          "endLine": 287,
+          "startLine": 281,
+          "endLine": 281,
           "before": [
             {
               "target": "p ≤ b",
@@ -38299,7 +37854,7 @@
                   "name": "hEstricto"
                 }
               ],
-              "id": "quicksort_sorted.210215b3e58c.1.before.goal-1"
+              "id": "quicksort_sorted.199c4b4795ee.1.before.goal-1"
             }
           ],
           "after": [],
@@ -38307,11 +37862,11 @@
           "sourceText": "exact le_of_lt hEstricto"
         },
         {
-          "id": "quicksort_sorted.8a298a70f4a2.1",
+          "id": "quicksort_sorted.92f68eea6aed.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hParesMenoresIguales : List.Pairwise (· ≤ ·) (quicksort menoresIguales) := hipIndMenoresIguales",
-          "startLine": 289,
-          "endLine": 289,
+          "startLine": 283,
+          "endLine": 283,
           "before": [
             {
               "target": "Ordenada (quicksort (p :: cola))",
@@ -38365,7 +37920,7 @@
                   "name": "hCotaMayores"
                 }
               ],
-              "id": "quicksort_sorted.8a298a70f4a2.1.before.goal-1"
+              "id": "quicksort_sorted.92f68eea6aed.1.before.goal-1"
             }
           ],
           "after": [
@@ -38425,18 +37980,18 @@
                   "name": "hParesMenoresIguales"
                 }
               ],
-              "id": "quicksort_sorted.8a298a70f4a2.1.after.goal-1"
+              "id": "quicksort_sorted.92f68eea6aed.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hParesMenoresIguales : List.Pairwise (· ≤ ·) (quicksort menoresIguales) := hipIndMenoresIguales"
         },
         {
-          "id": "quicksort_sorted.348a05d7f2c5.1",
+          "id": "quicksort_sorted.f97a529a4957.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hParesMayores : List.Pairwise (· ≤ ·) (quicksort mayores) := hipIndMayores",
-          "startLine": 290,
-          "endLine": 290,
+          "startLine": 284,
+          "endLine": 284,
           "before": [
             {
               "target": "Ordenada (quicksort (p :: cola))",
@@ -38494,7 +38049,7 @@
                   "name": "hParesMenoresIguales"
                 }
               ],
-              "id": "quicksort_sorted.348a05d7f2c5.1.before.goal-1"
+              "id": "quicksort_sorted.f97a529a4957.1.before.goal-1"
             }
           ],
           "after": [
@@ -38558,18 +38113,18 @@
                   "name": "hParesMayores"
                 }
               ],
-              "id": "quicksort_sorted.348a05d7f2c5.1.after.goal-1"
+              "id": "quicksort_sorted.f97a529a4957.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hParesMayores : List.Pairwise (· ≤ ·) (quicksort mayores) := hipIndMayores"
         },
         {
-          "id": "quicksort_sorted.d4f0132800f8.1",
+          "id": "quicksort_sorted.24ae87186892.1",
           "branch": "quicksort_sorted.principal",
           "label": "apply (relacion_pares_cons_iff _ _ _).mpr",
-          "startLine": 294,
-          "endLine": 294,
+          "startLine": 288,
+          "endLine": 288,
           "before": [
             {
               "target": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (p :: quicksort mayores)",
@@ -38631,7 +38186,7 @@
                   "name": "hParesMayores"
                 }
               ],
-              "id": "quicksort_sorted.d4f0132800f8.1.before.goal-1"
+              "id": "quicksort_sorted.24ae87186892.1.before.goal-1"
             }
           ],
           "after": [
@@ -38695,7 +38250,7 @@
                   "name": "hParesMayores"
                 }
               ],
-              "id": "quicksort_sorted.d4f0132800f8.1.after.goal-1"
+              "id": "quicksort_sorted.24ae87186892.1.after.goal-1"
             }
           ],
           "kind": "continuation",
@@ -38705,8 +38260,8 @@
           "id": "quicksort_sorted.e3c1703abf8a.1",
           "branch": "quicksort_sorted.principal",
           "label": "constructor",
-          "startLine": 295,
-          "endLine": 295,
+          "startLine": 289,
+          "endLine": 289,
           "before": [
             {
               "target": "(∀ b ∈ quicksort mayores, p ≤ b) ∧ List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort mayores)",
@@ -38901,11 +38456,11 @@
           "sourceText": "constructor"
         },
         {
-          "id": "quicksort_sorted.146539d40898.1",
+          "id": "quicksort_sorted.f28e548012e1.1",
           "branch": "quicksort_sorted.left",
           "label": "exact hCotaMayores",
-          "startLine": 296,
-          "endLine": 296,
+          "startLine": 290,
+          "endLine": 290,
           "before": [
             {
               "target": "∀ b ∈ quicksort mayores, p ≤ b",
@@ -38975,11 +38530,11 @@
           "sourceText": "exact hCotaMayores"
         },
         {
-          "id": "quicksort_sorted.dccc2d895b0f.1",
+          "id": "quicksort_sorted.51c24e0b5927.1",
           "branch": "quicksort_sorted.right",
           "label": "exact hParesMayores",
-          "startLine": 297,
-          "endLine": 297,
+          "startLine": 291,
+          "endLine": 291,
           "before": [
             {
               "target": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort mayores)",
@@ -39049,11 +38604,11 @@
           "sourceText": "exact hParesMayores"
         },
         {
-          "id": "quicksort_sorted.6c32e37702ae.1",
+          "id": "quicksort_sorted.8cb976ef4d1f.1",
           "branch": "quicksort_sorted.principal",
           "label": "intro a hEnMenoresIguales b hEnDerecha",
-          "startLine": 301,
-          "endLine": 301,
+          "startLine": 295,
+          "endLine": 295,
           "before": [
             {
               "target": "∀ a ∈ quicksort menoresIguales, ∀ b ∈ p :: quicksort mayores, a ≤ b",
@@ -39119,7 +38674,7 @@
                   "name": "hParesDerecha"
                 }
               ],
-              "id": "quicksort_sorted.6c32e37702ae.1.before.goal-1"
+              "id": "quicksort_sorted.8cb976ef4d1f.1.before.goal-1"
             }
           ],
           "after": [
@@ -39203,18 +38758,18 @@
                   "name": "hEnDerecha"
                 }
               ],
-              "id": "quicksort_sorted.6c32e37702ae.1.after.goal-1"
+              "id": "quicksort_sorted.8cb976ef4d1f.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "intro a hEnMenoresIguales b hEnDerecha"
         },
         {
-          "id": "quicksort_sorted.6507e8c990d2.1",
+          "id": "quicksort_sorted.f26b5462bb05.1",
           "branch": "quicksort_sorted.principal",
           "label": "have hCasos : b = p ∨ b ∈ quicksort mayores := List.mem_cons.mp hEnDerecha",
-          "startLine": 302,
-          "endLine": 302,
+          "startLine": 296,
+          "endLine": 296,
           "before": [
             {
               "target": "a ≤ b",
@@ -39296,7 +38851,7 @@
                   "name": "hEnDerecha"
                 }
               ],
-              "id": "quicksort_sorted.6507e8c990d2.1.before.goal-1"
+              "id": "quicksort_sorted.f26b5462bb05.1.before.goal-1"
             }
           ],
           "after": [
@@ -39384,18 +38939,18 @@
                   "name": "hCasos"
                 }
               ],
-              "id": "quicksort_sorted.6507e8c990d2.1.after.goal-1"
+              "id": "quicksort_sorted.f26b5462bb05.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hCasos : b = p ∨ b ∈ quicksort mayores := List.mem_cons.mp hEnDerecha"
         },
         {
-          "id": "quicksort_sorted.7b8dfcf408e3.1",
+          "id": "quicksort_sorted.2a79f1b48b57.1",
           "branch": "quicksort_sorted.principal",
           "label": "rcases hCasos with hEsPivote | hEnMayores",
-          "startLine": 303,
-          "endLine": 303,
+          "startLine": 297,
+          "endLine": 297,
           "before": [
             {
               "target": "a ≤ b",
@@ -39481,7 +39036,7 @@
                   "name": "hCasos"
                 }
               ],
-              "id": "quicksort_sorted.7b8dfcf408e3.1.before.goal-1"
+              "id": "quicksort_sorted.2a79f1b48b57.1.before.goal-1"
             }
           ],
           "after": [
@@ -39665,8 +39220,8 @@
           "id": "quicksort_sorted.56a12f873f30.1",
           "branch": "quicksort_sorted.inl",
           "label": "subst b",
-          "startLine": 305,
-          "endLine": 305,
+          "startLine": 299,
+          "endLine": 299,
           "before": [
             {
               "target": "a ≤ b",
@@ -39839,11 +39394,11 @@
           "sourceText": "subst b"
         },
         {
-          "id": "quicksort_sorted.e7b7da688ff2.1",
+          "id": "quicksort_sorted.7b6c8aa54ea0.1",
           "branch": "quicksort_sorted.inl",
           "label": "exact hCotaMenoresIguales a hEnMenoresIguales",
-          "startLine": 306,
-          "endLine": 306,
+          "startLine": 300,
+          "endLine": 300,
           "before": [
             {
               "target": "a ≤ p",
@@ -39929,11 +39484,11 @@
           "sourceText": "exact hCotaMenoresIguales a hEnMenoresIguales"
         },
         {
-          "id": "quicksort_sorted.9c26731b9c7d.1",
+          "id": "quicksort_sorted.6c46606f478b.1",
           "branch": "quicksort_sorted.inr",
           "label": "have hAP : a ≤ p := hCotaMenoresIguales a hEnMenoresIguales",
-          "startLine": 308,
-          "endLine": 308,
+          "startLine": 302,
+          "endLine": 302,
           "before": [
             {
               "target": "a ≤ b",
@@ -40118,11 +39673,11 @@
           "sourceText": "have hAP : a ≤ p := hCotaMenoresIguales a hEnMenoresIguales"
         },
         {
-          "id": "quicksort_sorted.52b4194b280f.1",
+          "id": "quicksort_sorted.e8311321f36f.1",
           "branch": "quicksort_sorted.inr",
           "label": "have hPB : p ≤ b := hCotaMayores b hEnMayores",
-          "startLine": 309,
-          "endLine": 309,
+          "startLine": 303,
+          "endLine": 303,
           "before": [
             {
               "target": "a ≤ b",
@@ -40318,8 +39873,8 @@
           "id": "quicksort_sorted.be6521659759.1",
           "branch": "quicksort_sorted.inr",
           "label": "exact le_trans hAP hPB",
-          "startLine": 310,
-          "endLine": 310,
+          "startLine": 304,
+          "endLine": 304,
           "before": [
             {
               "target": "a ≤ b",
@@ -40421,11 +39976,11 @@
           "sourceText": "exact le_trans hAP hPB"
         },
         {
-          "id": "quicksort_sorted.a768fe720391.1",
+          "id": "quicksort_sorted.6d59ffbbfa69.1",
           "branch": "quicksort_sorted.principal",
           "label": "apply (relacion_pares_concatenacion_iff _ _ _).mpr",
-          "startLine": 314,
-          "endLine": 314,
+          "startLine": 308,
+          "endLine": 308,
           "before": [
             {
               "target": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales ++ p :: quicksort mayores)",
@@ -40495,7 +40050,7 @@
                   "name": "hCruce"
                 }
               ],
-              "id": "quicksort_sorted.a768fe720391.1.before.goal-1"
+              "id": "quicksort_sorted.6d59ffbbfa69.1.before.goal-1"
             }
           ],
           "after": [
@@ -40567,18 +40122,18 @@
                   "name": "hCruce"
                 }
               ],
-              "id": "quicksort_sorted.a768fe720391.1.after.goal-1"
+              "id": "quicksort_sorted.6d59ffbbfa69.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "apply (relacion_pares_concatenacion_iff _ _ _).mpr"
         },
         {
-          "id": "quicksort_sorted.5328b05cb711.1",
+          "id": "quicksort_sorted.b208235329e2.1",
           "branch": "quicksort_sorted.principal",
           "label": "exact ⟨hParesMenoresIguales, hParesDerecha, hCruce⟩",
-          "startLine": 315,
-          "endLine": 315,
+          "startLine": 309,
+          "endLine": 309,
           "before": [
             {
               "target": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales) ∧\n  List.Pairwise (fun x1 x2 => x1 ≤ x2) (p :: quicksort mayores) ∧\n    ∀ a ∈ quicksort menoresIguales, ∀ b ∈ p :: quicksort mayores, a ≤ b",
@@ -40648,7 +40203,7 @@
                   "name": "hCruce"
                 }
               ],
-              "id": "quicksort_sorted.5328b05cb711.1.before.goal-1"
+              "id": "quicksort_sorted.b208235329e2.1.before.goal-1"
             }
           ],
           "after": [],
@@ -40659,8 +40214,8 @@
           "id": "quicksort_sorted.f72ece10bfd1.1",
           "branch": "quicksort_sorted.principal",
           "label": "rw [quicksort_cons]",
-          "startLine": 317,
-          "endLine": 317,
+          "startLine": 311,
+          "endLine": 311,
           "before": [
             {
               "target": "Ordenada (quicksort (p :: cola))",
@@ -40817,11 +40372,11 @@
           "sourceText": "rw [quicksort_cons]"
         },
         {
-          "id": "quicksort_sorted.5ea18ad90f34.1",
+          "id": "quicksort_sorted.19226d581fc6.1",
           "branch": "quicksort_sorted.principal",
           "label": "change List.Pairwise (· ≤ ·) (quicksort menoresIguales ++ (p :: quicksort mayores))",
-          "startLine": 318,
-          "endLine": 318,
+          "startLine": 312,
+          "endLine": 312,
           "before": [
             {
               "target": "Ordenada (quicksort (filter (fun x => decide (x ≤ p)) cola) ++ p :: quicksort (filter (fun x => !decide (x ≤ p)) cola))",
@@ -40895,7 +40450,7 @@
                   "name": "hTodosPares"
                 }
               ],
-              "id": "quicksort_sorted.5ea18ad90f34.1.before.goal-1"
+              "id": "quicksort_sorted.19226d581fc6.1.before.goal-1"
             }
           ],
           "after": [
@@ -40971,18 +40526,18 @@
                   "name": "hTodosPares"
                 }
               ],
-              "id": "quicksort_sorted.5ea18ad90f34.1.after.goal-1"
+              "id": "quicksort_sorted.19226d581fc6.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "change List.Pairwise (· ≤ ·) (quicksort menoresIguales ++ (p :: quicksort mayores))"
         },
         {
-          "id": "quicksort_sorted.9407aa0240b6.1",
+          "id": "quicksort_sorted.df6ad9f9f70b.1",
           "branch": "quicksort_sorted.principal",
           "label": "exact hTodosPares",
-          "startLine": 319,
-          "endLine": 319,
+          "startLine": 313,
+          "endLine": 313,
           "before": [
             {
               "target": "List.Pairwise (fun x1 x2 => x1 ≤ x2) (quicksort menoresIguales ++ p :: quicksort mayores)",
@@ -41056,7 +40611,7 @@
                   "name": "hTodosPares"
                 }
               ],
-              "id": "quicksort_sorted.9407aa0240b6.1.before.goal-1"
+              "id": "quicksort_sorted.df6ad9f9f70b.1.before.goal-1"
             }
           ],
           "after": [],
@@ -41064,11 +40619,11 @@
           "sourceText": "exact hTodosPares"
         },
         {
-          "id": "quicksort_sorted.5445a101da20.1",
+          "id": "quicksort_sorted.303ebf05e8ce.1",
           "branch": "quicksort_sorted.principal",
           "label": "exact hMenoresIgualesLt",
-          "startLine": 322,
-          "endLine": 322,
+          "startLine": 316,
+          "endLine": 316,
           "before": [
             {
               "target": "(filter (fun x => decide (x ≤ p)) cola).length < (p :: cola).length",
@@ -41118,7 +40673,7 @@
                   "name": "hMayoresLt"
                 }
               ],
-              "id": "quicksort_sorted.5445a101da20.1.before.goal-1"
+              "id": "quicksort_sorted.303ebf05e8ce.1.before.goal-1"
             }
           ],
           "after": [],
@@ -41126,11 +40681,11 @@
           "sourceText": "exact hMenoresIgualesLt"
         },
         {
-          "id": "quicksort_sorted.c579b479a40b.1",
+          "id": "quicksort_sorted.39c4785bc181.1",
           "branch": "quicksort_sorted.principal",
           "label": "exact hMayoresLt",
-          "startLine": 323,
-          "endLine": 323,
+          "startLine": 317,
+          "endLine": 317,
           "before": [
             {
               "target": "(filter (fun x => !decide (x ≤ p)) cola).length < (p :: cola).length",
@@ -41184,7 +40739,7 @@
                   "name": "hipIndMenoresIguales"
                 }
               ],
-              "id": "quicksort_sorted.c579b479a40b.1.before.goal-1"
+              "id": "quicksort_sorted.39c4785bc181.1.before.goal-1"
             }
           ],
           "after": [],
@@ -41194,11 +40749,11 @@
       ],
       "blocks": [
         {
-          "id": "quicksort_sorted.block-269-25672f2e",
+          "id": "quicksort_sorted.block-263-25672f2e",
           "branch": "quicksort_sorted.blocks",
           "label": "have hCotaMenoresIguales : ∀ a ∈ quicksort menoresIguales, a ≤ p := by",
-          "startLine": 269,
-          "endLine": 275,
+          "startLine": 263,
+          "endLine": 269,
           "sourceText": "have hCotaMenoresIguales : ∀ a ∈ quicksort menoresIguales, a ≤ p := by\n        intro a hEnSalida\n        have hEnFiltro : a ∈ menoresIguales := pertenencia_quicksort.mp hEnSalida\n        have hPartes : a ∈ cola ∧ decide (a ≤ p) = true :=\n          List.mem_filter.mp hEnFiltro\n        have hDecision : decide (a ≤ p) = true := hPartes.right\n        exact of_decide_eq_true hDecision",
           "before": [
             {
@@ -41245,7 +40800,7 @@
                   "name": "hipIndMayores"
                 }
               ],
-              "id": "quicksort_sorted.block-269-25672f2e.before.1"
+              "id": "quicksort_sorted.block-263-25672f2e.before.1"
             }
           ],
           "after": [
@@ -41297,17 +40852,17 @@
                   "name": "hCotaMenoresIguales"
                 }
               ],
-              "id": "quicksort_sorted.block-269-25672f2e.after.1"
+              "id": "quicksort_sorted.block-263-25672f2e.after.1"
             }
           ],
           "kind": "continuation"
         },
         {
-          "id": "quicksort_sorted.block-277-ed5ecb2b",
+          "id": "quicksort_sorted.block-271-ed5ecb2b",
           "branch": "quicksort_sorted.blocks",
           "label": "have hCotaMayores : ∀ b ∈ quicksort mayores, p ≤ b := by",
-          "startLine": 277,
-          "endLine": 287,
+          "startLine": 271,
+          "endLine": 281,
           "sourceText": "have hCotaMayores : ∀ b ∈ quicksort mayores, p ≤ b := by\n        intro b hEnSalida\n        have hEnFiltro : b ∈ mayores := pertenencia_quicksort.mp hEnSalida\n        have hPartes : b ∈ cola ∧ (! decide (b ≤ p)) = true :=\n          List.mem_filter.mp hEnFiltro\n        have hNegado : (! decide (b ≤ p)) = true := hPartes.right\n        have hFalso : decide (b ≤ p) = false := by\n          simpa only [Bool.not_eq_true'] using hNegado\n        have hNoLe : ¬ (b ≤ p) := of_decide_eq_false hFalso\n        have hEstricto : p < b := lt_of_not_ge hNoLe\n        exact le_of_lt hEstricto",
           "before": [
             {
@@ -41358,7 +40913,7 @@
                   "name": "hCotaMenoresIguales"
                 }
               ],
-              "id": "quicksort_sorted.block-277-ed5ecb2b.before.1"
+              "id": "quicksort_sorted.block-271-ed5ecb2b.before.1"
             }
           ],
           "after": [
@@ -41414,17 +40969,17 @@
                   "name": "hCotaMayores"
                 }
               ],
-              "id": "quicksort_sorted.block-277-ed5ecb2b.after.1"
+              "id": "quicksort_sorted.block-271-ed5ecb2b.after.1"
             }
           ],
           "kind": "continuation"
         },
         {
-          "id": "quicksort_sorted.block-283-3a93b394",
+          "id": "quicksort_sorted.block-277-3a93b394",
           "branch": "quicksort_sorted.blocks",
           "label": "have hFalso : decide (b ≤ p) = false := by",
-          "startLine": 283,
-          "endLine": 284,
+          "startLine": 277,
+          "endLine": 278,
           "sourceText": "have hFalso : decide (b ≤ p) = false := by\n          simpa only [Bool.not_eq_true'] using hNegado",
           "before": [
             {
@@ -41495,7 +41050,7 @@
                   "name": "hNegado"
                 }
               ],
-              "id": "quicksort_sorted.block-283-3a93b394.before.1"
+              "id": "quicksort_sorted.block-277-3a93b394.before.1"
             }
           ],
           "after": [
@@ -41571,17 +41126,17 @@
                   "name": "hFalso"
                 }
               ],
-              "id": "quicksort_sorted.block-283-3a93b394.after.1"
+              "id": "quicksort_sorted.block-277-3a93b394.after.1"
             }
           ],
           "kind": "continuation"
         },
         {
-          "id": "quicksort_sorted.block-293-445b5f3f",
+          "id": "quicksort_sorted.block-287-445b5f3f",
           "branch": "quicksort_sorted.blocks",
           "label": "have hParesDerecha : List.Pairwise (· ≤ ·) (p :: quicksort mayores) := by",
-          "startLine": 293,
-          "endLine": 297,
+          "startLine": 287,
+          "endLine": 291,
           "sourceText": "have hParesDerecha : List.Pairwise (· ≤ ·) (p :: quicksort mayores) := by\n        apply (relacion_pares_cons_iff _ _ _).mpr\n        constructor\n        · exact hCotaMayores\n        · exact hParesMayores",
           "before": [
             {
@@ -41644,7 +41199,7 @@
                   "name": "hParesMayores"
                 }
               ],
-              "id": "quicksort_sorted.block-293-445b5f3f.before.1"
+              "id": "quicksort_sorted.block-287-445b5f3f.before.1"
             }
           ],
           "after": [
@@ -41712,17 +41267,17 @@
                   "name": "hParesDerecha"
                 }
               ],
-              "id": "quicksort_sorted.block-293-445b5f3f.after.1"
+              "id": "quicksort_sorted.block-287-445b5f3f.after.1"
             }
           ],
           "kind": "continuation"
         },
         {
-          "id": "quicksort_sorted.block-299-1eb56775",
+          "id": "quicksort_sorted.block-293-1eb56775",
           "branch": "quicksort_sorted.blocks",
           "label": "have hCruce : ∀ a ∈ quicksort menoresIguales,",
-          "startLine": 299,
-          "endLine": 310,
+          "startLine": 293,
+          "endLine": 304,
           "sourceText": "have hCruce : ∀ a ∈ quicksort menoresIguales,\n          ∀ b ∈ p :: quicksort mayores, a ≤ b := by\n        intro a hEnMenoresIguales b hEnDerecha\n        have hCasos : b = p ∨ b ∈ quicksort mayores := List.mem_cons.mp hEnDerecha\n        rcases hCasos with hEsPivote | hEnMayores\n        · -- b es el pivote: se sustituye b por p en la meta.\n          subst b\n          exact hCotaMenoresIguales a hEnMenoresIguales\n        · -- b está en la salida derecha: a ≤ p y p ≤ b.\n          have hAP : a ≤ p := hCotaMenoresIguales a hEnMenoresIguales\n          have hPB : p ≤ b := hCotaMayores b hEnMayores\n          exact le_trans hAP hPB",
           "before": [
             {
@@ -41789,7 +41344,7 @@
                   "name": "hParesDerecha"
                 }
               ],
-              "id": "quicksort_sorted.block-299-1eb56775.before.1"
+              "id": "quicksort_sorted.block-293-1eb56775.before.1"
             }
           ],
           "after": [
@@ -41861,17 +41416,17 @@
                   "name": "hCruce"
                 }
               ],
-              "id": "quicksort_sorted.block-299-1eb56775.after.1"
+              "id": "quicksort_sorted.block-293-1eb56775.after.1"
             }
           ],
           "kind": "continuation"
         },
         {
-          "id": "quicksort_sorted.block-312-79557bfb",
+          "id": "quicksort_sorted.block-306-79557bfb",
           "branch": "quicksort_sorted.blocks",
           "label": "have hTodosPares : List.Pairwise (· ≤ ·)",
-          "startLine": 312,
-          "endLine": 315,
+          "startLine": 306,
+          "endLine": 309,
           "sourceText": "have hTodosPares : List.Pairwise (· ≤ ·)\n          (quicksort menoresIguales ++ (p :: quicksort mayores)) := by\n        apply (relacion_pares_concatenacion_iff _ _ _).mpr\n        exact ⟨hParesMenoresIguales, hParesDerecha, hCruce⟩",
           "before": [
             {
@@ -41942,7 +41497,7 @@
                   "name": "hCruce"
                 }
               ],
-              "id": "quicksort_sorted.block-312-79557bfb.before.1"
+              "id": "quicksort_sorted.block-306-79557bfb.before.1"
             }
           ],
           "after": [
@@ -42018,7 +41573,7 @@
                   "name": "hTodosPares"
                 }
               ],
-              "id": "quicksort_sorted.block-312-79557bfb.after.1"
+              "id": "quicksort_sorted.block-306-79557bfb.after.1"
             }
           ],
           "kind": "continuation"
@@ -42029,22 +41584,22 @@
       "id": "quicksort_correct",
       "declaration": "Thesis.Sort.quicksort_correcto",
       "source": {
-        "commit": "6eecf5afeba4af39280bd98d2667f295baa94973",
+        "commit": "346b38b3f2ebad28615add9b05d9485689828f69",
         "path": "Thesis/Sort/Quicksort.lean",
-        "sha256": "5550b8920ad25af97b971e8bbcf0da8cc16edb1b75a84a1ab6120f214f9395fd",
+        "sha256": "3c4a5a0b493dd67bc35f5f0fa9becdbc9f57e149f9b24ed5f6fec53191f2392f",
         "codeSha256": "9ec2be75a1db372d66f367c25d7248fad80f94b9f9ba516b3e944c03ffc2fa78",
         "code": "/-- La salida satisface simultáneamente permutación y ordenamiento. -/\n-- ANCHOR: correct\ntheorem quicksort_correcto (l : List α) :\n    quicksort l ~ l ∧ Ordenada (quicksort l) := by\n  -- A probar: permutación ∧ ordenamiento para la misma lista l.\n  -- Método: introducción de la conjunción a partir de los dos teoremas.\n  have hPermutacion : quicksort l ~ l := quicksort_permutacion l\n  have hOrdenada : Ordenada (quicksort l) := quicksort_ordenada l\n  exact And.intro hPermutacion hOrdenada",
-        "startLine": 326,
-        "endLine": 334
+        "startLine": 320,
+        "endLine": 328
       },
       "leanVersion": "4.29.0",
       "steps": [
         {
-          "id": "quicksort_correct.e5ad2aeff181.1",
+          "id": "quicksort_correct.7a018df1030a.1",
           "branch": "quicksort_correct.principal",
           "label": "have hPermutacion : quicksort l ~ l := quicksort_permutacion l",
-          "startLine": 332,
-          "endLine": 332,
+          "startLine": 326,
+          "endLine": 326,
           "before": [
             {
               "target": "quicksort l ~ l ∧ Ordenada (quicksort l)",
@@ -42062,7 +41617,7 @@
                   "name": "l"
                 }
               ],
-              "id": "quicksort_correct.e5ad2aeff181.1.before.goal-1"
+              "id": "quicksort_correct.7a018df1030a.1.before.goal-1"
             }
           ],
           "after": [
@@ -42086,18 +41641,18 @@
                   "name": "hPermutacion"
                 }
               ],
-              "id": "quicksort_correct.e5ad2aeff181.1.after.goal-1"
+              "id": "quicksort_correct.7a018df1030a.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hPermutacion : quicksort l ~ l := quicksort_permutacion l"
         },
         {
-          "id": "quicksort_correct.865bc6742444.1",
+          "id": "quicksort_correct.c8937b8d1e5c.1",
           "branch": "quicksort_correct.principal",
           "label": "have hOrdenada : Ordenada (quicksort l) := quicksort_ordenada l",
-          "startLine": 333,
-          "endLine": 333,
+          "startLine": 327,
+          "endLine": 327,
           "before": [
             {
               "target": "quicksort l ~ l ∧ Ordenada (quicksort l)",
@@ -42119,7 +41674,7 @@
                   "name": "hPermutacion"
                 }
               ],
-              "id": "quicksort_correct.865bc6742444.1.before.goal-1"
+              "id": "quicksort_correct.c8937b8d1e5c.1.before.goal-1"
             }
           ],
           "after": [
@@ -42147,18 +41702,18 @@
                   "name": "hOrdenada"
                 }
               ],
-              "id": "quicksort_correct.865bc6742444.1.after.goal-1"
+              "id": "quicksort_correct.c8937b8d1e5c.1.after.goal-1"
             }
           ],
           "kind": "continuation",
           "sourceText": "have hOrdenada : Ordenada (quicksort l) := quicksort_ordenada l"
         },
         {
-          "id": "quicksort_correct.153f900f5047.1",
+          "id": "quicksort_correct.88ff71cb2722.1",
           "branch": "quicksort_correct.principal",
           "label": "exact And.intro hPermutacion hOrdenada",
-          "startLine": 334,
-          "endLine": 334,
+          "startLine": 328,
+          "endLine": 328,
           "before": [
             {
               "target": "quicksort l ~ l ∧ Ordenada (quicksort l)",
@@ -42184,7 +41739,7 @@
                   "name": "hOrdenada"
                 }
               ],
-              "id": "quicksort_correct.153f900f5047.1.before.goal-1"
+              "id": "quicksort_correct.88ff71cb2722.1.before.goal-1"
             }
           ],
           "after": [],
