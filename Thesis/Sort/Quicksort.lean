@@ -235,15 +235,9 @@ theorem quicksort_permutacion : ∀ l : List α, quicksort l ~ l
 
 /-- La pertenencia es invariante bajo la permutación ya demostrada. -/
 theorem pertenencia_quicksort {a : α} {l : List α} : a ∈ quicksort l ↔ a ∈ l := by
-  -- A probar: las dos direcciones de la equivalencia de pertenencia.
+  -- A probar: la equivalencia de pertenencia.
   -- Método: aplicar mem_iff a quicksort_permutacion, sin nueva inducción.
-  have hPermutacion : quicksort l ~ l := quicksort_permutacion l
-  have hPertenencia : a ∈ quicksort l ↔ a ∈ l := hPermutacion.mem_iff
-  constructor
-  · intro hEnSalida
-    exact hPertenencia.mp hEnSalida
-  · intro hEnEntrada
-    exact hPertenencia.mpr hEnEntrada
+  exact (quicksort_permutacion l).mem_iff
 -- ANCHOREND: perm
 
 /-- La salida está ordenada de forma no decreciente. -/
