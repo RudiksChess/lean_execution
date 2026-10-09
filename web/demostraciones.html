@@ -107,7 +107,10 @@ El conjunto de fórmulas se genera mediante la gramática
 $$
 \varphi ::= p \;\mid\; \Not\varphi \;\mid\; (\varphi\Imp\psi),\qquad p \in \mathsf{Var}.
 $$
-El símbolo $::=$ introduce las formas permitidas y cada barra $\mid$ separa una alternativa.
+El símbolo $::=$ introduce las formas permitidas, cada barra $\mid$ separa una
+alternativa y las letras $\varphi$ y $\psi$ denotan fórmulas ya generadas por la
+misma gramática; así, $(\varphi\Imp\psi)$ es la implicación entre dos fórmulas
+cualesquiera.
 </p></div>
 </section>
 <section class="result" id="def:eval"><h5>Definición 11.4 (Valuación y evaluación)</h5>
@@ -2680,8 +2683,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>38a40c6</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>fa3bb99</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>9757791</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>81d85d0</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
