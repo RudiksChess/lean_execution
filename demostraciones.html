@@ -1081,7 +1081,7 @@ implicación&nbsp;(R2) a $P$, da $\Gamma\Provnd p$; la parte negativa de
 $K(q)$, aplicada&nbsp;(R2) a $\Not Q$, da $\Gamma\Provnd\Not q$. Se abre
 $[p\Imp q]^{(b)}$; en el contexto $\Delta:=\Gamma\cup\{p\Imp q\}$,
 $$
-\Gamma\subseteq\Delta,\qquad p\Imp q\in\Delta
+\Gamma\subseteq\Delta\ \wedge\ p\Imp q\in\Delta
 $$
 (Sección&nbsp;11.3.2).
 </p><p>
@@ -2482,8 +2482,7 @@ ley $p&lt;b\Rightarrow p\leq b$ de (O) da $p\leq b$. Se
 descarga $b\in B$; como $b$ era arbitrario, se cuantifica&nbsp;(R15). Las
 dos cotas son
 $$
-\forall a\in A,\ a\leq p,\qquad
-\forall b\in B,\ p\leq b.
+(\forall a\in A,\ a\leq p)\ \wedge\ (\forall b\in B,\ p\leq b).
 $$
 Por la Definición&nbsp;<a class="xref" href="#def:qs-sorted">12.2</a>, $\Sorted(B)$ es $\Pairwise\,(\leq)\,B$.
 La dirección $(\Leftarrow)$&nbsp;(R8) del caso $::$ del
@@ -2678,8 +2677,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>3c78ffb</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>a08b8fb</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>b38da3b</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>0769b17</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
