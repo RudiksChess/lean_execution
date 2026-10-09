@@ -133,7 +133,7 @@ se cumple para toda valuación $v$.
 Una valuación $v$ <em>satisface</em> un contexto $\Gamma$, escrito
 $v\models\Gamma$, si y solo si $\sem\psi_v$ se cumple para toda $\psi\in\Gamma$:
 $$
-v\models\Gamma\quad:\Longleftrightarrow\quad\forall\psi\in\Gamma,\ \sem\psi_v.
+v\models\Gamma\quad:=\quad\forall\psi\in\Gamma,\ \sem\psi_v.
 $$
 En Lean es la premisa $\forall\,\psi\in\Gamma,\ TevaluarT\ v\ \psi$ de
 <code>correccion</code>.
@@ -861,7 +861,7 @@ Si $p \in A$ entonces $\mathrm{literal}_v(p)\in\Gamma_v(A)$.
 <div class="proof"><span class="proof-head">Demostración.</span><p>
 <strong>A probar:</strong> $\mathrm{literal}_v(p)\in\Gamma_v(A)$.
 </p><p>
-Por inducción sobre $A$, con $p$ y $v$ fijos.<sup class="fn">1</sup> La premisa $p\in A$ se conserva en el predicado $P(s):\Longleftrightarrow p\in s\Rightarrow\mathrm{literal}_v(p)\in\Gamma_v(s)$.
+Por inducción sobre $A$, con $p$ y $v$ fijos.<sup class="fn">1</sup> La premisa $p\in A$ se conserva en el predicado $P(s):= p\in s\Rightarrow\mathrm{literal}_v(p)\in\Gamma_v(s)$.
 <ol><li><strong>Caso $A=[]$.</strong> Por introducción de implicación&nbsp;(R1): se supone $p\in[]$. Ninguna
 cadena pertenece a la lista vacía (Sección&nbsp;11.6.1), así que $p\in[]$ da $\mathrm{Falso}$; la
 eliminación de falsedad&nbsp;(R11) da $\mathrm{literal}_v(p)\in\Gamma_v([])$. Se descarga
@@ -928,7 +928,7 @@ Por inducción estructural sobre $\varphi$, con $v$ y $A$ fijos.
 Sea $\Gamma:=\Gamma_v(A)$, con la premisa de cobertura conservada en el
 predicado:
 $$
-K(\theta):\Longleftrightarrow
+K(\theta):=
 \mathrm{atomos}(\theta)\subseteq A\Rightarrow
 \bigl((\sem\theta_v\Rightarrow\Gamma\Provnd\theta)
 \wedge(\Not\sem\theta_v\Rightarrow\Gamma\Provnd\Not\theta)\bigr).
@@ -1247,7 +1247,7 @@ Los dos casos agotan la disyunción&nbsp;(R6).
 sobre $A$. La premisa es $H:\forall x\in A,\ v(x)\Longleftrightarrow w(x)$ y la
 inducción la mantiene en el predicado:
 $$
-P(s):\Longleftrightarrow
+P(s):=
 (\forall x\in s,\ v(x)\Longleftrightarrow w(x))
 \Rightarrow\Gamma_{v}(s)=\Gamma_{w}(s).
 $$
@@ -1335,7 +1335,7 @@ se cumple para <em>toda</em> valuación $v$, entonces $\varnothing\Provnd\varphi
 Por inducción sobre $A$, con las premisas $\mathrm{Nodup}(A)$ y la universal
 conservadas en el predicado:
 $$
-D(s):\Longleftrightarrow
+D(s):=
 \mathrm{Nodup}(s)\Rightarrow
 \bigl(\forall v,\ \Gamma_v(s)\Provnd\varphi\bigr)
 \Rightarrow\varnothing\Provnd\varphi.
@@ -2172,7 +2172,7 @@ $$
 \bigl(\forall b\in\ell,\ R\,a\,b\bigr)\wedge\Pairwise\,R\,\ell,
 \end{aligned}
 $$
-donde $C(s,t):\Longleftrightarrow\forall x\in s,\ \forall y\in t,\ R\,x\,y$.
+donde $C(s,t):=\forall x\in s,\ \forall y\in t,\ R\,x\,y$.
 </p><p>
 Por introducción del bicondicional&nbsp;(R7) para $::$ y por inducción sobre $\ell_1$,
 con $R$ y $\ell_2$ fijos, para $\concat$.
@@ -2235,7 +2235,7 @@ $$
 \Longleftrightarrow
 \Pairwise\,R\,r\wedge\Pairwise\,R\,\ell_2\wedge C(r,\ell_2).
 $$
-Sea $H(s):\Longleftrightarrow\forall z\in s,\ R\,a\,z$. Se prueban
+Sea $H(s):=\forall z\in s,\ R\,a\,z$. Se prueban
 $$
 \begin{aligned}
 H(r\concat\ell_2)&amp;\Longleftrightarrow H(r)\wedge H(\ell_2),\\
@@ -2678,8 +2678,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>b853c63</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>4c8f9e7</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>10fd65f</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>47b99ca</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
