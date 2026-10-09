@@ -190,7 +190,7 @@ Sea $A:=v(p_0)$. Por las Definiciones&nbsp;<a class="xref" href="#def:eval">11.4
 $\sem{\bot}_v$ es la proposición $\Not(A\Rightarrow A)$.
 </p><p>
 <strong>Subprueba 1 ($A\Rightarrow A$).</strong> Por introducción de
-implicación&nbsp;(R1): se supone $A$; el supuesto es la conclusión
+implicación&nbsp;(R1), se supone $A$; el supuesto es la conclusión
 buscada. Se descarga $A$ y queda $A\Rightarrow A$.
 </p><p>
 $(\Rightarrow)$ Por introducción de implicación&nbsp;(R1), se supone $\sem{\bot}_v$, es decir,
@@ -259,7 +259,7 @@ $\forall\Theta,\ \Sigma\subseteq\Theta\Rightarrow\Theta\Provnd\theta$.
 </p><p>
 <strong>Subprueba 1 ($\Gamma\subseteq\Delta\Rightarrow
 \Gamma\cup\{\psi\}\subseteq\Delta\cup\{\psi\}$, para contextos $\Gamma,\Delta$ y
-fórmula $\psi$ cualesquiera).</strong> Por introducción de implicación&nbsp;(R1):
+fórmula $\psi$ cualesquiera).</strong> Por introducción de implicación&nbsp;(R1),
 se supone $\Gamma\subseteq\Delta$. Sea $\chi$ una fórmula arbitraria; por
 introducción de implicación&nbsp;(R1): se supone
 $\chi\in\Gamma\cup\{\psi\}$. Por la pertenencia a una unión
@@ -554,7 +554,7 @@ introducción de implicación&nbsp;(R1): se supone
 $\psi\in\Gamma\cup\{\chi\}$. Por la pertenencia a una unión
 (Sección&nbsp;11.3.2), $\psi=\chi\vee\psi\in\Gamma$. Por
 casos&nbsp;(R6) sobre esa disyunción:
-<ul><li><strong>Caso $\psi=\chi$.</strong> Por sustitución de iguales&nbsp;(R17):
+<ul><li><strong>Caso $\psi=\chi$.</strong> Por sustitución de iguales&nbsp;(R17),
 la premisa $\sem\chi_v$ con $\psi=\chi$ da $\sem\psi_v$.
 </li><li><strong>Caso $\psi\in\Gamma$.</strong> La premisa $v\models\Gamma$, es decir,
 $\forall\xi\in\Gamma,\ \sem\xi_v$ (Definición&nbsp;<a class="xref" href="#def:sat">11.6</a>),
@@ -603,7 +603,7 @@ $\forall w,\ w\models\Sigma\Rightarrow\sem\theta_w$; en cada caso se
 instancia&nbsp;(R16) en la valuación del caso y se aplica&nbsp;(R2)
 a la satisfacción del contexto de la premisa correspondiente. En cada caso,
 sea $v$ una valuación arbitraria; por introducción de
-implicación&nbsp;(R1): se supone $v\models\Gamma$; se analiza la última
+implicación&nbsp;(R1), se supone $v\models\Gamma$; se analiza la última
 regla (Sección&nbsp;11.3); las cláusulas semánticas son las de la
 Definición&nbsp;<a class="xref" href="#def:eval">11.4</a>.
 <ol><li><strong>Caso hipótesis.</strong> Por la regla de hipótesis, $\varphi\in\Gamma$.
@@ -612,7 +612,7 @@ El supuesto $v\models\Gamma$, es decir, $\forall\psi\in\Gamma,\ \sem\psi_v$
 aplicado por eliminación de implicación&nbsp;(R2) a $\varphi\in\Gamma$,
 da $\sem\varphi_v$.
 </li><li><strong>Caso $\Imp\mathrm I$.</strong> Por introducción de
-implicación&nbsp;(R1): la premisa es $\Gamma,\alpha\Provnd\beta$ y la
+implicación&nbsp;(R1), la premisa es $\Gamma,\alpha\Provnd\beta$ y la
 meta es $\sem{\alpha\Imp\beta}_v$, es decir,
 $\sem\alpha_v\Rightarrow\sem\beta_v$; se supone $\sem\alpha_v$. El
 Lema&nbsp;<a class="xref" href="#lem:satinsert">11.13</a>, aplicado a $\sem\alpha_v$ y a $v\models\Gamma$, da
@@ -622,13 +622,13 @@ implicación&nbsp;(R2) a $v\models\Gamma\cup\{\alpha\}$, da $\sem\beta_v$.
 Se descarga el supuesto $\sem\alpha_v$ y queda
 $\sem\alpha_v\Rightarrow\sem\beta_v$.
 </li><li><strong>Caso $\Imp\mathrm E$.</strong> Por eliminación de
-implicación&nbsp;(R2): las premisas son $\Gamma\Provnd\alpha\Imp\beta$ y
+implicación&nbsp;(R2), las premisas son $\Gamma\Provnd\alpha\Imp\beta$ y
 $\Gamma\Provnd\alpha$. Las dos hipótesis inductivas,
 instanciadas&nbsp;(R16) en $v$ y aplicadas por eliminación de
 implicación&nbsp;(R2) a $v\models\Gamma$, dan
 $\sem\alpha_v\Rightarrow\sem\beta_v$ y $\sem\alpha_v$; la eliminación de
 implicación&nbsp;(R2) da $\sem\beta_v$.
-</li><li><strong>Caso $\Not\mathrm I$.</strong> Por reducción al absurdo&nbsp;(R9):
+</li><li><strong>Caso $\Not\mathrm I$.</strong> Por reducción al absurdo&nbsp;(R9),
 la premisa es $\Gamma,\alpha\Provnd\bot$ y la meta es $\sem{\Not\alpha}_v$,
 es decir, $\Not\sem\alpha_v$; se supone $\sem\alpha_v$. El
 Lema&nbsp;<a class="xref" href="#lem:satinsert">11.13</a>, aplicado a $\sem\alpha_v$ y a $v\models\Gamma$, da
@@ -643,7 +643,7 @@ La dirección $(\Rightarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">
 aplicada&nbsp;(R2) a $\sem\bot_v$, da $\mathrm{Falso}$. Se descarga el
 supuesto $\sem\alpha_v$ y queda $\Not\sem\alpha_v$.
 </li><li><strong>Caso $\Not\mathrm E$.</strong> Por eliminación de
-negación&nbsp;(R10): las premisas son $\Gamma\Provnd\Not\alpha$ y
+negación&nbsp;(R10), las premisas son $\Gamma\Provnd\Not\alpha$ y
 $\Gamma\Provnd\alpha$ y la meta es $\sem\bot_v$. Las hipótesis inductivas,
 instanciadas&nbsp;(R16) en $v$ y aplicadas por eliminación de
 implicación&nbsp;(R2) a $v\models\Gamma$, dan $\Not\sem\alpha_v$ y
@@ -651,7 +651,7 @@ $\sem\alpha_v$; la eliminación de negación&nbsp;(R10) da $\mathrm{Falso}$.
 La dirección $(\Leftarrow)$ del Lema&nbsp;<a class="xref" href="#lem:evalBot">11.9</a>&nbsp;(R8),
 aplicada&nbsp;(R2) a $\mathrm{Falso}$, da $\sem\bot_v$.
 </li><li><strong>Caso $\bot\mathrm E$.</strong> Por eliminación de
-falsedad&nbsp;(R11): la premisa es $\Gamma\Provnd\bot$ y la meta es
+falsedad&nbsp;(R11), la premisa es $\Gamma\Provnd\bot$ y la meta es
 $\sem\alpha_v$. La hipótesis inductiva, instanciada&nbsp;(R16) en $v$ y
 aplicada por eliminación de implicación&nbsp;(R2) a $v\models\Gamma$, da
 $\sem\bot_v$; la dirección $(\Rightarrow)$ del
@@ -745,20 +745,22 @@ Por corrección (Teorema&nbsp;<a class="xref" href="#thm:soundness">11.14</a>) c
 </p><p>
 Sea $v$ una valuación arbitraria.
 </p><p>
-<strong>Parte 1 ($v\models\varnothing$).</strong> Por introducción de
-implicación&nbsp;(R1): sea $\psi$ una fórmula arbitraria y se supone
+<strong>Parte 1.</strong> A probar: $v\models\varnothing$. Por introducción de
+implicación&nbsp;(R1), sea $\psi$ una fórmula arbitraria y se supone
 $\psi\in\varnothing$. Como el conjunto vacío no tiene elementos,
 $\psi\in\varnothing$ da $\mathrm{Falso}$; la eliminación de
 falsedad&nbsp;(R11) da $\sem\psi_v$. Se descarga el supuesto
 $\psi\in\varnothing$; como $\psi$ era arbitraria, se cuantifica&nbsp;(R15)
-y queda $\forall\psi,\ \psi\in\varnothing\Rightarrow\sem\psi_v$, que es
-$v\models\varnothing$ (Definición&nbsp;<a class="xref" href="#def:sat">11.6</a>).
+y queda $\forall\psi,\ \psi\in\varnothing\Rightarrow\sem\psi_v$, que por la
+Definición&nbsp;<a class="xref" href="#def:sat">11.6</a> es la meta. $\therefore\ v\models\varnothing$.
 </p><p>
-<strong>Parte 2 ($\sem\varphi_v$).</strong> Por corrección, el
+<strong>Parte 2.</strong> A probar: $\sem\varphi_v$. Por corrección, el
 Teorema&nbsp;<a class="xref" href="#thm:soundness">11.14</a>, aplicado a la premisa
 $\varnothing\Provnd\varphi$, instanciado&nbsp;(R16) en $v$ y
-aplicado&nbsp;(R2) a $v\models\varnothing$, da $\sem\varphi_v$. Como $v$
-era arbitraria, se cuantifica&nbsp;(R15); la
+aplicado&nbsp;(R2) a $v\models\varnothing$, da $\sem\varphi_v$.
+$\therefore\ \sem\varphi_v$.
+</p><p>
+ Como $v$ era arbitraria, se cuantifica&nbsp;(R15); la
 Definición&nbsp;<a class="xref" href="#def:tautology">11.5</a> da $\operatorname{Taut}(\varphi)$.
 $$
 \therefore\quad \operatorname{Taut}(\varphi).
@@ -945,23 +947,19 @@ La cobertura,
 instanciada&nbsp;(R16) en $s$ y aplicada por eliminación de
 implicación&nbsp;(R2) a $s\in[s]$, da $s\in A$.
 </p><p>
-<strong>Parte positiva.</strong> Por introducción de
-implicación&nbsp;(R1): se supone $\sem s_v$, que por la
+<strong>Parte positiva.</strong> A probar: $\sem s_v\Rightarrow\Gamma\Provnd s$. Por introducción de implicación&nbsp;(R1), se supone $\sem s_v$, que por la
 Definición&nbsp;<a class="xref" href="#def:eval">11.4</a> es $v(s)$. El Lema&nbsp;<a class="xref" href="#lem:litmem">11.19</a>, aplicado a
 $s\in A$, da $\mathrm{literal}_v(s)\in\Gamma$. Por la
 Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>, con $v(s)$, $\mathrm{literal}_v(s)=s$; por
 sustitución&nbsp;(R17), $s\in\Gamma$; la regla de hipótesis da
-$\Gamma\Provnd s$. Se descarga $\sem s_v$ y queda
-$\sem s_v\Rightarrow\Gamma\Provnd s$.
+$\Gamma\Provnd s$. Se descarga $\sem s_v$. $\therefore\ \sem s_v\Rightarrow\Gamma\Provnd s$.
 </p><p>
-<strong>Parte negativa.</strong> Por introducción de
-implicación&nbsp;(R1): se supone $\Not\sem s_v$, que por la
+<strong>Parte negativa.</strong> A probar: $\Not\sem s_v\Rightarrow\Gamma\Provnd\Not s$. Por introducción de implicación&nbsp;(R1), se supone $\Not\sem s_v$, que por la
 Definición&nbsp;<a class="xref" href="#def:eval">11.4</a> es $\Not v(s)$. El Lema&nbsp;<a class="xref" href="#lem:litmem">11.19</a>, aplicado
 a $s\in A$, da $\mathrm{literal}_v(s)\in\Gamma$. Por la
 Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>, con $\Not v(s)$, $\mathrm{literal}_v(s)=\Not s$;
 por sustitución&nbsp;(R17), $\Not s\in\Gamma$; la regla de hipótesis da
-$\Gamma\Provnd\Not s$. Se descarga $\Not\sem s_v$ y queda
-$\Not\sem s_v\Rightarrow\Gamma\Provnd\Not s$.
+$\Gamma\Provnd\Not s$. Se descarga $\Not\sem s_v$. $\therefore\ \Not\sem s_v\Rightarrow\Gamma\Provnd\Not s$.
 </p><p>
 Las dos partes se reúnen por&nbsp;(R3); se descarga la cobertura.
 </p><p>
@@ -975,21 +973,17 @@ eliminación de conjunción&nbsp;(R4), da
 $\sem p_v\Rightarrow\Gamma\Provnd p$ y
 $\Not\sem p_v\Rightarrow\Gamma\Provnd\Not p$.
 </p><p>
-<strong>Parte positiva.</strong> Por introducción de
-implicación&nbsp;(R1): se supone $\sem{\Not p}_v$, que por la
+<strong>Parte positiva.</strong> A probar: $\sem{\Not p}_v\Rightarrow\Gamma\Provnd\Not p$. Por introducción de implicación&nbsp;(R1), se supone $\sem{\Not p}_v$, que por la
 Definición&nbsp;<a class="xref" href="#def:eval">11.4</a> es $\Not\sem p_v$. La parte negativa de $K(p)$,
 aplicada por eliminación de implicación&nbsp;(R2) a $\Not\sem p_v$, da
-$\Gamma\Provnd\Not p$. Se descarga $\sem{\Not p}_v$ y queda
-$\sem{\Not p}_v\Rightarrow\Gamma\Provnd\Not p$.
+$\Gamma\Provnd\Not p$. Se descarga $\sem{\Not p}_v$. $\therefore\ \sem{\Not p}_v\Rightarrow\Gamma\Provnd\Not p$.
 </p><p>
-<strong>Parte negativa.</strong> Por introducción de
-implicación&nbsp;(R1): se supone $\Not\sem{\Not p}_v$, que por la
+<strong>Parte negativa.</strong> A probar: $\Not\sem{\Not p}_v\Rightarrow\Gamma\Provnd\Not(\Not p)$. Por introducción de implicación&nbsp;(R1), se supone $\Not\sem{\Not p}_v$, que por la
 Definición&nbsp;<a class="xref" href="#def:eval">11.4</a> es $\Not\Not\sem p_v$. La eliminación clásica de
 doble negación&nbsp;(R14) da $\sem p_v$. La parte positiva de $K(p)$,
 aplicada por eliminación de implicación&nbsp;(R2) a $\sem p_v$, da
 $\Gamma\Provnd p$; el Lema&nbsp;<a class="xref" href="#lem:dni">11.11</a> da $\Gamma\Provnd\Not\Not p$, que es
-$\Gamma\Provnd\Not(\Not p)$. Se descarga $\Not\sem{\Not p}_v$ y queda
-$\Not\sem{\Not p}_v\Rightarrow\Gamma\Provnd\Not(\Not p)$.
+$\Gamma\Provnd\Not(\Not p)$. Se descarga $\Not\sem{\Not p}_v$. $\therefore\ \Not\sem{\Not p}_v\Rightarrow\Gamma\Provnd\Not(\Not p)$.
 </p><p>
 Las dos partes se reúnen por&nbsp;(R3); se descarga la cobertura.
 </p><p>
@@ -998,7 +992,7 @@ implicación&nbsp;(R1) e introducción de conjunción&nbsp;(R3): se
 supone $\mathrm{atomos}(p\Imp q)\subseteq A$. Por la
 Definición&nbsp;<a class="xref" href="#def:atoms">11.17</a>,
 $\mathrm{atomos}(p\Imp q)=\mathrm{atomos}(p)\,{+}\!{+}\,\mathrm{atomos}(q)$.
-Sea $a$ arbitrario; por introducción de implicación&nbsp;(R1): se supone
+Sea $a$ arbitrario; por introducción de implicación&nbsp;(R1), se supone
 $a\in\mathrm{atomos}(p)$, que da
 $a\in\mathrm{atomos}(p)\,{+}\!{+}\,\mathrm{atomos}(q)$
 (Sección&nbsp;11.6.1). La cobertura,
@@ -1018,12 +1012,11 @@ K(q)&amp;\sem q_v\Rightarrow\Gamma\Provnd q&amp;\Not\sem q_v\Rightarrow\Gamma\Pr
 \end{array}
 $$
 </p><p>
-<strong>Parte positiva.</strong> Por introducción de
-implicación&nbsp;(R1): se supone $\sem{p\Imp q}_v$, que por la
+<strong>Parte positiva.</strong> A probar: $\sem{p\Imp q}_v\Rightarrow\Gamma\Provnd p\Imp q$. Por introducción de implicación&nbsp;(R1), se supone $\sem{p\Imp q}_v$, que por la
 Definición&nbsp;<a class="xref" href="#def:eval">11.4</a> es $\sem p_v\Rightarrow\sem q_v$. Por casos sobre
 $\sem p_v$ ((R13), (R6)):
 <ul><li><strong>Caso $\sem p_v$.</strong> Por eliminación de
-implicación&nbsp;(R2): la implicación supuesta, aplicada a $\sem p_v$,
+implicación&nbsp;(R2), la implicación supuesta, aplicada a $\sem p_v$,
 da $\sem q_v$; la parte positiva de $K(q)$, aplicada&nbsp;(R2) a
 $\sem q_v$, da $\Gamma\Provnd q$:
 </p><p>
@@ -1035,7 +1028,7 @@ El Lema&nbsp;<a class="xref" href="#lem:weak">11.10</a>, con $\Gamma\subseteq\Ga
 $\Gamma\Provnd q$ a $\Gamma,p\Provnd q$; $\Imp\mathrm I(a)$ descarga
 $[p]^{(a)}$ y concluye $\Gamma\Provnd p\Imp q$.
 </li><li><strong>Caso $\Not\sem p_v$.</strong> Por eliminación de
-implicación&nbsp;(R2): la parte negativa de $K(p)$, aplicada a
+implicación&nbsp;(R2), la parte negativa de $K(p)$, aplicada a
 $\Not\sem p_v$, da $\Gamma\Provnd\Not p$:
 </p><p>
 $$
@@ -1047,16 +1040,14 @@ $p$ por la regla de hipótesis; $\Not\mathrm E$ da $\bot$; $\bot\mathrm E$ da
 $q$; $\Imp\mathrm I(a)$ descarga $[p]^{(a)}$ y concluye
 $\Gamma\Provnd p\Imp q$.
 </li></ul>
-Los dos casos agotan la disyunción&nbsp;(R6). Se descarga
-$\sem{p\Imp q}_v$ y queda $\sem{p\Imp q}_v\Rightarrow\Gamma\Provnd p\Imp q$.
+Los dos casos agotan la disyunción&nbsp;(R6). Se descarga $\sem{p\Imp q}_v$. $\therefore\ \sem{p\Imp q}_v\Rightarrow\Gamma\Provnd p\Imp q$.
 </p><p>
-<strong>Parte negativa.</strong> Por introducción de
-implicación&nbsp;(R1): se supone $\Not\sem{p\Imp q}_v$, que por la
+<strong>Parte negativa.</strong> A probar: $\Not\sem{p\Imp q}_v\Rightarrow\Gamma\Provnd\Not(p\Imp q)$. Por introducción de implicación&nbsp;(R1), se supone $\Not\sem{p\Imp q}_v$, que por la
 Definición&nbsp;<a class="xref" href="#def:eval">11.4</a> es $\Not(P\Rightarrow Q)$ con $P:=\sem p_v$ y
 $Q:=\sem q_v$.
 <ul><li><strong>Subprueba 1 ($P$).</strong> Por reducción al absurdo
-clásica&nbsp;(R12): se supone $\Not P$. Por introducción de
-implicación&nbsp;(R1): se supone $P$; la eliminación de
+clásica&nbsp;(R12), se supone $\Not P$. Por introducción de
+implicación&nbsp;(R1), se supone $P$; la eliminación de
 negación&nbsp;(R10) sobre $P$ y $\Not P$ da $\mathrm{Falso}$; la
 eliminación de falsedad&nbsp;(R11) da $Q$. Se descarga $P$ y queda
 $P\Rightarrow Q$. Entonces
@@ -1066,8 +1057,8 @@ $$
 la eliminación de negación&nbsp;(R10) da $\mathrm{Falso}$; se descarga
 $\Not P$ y la reducción al absurdo clásica&nbsp;(R12) concluye $P$.
 </li><li><strong>Subprueba 2 ($\Not Q$).</strong> Por reducción al
-absurdo&nbsp;(R9): se supone $Q$. Por introducción de
-implicación&nbsp;(R1): se supone $P$; la conclusión $Q$ es el supuesto
+absurdo&nbsp;(R9), se supone $Q$. Por introducción de
+implicación&nbsp;(R1), se supone $P$; la conclusión $Q$ es el supuesto
 anterior. Se descarga $P$ y queda $P\Rightarrow Q$. Entonces
 $$
 P\Rightarrow Q,\qquad\Not(P\Rightarrow Q)\qquad\Contra
@@ -1096,8 +1087,7 @@ En $\Delta$, $p\Imp q$ por la regla de hipótesis; $p$ y $\Not q$ por
 debilitamiento (Lema&nbsp;<a class="xref" href="#lem:weak">11.10</a>, con $\Gamma\subseteq\Delta$);
 $\Imp\mathrm E$ con $p\Imp q$ y $p$ da $q$; $\Not\mathrm E$ con $\Not q$ y $q$
 da $\bot$; $\Not\mathrm I(b)$ descarga $[p\Imp q]^{(b)}$ y concluye
-$\Gamma\Provnd\Not(p\Imp q)$. Se descarga $\Not\sem{p\Imp q}_v$ y queda
-$\Not\sem{p\Imp q}_v\Rightarrow\Gamma\Provnd\Not(p\Imp q)$.
+$\Gamma\Provnd\Not(p\Imp q)$. Se descarga $\Not\sem{p\Imp q}_v$. $\therefore\ \Not\sem{p\Imp q}_v\Rightarrow\Gamma\Provnd\Not(p\Imp q)$.
 </p><p>
 Las dos partes se reúnen por&nbsp;(R3); se descarga la cobertura.
 </p><p>
@@ -1223,10 +1213,11 @@ $$
 \mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x),\qquad
 \Gamma_{v}(A)=\Gamma_{w}(A).
 $$
-Por casos sobre $v(x)$ ((R13), (R6)) para los literales y por inducción sobre $A$ para los contextos.
+Por casos sobre $v(x)$ para los literales y por inducción sobre $A$ para los contextos.
 </p><p>
-<strong>Parte 1 ($\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)$).</strong>
-Sea $h:v(x)\Longleftrightarrow w(x)$ la premisa.
+<strong>Parte 1.</strong> A probar:
+$\mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)$. Por casos sobre $v(x)$
+((R13), (R6)). Sea $h:v(x)\Longleftrightarrow w(x)$ la premisa.
 <ul><li><strong>Caso $v(x)$.</strong> La dirección $(\Rightarrow)$ de $h$&nbsp;(R8),
 aplicada&nbsp;(R2) a $v(x)$, da $w(x)$. Por la
 Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>,
@@ -1242,16 +1233,17 @@ $w(x)$ y queda $\Not w(x)$. Por la Definición&nbsp;<a class="xref" href="#def:l
 $\mathrm{literal}_{v}(x)=\Not x=\mathrm{literal}_{w}(x)$.
 </li></ul>
 Los dos casos agotan la disyunción&nbsp;(R6).
+$\therefore\ \mathrm{literal}_{v}(x)=\mathrm{literal}_{w}(x)$.
 </p><p>
-<strong>Parte 2 ($\Gamma_{v}(A)=\Gamma_{w}(A)$).</strong> Por inducción
-sobre $A$. La premisa es $H:\forall x\in A,\ v(x)\Longleftrightarrow w(x)$ y la
-inducción la mantiene en el predicado:
+<strong>Parte 2.</strong> A probar: $\Gamma_{v}(A)=\Gamma_{w}(A)$. Por
+inducción sobre $A$, con la premisa
+$H:\forall x\in A,\ v(x)\Longleftrightarrow w(x)$ conservada en el predicado
 $$
 P(s):=
 (\forall x\in s,\ v(x)\Longleftrightarrow w(x))
 \Rightarrow\Gamma_{v}(s)=\Gamma_{w}(s).
 $$
-<ol><li><strong>Caso $A=[]$.</strong> Por introducción de implicación&nbsp;(R1):
+<ol><li><strong>Caso $A=[]$.</strong> Por introducción de implicación&nbsp;(R1),
 se supone la premisa, que no se usa. Por la Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>,
 $\Gamma_{v}([])=\varnothing=\Gamma_{w}([])$. Se descarga la premisa.
 </li><li><strong>Caso $A=a::r$.</strong> Por introducción de implicación&nbsp;(R1), se supone $H:\forall x\in a::r,\ v(x)\Longleftrightarrow w(x)$.
@@ -1259,7 +1251,7 @@ Como $a\in a::r$ (Sección&nbsp;11.6.1),
 $H$ instanciada&nbsp;(R16) en $a$ y aplicada&nbsp;(R2) a
 $a\in a::r$ da $v(a)\Longleftrightarrow w(a)$; la Parte 1, aplicada a esta
 equivalencia, da $\mathrm{literal}_{v}(a)=\mathrm{literal}_{w}(a)$. Sea ahora
-$x$ arbitrario; por introducción de implicación&nbsp;(R1): se supone
+$x$ arbitrario; por introducción de implicación&nbsp;(R1), se supone
 $x\in r$, que da $x\in a::r$ (Sección&nbsp;11.6.1);
 $H$ instanciada&nbsp;(R16) en $x$ y aplicada&nbsp;(R2) a
 $x\in a::r$ da $v(x)\Longleftrightarrow w(x)$. Se descarga $x\in r$; como $x$
@@ -1282,6 +1274,7 @@ $$
 Se descarga $H$.
 </li></ol>
 La inducción da $P(A)$; aplicada&nbsp;(R2) a la premisa $H$ queda la meta.
+$\therefore\ \Gamma_{v}(A)=\Gamma_{w}(A)$.
 $$
 \therefore\quad \begin{aligned}
 \mathrm{literal}_{v}(x)&amp;=\mathrm{literal}_{w}(x),\\
@@ -1340,9 +1333,9 @@ D(s):=
 \bigl(\forall v,\ \Gamma_v(s)\Provnd\varphi\bigr)
 \Rightarrow\varnothing\Provnd\varphi.
 $$
-<ol><li><strong>Caso $A=[]$.</strong> Por introducción de implicación&nbsp;(R1):
+<ol><li><strong>Caso $A=[]$.</strong> Por introducción de implicación&nbsp;(R1),
 se supone $\mathrm{Nodup}([])$, que no se usa; por introducción de
-implicación&nbsp;(R1): se supone la premisa universal
+implicación&nbsp;(R1), se supone la premisa universal
 $H:\forall v,\ \Gamma_v([])\Provnd\varphi$. La premisa universal,
 instanciada&nbsp;(R16) en la valuación constante
 $v(x):=\mathrm{Verdadero}$, da $\Gamma_v([])\Provnd\varphi$. Por la
@@ -1350,7 +1343,7 @@ Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>, $\Gamma_v([])=\va
 sustitución&nbsp;(R17) queda $\varnothing\Provnd\varphi$. Se descargan
 $H$ y $\mathrm{Nodup}([])$.
 </li><li><strong>Caso $A=p::r$.</strong> Por introducción de
-implicación&nbsp;(R1): se supone $\mathrm{Nodup}(p::r)$; por
+implicación&nbsp;(R1), se supone $\mathrm{Nodup}(p::r)$; por
 introducción de implicación&nbsp;(R1): se supone la premisa universal
 $H:\forall v,\ \Gamma_v(p::r)\Provnd\varphi$. La dirección $(\Rightarrow)$ de
 la ecuación de $\mathrm{Nodup}$ para $p::r$&nbsp;(R8)
@@ -1375,7 +1368,7 @@ la Definición&nbsp;<a class="xref" href="#def:litctx">11.18</a>,
 $$
 \mathrm{literal}_u(p)=p,\qquad\mathrm{literal}_w(p)=\Not p.
 $$
-Sea $x$ arbitrario; por introducción de implicación&nbsp;(R1): se supone
+Sea $x$ arbitrario; por introducción de implicación&nbsp;(R1), se supone
 $x\in r$. Por reducción al absurdo&nbsp;(R9) se prueba $x\ne p$: se supone
 $x=p$; por sustitución&nbsp;(R17) de $x=p$ en $x\in r$, $p\in r$;
 entonces
@@ -1505,7 +1498,7 @@ Por introducción de implicación&nbsp;(R1), se supone
 $h:\operatorname{Taut}(\varphi)$; sea
 $A:=\mathrm{dedup}(\mathrm{atomos}(\varphi))$. Por la primera propiedad de
 $\mathrm{dedup}$ (Sección&nbsp;11.6.5), $\mathrm{Nodup}(A)$.
-Sea $a$ arbitrario; por introducción de implicación&nbsp;(R1): se supone
+Sea $a$ arbitrario; por introducción de implicación&nbsp;(R1), se supone
 $a\in\mathrm{atomos}(\varphi)$; la dirección $(\Leftarrow)$ de la segunda
 propiedad de $\mathrm{dedup}$&nbsp;(R8)
 (Sección&nbsp;11.6.5), aplicada&nbsp;(R2) a esa
@@ -2177,7 +2170,9 @@ donde $C(s,t):=\forall x\in s,\ \forall y\in t,\ R\,x\,y$.
 Por introducción del bicondicional&nbsp;(R7) para $::$ y por inducción sobre $\ell_1$,
 con $R$ y $\ell_2$ fijos, para $\concat$.
 </p><p>
-<strong>Parte 1 (la equivalencia para $::$).</strong> Las reglas de $\Pairwise\,R$ son
+<strong>Parte 1.</strong> A probar:
+$\Pairwise\,R\,(a::\ell)\Longleftrightarrow(\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell$.
+Por introducción del bicondicional&nbsp;(R7). Las reglas de $\Pairwise\,R$ son
 $$
 \frac{}{\Pairwise\,R\,[]}\;TnilT
 \qquad\qquad
@@ -2203,14 +2198,15 @@ la regla <code>cons</code>, aplicada a ambas, da $\Pairwise\,R\,(a::\ell)$. Se
 descarga el supuesto y queda
 $(\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell\Rightarrow\Pairwise\,R\,(a::\ell)$.
 </p><p>
- Por lo tanto,
 $$
-\Pairwise\,R\,(a::\ell)\Longleftrightarrow
+\therefore\quad\Pairwise\,R\,(a::\ell)\Longleftrightarrow
 (\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell.
 \tag{\dagger}
 $$
 </p><p>
-<strong>Parte 2 (la equivalencia para $\concat$).</strong> Por inducción sobre $\ell_1$, con $R$ y $\ell_2$ fijos.
+<strong>Parte 2.</strong> A probar:
+$\Pairwise\,R\,(\ell_1\concat\ell_2)\Longleftrightarrow\Pairwise\,R\,\ell_1\wedge\Pairwise\,R\,\ell_2\wedge C(\ell_1,\ell_2)$.
+Por inducción sobre $\ell_1$, con $R$ y $\ell_2$ fijos.
 <ol><li><strong>Caso $\ell_1=[]$.</strong> Por introducción del bicondicional&nbsp;(R7); por
 (L), $[]\concat\ell_2=\ell_2$.
 </p><p>
@@ -2248,7 +2244,7 @@ Por introducción del bicondicional&nbsp;(R7).
 </p><p>
 $(\Rightarrow)$ Por introducción de implicación&nbsp;(R1), se supone
 $H(r\concat\ell_2)$. Sea $z$ arbitrario; por introducción de
-implicación&nbsp;(R1): se supone $z\in r$. Como $z\in r$, también
+implicación&nbsp;(R1), se supone $z\in r$. Como $z\in r$, también
 $z\in r\concat\ell_2$ (L); el supuesto
 $H(r\concat\ell_2)$, instanciado&nbsp;(R16) en $z$ y aplicado por
 eliminación de implicación&nbsp;(R2) a $z\in r\concat\ell_2$, da
@@ -2264,7 +2260,7 @@ $H(r\concat\ell_2)\Rightarrow H(r)\wedge H(\ell_2)$.
 $(\Leftarrow)$ Por introducción de implicación&nbsp;(R1), se supone
 $H(r)\wedge H(\ell_2)$; por eliminación de conjunción&nbsp;(R4), $H(r)$
 y $H(\ell_2)$. Sea $z$ arbitrario; por introducción de
-implicación&nbsp;(R1): se supone $z\in r\concat\ell_2$; por
+implicación&nbsp;(R1), se supone $z\in r\concat\ell_2$; por
 (L), $z\in r$ o $z\in\ell_2$.
 Por casos&nbsp;(R6), si $z\in r$, $H(r)$, instanciada&nbsp;(R16) en
 $z$ y aplicada&nbsp;(R2) a $z\in r$, da $R\,a\,z$; si $z\in\ell_2$,
@@ -2279,28 +2275,34 @@ $H(r)\wedge H(\ell_2)$ y queda $H(r)\wedge H(\ell_2)\Rightarrow H(r\concat\ell_2
 Por introducción del bicondicional&nbsp;(R7).
 </p><p>
 $(\Rightarrow)$ Por introducción de implicación&nbsp;(R1), se supone
-$C(a::r,\ell_2)$. Para $H(\ell_2)$: sea $y$ arbitrario; por introducción de
-implicación&nbsp;(R1): se supone $y\in\ell_2$. Como $a\in a::r$
+$C(a::r,\ell_2)$; se prueban las dos componentes.
+</p><p>
+<strong>Componente $H(\ell_2)$.</strong> Sea $y$ arbitrario; por introducción de
+implicación&nbsp;(R1), se supone $y\in\ell_2$. Como $a\in a::r$
 (L), el
 supuesto $C(a::r,\ell_2)$, instanciado&nbsp;(R16) en $x=a$ e $y$ y
 aplicado&nbsp;(R2) a $a\in a::r$ y a $y\in\ell_2$, da $R\,a\,y$. Se
 descarga $y\in\ell_2$; como $y$ era arbitrario, se cuantifica&nbsp;(R15):
-$H(\ell_2)$. Para $C(r,\ell_2)$: sean $x$ e $y$ arbitrarios; por introducción
-de implicación&nbsp;(R1): se suponen $x\in r$ e $y\in\ell_2$. Como
+$H(\ell_2)$.
+</p><p>
+<strong>Componente $C(r,\ell_2)$.</strong> Sean $x$ e $y$ arbitrarios; por
+introducción de implicación&nbsp;(R1), se suponen $x\in r$ e $y\in\ell_2$. Como
 $x\in r$, también $x\in a::r$ (L); el supuesto
 $C(a::r,\ell_2)$,
 instanciado&nbsp;(R16) en $x$ e $y$ y aplicado&nbsp;(R2) a
 $x\in a::r$ y a $y\in\ell_2$, da $R\,x\,y$. Se descargan $x\in r$ e
 $y\in\ell_2$; como $x$ e $y$ eran arbitrarios, se cuantifica&nbsp;(R15):
-$C(r,\ell_2)$. Por introducción de conjunción&nbsp;(R3),
+$C(r,\ell_2)$.
+</p><p>
+ Por introducción de conjunción&nbsp;(R3),
 $H(\ell_2)\wedge C(r,\ell_2)$; se descarga $C(a::r,\ell_2)$ y queda
 $C(a::r,\ell_2)\Rightarrow H(\ell_2)\wedge C(r,\ell_2)$.
 </p><p>
 $(\Leftarrow)$ Por introducción de implicación&nbsp;(R1), se supone
 $H(\ell_2)\wedge C(r,\ell_2)$; por eliminación de conjunción&nbsp;(R4),
 $H(\ell_2)$ y $C(r,\ell_2)$. Sean $x$ e $y$ arbitrarios; por introducción de
-implicación&nbsp;(R1): se suponen $x\in a::r$ e $y\in\ell_2$. Por
-(L), $x=a$ o $x\in r$; por casos&nbsp;(R6):
+implicación&nbsp;(R1), se suponen $x\in a::r$ e $y\in\ell_2$. Por
+(L), $x=a$ o $x\in r$; por casos&nbsp;(R6),
 si $x=a$, $H(\ell_2)$, instanciada&nbsp;(R16) en $y$ y
 aplicada&nbsp;(R2) a $y\in\ell_2$, da $R\,a\,y$; por
 sustitución&nbsp;(R17) con $x=a$, $R\,x\,y$. Si $x\in r$,
@@ -2339,6 +2341,7 @@ introducción de conjunción ((R4), (R3)); la quinta usa
 las dos direcciones&nbsp;(R8) de $(\dagger)$ con cola $r$ y de la
 segunda equivalencia de $(\ast)$.
 </li></ol>
+$\therefore\ \Pairwise\,R\,(\ell_1\concat\ell_2)\Longleftrightarrow\Pairwise\,R\,\ell_1\wedge\Pairwise\,R\,\ell_2\wedge C(\ell_1,\ell_2)$.
 $$
 \therefore\quad \begin{aligned}
 \Pairwise\,R\,(\ell_1\concat\ell_2)
@@ -2470,7 +2473,7 @@ b\in B&amp;\Longleftrightarrow b\in R
 \Longleftrightarrow(b\in r\wedge p&lt;b).
 \end{aligned}
 $$
-Sea $a$ arbitrario; por introducción de implicación&nbsp;(R1): se supone
+Sea $a$ arbitrario; por introducción de implicación&nbsp;(R1), se supone
 $a\in A$; la dirección $(\Rightarrow)$&nbsp;(R8) de la primera
 equivalencia da $a\in r\wedge a\leq p$; por eliminación de
 conjunción&nbsp;(R4), $a\leq p$. Se descarga $a\in A$; como $a$ era
@@ -2496,7 +2499,7 @@ $$
 es decir, $\Sorted(p::B)$ por la misma definición.
 </p><p>
 <strong>Concatenación.</strong> Por casos&nbsp;(R6) sobre $c\in p::B$. Sean $a$ y
-$c$ arbitrarios; por introducción de implicación&nbsp;(R1): se suponen
+$c$ arbitrarios; por introducción de implicación&nbsp;(R1), se suponen
 $a\in A$ y $c\in p::B$. La cota izquierda, instanciada&nbsp;(R16) en $a$
 y aplicada&nbsp;(R2) a $a\in A$, da $a\leq p$; por
 (L), $c=p$ o $c\in B$.
@@ -2677,8 +2680,8 @@ example : quicksort [1, 2, 3, 4] ~ [1, 2, 3, 4] ∧ Ordenada (quicksort [1, 2, 3
 <h3>Conclusión</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>b38da3b</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>0769b17</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>38a40c6</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>fa3bb99</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
