@@ -216,7 +216,7 @@ $\forall\Theta,\ \Sigma\subseteq\Theta\Rightarrow\Theta\Provnd\theta$.
 \Gamma\cup\{\psi\}\subseteq\Delta\cup\{\psi\}$, para contextos $\Gamma,\Delta$ y
 fórmula $\psi$ cualesquiera).</strong> Por introducción de implicación&nbsp;(R1),
 se supone $\Gamma\subseteq\Delta$. Sea $\chi$ una fórmula arbitraria; por
-introducción de implicación&nbsp;(R1): se supone
+introducción de implicación&nbsp;(R1), se supone
 $\chi\in\Gamma\cup\{\psi\}$. Por la pertenencia a una unión
 (Sección&nbsp;11.3.2), $\chi=\psi\vee\chi\in\Gamma$. Por
 casos&nbsp;(R6) sobre esa disyunción:
@@ -238,7 +238,7 @@ Se descarga $\Gamma\subseteq\Delta$ y queda
 $\Gamma\subseteq\Delta\Rightarrow\Gamma\cup\{\psi\}\subseteq\Delta\cup\{\psi\}$.
 </p><p>
 En cada caso de la inducción, sea $\Delta$ un contexto arbitrario; por
-introducción de implicación&nbsp;(R1): se supone $\Gamma\subseteq\Delta$.
+introducción de implicación&nbsp;(R1), se supone $\Gamma\subseteq\Delta$.
 Se analiza la última regla de la derivación (Sección&nbsp;11.3):
 <ol><li><strong>Caso hipótesis.</strong> Por la regla de hipótesis, se tiene
 $\varphi\in\Gamma$. El supuesto $\Gamma\subseteq\Delta$,
@@ -1019,7 +1019,7 @@ sustitución&nbsp;(R17) queda $\varnothing\Provnd\varphi$. Se descargan
 $H$ y $\mathrm{Nodup}([])$.
 </li><li><strong>Caso $A=p::r$.</strong> Por introducción de
 implicación&nbsp;(R1), se supone $\mathrm{Nodup}(p::r)$; por
-introducción de implicación&nbsp;(R1): se supone la premisa universal
+introducción de implicación&nbsp;(R1), se supone la premisa universal
 $H:\forall v,\ \Gamma_v(p::r)\Provnd\varphi$. La dirección $(\Rightarrow)$ de
 la ecuación de $\mathrm{Nodup}$ para $p::r$&nbsp;(R8)
 (Sección&nbsp;11.5.4), aplicada&nbsp;(R2) a
@@ -2045,7 +2045,7 @@ $a\in A$; la dirección $(\Rightarrow)$&nbsp;(R8) de la primera
 equivalencia da $a\in r\wedge a\leq p$; por eliminación de
 conjunción&nbsp;(R4), $a\leq p$. Se descarga $a\in A$; como $a$ era
 arbitrario, se cuantifica&nbsp;(R15). Sea $b$ arbitrario; por
-introducción de implicación&nbsp;(R1): se supone $b\in B$; la dirección
+introducción de implicación&nbsp;(R1), se supone $b\in B$; la dirección
 $(\Rightarrow)$&nbsp;(R8) de la segunda equivalencia da
 $b\in r\wedge p&lt;b$; por eliminación de conjunción&nbsp;(R4), $p&lt;b$; la
 ley $p&lt;b\Rightarrow p\leq b$ de (O) da $p\leq b$. Se
@@ -2313,7 +2313,7 @@ y análisis por casos&nbsp;(R6).
 </p><p>
 La meta es $\forall\psi,\ \psi\in\Gamma\cup\{\chi\}\Rightarrow\sem\psi_v$
 (Definición&nbsp;<a class="xref" href="#def:sat">11.6</a>). Sea $\psi$ una fórmula arbitraria; por
-introducción de implicación&nbsp;(R1): se supone
+introducción de implicación&nbsp;(R1), se supone
 $\psi\in\Gamma\cup\{\chi\}$. Por la pertenencia a una unión
 (Sección&nbsp;11.3.2), $\psi=\chi\vee\psi\in\Gamma$. Por
 casos&nbsp;(R6) sobre esa disyunción:
@@ -2629,8 +2629,8 @@ $$
 <h3>Lectura de los listados</h3>
 </main>
 <footer>
-  Generado desde <code>tesis-mate</code> en la revisión <code>891e25b</code>; los listados coinciden con
-  <code>lean_execution</code> en la revisión <code>9e9df65</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
+  Generado desde <code>tesis-mate</code> en la revisión <code>b8869b7</code>; los listados coinciden con
+  <code>lean_execution</code> en la revisión <code>0f9410e</code>. Las contradicciones de la metateoría se marcan con ⇒⇐;
   las del cálculo objeto aparecen en los árboles como ⊥. Matemáticas con KaTeX.
 </footer>
 </body>
