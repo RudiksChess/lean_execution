@@ -9,6 +9,9 @@ import Thesis.Teoria
 #print axioms Thesis.Teoria.Lambda.church_rosser_conversion
 #print axioms Thesis.Teoria.Lambda.unicidad_forma_normal
 #print axioms Thesis.Teoria.Sustitucion.lema_sustitucion
+#print axioms Thesis.Teoria.SustitucionAlfa.alfaEq_iff_alfaTesis
+#print axioms Thesis.Teoria.SustitucionAlfa.lema_sustitucion_alfa
+#print axioms Thesis.Teoria.SustitucionAlfa.lema_sustitucion_tesis
 
 -- Capítulo 7: tipos simples
 #print axioms Thesis.Teoria.TiposSimples.ejemplo_constante
