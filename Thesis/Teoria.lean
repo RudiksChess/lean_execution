@@ -2,6 +2,7 @@
 -- (7, 8 y 9). Cada módulo es autocontenido y define su propia sintaxis.
 import Thesis.Teoria.Lambda
 import Thesis.Teoria.Sustitucion
+import Thesis.Teoria.SustitucionAlfa
 import Thesis.Teoria.TiposSimples
 import Thesis.Teoria.Cubo
 import Thesis.Teoria.DeduccionNatural
@@ -10,8 +11,11 @@ import Thesis.Teoria.DeduccionNatural
 
 * `Thesis.Teoria.Lambda`: Lemas 7.6, 7.31 y 7.32; Corolarios 7.43 y 7.44
   (estos dos, con la confluencia del Teorema 7.37 como hipótesis explícita).
-* `Thesis.Teoria.Sustitucion`: Lema 7.23, como igualdad literal bajo la
-  convención de variables (no módulo α).
+* `Thesis.Teoria.SustitucionAlfa`: Lema 7.23 tal como lo enuncia la tesis, con
+  sustitución que evita la captura y conclusión módulo α-equivalencia
+  (Definición 7.16), sin hipótesis de frescura.
+* `Thesis.Teoria.Sustitucion`: versión previa del Lema 7.23, como igualdad
+  literal bajo la convención de variables.
 * `Thesis.Teoria.TiposSimples`: Ejemplos 7.52 y 7.53; Lema 7.57.
 * `Thesis.Teoria.Cubo`: Ejemplos 8.5, 8.13, 8.15 y 8.20.
 * `Thesis.Teoria.DeduccionNatural`: Proposiciones 9.6 y 9.9.

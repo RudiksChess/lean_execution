@@ -43,6 +43,8 @@ Los archivos de `aristotle/` son reconstrucciones históricas independientes y s
 | `Thesis/VerificationOutput.lean` | Tipos, ejemplos ejecutados y transcripción de axiomas |
 | `Thesis/Prop/Audit.lean`, `Thesis/Sort/Audit.lean` | Auditorías de axiomas |
 | `artifacts/explorer/proofs.json` | Código y estados reales para el explorador |
+| `Thesis/Teoria/` | Demostraciones de los capítulos teóricos (7, 8 y 9) |
+| `artifacts/explorer/theory.json` | Estados reales de los 69 teoremas de `Thesis/Teoria` |
 | `aristotle/` | Reconstrucciones históricas independientes |
 | `reports/` | Informes de deducción natural, Quicksort y Aristotle |
 | `web/` | Guías complementarias y evidencia pública de verificación |
@@ -57,6 +59,7 @@ lake exe cache get
 lake build
 make check
 make proof-explorer
+make proof-explorer-theory
 ```
 
 `make check` compila ambos desarrollos, comprueba la validación con Foundation y las tres reconstrucciones de Aristotle, regenera los certificados y compara la transcripción pública. Un cambio de nombres obliga a regenerar los estados: no se traducen estados a mano.
@@ -84,6 +87,8 @@ El ejecutable separado `proofExplorerExport` lee los registros `TacticInfo` del 
 Los 27 resultados cubren deducción natural, completitud, el puente con Foundation y Quicksort, incluidas las obligaciones de terminación de su definición. Los identificadores de navegación se mantienen separados de los nombres visibles en Lean.
 
 `make proof-explorer-check` vuelve a elaborar los módulos originales y exige coincidencia exacta con el artefacto versionado. Rechaza cambios de fuentes o dependencias, errores de elaboración y ausencia de estados. Los cierres locales de una rama no se presentan como cierre de toda la prueba.
+
+Los capítulos teóricos tienen un segundo artefacto con el mismo esquema, `artifacts/explorer/theory.json`. Lo generan `make proof-explorer-theory` (`python3 tools/generate_proof_explorer.py --theory`) y el ejecutable `proofExplorerTheoryExport`, separado del anterior para no alterar `proofs.json`. Cubre los 69 teoremas de `Thesis/Teoria`, identificados por su nombre completo en Lean, con las fuentes fijadas por commit y por hash. Un teorema cuyo cuerpo es un término no tiene estados intermedios: se exporta un único paso de tipo `term` con el contexto local y el tipo esperado que el elaborador registró para ese término. `make proof-explorer-theory-check` exige que una elaboración nueva reproduzca el artefacto byte por byte y forma parte de `make check`.
 
 ## Informes y documentación
 

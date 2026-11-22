@@ -21,3 +21,9 @@ lean_lib Thesis where
 lean_exe proofExplorerExport where
   root := `ProofExplorerExport
   supportInterpreter := true
+
+-- Adaptador separado para Thesis/Teoria: el hash de ProofExplorerExport.lean
+-- está fijado en artifacts/explorer/proofs.json y no debe cambiar.
+lean_exe proofExplorerTheoryExport where
+  root := `ProofExplorerTheoryExport
+  supportInterpreter := true

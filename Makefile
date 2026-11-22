@@ -1,4 +1,4 @@
-.PHONY: build audit audit-quicksort verification-output proof-explorer proof-explorer-check pdf pdf-quicksort pdf-aristotle check clean verify-foundation verify-aristotle docs
+.PHONY: build audit audit-quicksort verification-output proof-explorer proof-explorer-check proof-explorer-theory proof-explorer-theory-check pdf pdf-quicksort pdf-aristotle check clean verify-foundation verify-aristotle docs
 
 ND_DIR := reports/natural-deduction
 QS_DIR := reports/quicksort
@@ -43,6 +43,14 @@ proof-explorer:
 proof-explorer-check:
 	python3 tools/generate_proof_explorer.py --check
 
+# Same machinery for the theoretical chapters (Thesis/Teoria): a second,
+# independent artifact produced by a second adapter. proofs.json is untouched.
+proof-explorer-theory:
+	python3 tools/generate_proof_explorer.py --theory
+
+proof-explorer-theory-check:
+	python3 tools/generate_proof_explorer.py --theory --check
+
 # Build the natural-deduction thesis PDF (regenerating the audit first).
 pdf: audit
 	cd $(ND_DIR) && latexmk -pdf -interaction=nonstopmode ThesisReport_ND.tex
@@ -73,7 +81,7 @@ verify-foundation:
 # CI gate: both developments and both cross-validations build, and the
 # committed audit still matches reality.
 # Fails if a sorry (sorryAx) or rogue axiom sneaks in, or the audit drifts.
-check: build audit audit-quicksort verification-output proof-explorer-check verify-foundation verify-aristotle
+check: build audit audit-quicksort verification-output proof-explorer-check proof-explorer-theory-check verify-foundation verify-aristotle
 	python3 -m unittest discover -s tools -p 'test_*.py'
 	python3 tools/check_axioms.py
 	git diff --exit-code $(ND_DIR)/audit.txt $(QS_DIR)/audit.txt $(VERIFY_OUTPUT)
