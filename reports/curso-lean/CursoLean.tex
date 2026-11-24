@@ -1,0 +1,2029 @@
+% Plantilla del curso intensivo de Lean. NO editar CursoLean.tex: se genera con
+%   python3 reports/curso-lean/build.py
+% Las directivas %%CODE, %%EXCERPT, %%STATE, %%STEP y %%LEAN se sustituyen por
+% código real del repositorio y por estados de prueba exportados por Lean.
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.3cm,headheight=14pt]{geometry}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\directlua{
+  luaotfload.add_fallback("leanfallback", {
+    "STIX Two Math:mode=harf;",
+    "DejaVu Sans:mode=harf;",
+    "Apple Symbols:mode=harf;",
+  })
+}
+\setmainfont{TeX Gyre Pagella}
+\setmathfont{TeX Gyre Pagella Math}
+\setsansfont{DejaVu Sans}[Scale=MatchLowercase]
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase, RawFeature={fallback=leanfallback}]
+\usepackage{xcolor}
+\usepackage{fvextra}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{bussproofs}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\definecolor{kw}{HTML}{1F4E9C}
+\definecolor{tac}{HTML}{8A2B8F}
+\definecolor{com}{HTML}{5E6B5E}
+\definecolor{fondocodigo}{HTML}{F7F8FA}
+\definecolor{bordecodigo}{HTML}{B8C2CF}
+\definecolor{fondoestado}{HTML}{FFF9EC}
+\definecolor{bordeestado}{HTML}{D9B45A}
+\definecolor{fondoesquema}{HTML}{EEF5EE}
+\definecolor{bordeesquema}{HTML}{5E9A62}
+\definecolor{fondonota}{HTML}{F1EEF8}
+\definecolor{bordenota}{HTML}{8C7DB8}
+
+\newcommand{\LKw}[1]{\textcolor{kw}{\bfseries #1}}
+\newcommand{\LTac}[1]{\textcolor{tac}{\bfseries #1}}
+\newcommand{\LCom}[1]{\textcolor{com}{\itshape #1}}
+\newcommand{\LCont}[1]{\textcolor{gray}{#1}}
+\directlua{
+  function leanbreak(s)
+    local previo = ""
+    for _, c in utf8.codes(s) do
+      local ch = utf8.char(c)
+      if ch:match("^[A-Z]$") and previo:match("^[a-z]$") then
+        tex.sprint("\\allowbreak{}")
+      end
+      tex.sprint(-2, ch)
+      if ch == "_" or ch == "." then tex.sprint("\\allowbreak{}") end
+      previo = ch
+    end
+  end
+}
+\newcommand{\lean}[1]{\texttt{\directlua{leanbreak("\luaescapestring{\detokenize{#1}}")}}}
+\newcommand{\ruta}[2]{\texttt{#1}\,:\,#2}
+
+\fvset{fontsize=\footnotesize, baselinestretch=1.05}
+
+\newtcolorbox{codigolean}[1]{enhanced, breakable, colback=fondocodigo,
+  colframe=bordecodigo, boxrule=0.5pt, arc=2pt, left=5pt, right=5pt,
+  top=3pt, bottom=3pt, colbacktitle=bordecodigo!35, coltitle=black,
+  fonttitle=\sffamily\scriptsize, title={#1}, toptitle=1pt, bottomtitle=1pt,
+  before skip=6pt, after skip=8pt}
+\newtcolorbox{estadolean}[1]{enhanced, breakable, colback=fondoestado,
+  colframe=bordeestado, boxrule=0.5pt, arc=2pt, left=5pt, right=5pt,
+  top=3pt, bottom=3pt, colbacktitle=bordeestado!30, coltitle=black,
+  fonttitle=\sffamily\scriptsize, title={#1}, toptitle=1pt, bottomtitle=1pt,
+  before skip=4pt, after skip=4pt}
+\newtcolorbox{esquema}[1]{enhanced, breakable, colback=fondoesquema,
+  colframe=bordeesquema, boxrule=0.6pt, arc=3pt,
+  colbacktitle=bordeesquema, coltitle=white, fonttitle=\sffamily\bfseries,
+  title={#1}, before skip=10pt, after skip=10pt, before upper={\raggedright}}
+\newtcolorbox{nota}[1][Nota]{enhanced, breakable, colback=fondonota,
+  colframe=bordenota, boxrule=0.5pt, arc=3pt, colbacktitle=bordenota,
+  coltitle=white, fonttitle=\sffamily\bfseries\small, title={#1},
+  before skip=8pt, after skip=8pt}
+\newcommand{\tacticaentre}[1]{\begin{center}\vspace{-2pt}\(\Downarrow\)\enspace
+  \texttt{\small #1}\vspace{-2pt}\end{center}}
+
+\newcommand{\forma}{\par\noindent\textbf{Forma matemática.}\enspace}
+\newcommand{\lectura}{\par\smallskip\noindent\textbf{Cómo se lee.}\enspace}
+\newcommand{\donde}{\par\smallskip\noindent\textbf{Dónde aparece.}\enspace}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Curso intensivo de Lean~4 a través de la tesis}
+\fancyhead[R]{\small\sffamily\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist{itemsep=2pt, topsep=4pt}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\EnableBpAbbreviations
+
+\title{\textbf{Curso intensivo de Lean~4 a través de la tesis}\\[4pt]
+  \large Esquemas de demostración: cómo se interpretan y cómo se prueban}
+\author{Material de apoyo para explicar las formalizaciones de\\
+  \texttt{Thesis/Prop}, \texttt{Thesis/Sort} y \texttt{Thesis/Teoria}}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Este documento es una guía de lectura del código Lean de la tesis. No es un
+manual general de Lean: solo se explican las construcciones que aparecen en
+las demostraciones de los capítulos 7 (cálculo~\(\lambda\) y tipos simples),
+8 (cubo~\(\lambda\)), 9 (deducción natural), 11 (completitud) y 12
+(Quicksort). El núcleo del documento es un catálogo de \emph{esquemas de
+demostración}. Cada esquema enlaza una forma de razonamiento matemático con la
+plantilla Lean que la implementa, la lectura en español de esa plantilla y los
+lugares de la tesis donde se usa.
+
+Los fragmentos de código no están copiados a mano. Un script los extrae del
+repositorio (se indica archivo y línea). Los recuadros amarillos muestran
+\emph{estados de prueba reales}, exportados por Lean~4.29 al compilar el
+proyecto (\texttt{artifacts/explorer/*.json}). En esos recuadros se omiten las
+hipótesis inaccesibles que Lean marca con~\texttt{✝}.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{Cómo usar este documento}
+%=====================================================================
+
+La idea central es esta: \textbf{una demostración en Lean es la misma
+demostración que en papel, escrita con un vocabulario restringido y
+comprobada por una máquina}. Cada paso del papel («sea \(x\)», «supongamos
+\(P\)», «por hipótesis de inducción», «distinguimos dos casos») corresponde a
+una táctica o a un término de Lean. Si se conoce esa correspondencia, la prueba
+formal se lee como un texto matemático, y la prueba en papel se puede
+reconstruir a partir del código.
+
+Para preparar la explicación de un teorema concreto se sugiere este orden:
+\begin{enumerate}
+  \item Leer el \textbf{enunciado} y traducirlo a lenguaje matemático (sección~\ref{sec:basicos}).
+  \item Leer los comentarios \texttt{A probar} y \texttt{Método}, que en esta tesis encabezan casi todas las pruebas.
+  \item Identificar el \textbf{esquema} principal: inducción, casos, contradicción, cadena de igualdades, construcción de una derivación\ldots{} (sección~\ref{sec:esquemas}).
+  \item Recorrer cada caso o rama con la tabla de tácticas (sección~\ref{sec:tacticas}).
+  \item Separar los pasos de contenido matemático de los pasos de «contabilidad» (pertenencia a un contexto, reescrituras de definiciones, condiciones laterales).
+\end{enumerate}
+
+La sección~\ref{sec:mapa} da un mapa de toda la tesis: para cada resultado
+formalizado indica el archivo, el teorema y los esquemas que usa. La
+sección~\ref{sec:explicar} contiene una receta para exponer una prueba en voz
+alta y una lista de preguntas frecuentes.
+
+%=====================================================================
+\section{Lo básico: enunciados, pruebas y estados}\label{sec:basicos}
+%=====================================================================
+
+\subsection{Proposiciones como tipos}
+
+Lean es un lenguaje de programación con tipos dependientes y, a la vez, un
+verificador de demostraciones. Se basa en el \emph{cálculo de construcciones
+inductivas}, una extensión del sistema \(\lambda C\) que la tesis presenta como
+vértice del cubo~\(\lambda\) (capítulo~8). Por eso la correspondencia de
+Curry--Howard de los capítulos 7 y~8 no es aquí una analogía, sino el
+funcionamiento real del sistema:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Matemática} & \textbf{Lean} \\
+\midrule
+proposición \(P\) & tipo \lean{P : Prop} \\
+demostración de \(P\) & término \lean{h : P} \\
+\(P \Rightarrow Q\) & tipo de funciones \lean{P → Q} \\
+\(\forall x \in A,\ Q(x)\) & tipo de funciones dependientes \lean{∀ x : A, Q x} \\
+aplicar una implicación (modus ponens) & aplicar una función: \lean{h hp} \\
+comprobar una prueba & comprobar que un término tiene el tipo pedido \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Un teorema es una definición cuyo tipo es una proposición:
+\begin{codigolean}{Anatomía de un teorema (esquema general)}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} nombre (hipótesis₁ : A) \{implícita : B\} : enunciado := \LKw{by}
+  \LCom{-- A probar: …  (comentario de la tesis)}
+  \LCom{-- Método: …}
+  táctica₁
+  táctica₂
+\end{Verbatim}
+\end{codigolean}
+
+Los argumentos entre paréntesis \lean{( )} son explícitos: quien usa el teorema
+los proporciona. Los argumentos entre llaves \lean{{ }} son implícitos: Lean
+los deduce del contexto. Lo que sigue a los dos puntos es el enunciado; lo que
+sigue a \lean{:=} es la demostración. La palabra \lean{by} abre el
+\emph{modo táctico}: en lugar de escribir el término de prueba completo, se dan
+instrucciones que lo construyen paso a paso.
+
+\subsection{El estado de prueba}
+
+En modo táctico Lean mantiene un \emph{estado}: una lista de \emph{metas}
+(lo que falta probar). Cada meta tiene un contexto de hipótesis disponibles,
+escritas arriba como \lean{nombre : tipo}, y una conclusión, escrita después
+del símbolo~\lean{⊢}. Por ejemplo, al empezar la prueba de la introducción de
+la doble negación (capítulo~11) el estado es:
+
+\begin{estadolean}{Estado antes de \texttt{let Δ := insert (\textasciitilde{}φ) Γ}}
+\begin{Verbatim}[commandchars=\\\{\}]
+Γ : Set Formula
+φ : Formula
+d : ND Γ φ
+⊢ ND Γ (~~φ)
+\end{Verbatim}
+\end{estadolean}
+
+Se lee así: «tenemos un contexto \(\Gamma\), una fórmula \(\varphi\) y una
+derivación \(d\) de \(\Gamma \vdash \varphi\); hay que construir una derivación
+de \(\Gamma \vdash \neg\neg\varphi\)». Cada táctica transforma este estado.
+Algunas añaden hipótesis (\lean{have}, \lean{intro}), otras cambian la meta
+(\lean{rw}, \lean{change}), otras la dividen en varias (\lean{constructor},
+\lean{rcases}, \lean{induction}) y otras la cierran (\lean{exact}). La prueba
+termina cuando no quedan metas.
+
+\begin{nota}[Idea clave para la exposición]
+Al explicar una prueba Lean conviene describir el \emph{estado}, no la táctica.
+«Después de \lean{intro h} tenemos \(h : P\) y debemos probar \(Q\)» se
+entiende mejor que «aplicamos intro». Los recuadros amarillos de este documento
+muestran esos estados tal como Lean los calcula.
+\end{nota}
+
+\subsection{Modo término y modo táctico}
+
+Las dos formas producen el mismo objeto: un término cuyo tipo es el
+enunciado. El modo término es conveniente cuando la prueba es una sola
+aplicación de lemas ya demostrados:
+
+\begin{codigolean}{\ruta{Thesis/Prop/Main.lean}{20}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} identidad_por_completitud : ND (∅ : Set Formula) tautologiaIdentidad :=
+  completitud_ND tautologiaIdentidad identidad_es_tautologia
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/DeduccionNatural.lean}{253}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} contrapositiva (p q : Formula) : (p →ₚ q) ⊣⊢ₚ (¬ₚq →ₚ ¬ₚp) :=
+  ⟨contrapositiva_ida p q, contrapositiva_vuelta p q⟩
+\end{Verbatim}
+\end{codigolean}
+
+En el segundo ejemplo, \lean{⟨a, b⟩} es el \emph{constructor anónimo}: produce
+una prueba de una conjunción a partir de las pruebas de sus dos partes
+(aquí \lean{⊣⊢ₚ} está definido como una conjunción de dos secuentes).
+
+\subsection{Tipos inductivos: datos y reglas}\label{sec:inductivos}
+
+Casi todo lo que la tesis formaliza se define con \lean{inductive}. Hay dos
+usos distintos de esta palabra, y conviene distinguirlos al explicar.
+
+\textbf{Tipos de datos inductivos.} Son la sintaxis: fórmulas, términos,
+tipos, listas. Cada constructor es una forma de construir un elemento.
+\begin{codigolean}{\ruta{Thesis/Prop/Syntax.lean}{3}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{inductive} Formula : Type
+| atom : String → Formula
+| neg  : Formula → Formula
+| impl : Formula → Formula → Formula
+\end{Verbatim}
+\end{codigolean}
+
+\textbf{Predicados inductivos.} Son relaciones definidas por reglas:
+derivabilidad, juicios de tipado, pasos de reducción. Cada constructor es una
+\emph{regla de inferencia}: sus argumentos son las premisas y su tipo de
+retorno es la conclusión. La relación es la \emph{menor} cerrada bajo esas
+reglas, y por eso admite inducción sobre derivaciones (esquema~11, sección~\ref{esq:induccion-derivaciones}).
+\begin{codigolean}{\ruta{Thesis/Prop/NaturalDeduction.lean}{37}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{inductive} ND : Set Formula → Formula → Prop
+| hyp \{Γ φ\} : φ ∈ Γ → ND Γ φ
+| impI \{Γ φ ψ\} : ND (insert φ Γ) ψ → ND Γ (φ ⟶ ψ)
+| impE \{Γ φ ψ\} : ND Γ (φ ⟶ ψ) → ND Γ φ → ND Γ ψ
+| negI \{Γ φ\} : ND (insert φ Γ) Falsedad → ND Γ (~φ)
+| negE \{Γ φ\} : ND Γ (~φ) → ND Γ φ → ND Γ Falsedad
+| botE \{Γ φ\} : ND Γ Falsedad → ND Γ φ
+\LCom{/-- Por RAA: de Γ, ¬φ ⊢ ⊥ se concluye Γ ⊢ φ, descargando ¬φ. -/}
+| classical \{Γ φ\} : ND (insert (~φ) Γ) Falsedad → ND Γ φ
+\end{Verbatim}
+\end{codigolean}
+
+Comparando con la presentación en papel:
+\begin{center}
+\renewcommand{\arraystretch}{2.4}
+\begin{tabular}{@{}cc@{}}
+\AXC{$\varphi\in\Gamma$}\RightLabel{\scriptsize\texttt{hyp}}\UIC{$\Gamma\vdash\varphi$}\DisplayProof
+&
+\AXC{$\Gamma,\varphi\vdash\psi$}\RightLabel{\scriptsize\texttt{impI}}\UIC{$\Gamma\vdash\varphi\to\psi$}\DisplayProof
+\\
+\AXC{$\Gamma\vdash\varphi\to\psi$}\AXC{$\Gamma\vdash\varphi$}\RightLabel{\scriptsize\texttt{impE}}\BIC{$\Gamma\vdash\psi$}\DisplayProof
+&
+\AXC{$\Gamma,\varphi\vdash\bot$}\RightLabel{\scriptsize\texttt{negI}}\UIC{$\Gamma\vdash\neg\varphi$}\DisplayProof
+\\
+\AXC{$\Gamma\vdash\neg\varphi$}\AXC{$\Gamma\vdash\varphi$}\RightLabel{\scriptsize\texttt{negE}}\BIC{$\Gamma\vdash\bot$}\DisplayProof
+&
+\AXC{$\Gamma\vdash\bot$}\RightLabel{\scriptsize\texttt{botE}}\UIC{$\Gamma\vdash\varphi$}\DisplayProof
+\quad
+\AXC{$\Gamma,\neg\varphi\vdash\bot$}\RightLabel{\scriptsize\texttt{classical}}\UIC{$\Gamma\vdash\varphi$}\DisplayProof
+\end{tabular}
+\end{center}
+La lectura \(\Gamma, \varphi\) del papel es \lean{insert φ Γ} en Lean: el
+contexto es un conjunto \lean{Set Formula}. Lo mismo ocurre con los otros
+cálculos de la tesis: \lean{Derivable} (capítulo~9, con todos los conectivos),
+\lean{Deriva} (tipos simples, \(\lambda2\) y \(\lambda\underline{\omega}\)),
+\lean{PasoBeta}, \lean{Cadena} y \lean{AlfaTesis}.
+
+\subsection{Nivel objeto y metanivel}\label{sec:objeto-meta}
+
+Las formalizaciones lógicas de la tesis tienen dos lenguajes superpuestos, y
+mezclarlos es la fuente de confusión más frecuente:
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+& \textbf{Lógica objeto (lo que se estudia)} & \textbf{Metalógica (Lean)} \\
+\midrule
+negación & \lean{~φ} (\lean{Formula.neg}), \lean{¬ₚφ} & \lean{¬ P} \\
+implicación & \lean{φ ⟶ ψ}, \lean{φ →ₚ ψ} & \lean{P → Q} \\
+falsedad & \lean{Falsedad}, \lean{⊥ₚ} & \lean{False} \\
+«es demostrable» & \lean{ND Γ φ}, \lean{Γ ⊢ₚ φ} & tener un término de ese tipo \\
+reducción al absurdo & \lean{ND.classical}, \lean{Derivable.raa} & \lean{by_contra}, \lean{Classical.byContradiction} \\
+análisis por casos & \lean{analisis_por_casos}, \lean{Derivable.disyE} & \lean{by_cases}, \lean{rcases} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Los comentarios de la tesis marcan esta distinción cuando importa («Por RAA
+metateórica\ldots», «Introducción de doble negación objeto; no es la
+eliminación anterior»). En el Lema de Kalmár, por ejemplo, se usa la
+eliminación de la doble negación \emph{en la metalógica} para decidir el valor
+de verdad de \(p\), y la introducción de la doble negación \emph{en el cálculo
+ND} para construir la derivación.
+
+\begin{nota}[Cuidado con \texttt{\textasciitilde}]
+En \texttt{Thesis/Prop} el prefijo \lean{~} es la negación de fórmulas. En
+\texttt{Thesis/Sort} el infijo \lean{l₁ ~ l₂} es \lean{List.Perm}: «\(l_1\) es
+una permutación de \(l_2\)». Son notaciones distintas en archivos distintos.
+\end{nota}
+
+\subsection{Convenciones de escritura de la tesis}
+
+\begin{itemize}
+  \item Los identificadores propios están en español, por ejemplo \lean{debilitamiento},
+    \lean{quicksort_ordenada} o \lean{contextoLiterales}. Las tácticas y las
+    bibliotecas externas conservan sus nombres en inglés.
+  \item Casi todas las pruebas empiezan con dos comentarios:
+    \emph{A probar} (la meta en palabras) y \emph{Método} (el esquema que se usará).
+  \item Prefijos de nombres: \lean{h…} para hipótesis proposicionales
+    (\lean{hsub}, \lean{hCasos}); \lean{d…} para derivaciones del cálculo
+    (\lean{dNeg}, \lean{dFalsedad}); \lean{hipInd…} para hipótesis de
+    inducción; \lean{l1}, \lean{l2}, \ldots{} para las líneas de una derivación
+    en cajas; \lean{paso1}, \lean{paso2}, \ldots{} para los pasos numerados de
+    los ejemplos de tipado.
+  \item Se prefiere el estilo \emph{hacia adelante}: una secuencia de
+    \lean{have} con su tipo escrito, de modo que cada línea enuncia un hecho
+    intermedio legible. Esto hace las pruebas más largas que el mínimo, pero
+    cada paso se puede leer sin ejecutar Lean.
+  \item Los pasos automáticos (\lean{simp}, \lean{decide}, \lean{omega}) se
+    reservan para condiciones laterales decidibles o para desplegar
+    definiciones; no hacen el razonamiento principal.
+\end{itemize}
+
+%=====================================================================
+\section{Conectivos: introducción y eliminación}\label{sec:conectivos}
+%=====================================================================
+
+En Lean, como en deducción natural, cada conectivo tiene una forma de
+\emph{probarlo} (introducción) y una forma de \emph{usarlo} (eliminación). Esta
+tabla es la base de todos los esquemas siguientes.
+
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Conectivo} & \textbf{Para probarlo (meta)} & \textbf{Para usarlo (hipótesis \lean{h})} \\
+\midrule
+\(P \to Q\) & \lean{intro hp}, luego probar \(Q\) & \lean{h hp : Q} (aplicar), o \lean{apply h} \\
+\(\forall x, Q\,x\) & \lean{intro x} & \lean{h a : Q a} \\
+\(P \wedge Q\) & \lean{constructor}, \lean{⟨hp, hq⟩}, \lean{And.intro}, \lean{refine ⟨?_, ?_⟩} & \lean{h.left}, \lean{h.right}, \lean{obtain ⟨hp, hq⟩ := h} \\
+\(P \vee Q\) & \lean{Or.inl hp}, \lean{Or.inr hq} & \lean{rcases h with hp | hq} (dos metas) \\
+\(P \leftrightarrow Q\) & \lean{constructor} y dos implicaciones & \lean{h.mp : P → Q}, \lean{h.mpr : Q → P}, \lean{rw [h]} \\
+\(\neg P\) (es \(P \to \mathrm{False}\)) & \lean{intro hp}, luego probar \lean{False} & \lean{h hp : False} \\
+\(\mathrm{False}\) & (no se introduce) & \lean{False.elim h}, \lean{absurd hp hnp}, \lean{exact (h hp).elim} \\
+\(\exists x, Q\,x\) & \lean{⟨a, prueba⟩} (dar un testigo) & \lean{obtain ⟨x, hx⟩ := h} \\
+\(a = b\) & \lean{rfl}, \lean{rw}, \lean{calc}, \lean{simp} & \lean{rw [h]}, \lean{subst}, \lean{h ▸ e} \\
+\(x \in \{y \mid P\,y\}\) & probar \(P\,x\) (es la misma proposición) & usarla como \(P\,x\) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{nota}[Igualdad por definición]
+Lean identifica expresiones que son iguales \emph{por cómputo de las
+definiciones} (igualdad definicional). Por eso
+\lean{have hNoIdentidad : ¬ (v "⊥" → v "⊥") := h} es válido cuando
+\lean{h : evaluar v Falsedad}: al desplegar \lean{evaluar} y \lean{Falsedad}
+se obtiene exactamente ese tipo. Las tácticas \lean{change} y \lean{show}
+reemplazan la meta por otra definicionalmente igual. No cambian lo que se
+prueba: solo lo escriben de otra forma.
+\end{nota}
+
+%=====================================================================
+\section{Vocabulario de tácticas usado en la tesis}\label{sec:tacticas}
+%=====================================================================
+
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.36\textwidth}>{\raggedright\arraybackslash}p{0.31\textwidth}@{}}
+\toprule
+\textbf{Táctica} & \textbf{Efecto en el estado} & \textbf{Frase en papel} \\
+\midrule
+\endhead
+\lean{intro x h} & mueve \(\forall x\) y premisas de la meta al contexto & «Sea \(x\) y supongamos \(h\)» \\
+\lean{exact t} & cierra la meta con el término \lean{t} & «lo que se quería, por \ldots» \\
+\lean{have h : P := t} & añade el hecho \(P\) (probado por \lean{t}) & «tenemos \(P\) por \ldots» \\
+\lean{have h : P := by …} & idem, con una subprueba & «afirmamos \(P\); en efecto, \ldots» \\
+\lean{let x := e} & introduce una abreviatura local & «sea \(x := e\)» \\
+\lean{apply f} & reduce la meta a las premisas de \lean{f} & «basta probar las hipótesis de \ldots» \\
+\lean{refine ⟨?_, ?_⟩} & divide la meta en las piezas marcadas \lean{?_} & «probamos cada parte» \\
+\lean{constructor} & divide \(\wedge\), \(\leftrightarrow\) en sus partes & «probamos ambas direcciones» \\
+\lean{rcases h with a | b}, \lean{obtain ⟨a, b⟩ := h}, \lean{rintro} & descompone \(\vee\), \(\wedge\), \(\exists\) & «distinguimos casos» / «sea \(x\) tal que» \\
+\lean{cases h with | c …} & análisis por constructores de \lean{h} & «\(h\) solo pudo obtenerse por la regla \ldots» \\
+\lean{induction x with | c …} & una meta por constructor, con hipótesis inductivas & «por inducción sobre \ldots» \\
+\lean{by_cases h : P} & dos metas: con \(h : P\) y con \(h : \neg P\) & «si \(P\)\ldots; si no\ldots» (tercero excluido) \\
+\lean{by_contra h} & supone la negación de la meta; la meta pasa a ser \lean{False} & «supongamos lo contrario» \\
+\lean{rw [e₁, e₂] (at h)} & reescribe con igualdades o equivalencias & «sustituyendo \ldots» \\
+\lean{subst h} & elimina una variable igualada por \lean{h} & «como \(x = a\), \ldots» \\
+\lean{change P}, \lean{show P} & reescribe la meta en forma definicionalmente igual & «es decir, hay que probar \(P\)» \\
+\lean{calc a = b := … _ = c := …} & cadena de igualdades o relaciones transitivas & «\(a = b = c\)» \\
+\lean{simp only [l]}, \lean{simpa … using h} & simplificación con los lemas indicados & «desplegando las definiciones» \\
+\lean{unfold f} & despliega la definición \lean{f} & «por definición de \(f\)» \\
+\lean{ext x} & reduce la igualdad de conjuntos a pertenencia & «por extensionalidad» \\
+\lean{simp}, \lean{decide}, \lean{omega} & cierran condiciones laterales decidibles o aritméticas & «trivialmente», «por cálculo» \\
+\lean{termination_by m}, \lean{decreasing_by} & declaran y prueban que la medida \lean{m} decrece & «inducción sobre la longitud» \\
+\lean{· …} & enfoca la siguiente meta pendiente & «en el primer caso\ldots» \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+Términos de uso frecuente: \lean{False.elim} (de lo falso, cualquier cosa),
+\lean{absurd hp hnp}, \lean{Or.inl}/\lean{Or.inr}, \lean{And.intro},
+\lean{h.mp}/\lean{h.mpr}, \lean{h.left}/\lean{h.right}, \lean{h ▸ e}
+(transportar \lean{e} por la igualdad \lean{h}), \lean{rfl} (reflexividad) y
+\lean{Termino.noConfusion} (constructores distintos producen valores
+distintos).
+
+%=====================================================================
+\section{Catálogo de esquemas de demostración}\label{sec:esquemas}
+%=====================================================================
+
+Cada esquema tiene la misma estructura: la forma matemática, una plantilla
+Lean genérica (en gris, escrita para este documento), la lectura en
+español y uno o más ejemplos tomados literalmente de la tesis.
+
+%---------------------------------------------------------------------
+\subsection{Prueba directa: introducir \texorpdfstring{\(\forall\)}{∀} y \texorpdfstring{\(\to\)}{→}}\label{esq:directa}
+\begin{esquema}{Esquema 1. Prueba directa}
+\forma Para probar \(\forall x.\ P(x) \to Q(x)\): sea \(x\) arbitrario,
+supongamos \(P(x)\) y deduzcamos \(Q(x)\).
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} t : ∀ x, P x → Q x := \LKw{by}
+  \LTac{intro} x hP          \LCom{-- sea x; supongamos P x}
+  \LTac{exact} …             \LCom{-- un término de tipo Q x}
+\end{Verbatim}
+\end{codigolean}
+\lectura \lean{intro} nombra el objeto arbitrario y la suposición; \lean{exact}
+entrega la conclusión. En Lean, \(\neg P\) es \(P \to \mathrm{False}\), así que
+este esquema también prueba negaciones.
+\donde En todas partes. Ejemplos mínimos: \lean{identidad_es_tautologia},
+\lean{tautologia_de_derivable}, \lean{reduceBeta_reflexiva}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/Main.lean}{11}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} identidad_es_tautologia : EsTautologia tautologiaIdentidad := \LKw{by}
+  \LCom{-- A probar: P → P bajo toda valuación. Método: introducción de →.}
+  \LTac{intro} v
+  \LTac{change} evaluar v P → evaluar v P
+  \LTac{intro} hP
+  \LTac{exact} hP
+\end{Verbatim}
+\end{codigolean}
+\lean{EsTautologia φ} se define como \lean{∀ v : Valuacion, evaluar v φ}; por
+eso \lean{intro v} es posible. \lean{change} hace visible que, para
+\lean{P ⟶ P}, \lean{evaluar} produce una implicación de Lean.
+
+%---------------------------------------------------------------------
+\subsection{Razonamiento hacia adelante con \texttt{have}}\label{esq:adelante}
+\begin{esquema}{Esquema 2. Cadena de hechos intermedios}
+\forma «De \(A\) obtenemos \(B\); de \(B\) y \(C\), \(D\); luego \(E\)».
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LKw{have} hB : B := f hA
+  \LKw{have} hD : D := g hB hC
+  \LTac{exact} k hD
+\end{Verbatim}
+\end{codigolean}
+\lectura Cada \lean{have} es una línea de la prueba en papel con su
+justificación a la derecha de \lean{:=}. El tipo escrito es la afirmación; Lean
+comprueba que la justificación tiene exactamente ese tipo.
+\donde Es el estilo dominante de la tesis: \lean{introduccion_doble_negacion},
+\lean{analisis_por_casos}, \lean{completitud_ND}, \lean{quicksort_correcto},
+\lean{unicidad_forma_normal}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/NaturalDeduction.lean}{96}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} introduccion_doble_negacion \{Γ φ\} (d : ND Γ φ) : ND Γ (~~φ) := \LKw{by}
+  \LCom{-- A probar: ND Γ (~~φ). Método: introducción de negación, no RAA.}
+  \LKw{let} Δ := insert (~φ) Γ
+  \LKw{have} hNeg : (~φ) ∈ Δ := Set.mem_insert _ _
+  \LKw{have} hInclusion : Γ ⊆ Δ := Set.subset_insert _ _
+  \LKw{have} dNeg : ND Δ (~φ) := ND.hyp hNeg
+  \LKw{have} dPos : ND Δ φ := debilitamiento d hInclusion
+  \LKw{have} dFalsedad : ND Δ Falsedad := ND.negE dNeg dPos
+  \LCom{-- negI descarga el supuesto ~φ, no la premisa d.}
+  \LTac{exact} ND.negI dFalsedad
+\end{Verbatim}
+\end{codigolean}
+En papel: «Sea \(\Delta = \Gamma \cup \{\neg\varphi\}\). En \(\Delta\) tenemos
+\(\neg\varphi\) por hipótesis y \(\varphi\) por debilitamiento de \(d\); por
+\(\neg\)E obtenemos \(\bot\), y por \(\neg\)I, descargando \(\neg\varphi\),
+\(\Gamma \vdash \neg\neg\varphi\)». Lean comprueba cada línea; en particular
+comprueba que \lean{ND.negI} descarga justamente \lean{~φ}, porque su premisa
+tiene tipo \lean{ND (insert (~φ) Γ) Falsedad}.
+
+%---------------------------------------------------------------------
+\subsection{Bicondicionales}\label{esq:iff}
+\begin{esquema}{Esquema 3. Probar y usar \texorpdfstring{\(\leftrightarrow\)}{↔}}
+\forma \(P \leftrightarrow Q\) se prueba con dos implicaciones. Para usarlo,
+se toma una dirección o se reescribe con él.
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LTac{constructor}
+  · \LTac{intro} hP; \LTac{exact} …   \LCom{-- (⇒)}
+  · \LTac{intro} hQ; \LTac{exact} …   \LCom{-- (⇐)}
+\LCom{-- uso:  h.mp hP : Q     h.mpr hQ : P     rw [h]}
+\end{Verbatim}
+\end{codigolean}
+\donde \lean{correccion_completitud}, \lean{evaluar_falsedad},
+\lean{relacion_pares_cons_iff}, \lean{evaluar_traduccion},
+\lean{alfaEq_iff_alfaTesis}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/Completeness.lean}{275}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} correccion_completitud (φ : Formula) : EsTautologia φ ↔ ND (∅ : Set Formula) φ
+    \LCont{↪ }:= \LKw{by}
+  \LCom{-- A probar: ambas direcciones. Método: introducción del bicondicional.}
+  \LTac{constructor}
+  · \LTac{intro} hTautologia
+    \LTac{exact} completitud_ND φ hTautologia
+  · \LTac{intro} d
+    \LTac{exact} tautologia_de_derivable d
+\end{Verbatim}
+\end{codigolean}
+El teorema final del capítulo~11 es la conjunción de los dos grandes resultados:
+completitud (\(\Rightarrow\)) y corrección (\(\Leftarrow\)). Las dos metas que
+produce \lean{constructor} son:
+\begin{estadolean}{Estado después de \texttt{constructor}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- meta 1: case mp}
+φ : Formula
+⊢ EsTautologia φ → ND ∅ φ
+
+\LCom{-- meta 2: case mpr}
+φ : Formula
+⊢ ND ∅ φ → EsTautologia φ
+\end{Verbatim}
+\end{estadolean}
+
+%---------------------------------------------------------------------
+\subsection{Conjunciones}\label{esq:conj}
+\begin{esquema}{Esquema 4. Introducir y eliminar \texorpdfstring{\(\wedge\)}{∧}}
+\forma Para probar \(P \wedge Q\) se prueban \(P\) y \(Q\). De
+\(P \wedge Q\) se obtienen \(P\) y \(Q\).
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LTac{refine} ⟨?_, ?_⟩            \LCom{-- dos metas: P y Q}
+  \LCom{-- o bien:  exact ⟨hP, hQ⟩    exact And.intro hP hQ}
+  \LTac{obtain} ⟨hP, hQ⟩ := h        \LCom{-- uso; también h.left, h.right}
+\end{Verbatim}
+\end{codigolean}
+\donde \lean{kalmar} (cuyo enunciado es una conjunción, la parte positiva y
+la parte negativa), \lean{quicksort_correcto}, \lean{descarga}
+(\lean{hPartes.left}), \lean{lema_7_6}, \lean{lema_7_31}, \lean{lema_7_32}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Sort/Quicksort.lean}{322}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} quicksort_correcto (l : List α) :
+    quicksort l ~ l ∧ Ordenada (quicksort l) := \LKw{by}
+  \LCom{-- A probar: permutación ∧ ordenamiento para la misma lista l.}
+  \LCom{-- Método: introducción de la conjunción a partir de los dos teoremas.}
+  \LKw{have} hPermutacion : quicksort l ~ l := quicksort_permutacion l
+  \LKw{have} hOrdenada : Ordenada (quicksort l) := quicksort_ordenada l
+  \LTac{exact} And.intro hPermutacion hOrdenada
+\end{Verbatim}
+\end{codigolean}
+Una conjunción también puede ser la hipótesis de una regla. En
+\lean{relacion_pares_cons_iff} la dirección (\(\Rightarrow\)) \emph{elimina}
+el constructor \lean{Pairwise.cons} con \lean{cases}, y la dirección
+(\(\Leftarrow\)) lo \emph{introduce}:
+\begin{codigolean}{\ruta{Thesis/Sort/Quicksort.lean}{73}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} relacion_pares_cons_iff (R : α → α → Prop) (a : α) (l : List α) :
+    List.Pairwise R (a :: l) ↔ (∀ b ∈ l, R a b) ∧ List.Pairwise R l := \LKw{by}
+  \LCom{-- A probar: equivalencia entre Pairwise y las dos premisas del constructor cons.}
+  \LCom{-- Por eliminación del constructor en una dirección e introducción en la otra.}
+  \LTac{constructor}
+  · \LTac{intro} h
+    \LCom{-- Se extraen la relación de la cabeza con la cola y Pairwise de la cola.}
+    \LTac{cases} h \LKw{with}
+    | cons hCabeza hCola => \LTac{exact} ⟨hCabeza, hCola⟩
+  · \LTac{rintro} ⟨hCabeza, hCola⟩
+    \LCom{-- Las mismas premisas reconstruyen Pairwise para a :: l.}
+    \LTac{exact} List.Pairwise.cons hCabeza hCola
+\end{Verbatim}
+\end{codigolean}
+
+%---------------------------------------------------------------------
+\subsection{Disyunciones y análisis por casos de una hipótesis}\label{esq:disy}
+\begin{esquema}{Esquema 5. Eliminar \texorpdfstring{\(\vee\)}{∨}: prueba por casos}
+\forma Si \(A \vee B\), y \(C\) se sigue de \(A\) y también de \(B\),
+entonces \(C\).
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LTac{rcases} h \LKw{with} hA | hB
+  · …   \LCom{-- caso A, con hA : A}
+  · …   \LCom{-- caso B, con hB : B}
+\end{Verbatim}
+\end{codigolean}
+\lectura \lean{rcases} crea una meta por cada disyunto, con la misma
+conclusión. Para \emph{probar} una disyunción se elige un lado:
+\lean{Or.inl} o \lean{Or.inr}.
+\donde \lean{satisfaccion_insertar}, \lean{pertenencia_literal},
+\lean{sub_transitiva}, \lean{igualBeta_de_reduceBeta},
+\lean{church_rosser_conversion}, \lean{quicksort_ordenada} (condición
+cruzada), \lean{variables_libres}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/NaturalDeduction.lean}{146}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} satisfaccion_insertar \{v : Valuacion\} \{Γ : Set Formula\} \{χ : Formula\}
+    (hχ : evaluar v χ) (hΓ : ∀ ψ ∈ Γ, evaluar v ψ) :
+    ∀ ψ ∈ insert χ Γ, evaluar v ψ := \LKw{by}
+  \LCom{-- A probar: cada fórmula del contexto extendido es verdadera bajo v.}
+  \LCom{-- Método: casos de pertenencia; ψ = χ o ψ ∈ Γ.}
+  \LTac{intro} ψ hψ
+  \LKw{have} hCasos : ψ = χ ∨ ψ ∈ Γ := Set.mem_insert_iff.mp hψ
+  \LTac{rcases} hCasos \LKw{with} hIgualdad | hEnGamma
+  · \LTac{subst} ψ
+    \LTac{exact} hχ
+  · \LTac{exact} hΓ ψ hEnGamma
+\end{Verbatim}
+\end{codigolean}
+La pertenencia a \lean{insert χ Γ} se reescribe como disyunción
+(\lean{Set.mem_insert_iff}), y \lean{rcases} la divide en dos ramas:
+\begin{estadolean}{Estado antes}
+\begin{Verbatim}[commandchars=\\\{\}]
+v : Valuacion
+Γ : Set Formula
+χ : Formula
+hχ : evaluar v χ
+hΓ : ∀ ψ ∈ Γ, evaluar v ψ
+ψ : Formula
+hψ : ψ ∈ insert χ Γ
+hCasos : ψ = χ ∨ ψ ∈ Γ
+⊢ evaluar v ψ
+\end{Verbatim}
+\end{estadolean}
+\tacticaentre{rcases hCasos with hIgualdad | hEnGamma}
+\begin{estadolean}{Estado después}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- meta 1: case inl}
+v : Valuacion
+Γ : Set Formula
+χ : Formula
+hχ : evaluar v χ
+hΓ : ∀ ψ ∈ Γ, evaluar v ψ
+ψ : Formula
+hψ : ψ ∈ insert χ Γ
+hIgualdad : ψ = χ
+⊢ evaluar v ψ
+
+\LCom{-- meta 2: case inr}
+v : Valuacion
+Γ : Set Formula
+χ : Formula
+hχ : evaluar v χ
+hΓ : ∀ ψ ∈ Γ, evaluar v ψ
+ψ : Formula
+hψ : ψ ∈ insert χ Γ
+hEnGamma : ψ ∈ Γ
+⊢ evaluar v ψ
+\end{Verbatim}
+\end{estadolean}
+En la primera rama \lean{subst} reemplaza \(\psi\) por \(\chi\) y la meta queda
+cerrada por \lean{hχ}; en la segunda basta \lean{hΓ}. Así se introduce una
+disyunción, en la prueba de que la semántica de la tesis coincide con la de
+Foundation:
+\begin{codigolean}{\ruta{Thesis/Prop/BridgeLemma.lean}{29} (fragmento)}
+\begin{Verbatim}[commandchars=\\\{\}]
+· \LTac{intro} hEvaluacionImp
+  \LCom{-- Tercero excluido metateórico para construir la disyunción.}
+  \LTac{by_cases} hP : evaluar v p
+  · \LKw{have} hQ : evaluar v q := hEvaluacionImp hP
+    \LTac{exact} Or.inr (hipIndQ.mp hQ)
+  · \LKw{have} hNoSatisfaccion : ¬ Satisface v (traducir p) := \LKw{by}
+      \LTac{intro} hSatisfaccion
+      \LTac{exact} hP (hipIndP.mpr hSatisfaccion)
+    \LTac{exact} Or.inl hNoSatisfaccion
+\end{Verbatim}
+\end{codigolean}
+
+%---------------------------------------------------------------------
+\subsection{Casos sobre una proposición: \texttt{by\_cases}}\label{esq:bycases}
+\begin{esquema}{Esquema 6. Tercero excluido en la metalógica}
+\forma «O bien \(P\), o bien \(\neg P\). Si \(P\), \ldots; si no, \ldots».
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LTac{by_cases} hp : P
+  · …   \LCom{-- con hp : P}
+  · …   \LCom{-- con hp : ¬ P}
+\end{Verbatim}
+\end{codigolean}
+\lectura A diferencia de \lean{rcases}, aquí no hay una disyunción previa.
+Si \(P\) es decidible (por ejemplo, la igualdad de dos cadenas \lean{z = x}),
+Lean usa su procedimiento de decisión. Si no lo es (por ejemplo,
+\lean{evaluar v p}, que es una proposición arbitraria), usa el tercero
+excluido clásico, que depende del axioma \lean{Classical.choice}; por eso la
+completitud aparece con ese axioma en la auditoría.
+\donde \lean{congruencia_literal}, \lean{kalmar} (caso \(p \to q\)),
+\lean{evaluar_traduccion}, \lean{sustLibre_conmuta} y \lean{lema_sustitucion}
+(los tres subcasos de la variable: \(z \equiv x\), \(z \equiv y\), otro).
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/Completeness.lean}{155}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} congruencia_literal \{w1 w2 : Valuacion\} \{x : String\} (h : w1 x ↔ w2 x) :
+    literal w1 x = literal w2 x := \LKw{by}
+  \LCom{-- A probar: igualdad de literales. Método: casos sobre w1 x.}
+  \LTac{by_cases} hx : w1 x
+  · \LKw{have} hx2 : w2 x := h.mp hx
+    \LTac{rw} [literal, literal, if_pos hx, if_pos hx2]
+  · \LKw{have} hx2 : ¬ w2 x := \LKw{by}
+      \LTac{intro} hVerdadero
+      \LKw{have} hx1 : w1 x := h.mpr hVerdadero
+      \LTac{exact} hx hx1
+    \LTac{rw} [literal, literal, if_neg hx, if_neg hx2]
+\end{Verbatim}
+\end{codigolean}
+En el Lema de Kalmár la división es semántica: se distingue según el valor de
+verdad de \(p\) bajo \(v\), no se usa el lema objeto \lean{analisis_por_casos}:
+\begin{estadolean}{Estado antes}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- (… 10 hipótesis omitidas …)}
+hipIndPNeg : ¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)
+hipIndQPos : evaluar v q → ND (contextoLiterales v listaAtomos) q
+\LCom{-- (… 1 hipótesis omitidas …)}
+hev : evaluar v (p ⟶ q)
+⊢ ND (contextoLiterales v listaAtomos) (p ⟶ q)
+\end{Verbatim}
+\end{estadolean}
+\tacticaentre{by\_cases hp : evaluar v p}
+\begin{estadolean}{Estado después}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- meta 1: case pos}
+\LCom{-- (… 10 hipótesis omitidas …)}
+hipIndPNeg : ¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)
+hipIndQPos : evaluar v q → ND (contextoLiterales v listaAtomos) q
+\LCom{-- (… 1 hipótesis omitidas …)}
+hev : evaluar v (p ⟶ q)
+hp : evaluar v p
+⊢ ND (contextoLiterales v listaAtomos) (p ⟶ q)
+
+\LCom{-- meta 2: case neg}
+\LCom{-- (… 10 hipótesis omitidas …)}
+hipIndPNeg : ¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)
+hipIndQPos : evaluar v q → ND (contextoLiterales v listaAtomos) q
+\LCom{-- (… 1 hipótesis omitidas …)}
+hev : evaluar v (p ⟶ q)
+hp : ¬evaluar v p
+⊢ ND (contextoLiterales v listaAtomos) (p ⟶ q)
+\end{Verbatim}
+\end{estadolean}
+
+%---------------------------------------------------------------------
+\subsection{Negación, contradicción y reducción al absurdo}\label{esq:negacion}
+\begin{esquema}{Esquema 7. Probar \texorpdfstring{\(\neg P\)}{¬P}, usar \texttt{False}, razonar por el absurdo}
+\forma (a) Para \(\neg P\): suponer \(P\) y llegar a una contradicción.
+(b) De una contradicción se sigue cualquier cosa. (c) Para probar \(P\)
+(clásicamente): suponer \(\neg P\) y llegar a una contradicción.
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LTac{intro} hP; …; \LTac{exact} hNoQ hQ       \LCom{-- (a)  ¬P = P → False}
+  \LTac{exact} False.elim hFalso          \LCom{-- (b)  también: absurd hQ hNoQ}
+  \LTac{by_contra} hNoP; …; \LTac{exact} …       \LCom{-- (c)  la meta pasa a ser False}
+\end{Verbatim}
+\end{codigolean}
+\lectura Una negación \lean{hNoQ : ¬ Q} es una función: aplicada a
+\lean{hQ : Q} produce \lean{False}. \lean{by_contra} y
+\lean{Classical.byContradiction} son la reducción al absurdo \emph{de la
+metalógica}.
+\donde (a) \lean{no_derivable_falsedad}, \lean{formaNormal_sin_paso};
+(b) \lean{pertenencia_literal}, \lean{variables_libres}, \lean{paso_de_redex};
+(c) \lean{correccion} (caso \lean{classical}), \lean{kalmar}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/NaturalDeduction.lean}{218}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} no_derivable_falsedad : ¬ ND (∅ : Set Formula) Falsedad := \LKw{by}
+  \LCom{-- A probar: la inexistencia de una derivación cerrada de Falsedad.}
+  \LCom{-- Método: introducción de negación; una tautología no puede ser siempre falsa.}
+  \LTac{intro} d
+  \LKw{let} v : Valuacion := \LKw{fun} _ => True
+  \LKw{have} hTautologia : EsTautologia Falsedad := tautologia_de_derivable d
+  \LKw{have} hFalsedad : evaluar v Falsedad := hTautologia v
+  \LTac{exact} (evaluar_falsedad v).mp hFalsedad
+\end{Verbatim}
+\end{codigolean}
+Consistencia: si hubiera una derivación cerrada de \(\bot\), por corrección
+sería una tautología, y evaluada en la valuación constante verdadera daría
+\lean{False}. Un ejemplo de (c), dentro de Kalmár: de
+\(\neg(v(p) \to v(q))\) se deduce \(v(p)\) por el absurdo:
+\begin{codigolean}{\ruta{Thesis/Prop/Completeness.lean}{121} (fragmento)}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{have} hp : evaluar v p := \LKw{by}
+  \LCom{-- Por RAA metateórica, se supone que evaluar v p es falsa.}
+  \LTac{by_contra} hNoP
+  \LKw{have} hImp : evaluar v p → evaluar v q := \LKw{by}
+    \LTac{intro} hP
+    \LKw{have} hFalso : False := hNoP hP
+    \LTac{exact} False.elim hFalso
+  \LTac{exact} hNoImp hImp
+\end{Verbatim}
+\end{codigolean}
+Para descartar casos imposibles sobre la forma de un término se usa que
+constructores distintos dan valores distintos (\lean{noConfusion}); así ocurre
+en \lean{paso_de_redex}, donde una variable o una abstracción no pueden ser un
+redex.
+
+%---------------------------------------------------------------------
+\subsection{Existenciales: dar un testigo y usarlo}\label{esq:existe}
+\begin{esquema}{Esquema 8. Introducir y eliminar \texorpdfstring{\(\exists\)}{∃}}
+\forma Para probar \(\exists x.\ P(x)\) se exhibe un \(a\) con \(P(a)\). De
+\(\exists x.\ P(x)\) se puede «tomar un \(x\) tal que \(P(x)\)».
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LTac{obtain} ⟨x, hx⟩ := h          \LCom{-- uso: sea x con hx : P x}
+  \LTac{exact} ⟨a, prueba_de_P_a⟩     \LCom{-- introducción: testigo y prueba}
+\end{Verbatim}
+\end{codigolean}
+\donde Las relaciones \(\twoheadrightarrow_\beta\) y \(=_\beta\) se definen como
+«existe \(n\) y una cadena de \(n\) pasos», de modo que sus propiedades se
+prueban con este esquema: \lean{reduceBeta_transitiva},
+\lean{igualBeta_simetrica}, \lean{church_rosser_conversion},
+\lean{paso_de_redex}. También \lean{dominio_extender}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Teoria/Lambda.lean}{185}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{def} ReduceBeta (M N : Termino) : Prop :=
+  ∃ n : Nat, Cadena (PasoBeta sust) n M N
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/Lambda.lean}{213}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} reduceBeta_transitiva \{L M N : Termino\}
+    (hLM : ReduceBeta sust L M) (hMN : ReduceBeta sust M N) : ReduceBeta sust L N := \LKw{by}
+  \LCom{-- Secuencia de `r ≥ 0` reducciones de `L` a `M`.}
+  \LTac{obtain} ⟨r, hCadenaLM⟩ := hLM
+  \LCom{-- Secuencia de `s ≥ 0` reducciones de `M` a `N`.}
+  \LTac{obtain} ⟨s, hCadenaMN⟩ := hMN
+  \LCom{-- Se concatenan: una secuencia de `r + s` pasos de `L` a `N`.}
+  \LTac{exact} ⟨r + s, Cadena.concatenar hCadenaLM hCadenaMN⟩
+\end{Verbatim}
+\end{codigolean}
+En papel: «tomemos una secuencia de \(r\) pasos de \(L\) a \(M\) y una de \(s\)
+pasos de \(M\) a \(N\); al concatenarlas se obtiene una de \(r+s\) pasos de
+\(L\) a \(N\)». El testigo es \lean{r + s} y la prueba es
+\lean{Cadena.concatenar}.
+
+%---------------------------------------------------------------------
+\subsection{Igualdades: reescritura, sustitución y cadenas}\label{esq:igualdad}
+\begin{esquema}{Esquema 9. Razonamiento ecuacional}
+\forma «Sustituyendo \(a\) por \(b\) se obtiene\ldots»; «\(a = b = c\)».
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LTac{rw} [eq₁, eq₂]            \LCom{-- reescribe la meta de izquierda a derecha}
+  \LTac{rw} [← eq₁] \LKw{at} h          \LCom{-- de derecha a izquierda, en la hipótesis h}
+  \LTac{subst} hx                 \LCom{-- hx : x = a; reemplaza x por a en todo}
+  \LTac{calc} a = b := p₁
+    _ = c := p₂
+\end{Verbatim}
+\end{codigolean}
+\lectura \lean{rw} usa una igualdad (o una equivalencia) como regla de
+reescritura. También despliega definiciones dadas por ecuaciones:
+\lean{rw [literal, if_pos hvs]} significa «por definición de \lean{literal}, y
+como \(v(s)\) es verdadero, la condición toma la rama \emph{entonces}». Un
+\lean{calc} reproduce literalmente una cadena de igualdades del papel; también
+admite relaciones transitivas, como la permutación \lean{~}.
+\donde \lean{congruencia_contextoLiterales}, \lean{kalmar} (caso atómico),
+\lean{descarga}, \lean{quicksort_permutacion} (un \lean{calc} de
+permutaciones), \lean{lema_sustitucion}, \lean{lema_sustitucion_alfa} (un
+\lean{calc} de igualdades), \lean{formaNormal_reduce_igual}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/Completeness.lean}{59} (fragmento)}
+\begin{Verbatim}[commandchars=\\\{\}]
+| atom s =>
+    \LTac{intro} hsub
+    \LKw{have} hAtomo : s ∈ atomos (.atom s) := List.mem_singleton_self s
+    \LKw{have} hs : s ∈ listaAtomos := hsub hAtomo
+    \LTac{refine} ⟨?_, ?_⟩
+    · \LTac{intro} hev
+      \LKw{have} hvs : v s := hev
+      \LKw{have} hmem : literal v s ∈ contextoLiterales v listaAtomos := pertenencia_literal
+          \LCont{↪ }(v := v) hs
+      \LTac{rw} [literal, if_pos hvs] \LKw{at} hmem
+      \LTac{exact} ND.hyp hmem
+    · \LTac{intro} hev
+      \LKw{have} hvs : ¬ v s := hev
+      \LKw{have} hmem : literal v s ∈ contextoLiterales v listaAtomos := pertenencia_literal
+          \LCont{↪ }(v := v) hs
+      \LTac{rw} [literal, if_neg hvs] \LKw{at} hmem
+      \LTac{exact} ND.hyp hmem
+\end{Verbatim}
+\end{codigolean}
+Efecto de la reescritura en la hipótesis \lean{hmem}:
+\begin{estadolean}{Estado antes}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- (… 5 hipótesis omitidas …)}
+hs : s ∈ listaAtomos
+\LCom{-- (… 1 hipótesis omitidas …)}
+hvs : v s
+hmem : literal v s ∈ contextoLiterales v listaAtomos
+⊢ ND (contextoLiterales v listaAtomos) (Formula.atom s)
+\end{Verbatim}
+\end{estadolean}
+\tacticaentre{rw [literal, if\_pos hvs] at hmem}
+\begin{estadolean}{Estado después}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- (… 5 hipótesis omitidas …)}
+hs : s ∈ listaAtomos
+\LCom{-- (… 1 hipótesis omitidas …)}
+hvs : v s
+hmem : Formula.atom s ∈ contextoLiterales v listaAtomos
+⊢ ND (contextoLiterales v listaAtomos) (Formula.atom s)
+\end{Verbatim}
+\end{estadolean}
+
+%---------------------------------------------------------------------
+\subsection{Inducción estructural sobre datos}\label{esq:induccion-estructural}
+\begin{esquema}{Esquema 10. Inducción sobre fórmulas, términos y listas}
+\forma Para probar \(\forall \varphi.\ P(\varphi)\): probar \(P\) para cada
+constructor, suponiendo \(P\) para los subcomponentes (hipótesis inductiva).
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} t : ∀ φ : Formula, P φ := \LKw{by}
+  \LTac{intro} φ
+  \LTac{induction} φ \LKw{with}
+  | atom s => …                          \LCom{-- caso base}
+  | neg p hipInd => …                    \LCom{-- hipInd : P p}
+  | impl p q hipIndP hipIndQ => …        \LCom{-- dos hipótesis}
+\end{Verbatim}
+\end{codigolean}
+\lectura Lean genera una meta por constructor y nombra las hipótesis
+inductivas según el patrón. La regla de oro: \textbf{lo que deba variar
+en la hipótesis inductiva debe seguir en la meta cuando se aplica
+\lean{induction}}. Por eso Kalmár deja la premisa
+\lean{atomos φ ⊆ listaAtomos → …} dentro del enunciado y hace \lean{intro hsub}
+\emph{después} de la inducción: así la hipótesis inductiva es una implicación
+que se puede aplicar a la cobertura de \(p\) o de \(q\).
+\donde Fórmulas: \lean{kalmar}, \lean{evaluar_traduccion}. Listas:
+\lean{pertenencia_literal}, \lean{congruencia_contextoLiterales},
+\lean{descarga}, \lean{longitud_filtro_le}, \lean{particion_filtros_permutacion},
+\lean{relacion_pares_concatenacion_iff}. Términos~\(\lambda\):
+\lean{sub_transitiva}, \lean{paso_de_redex}, \lean{lema_sustitucion},
+\lean{sust_no_libre}, \lean{sustLibre_conmuta}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/Completeness.lean}{32}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} pertenencia_literal \{v : Valuacion\} \{p : String\} \{listaAtomos : List String\}
+    (h : p ∈ listaAtomos) : literal v p ∈ contextoLiterales v listaAtomos := \LKw{by}
+  \LCom{-- A probar: pertenencia del literal correspondiente al átomo p.}
+  \LCom{-- Método: inducción en listaAtomos; la premisa p ∈ listaAtomos se conserva en la}
+      \LCont{↪ }\LCom{hipótesis inductiva.}
+  \LTac{induction} listaAtomos \LKw{with}
+  | nil =>
+      \LKw{have} hFalso : False := List.not_mem_nil h
+      \LTac{exact} False.elim hFalso
+  | cons a cola hipInd =>
+      \LKw{have} hCasos : p = a ∨ p ∈ cola := List.mem_cons.mp h
+      \LTac{rcases} hCasos \LKw{with} hIgualdad | hCola
+      · \LTac{subst} p
+        \LTac{exact} Set.mem_insert _ _
+      · \LKw{have} hLiteralCola : literal v p ∈ contextoLiterales v cola := hipInd hCola
+        \LTac{exact} Set.mem_insert_of_mem (literal v a) hLiteralCola
+\end{Verbatim}
+\end{codigolean}
+Al dividir la meta de Kalmár en sus dos partes, en el caso \lean{neg} ya se
+dispone de las dos mitades de la hipótesis inductiva:
+\begin{estadolean}{Estado antes}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- (… 4 hipótesis omitidas …)}
+hsub : atomos (~p) ⊆ listaAtomos
+\LCom{-- (… 1 hipótesis omitidas …)}
+hipIndPos : evaluar v p → ND (contextoLiterales v listaAtomos) p
+hipIndNeg : ¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)
+⊢ (evaluar v (~p) → ND (contextoLiterales v listaAtomos) (~p)) ∧
+  (¬evaluar v (~p) → ND (contextoLiterales v listaAtomos) (~~p))
+\end{Verbatim}
+\end{estadolean}
+\tacticaentre{refine ⟨?\_, ?\_⟩}
+\begin{estadolean}{Estado después}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- meta 1: case neg.refine_1}
+\LCom{-- (… 4 hipótesis omitidas …)}
+hsub : atomos (~p) ⊆ listaAtomos
+\LCom{-- (… 1 hipótesis omitidas …)}
+hipIndPos : evaluar v p → ND (contextoLiterales v listaAtomos) p
+hipIndNeg : ¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)
+⊢ evaluar v (~p) → ND (contextoLiterales v listaAtomos) (~p)
+
+\LCom{-- meta 2: case neg.refine_2}
+\LCom{-- (… 4 hipótesis omitidas …)}
+hsub : atomos (~p) ⊆ listaAtomos
+\LCom{-- (… 1 hipótesis omitidas …)}
+hipIndPos : evaluar v p → ND (contextoLiterales v listaAtomos) p
+hipIndNeg : ¬evaluar v p → ND (contextoLiterales v listaAtomos) (~p)
+⊢ ¬evaluar v (~p) → ND (contextoLiterales v listaAtomos) (~~p)
+\end{Verbatim}
+\end{estadolean}
+
+\begin{nota}[El caso de \texttt{descarga}]
+En \lean{descarga} la hipótesis inductiva debe valer \emph{para toda
+valuación}, porque se aplica a valuaciones modificadas con
+\lean{Function.update}. Por eso el enunciado cuantifica
+\lean{∀ v, ND (contextoLiterales v listaAtomos) φ} como premisa dentro de la
+meta, y la prueba construye primero \lean{hUniversal} y solo al final aplica
+\lean{hipInd}. Es el mismo principio: generalizar antes de inducir.
+\end{nota}
+
+%---------------------------------------------------------------------
+\subsection{Inducción sobre derivaciones (reglas)}\label{esq:induccion-derivaciones}
+\begin{esquema}{Esquema 11. Inducción sobre un predicado inductivo}
+\forma «Por inducción sobre la derivación de \(\Gamma \vdash \varphi\)»: se
+prueba que cada regla preserva la propiedad.
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} t \{Γ φ\} (d : ND Γ φ) : ∀ \{Δ\}, Γ ⊆ Δ → ND Δ φ := \LKw{by}
+  \LTac{induction} d \LKw{with}
+  | @hyp Γ φ hmem => …               \LCom{-- una rama por regla}
+  | @impI Γ φ ψ _ hipInd => …        \LCom{-- hipInd: propiedad de la premisa}
+  …
+\end{Verbatim}
+\end{codigolean}
+\lectura Cada rama corresponde a la \emph{última regla} usada en la
+derivación. Las hipótesis inductivas dicen que las premisas de esa regla ya
+cumplen la propiedad. El \lean{@} permite nombrar los argumentos implícitos de
+la regla (aquí \lean{Γ}, \lean{φ}, \lean{ψ}). Como en el esquema anterior, lo
+que deba variar (el contexto mayor \(\Delta\)) se deja cuantificado en la
+meta.
+\donde \lean{debilitamiento} (capítulos 9 y 11), \lean{correccion},
+\lean{variables_libres}, \lean{Deriva.bienFormado}, \lean{formaNormal_sin_paso},
+\lean{alfaTesis_implica_alfaEq} y todos los lemas de \lean{Cadena}
+(\lean{concatenar}, \lean{anteponer}, \lean{cambiar}, \lean{invertir},
+\lean{formaNormal_reduce_igual}).
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/NaturalDeduction.lean}{51}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} debilitamiento \{Γ φ\} (d : ND Γ φ) : ∀ \{Δ\}, Γ ⊆ Δ → ND Δ φ := \LKw{by}
+  \LCom{-- A probar: la misma conclusión bajo cualquier contexto mayor Δ.}
+  \LCom{-- Método: inducción sobre d; Δ permanece cuantificado en cada hipótesis inductiva.}
+  \LTac{induction} d \LKw{with}
+  | @hyp Γ φ hmem =>
+      \LTac{intro} Δ hsub
+      \LKw{have} hEnDelta : φ ∈ Δ := hsub hmem
+      \LTac{exact} ND.hyp hEnDelta
+  | @impI Γ φ ψ _ hipInd =>
+      \LTac{intro} Δ hsub
+      \LKw{have} hAmpliado : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub
+      \LKw{have} dCuerpo : ND (insert φ Δ) ψ := hipInd hAmpliado
+      \LCom{-- impI descarga φ; las fórmulas de Δ permanecen.}
+      \LTac{exact} ND.impI dCuerpo
+  | @impE Γ φ ψ _ _ hipIndImp hipIndAntecedente =>
+      \LTac{intro} Δ hsub
+      \LKw{have} dImp : ND Δ (φ ⟶ ψ) := hipIndImp hsub
+      \LKw{have} dAntecedente : ND Δ φ := hipIndAntecedente hsub
+      \LTac{exact} ND.impE dImp dAntecedente
+  | @negI Γ φ _ hipInd =>
+      \LTac{intro} Δ hsub
+      \LKw{have} hAmpliado : insert φ Γ ⊆ insert φ Δ := Set.insert_subset_insert hsub
+      \LKw{have} dFalsedad : ND (insert φ Δ) Falsedad := hipInd hAmpliado
+      \LTac{exact} ND.negI dFalsedad
+  | @negE Γ φ _ _ hipIndNeg hipIndPos =>
+      \LTac{intro} Δ hsub
+      \LKw{have} dNeg : ND Δ (~φ) := hipIndNeg hsub
+      \LKw{have} dPos : ND Δ φ := hipIndPos hsub
+      \LTac{exact} ND.negE dNeg dPos
+  | @botE Γ φ _ hipInd =>
+      \LTac{intro} Δ hsub
+      \LKw{have} dFalsedad : ND Δ Falsedad := hipInd hsub
+      \LTac{exact} ND.botE dFalsedad
+  | @classical Γ φ _ hipInd =>
+      \LTac{intro} Δ hsub
+      \LKw{have} hAmpliado : insert (~φ) Γ ⊆ insert (~φ) Δ := Set.insert_subset_insert hsub
+      \LKw{have} dFalsedad : ND (insert (~φ) Δ) Falsedad := hipInd hAmpliado
+      \LCom{-- Por RAA objeto, se descarga ~φ y se concluye φ bajo Δ.}
+      \LTac{exact} ND.classical dFalsedad
+\end{Verbatim}
+\end{codigolean}
+La regla \lean{impI} es el caso que justifica el esquema: la premisa vive en el
+contexto ampliado \lean{insert φ Γ}, así que la hipótesis inductiva debe
+aplicarse a \lean{insert φ Γ ⊆ insert φ Δ}, no a \lean{Γ ⊆ Δ}. Si \(\Delta\)
+hubiera quedado fijo, esa aplicación sería imposible. La lectura guiada de la
+sección~\ref{sec:guiada-debilitamiento} recorre este caso estado por estado.
+
+El mismo esquema, con las tres reglas del tipado simple, demuestra el Lema
+7.57 (las variables libres de un término tipado están declaradas):
+\begin{codigolean}{\ruta{Thesis/Teoria/TiposSimples.lean}{168}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} variables_libres \{Γ : Contexto\} \{L : Termino\} \{σ : Tipo\}
+    (d : Γ ⊢ L : σ) : variablesLibres L ⊆ dominio Γ := \LKw{by}
+  \LCom{-- A probar: FV(L) ⊆ dom(Γ). Por inducción sobre la derivación de Γ ⊢ L : σ.}
+  \LTac{induction} d \LKw{with}
+  | @var Γ x σ _ hmem =>
+      \LCom{-- Caso (variable): L ≡ x y la regla exige (x:σ) ∈ Γ.}
+      \LCom{-- Por definición de dominio, x ∈ dom(Γ).}
+      \LKw{have} hDominio : x ∈ dominio Γ := ⟨σ, hmem⟩
+      \LCom{-- FV(x) = \{x\}.}
+      \LKw{have} hFV : variablesLibres (.var x) = \{x\} := \LTac{rfl}
+      \LTac{rw} [hFV]
+      \LTac{exact} Set.singleton_subset_iff.mpr hDominio
+  | @apl Γ M N σ τ _ _ hipIndM hipIndN =>
+      \LCom{-- Caso (aplicación): L ≡ M N, con premisas Γ ⊢ M : σ → τ y Γ ⊢ N : σ.}
+      \LCom{-- Hipótesis inductivas: FV(M) ⊆ dom(Γ) y FV(N) ⊆ dom(Γ).}
+      \LCom{-- FV(M N) = FV(M) ∪ FV(N) ⊆ dom(Γ) ∪ dom(Γ) = dom(Γ).}
+      \LKw{have} hFV : variablesLibres (.app M N) = variablesLibres M ∪ variablesLibres N :=
+          \LCont{↪ }\LTac{rfl}
+      \LTac{rw} [hFV]
+      \LTac{exact} Set.union_subset hipIndM hipIndN
+  | @abst Γ x σ τ M _ hipInd =>
+      \LCom{-- Caso (abstracción): L ≡ λx:σ. M, con premisa Γ, x:σ ⊢ M : τ.}
+      \LCom{-- Hipótesis inductiva: FV(M) ⊆ dom(Γ, x:σ) = dom(Γ) ∪ \{x\}.}
+      \LKw{have} hCuerpo : variablesLibres M ⊆ dominio Γ ∪ \{x\} := \LKw{by}
+        \LTac{rw} [← dominio_extender Γ x σ]
+        \LTac{exact} hipInd
+      \LCom{-- FV(λx:σ. M) = FV(M) \textbackslash{} \{x\} ⊆ (dom(Γ) ∪ \{x\}) \textbackslash{} \{x\} ⊆ dom(Γ).}
+      \LKw{have} hFV : variablesLibres (.abs x σ M) = variablesLibres M \textbackslash{} \{x\} := \LTac{rfl}
+      \LTac{rw} [hFV]
+      \LTac{intro} y hy
+      \LKw{have} hyCuerpo : y ∈ dominio Γ ∪ \{x\} := hCuerpo hy.1
+      \LTac{rcases} hyCuerpo \LKw{with} hyDominio | hyx
+      · \LTac{exact} hyDominio
+      · \LTac{exact} absurd hyx hy.2
+\end{Verbatim}
+\end{codigolean}
+\lean{Cadena} es un predicado inductivo con dos reglas (cadena vacía, y cadena
+más un paso). La concatenación se prueba por inducción sobre la
+\emph{segunda} cadena:
+\begin{codigolean}{\ruta{Thesis/Teoria/Lambda.lean}{117}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{inductive} Cadena \{α : Type\} (R : α → α → Prop) : Nat → α → α → Prop
+  \LCom{/-- La cadena vacía (`n = 0`): el término inicial es idéntico al final. -/}
+  | cero (M : α) : Cadena R 0 M M
+  \LCom{/-- Una cadena de `n` pasos seguida de un paso más. -/}
+  | paso \{n : Nat\} \{M P N : α\} : Cadena R n M P → R P N → Cadena R (n + 1) M N
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/Lambda.lean}{133}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} concatenar \{r s : Nat\} \{L M N : α\}
+    (hLM : Cadena R r L M) (hMN : Cadena R s M N) : Cadena R (r + s) L N := \LKw{by}
+  \LCom{-- Inducción sobre la segunda cadena.}
+  \LTac{induction} hMN \LKw{with}
+  | cero M => \LTac{exact} hLM
+  | paso _ hUltimo hipInd => \LTac{exact} Cadena.paso (hipInd hLM) hUltimo
+\end{Verbatim}
+\end{codigolean}
+
+%---------------------------------------------------------------------
+\subsection{Recursión bien fundada: inducción sobre una medida}\label{esq:bienfundada}
+\begin{esquema}{Esquema 12. Inducción fuerte sobre la longitud}
+\forma «Por inducción fuerte sobre \(|l|\): suponemos el resultado para toda
+lista más corta». Se usa cuando las llamadas recursivas no se hacen sobre
+subterminos inmediatos (Quicksort llama sobre \emph{filtros} de la cola).
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} t : ∀ l : List α, P l
+  | [] => \LKw{by} …
+  | p :: cola => \LKw{by}
+      \LKw{have} hLt : (f cola).length < (p :: cola).length := …
+      \LKw{have} hipInd : P (f cola) := t (f cola)   \LCom{-- llamada recursiva}
+      …
+  \LKw{termination_by} l => l.length
+  \LKw{decreasing_by} \LTac{exact} hLt
+\end{Verbatim}
+\end{codigolean}
+\lectura Un teorema que se invoca a sí mismo es una prueba por inducción. Lean
+solo lo acepta si la llamada recursiva es sobre un argumento menor según la
+medida declarada en \lean{termination_by}. La obligación correspondiente se
+descarga en \lean{decreasing_by}, aquí con los hechos \lean{hLt} ya
+probados. Sin esa comprobación el «teorema» podría ser circular.
+\donde La definición \lean{quicksort}, \lean{quicksort_permutacion},
+\lean{quicksort_ordenada} (medida: longitud); \lean{sustitucion} de
+\texttt{SustitucionAlfa} (medida: \lean{tamano}, con \lean{omega}).
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Sort/Quicksort.lean}{159}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{def} quicksort : List α → List α
+  | [] => []
+  | p :: cola =>
+      quicksort (cola.filter (\LKw{fun} x => \LTac{decide} (x ≤ p)))
+        ++ p :: quicksort (cola.filter (\LKw{fun} x => ! \LTac{decide} (x ≤ p)))
+  \LKw{termination_by} l => l.length
+  \LKw{decreasing_by}
+    \LCom{-- Cada meta compara una partición con p :: cola, no con cola.}
+    \LCom{-- Lean añade pruebas de pertenencia con attach; se eliminan de las listas.}
+    · \LTac{rw} [List.unattach_filter (l := cola.attach)
+          (f := \LKw{fun} x => \LTac{decide} (x.val ≤ p))
+          (g := \LKw{fun} x => \LTac{decide} (x ≤ p)) (hf := \LKw{fun} _ _ => \LTac{rfl}),
+          List.unattach_attach]
+      \LTac{exact} longitud_filtro_lt_cons (\LKw{fun} x => \LTac{decide} (x ≤ p)) p cola
+    · \LTac{rw} [List.unattach_filter (l := cola.attach)
+          (f := \LKw{fun} x => ! \LTac{decide} (x.val ≤ p))
+          (g := \LKw{fun} x => ! \LTac{decide} (x ≤ p)) (hf := \LKw{fun} _ _ => \LTac{rfl}),
+          List.unattach_attach]
+      \LTac{exact} longitud_filtro_lt_cons (\LKw{fun} x => ! \LTac{decide} (x ≤ p)) p cola
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Sort/Quicksort.lean}{144}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} longitud_filtro_lt_cons (q : α → Bool) (p : α) (cola : List α) :
+    (cola.filter q).length < (p :: cola).length := \LKw{by}
+  \LCom{-- A probar: longitud del filtro < longitud de la lista con pivote.}
+  \LCom{-- Método: cota del filtro, seguida de n < n + 1.}
+  \LKw{have} hFiltro : (cola.filter q).length ≤ cola.length :=
+    longitud_filtro_le q cola
+  \LKw{have} hCola : cola.length < (p :: cola).length := \LKw{by}
+    \LCom{-- La longitud de p :: cola es cola.length + 1.}
+    \LTac{change} cola.length < cola.length + 1
+    \LTac{exact} Nat.lt_succ_self cola.length
+  \LTac{exact} lt_of_le_of_lt hFiltro hCola
+\end{Verbatim}
+\end{codigolean}
+La prueba de \lean{quicksort_permutacion} se recorre completa en la
+sección~\ref{sec:guiada-quicksort}.
+
+%---------------------------------------------------------------------
+\subsection{Construcción de derivaciones: una línea, un \texttt{have}}\label{esq:derivaciones}
+\begin{esquema}{Esquema 13. Transcribir una derivación en cajas o un árbol de tipado}
+\forma Una derivación numerada: cada línea es una fórmula (o un juicio) con su
+justificación «regla, líneas citadas».
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LKw{have} l1 : Γ₂ ⊢ₚ φ₁ := Derivable.hip (…pertenencia…)   \LCom{-- premisa/suposición}
+  \LKw{have} l2 : Γ₂ ⊢ₚ φ₂ := Derivable.regla l1 …            \LCom{-- regla aplicada}
+  \LKw{have} l3 : Γ₁ ⊢ₚ φ₃ := Derivable.implI l2               \LCom{-- cierra caja}
+  \LTac{exact} l3
+\end{Verbatim}
+\end{codigolean}
+\lectura Cada \lean{have lN} enuncia el \emph{secuente} completo de la línea
+\(N\): la fórmula y también las suposiciones abiertas en ese punto. Abrir una
+caja es pasar a \lean{insert φ Γ}; cerrarla es aplicar la regla que descarga
+\lean{φ} (\lean{implI}, \lean{negI}, \lean{raa}, \lean{disyE}). Lean comprueba
+que la regla cite líneas del contexto correcto.
+\donde Capítulo~9: \lean{distributividad_conj_disy}, \lean{contrapositiva_ida},
+\lean{contrapositiva_vuelta}, \lean{modus_tollens},
+\lean{eliminacion_doble_negacion}, \lean{medio_excluido}. Capítulo~11:
+\lean{ej_identidad}, \lean{ej_k}, \lean{ej_eliminacion_doble_negacion},
+\lean{introduccion_doble_negacion}, \lean{analisis_por_casos}. Tipado:
+\lean{ejemplo_constante}, \lean{ejemplo_aplicacion}, los ejemplos 8.5, 8.13,
+8.15 y 8.20 de \texttt{Cubo.lean}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Teoria/DeduccionNatural.lean}{204}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} contrapositiva_ida (p q : Formula) :
+    (\{p →ₚ q\} : Set Formula) ⊢ₚ ¬ₚq →ₚ ¬ₚp := \LKw{by}
+  \LCom{-- Línea 1: p → q — premisa (citada dentro de las dos cajas abiertas).}
+  \LKw{have} l1 : insert p (insert (¬ₚq) (\{p →ₚ q\} : Set Formula)) ⊢ₚ p →ₚ q :=
+    Derivable.hip (Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_singleton
+        \LCont{↪ }_)))
+  \LCom{-- Línea 2 (abre la caja exterior): ¬q — suposición para →i.}
+  \LKw{have} l2 : insert p (insert (¬ₚq) (\{p →ₚ q\} : Set Formula)) ⊢ₚ ¬ₚq :=
+    Derivable.hip (Set.mem_insert_of_mem _ (Set.mem_insert _ _))
+  \LCom{-- Línea 3 (abre la caja interior): p — suposición para ¬i.}
+  \LKw{have} l3 : insert p (insert (¬ₚq) (\{p →ₚ q\} : Set Formula)) ⊢ₚ p :=
+    Derivable.hip (Set.mem_insert _ _)
+  \LCom{-- Línea 4: q — →e 1, 3.}
+  \LKw{have} l4 : insert p (insert (¬ₚq) (\{p →ₚ q\} : Set Formula)) ⊢ₚ q :=
+    Derivable.implE l3 l1
+  \LCom{-- Línea 5: ⊥ — ¬e 4, 2.}
+  \LKw{have} l5 : insert p (insert (¬ₚq) (\{p →ₚ q\} : Set Formula)) ⊢ₚ ⊥ₚ :=
+    Derivable.negE l4 l2
+  \LCom{-- Línea 6 (cierra la caja interior): ¬p — ¬i 3–5; descarga p.}
+  \LKw{have} l6 : insert (¬ₚq) (\{p →ₚ q\} : Set Formula) ⊢ₚ ¬ₚp := Derivable.negI l5
+  \LCom{-- Línea 7 (cierra la caja exterior): ¬q → ¬p — →i 2–6; descarga ¬q.}
+  \LKw{have} l7 : (\{p →ₚ q\} : Set Formula) ⊢ₚ ¬ₚq →ₚ ¬ₚp := Derivable.implI l6
+  \LTac{exact} l7
+\end{Verbatim}
+\end{codigolean}
+
+La correspondencia con la derivación en cajas de la Proposición~9.9, con
+\(\Gamma_0 = \{p \to q\}\), \(\Gamma_1 = \Gamma_0 \cup \{\neg q\}\) y
+\(\Gamma_2 = \Gamma_1 \cup \{p\}\):
+\begin{center}
+\small
+\begin{tabular}{@{}cllll@{}}
+\toprule
+\textbf{Línea} & \textbf{Fórmula} & \textbf{Justificación} & \textbf{Término Lean} & \textbf{Contexto} \\
+\midrule
+1 & \(p \to q\) & premisa & \lean{hip (…of_mem (…of_mem (mem_singleton)))} & \(\Gamma_2\) \\
+2 & \(\quad\neg q\) & suposición (\(\to\)i) & \lean{hip (mem_insert_of_mem _ (mem_insert _ _))} & \(\Gamma_2\) \\
+3 & \(\qquad p\) & suposición (\(\neg\)i) & \lean{hip (mem_insert _ _)} & \(\Gamma_2\) \\
+4 & \(\qquad q\) & \(\to\)e 1, 3 & \lean{implE l3 l1} & \(\Gamma_2\) \\
+5 & \(\qquad \bot\) & \(\neg\)e 4, 2 & \lean{negE l4 l2} & \(\Gamma_2\) \\
+6 & \(\quad\neg p\) & \(\neg\)i 3--5 & \lean{negI l5} & \(\Gamma_1\) \\
+7 & \(\neg q \to \neg p\) & \(\to\)i 2--6 & \lean{implI l6} & \(\Gamma_0\) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Cómo leer las pruebas de pertenencia.} El contexto
+\lean{insert p (insert (¬ₚq) {p →ₚ q})} es una pila de tres capas.
+\lean{Set.mem_insert _ _} toma la capa superior; cada
+\lean{Set.mem_insert_of_mem _} baja una capa; \lean{Set.mem_singleton _} toma
+la base. La línea 1 baja dos capas y toma la base: es la premisa original,
+citada desde dentro de dos cajas. Estas pruebas son contabilidad: responden a
+«¿esta fórmula está disponible aquí?».
+
+En los cálculos de tipos el esquema es el mismo; cada paso numerado del texto
+es un \lean{have pasoN} o, en \texttt{Cubo.lean}, un teorema propio:
+\begin{codigolean}{\ruta{Thesis/Teoria/TiposSimples.lean}{125}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} ejemplo_constante (σ τ : Tipo) :
+    [] ⊢ .abs "x" σ (.abs "y" τ (.var "x")) : σ ⟶ (τ ⟶ σ) := \LKw{by}
+  \LCom{-- Contexto inicial x:σ, y:τ; sus sujetos son distintos.}
+  \LKw{have} hContexto : BienFormado [("x", σ), ("y", τ)] := \LKw{by}
+    \LTac{simp} [BienFormado]
+  \LCom{-- Paso (1), regla (variable): x:σ, y:τ ⊢ x : σ, pues (x:σ) está en el contexto.}
+  \LKw{have} paso1 : [("x", σ), ("y", τ)] ⊢ .var "x" : σ :=
+    Deriva.var hContexto (List.mem_cons_self)
+  \LCom{-- Paso (2), regla (abstracción) sobre (1): x:σ ⊢ λy:τ. x : τ → σ.}
+  \LKw{have} paso2 : [("x", σ)] ⊢ .abs "y" τ (.var "x") : τ ⟶ σ :=
+    Deriva.abst (Γ := [("x", σ)]) paso1
+  \LCom{-- Paso (3), regla (abstracción) sobre (2): ⊢ λx:σ. λy:τ. x : σ → (τ → σ).}
+  \LTac{exact} Deriva.abst (Γ := []) paso2
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/Cubo.lean}{382}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} completa_paso2 : Deriva (ctxBeta ,, "α" ∶ ★) α ★ := \LKw{by}
+  \LCom{-- Condición lateral: α ∉ (β : ∗), es decir, α y β son nombres distintos.}
+  \LKw{have} hFresca : "α" ∉ ctxBeta.dominio := \LKw{by} \LTac{simp} [Contexto.dominio]
+  \LCom{-- Paso 2: (variable) de 1.}
+  \LTac{exact} Deriva.variable completa_paso1 hFresca
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/Cubo.lean}{412}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} derivacion_completa : Deriva ctxBeta (.apl constructorFlecha β) ★ :=
+  \LCom{-- Paso 7: (aplicación) de 5, 6.}
+  Deriva.aplicacion completa_paso5 completa_paso6
+\end{Verbatim}
+\end{codigolean}
+Las condiciones laterales (\(\alpha \notin \Gamma\), sujetos distintos) se
+cierran con \lean{simp [Contexto.dominio]} o \lean{simp [BienFormado]}: son
+comprobaciones decidibles sobre listas finitas de nombres, no razonamiento.
+
+\begin{nota}[El orden de las premisas]
+En \lean{Derivable} (capítulo~9) la regla \lean{implE} recibe primero
+\(\varphi\) y luego \(\varphi \to \psi\), como en la tesis («\(\to\)e 3, 1»
+en el orden de Huth y Ryan). En \lean{ND} (capítulo~11), \lean{impE} recibe
+primero la implicación. El archivo \texttt{DeduccionNatural.lean} transcribe
+la Proposición~9.9 en ambos cálculos (\lean{contrapositiva_ida_ND}).
+\end{nota}
+
+%---------------------------------------------------------------------
+\subsection{Composición de lemas}\label{esq:composicion}
+\begin{esquema}{Esquema 14. El teorema principal como ensamblaje}
+\forma Un resultado grande se obtiene encadenando lemas: «por el Lema A,
+\ldots; por el Lema B aplicado a eso, \ldots».
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LKw{have} h₁ : … := lemaA …
+  \LKw{have} h₂ : … := lemaB h₁ …
+  \LTac{exact} lemaC h₂
+\end{Verbatim}
+\end{codigolean}
+\lectura La prueba del teorema principal suele ser corta: el trabajo está en
+los lemas. Al exponer, conviene presentar primero el ensamblaje y después cada
+pieza.
+\donde \lean{completitud_ND} (Kalmár + descarga),
+\lean{correccion_completitud}, \lean{unicidad_forma_normal}
+(Lema~7.32 + Corolario~7.43 + forma normal), \lean{quicksort_correcto},
+\lean{lema_7_6}, \lean{lema_7_31}, \lean{lema_7_32}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Prop/Completeness.lean}{256}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} completitud_ND (φ : Formula) (h : EsTautologia φ) : ND (∅ : Set Formula) φ := \LKw{by}
+  \LCom{-- A probar: ND ∅ φ. Método: Kalmár para cada valuación, seguido de descarga.}
+  \LKw{let} listaAtomos := (atomos φ).dedup
+  \LKw{have} hSinRepeticiones : listaAtomos.Nodup := List.nodup_dedup _
+  \LKw{have} hCobertura : atomos φ ⊆ listaAtomos := \LKw{by}
+    \LTac{intro} a ha
+    \LTac{exact} List.mem_dedup.mpr ha
+  \LKw{have} hUniversal : ∀ v, ND (contextoLiterales v listaAtomos) φ := \LKw{by}
+    \LTac{intro} v
+    \LKw{have} hVerdadero : evaluar v φ := h v
+    \LKw{have} hPositiva : evaluar v φ → ND (contextoLiterales v listaAtomos) φ :=
+      (kalmar v listaAtomos φ hCobertura).left
+    \LTac{exact} hPositiva hVerdadero
+  \LTac{exact} descarga listaAtomos hSinRepeticiones hUniversal
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/Lambda.lean}{400}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} unicidad_forma_normal (hCR : Confluente sust) \{M N₁ N₂ : Termino\}
+    (h₁ : EsFormaNormalDe sust N₁ M) (h₂ : EsFormaNormalDe sust N₂ M) : N₁ = N₂ := \LKw{by}
+  \LCom{-- `M =β N₁` y `M =β N₂` con `N₁`, `N₂` en forma normal β.}
+  \LTac{obtain} ⟨hNormal₁, hMN₁⟩ := h₁
+  \LTac{obtain} ⟨hNormal₂, hMN₂⟩ := h₂
+  \LCom{-- Por simetría y transitividad (Lema 7.32), `N₁ =β N₂`.}
+  \LKw{have} hN₁N₂ : IgualBeta sust N₁ N₂ :=
+    igualBeta_transitiva (igualBeta_simetrica hMN₁) hMN₂
+  \LCom{-- Por el Corolario 7.43 existe `L` con `N₁ ↠β L` y `N₂ ↠β L`.}
+  \LTac{obtain} ⟨L, hN₁L, hN₂L⟩ := church_rosser_conversion hCR hN₁N₂
+  \LCom{-- Una forma normal solo se reduce a sí misma: `N₁ ≡ L` y `N₂ ≡ L`.}
+  \LKw{have} hIgual₁ : N₁ = L := formaNormal_reduce_igual hNormal₁ hN₁L
+  \LKw{have} hIgual₂ : N₂ = L := formaNormal_reduce_igual hNormal₂ hN₂L
+  \LCom{-- De `N₁ ≡ L ≡ N₂` se concluye `N₁ ≡ N₂`.}
+  \LTac{rw} [hIgual₁, hIgual₂]
+\end{Verbatim}
+\end{codigolean}
+
+%---------------------------------------------------------------------
+\subsection{Resultados citados como hipótesis explícitas}\label{esq:hipotesis}
+\begin{esquema}{Esquema 15. Hacer visible lo que no se demuestra}
+\forma «Suponiendo el Teorema~X (que no demostramos), se cumple Y».
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{def} EnunciadoX : Prop := …
+\LKw{theorem} y (hX : EnunciadoX) … : … := \LKw{by} …     \LCom{-- hX es una premisa}
+\end{Verbatim}
+\end{codigolean}
+\lectura En vez de declarar un \lean{axiom}, el resultado no demostrado se
+define como una proposición y se pide como argumento. El teorema final queda
+condicionado a ella de forma visible, y la auditoría de axiomas no cambia.
+\donde El Teorema~7.37 (Church--Rosser), que la tesis cita sin demostración,
+es \lean{Confluente} y entra como \lean{hCR} en \lean{church_rosser_conversion}
+y \lean{unicidad_forma_normal}. La sustitución de la reducción~\(\beta\) es un
+parámetro (\lean{variable (sust : …)}), porque esos resultados no usan sus
+propiedades. La convención de variables de Barendregt es la hipótesis
+\lean{ConvencionVariables} en \texttt{Sustitucion.lean}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Teoria/Lambda.lean}{299}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{def} Confluente : Prop :=
+  ∀ M N₁ N₂ : Termino, ReduceBeta sust M N₁ → ReduceBeta sust M N₂ →
+    ∃ L : Termino, ReduceBeta sust N₁ L ∧ ReduceBeta sust N₂ L
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/Lambda.lean}{377}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} church_rosser_conversion (hCR : Confluente sust) \{M N : Termino\}
+    (h : IgualBeta sust M N) :
+    ∃ L : Termino, ReduceBeta sust M L ∧ ReduceBeta sust N L := \LKw{by}
+  \LTac{obtain} ⟨k, hCadena⟩ := h
+  \LCom{-- Inducción sobre la longitud `k` de la cadena `M ≡ M₀ ↔β M₁ ↔β ⋯ ↔β M_k ≡ N`.}
+  \LTac{induction} hCadena \LKw{with}
+  | cero M =>
+      \LCom{-- `k = 0`: basta `L ≡ M`.}
+      \LTac{exact} ⟨M, reduceBeta_reflexiva M, reduceBeta_reflexiva M⟩
+  | @paso k M Mk1 Mk _ hUltimo hipInd =>
+      \LCom{-- La hipótesis de inducción da `L'` con `M ↠β L'` y `M_\{k-1\} ↠β L'`.}
+      \LTac{obtain} ⟨L', hML', hMk1L'⟩ := hipInd
+      \LTac{rcases} hUltimo \LKw{with} hDirecto | hInverso
+      · \LCom{-- `M_\{k-1\} →β M_k`: el Teorema 7.37 aplicado a `M_\{k-1\}`, que se reduce a `L'`}
+        \LCom{-- y a `M_k`, da `L` con `L' ↠β L` y `M_k ↠β L`.}
+        \LTac{obtain} ⟨L, hL'L, hMkL⟩ := hCR Mk1 L' Mk hMk1L' (reduceBeta_de_paso hDirecto)
+        \LCom{-- Componiendo, `M ↠β L' ↠β L`.}
+        \LTac{exact} ⟨L, reduceBeta_transitiva hML' hL'L, hMkL⟩
+      · \LCom{-- `M_k →β M_\{k-1\}`: entonces `M_k ↠β L'` y se toma `L ≡ L'`.}
+        \LTac{exact} ⟨L', hML', reduceBeta_transitiva (reduceBeta_de_paso hInverso) hMk1L'⟩
+\end{Verbatim}
+\end{codigolean}
+Las dos ramas del \lean{rcases} son los dos sentidos posibles del último paso
+de conversión:
+\begin{estadolean}{Estado antes}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- (… 1 hipótesis omitidas …)}
+hCR : Confluente sust
+\LCom{-- (… 5 hipótesis omitidas …)}
+hUltimo : PasoConversion sust Mk1 Mk
+\LCom{-- (… 1 hipótesis omitidas …)}
+hML' : ReduceBeta sust M L'
+hMk1L' : ReduceBeta sust Mk1 L'
+⊢ ∃ L, ReduceBeta sust M L ∧ ReduceBeta sust Mk L
+\end{Verbatim}
+\end{estadolean}
+\tacticaentre{rcases hUltimo with hDirecto | hInverso}
+\begin{estadolean}{Estado después}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- meta 1: case paso.inl}
+\LCom{-- (… 1 hipótesis omitidas …)}
+hCR : Confluente sust
+\LCom{-- (… 6 hipótesis omitidas …)}
+hML' : ReduceBeta sust M L'
+hMk1L' : ReduceBeta sust Mk1 L'
+hDirecto : PasoBeta sust Mk1 Mk
+⊢ ∃ L, ReduceBeta sust M L ∧ ReduceBeta sust Mk L
+
+\LCom{-- meta 2: case paso.inr}
+\LCom{-- (… 1 hipótesis omitidas …)}
+hCR : Confluente sust
+\LCom{-- (… 6 hipótesis omitidas …)}
+hML' : ReduceBeta sust M L'
+hMk1L' : ReduceBeta sust Mk1 L'
+hInverso : PasoBeta sust Mk Mk1
+⊢ ∃ L, ReduceBeta sust M L ∧ ReduceBeta sust Mk L
+\end{Verbatim}
+\end{estadolean}
+
+%---------------------------------------------------------------------
+\subsection{Transporte a través de una representación}\label{esq:transporte}
+\begin{esquema}{Esquema 16. Probar en una representación más cómoda y traducir}
+\forma «Traducimos al lenguaje B, donde el resultado es fácil, y la
+traducción preserva lo necesario».
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \LTac{calc} tr (lado izquierdo)
+      = operación_B (tr …) := lema_de_traducción
+    _ = operación_B' (tr …) := resultado_en_B
+    _ = tr (lado derecho) := lema_de_traducción
+\end{Verbatim}
+\end{codigolean}
+\donde \lean{lema_sustitucion_alfa} (Lema~7.23 módulo~\(\alpha\)): la
+\(\alpha\)-equivalencia se define como igualdad de traducciones a índices de
+De~Bruijn, donde la sustitución no captura. \lean{traduccion_derivable_de_tautologia}
+(capítulo~11): la completitud se valida de forma independiente con la
+biblioteca Foundation, traduciendo fórmulas y usando \lean{evaluar_traduccion}.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Teoria/SustitucionAlfa.lean}{515}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{def} AlfaEq (M N : Termino) : Prop :=
+  aDeBruijn [] M = aDeBruijn [] N
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/SustitucionAlfa.lean}{769}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} lema_sustitucion_alfa (M N L : Termino) \{x y : String\}
+    (hxy : x ≠ y) (hxL : x ∉ libres L) :
+    M⟦x := N⟧⟦y := L⟧ ≡α M⟦y := L⟧⟦x := N⟦y := L⟧⟧ := \LKw{by}
+  \LCom{-- `x ∉ FV(L)`: en la traducción de `L` no hay ninguna `x` que sustituir.}
+  \LKw{have} hxl : ∀ u, sustLibre (aDeBruijn [] L) x u = aDeBruijn [] L := \LKw{fun} u =>
+    sustLibre_aDeBruijn_sin_libre u L [] (\LKw{fun} h => absurd h hxL)
+  \LCom{-- Se traducen las cuatro sustituciones y se aplica el lema para `TerminoDB`.}
+  \LTac{calc} aDeBruijn [] (M⟦x := N⟧⟦y := L⟧)
+      = sustLibre (sustLibre (aDeBruijn [] M) x (aDeBruijn [] N)) y (aDeBruijn [] L) :=
+          \LCont{↪ }\LKw{by}
+        \LTac{rw} [aDeBruijn_sustitucion, aDeBruijn_sustitucion]
+    _ = sustLibre (sustLibre (aDeBruijn [] M) y (aDeBruijn [] L)) x
+          (sustLibre (aDeBruijn [] N) y (aDeBruijn [] L)) :=
+        sustLibre_conmuta hxy _ _ hxl _
+    _ = aDeBruijn [] (M⟦y := L⟧⟦x := N⟦y := L⟧⟧) := \LKw{by}
+        \LTac{rw} [aDeBruijn_sustitucion, aDeBruijn_sustitucion, aDeBruijn_sustitucion]
+\end{Verbatim}
+\end{codigolean}
+El \lean{calc} tiene tres pasos: traducir el lado izquierdo, aplicar el lema
+para la representación sin nombres (\lean{sustLibre_conmuta}, por inducción
+estructural con los tres subcasos de la tesis) y traducir de vuelta.
+
+%---------------------------------------------------------------------
+\subsection{Validar la definición: equivalencia con la del texto}\label{esq:validar}
+\begin{esquema}{Esquema 17. La formalización dice lo que dice la tesis}
+\forma Cuando la definición formal difiere de la del texto (por comodidad),
+se demuestra que ambas son equivalentes.
+\begin{codigolean}{Plantilla}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} defFormal_iff_defTexto : DefFormal x ↔ DefTexto x :=
+  ⟨formal_implica_texto, texto_implica_formal⟩
+\end{Verbatim}
+\end{codigolean}
+\lectura Lean garantiza que la prueba es correcta \emph{para las definiciones
+escritas}. Que esas definiciones capturen las de la tesis es una afirmación
+que hay que justificar, y la forma más sólida es un teorema de equivalencia.
+\donde \lean{alfaEq_iff_alfaTesis} (\(\equiv_\alpha\) vía De~Bruijn coincide
+con la relación generada por las reglas de la Definición~7.16);
+\lean{formaNormal_sin_paso} y \lean{paso_de_redex} (las dos lecturas de
+«forma normal» de la Definición~7.33 coinciden); \lean{Deriva.bienFormado}
+(todo contexto derivable tiene sujetos distintos, como pide la
+Definición~7.51); los tres \lean{example} de \texttt{Cubo.lean} que comprueban
+que las derivaciones abreviada y completa del Ejemplo~8.20 enuncian los mismos
+juicios.
+\end{esquema}
+\begin{codigolean}{\ruta{Thesis/Teoria/SustitucionAlfa.lean}{598}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{inductive} AlfaTesis : Termino → Termino → Prop
+  | renombre (x y : String) (M : Termino) :
+      y ∉ libres M → y ∉ ligadas M → AlfaTesis (lam x M) (lam y (renombrar M x y))
+  | appIzq \{M N : Termino\} (L : Termino) : AlfaTesis M N → AlfaTesis (app M L) (app N L)
+  | appDer \{M N : Termino\} (L : Termino) : AlfaTesis M N → AlfaTesis (app L M) (app L N)
+  | abs \{M N : Termino\} (z : String) : AlfaTesis M N → AlfaTesis (lam z M) (lam z N)
+  | refl (M : Termino) : AlfaTesis M M
+  | simm \{M N : Termino\} : AlfaTesis M N → AlfaTesis N M
+  | trans \{L M N : Termino\} : AlfaTesis L M → AlfaTesis M N → AlfaTesis L N
+\end{Verbatim}
+\end{codigolean}
+\begin{codigolean}{\ruta{Thesis/Teoria/SustitucionAlfa.lean}{757}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} alfaEq_iff_alfaTesis \{M N : Termino\} : M ≡α N ↔ AlfaTesis M N :=
+  ⟨alfaEq_implica_alfaTesis, alfaTesis_implica_alfaEq⟩
+\end{Verbatim}
+\end{codigolean}
+
+%=====================================================================
+\section{Lecturas guiadas con estados reales}\label{sec:guiadas}
+%=====================================================================
+
+En esta sección se siguen tres pruebas táctica por táctica. Cada recuadro
+amarillo es el estado que Lean calcula en ese punto.
+
+\subsection{Debilitamiento, caso \texttt{impI}}\label{sec:guiada-debilitamiento}
+
+Enunciado: si \(\Gamma \vdash \varphi\) y \(\Gamma \subseteq \Delta\), entonces
+\(\Delta \vdash \varphi\). Tras \lean{induction d with}, la rama \lean{impI}
+empieza así. La derivación terminaba con \(\to\)I, de modo que
+\(\varphi\) es ahora \(\varphi \to \psi\) y la hipótesis inductiva habla de la
+premisa \(\Gamma, \varphi \vdash \psi\):
+\begin{estadolean}{Estado antes de \texttt{intro Δ hsub}}
+\begin{Verbatim}[commandchars=\\\{\}]
+Γ : Set Formula
+φ : Formula
+ψ : Formula
+hipInd : ∀ \{Δ : Set Formula\}, insert φ Γ ⊆ Δ → ND Δ ψ
+⊢ ∀ \{Δ : Set Formula\}, Γ ⊆ Δ → ND Δ (φ ⟶ ψ)
+\end{Verbatim}
+\end{estadolean}
+Se fija un \(\Delta\) mayor:
+\begin{estadolean}{Estado después de \texttt{intro Δ hsub}}
+\begin{Verbatim}[commandchars=\\\{\}]
+Γ : Set Formula
+φ : Formula
+ψ : Formula
+hipInd : ∀ \{Δ : Set Formula\}, insert φ Γ ⊆ Δ → ND Δ ψ
+Δ : Set Formula
+hsub : Γ ⊆ Δ
+⊢ ND Δ (φ ⟶ ψ)
+\end{Verbatim}
+\end{estadolean}
+Se amplía la inclusión con \(\varphi\) en ambos lados y se aplica la hipótesis
+inductiva a ese contexto ampliado:
+\begin{estadolean}{Estado después de \texttt{have dCuerpo : ND (insert φ Δ) ψ := hipInd hAmpliado}}
+\begin{Verbatim}[commandchars=\\\{\}]
+Γ : Set Formula
+φ : Formula
+ψ : Formula
+hipInd : ∀ \{Δ : Set Formula\}, insert φ Γ ⊆ Δ → ND Δ ψ
+Δ : Set Formula
+hsub : Γ ⊆ Δ
+hAmpliado : insert φ Γ ⊆ insert φ Δ
+dCuerpo : ND (insert φ Δ) ψ
+⊢ ND Δ (φ ⟶ ψ)
+\end{Verbatim}
+\end{estadolean}
+Por último, \lean{ND.impI dCuerpo} descarga \(\varphi\) y cierra la meta. En
+papel: «Si la última regla es \(\to\)I, la premisa es \(\Gamma, \varphi \vdash
+\psi\). Como \(\Gamma \cup \{\varphi\} \subseteq \Delta \cup \{\varphi\}\), por
+hipótesis inductiva \(\Delta, \varphi \vdash \psi\), y por \(\to\)I,
+\(\Delta \vdash \varphi \to \psi\)».
+
+\subsection{Lema de Kalmár, caso atómico}
+
+El enunciado completo es una conjunción de dos implicaciones, bajo la hipótesis
+de que \lean{listaAtomos} cubre los átomos de \(\varphi\):
+\begin{estadolean}{Estado antes de \texttt{intro φ}}
+\begin{Verbatim}[commandchars=\\\{\}]
+v : Valuacion
+listaAtomos : List String
+⊢ ∀ (φ : Formula),
+  atomos φ ⊆ listaAtomos →
+    (evaluar v φ → ND (contextoLiterales v listaAtomos) φ) ∧ (¬evaluar v φ → ND
+        \LCont{↪ }(contextoLiterales v listaAtomos) (~φ))
+\end{Verbatim}
+\end{estadolean}
+En el caso \lean{atom s}, tras obtener \lean{hs : s ∈ listaAtomos} se divide
+la conjunción:
+\begin{estadolean}{Estado antes}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- (… 3 hipótesis omitidas …)}
+hsub : atomos (Formula.atom s) ⊆ listaAtomos
+\LCom{-- (… 1 hipótesis omitidas …)}
+hs : s ∈ listaAtomos
+⊢ (evaluar v (Formula.atom s) → ND (contextoLiterales v listaAtomos) (Formula.atom s))
+    \LCont{↪ }∧
+  (¬evaluar v (Formula.atom s) → ND (contextoLiterales v listaAtomos) (~Formula.atom
+      \LCont{↪ }s))
+\end{Verbatim}
+\end{estadolean}
+\tacticaentre{refine ⟨?\_, ?\_⟩}
+\begin{estadolean}{Estado después}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LCom{-- meta 1: case atom.refine_1}
+\LCom{-- (… 3 hipótesis omitidas …)}
+hsub : atomos (Formula.atom s) ⊆ listaAtomos
+\LCom{-- (… 1 hipótesis omitidas …)}
+hs : s ∈ listaAtomos
+⊢ evaluar v (Formula.atom s) → ND (contextoLiterales v listaAtomos) (Formula.atom s)
+
+\LCom{-- meta 2: case atom.refine_2}
+\LCom{-- (… 3 hipótesis omitidas …)}
+hsub : atomos (Formula.atom s) ⊆ listaAtomos
+\LCom{-- (… 1 hipótesis omitidas …)}
+hs : s ∈ listaAtomos
+⊢ ¬evaluar v (Formula.atom s) → ND (contextoLiterales v listaAtomos) (~Formula.atom s)
+\end{Verbatim}
+\end{estadolean}
+En la parte positiva, si \(v(s)\) es verdadero, el literal de \(s\) es el
+propio átomo \(s\); por \lean{pertenencia_literal} está en el contexto de
+literales, y la regla \lean{ND.hyp} lo deriva. La parte negativa es simétrica
+con \(\neg s\).
+
+\subsection{Quicksort produce una permutación}\label{sec:guiada-quicksort}
+\begin{codigolean}{\ruta{Thesis/Sort/Quicksort.lean}{195}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\LKw{theorem} quicksort_permutacion : ∀ l : List α, quicksort l ~ l
+  | [] => \LKw{by}
+      \LCom{-- A probar: quicksort [] ~ []. Reescritura y reflexividad.}
+      \LTac{simpa} \LTac{only} [quicksort_vacia] \LTac{using} (List.Perm.refl ([] : List α))
+  | p :: cola => \LKw{by}
+      \LCom{-- A probar: quicksort (p :: cola) ~ p :: cola.}
+      \LCom{-- Método: inducción por longitud; las particiones son menores.}
+      \LKw{let} menoresIguales := cola.filter (\LKw{fun} x => \LTac{decide} (x ≤ p))
+      \LKw{let} mayores := cola.filter (\LKw{fun} x => ! \LTac{decide} (x ≤ p))
+      \LKw{have} hMenoresIgualesLt : menoresIguales.length < (p :: cola).length :=
+        longitud_filtro_lt_cons (\LKw{fun} x => \LTac{decide} (x ≤ p)) p cola
+      \LKw{have} hMayoresLt : mayores.length < (p :: cola).length :=
+        longitud_filtro_lt_cons (\LKw{fun} x => ! \LTac{decide} (x ≤ p)) p cola
+      \LCom{-- Las cotas anteriores legitiman estas dos instancias inductivas.}
+      \LKw{have} hipIndMenoresIguales : quicksort menoresIguales ~ menoresIguales :=
+          \LCont{↪ }quicksort_permutacion menoresIguales
+      \LKw{have} hipIndMayores : quicksort mayores ~ mayores := quicksort_permutacion mayores
+      \LKw{have} hParticion : menoresIguales ++ mayores ~ cola :=
+        particion_filtros_permutacion (\LKw{fun} x => \LTac{decide} (x ≤ p)) cola
+      \LCom{-- 1. Añadir el mismo pivote conserva la permutación derecha.}
+      \LKw{have} hDerecha : p :: quicksort mayores ~ p :: mayores := hipIndMayores.cons p
+      \LCom{-- 2. Concatenar las dos permutaciones conserva ambas listas.}
+      \LKw{have} hConcatenacion : quicksort menoresIguales ++ (p :: quicksort mayores)
+          ~ menoresIguales ++ (p :: mayores) := hipIndMenoresIguales.append hDerecha
+      \LCom{-- 3. perm_middle desplaza el pivote al principio.}
+      \LKw{have} hPivote : menoresIguales ++ (p :: mayores) ~ p :: (menoresIguales ++ mayores)
+          \LCont{↪ }:=
+        List.perm_middle
+      \LCom{-- 4. La congruencia de :: se aplica a la partición anterior.}
+      \LKw{have} hCons : p :: (menoresIguales ++ mayores) ~ p :: cola := hParticion.cons p
+      \LCom{-- Reescritura de quicksort, seguida de las tres permutaciones.}
+      \LTac{rw} [quicksort_cons]
+      \LTac{change} quicksort menoresIguales ++ (p :: quicksort mayores) ~ p :: cola
+      \LTac{calc}
+        quicksort menoresIguales ++ (p :: quicksort mayores)
+            ~ menoresIguales ++ (p :: mayores) := hConcatenacion
+        _ ~ p :: (menoresIguales ++ mayores) := hPivote
+        _ ~ p :: cola := hCons
+  \LKw{termination_by} l => l.length
+  \LKw{decreasing_by}
+    · \LTac{exact} hMenoresIgualesLt
+    · \LTac{exact} hMayoresLt
+\end{Verbatim}
+\end{codigolean}
+Antes de usar la ecuación de \lean{quicksort} la meta todavía menciona
+\lean{quicksort (p :: cola)}; tras \lean{rw [quicksort_cons]} y \lean{change}
+queda en la forma que admite el \lean{calc}:
+\begin{estadolean}{Estado antes de \texttt{calc}}
+\begin{Verbatim}[commandchars=\\\{\}]
+α : Type u_1
+p : α
+cola : List α
+menoresIguales : List α := filter (\LKw{fun} x => \LTac{decide} (x ≤ p)) cola
+mayores : List α := filter (\LKw{fun} x => !decide (x ≤ p)) cola
+hMenoresIgualesLt : menoresIguales.length < (p :: cola).length
+hMayoresLt : mayores.length < (p :: cola).length
+hipIndMenoresIguales : quicksort menoresIguales ~ menoresIguales
+hipIndMayores : quicksort mayores ~ mayores
+hParticion : menoresIguales ++ mayores ~ cola
+hDerecha : p :: quicksort mayores ~ p :: mayores
+hConcatenacion : quicksort menoresIguales ++ p :: quicksort mayores ~ menoresIguales
+    \LCont{↪ }++ p :: mayores
+hPivote : menoresIguales ++ p :: mayores ~ p :: (menoresIguales ++ mayores)
+hCons : p :: (menoresIguales ++ mayores) ~ p :: cola
+⊢ quicksort menoresIguales ++ p :: quicksort mayores ~ p :: cola
+\end{Verbatim}
+\end{estadolean}
+El \lean{calc} es la cadena de permutaciones del capítulo~12:
+\[
+\mathit{qs}(L) \mathbin{+\!+} (p :: \mathit{qs}(G))
+\;\sim\; L \mathbin{+\!+} (p :: G)
+\;\sim\; p :: (L \mathbin{+\!+} G)
+\;\sim\; p :: \mathit{cola},
+\]
+con \(L\) = \lean{menoresIguales} y \(G\) = \lean{mayores}. El primer paso usa
+las dos hipótesis inductivas, el segundo mueve el pivote al frente
+(\lean{List.perm_middle}) y el tercero usa que los dos filtros reparten la cola
+(\lean{particion_filtros_permutacion}). Las dos obligaciones de
+\lean{decreasing_by} son exactamente \lean{hMenoresIgualesLt} y
+\lean{hMayoresLt}: lo que autoriza llamar a \lean{quicksort_permutacion} sobre
+los filtros.
+
+%=====================================================================
+\section{Mapa de la tesis}\label{sec:mapa}
+%=====================================================================
+
+Números de esquema: 1 directa, 2 hacia adelante, 3 bicondicional,
+4 conjunción, 5 casos de hipótesis, 6 \lean{by_cases}, 7 negación/absurdo,
+8 existencial, 9 ecuacional, 10 inducción estructural, 11 inducción sobre
+derivaciones, 12 recursión bien fundada, 13 construcción de derivaciones,
+14 composición, 15 hipótesis explícita, 16 transporte, 17 validación.
+
+{\small
+\renewcommand{\arraystretch}{1.18}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.19\textwidth}>{\raggedright\arraybackslash}p{0.33\textwidth}>{\raggedright\arraybackslash}p{0.11\textwidth}>{\raggedright\arraybackslash}p{0.29\textwidth}@{}}
+\toprule
+\textbf{Resultado} & \textbf{Teorema Lean} & \textbf{Esquemas} & \textbf{Archivo} \\
+\midrule
+\endhead
+\multicolumn{4}{@{}l}{\textit{Capítulo 7: cálculo \(\lambda\) sin tipos}} \\
+Lema 7.6 & \lean{sub_reflexiva}, \lean{sub_transitiva}, \lean{lema_7_6} & 5, 10, 4 & \texttt{Teoria/Lambda} \\
+Lema 7.31 & \lean{reduceBeta_de_paso}, \lean{reduceBeta_reflexiva}, \lean{reduceBeta_transitiva} & 8, 11, 4 & \texttt{Teoria/Lambda} \\
+Lema 7.32 & \lean{igualBeta_de_reduceBeta}, \lean{igualBeta_simetrica}, \lean{igualBeta_transitiva} & 5, 8, 11 & \texttt{Teoria/Lambda} \\
+Corolario 7.43 & \lean{church_rosser_conversion} & 11, 5, 8, 15 & \texttt{Teoria/Lambda} \\
+Corolario 7.44 & \lean{unicidad_forma_normal} & 14, 15, 9 & \texttt{Teoria/Lambda} \\
+Definición 7.33 & \lean{formaNormal_sin_paso}, \lean{paso_de_redex} & 11, 10, 17 & \texttt{Teoria/Lambda} \\
+Lema 7.23 (literal) & \lean{lema_sustitucion} & 10, 6, 9, 15 & \texttt{Teoria/Sustitucion} \\
+Lema 7.23 (mód.~\(\alpha\)) & \lean{lema_sustitucion_alfa}, \lean{lema_sustitucion_tesis} & 16, 9, 10, 17 & \texttt{Teoria/SustitucionAlfa} \\
+Definición 7.16 & \lean{alfaEq_iff_alfaTesis} & 17, 11 & \texttt{Teoria/SustitucionAlfa} \\
+\multicolumn{4}{@{}l}{\textit{Capítulo 7: tipos simples}} \\
+Ejemplos 7.52, 7.53 & \lean{ejemplo_constante}, \lean{ejemplo_aplicacion} & 13 & \texttt{Teoria/TiposSimples} \\
+Lema 7.57 & \lean{variables_libres} & 11, 9, 5, 7 & \texttt{Teoria/TiposSimples} \\
+Definición 7.51 & \lean{Deriva.bienFormado} & 11, 17 & \texttt{Teoria/TiposSimples} \\
+\multicolumn{4}{@{}l}{\textit{Capítulo 8: cubo \(\lambda\)}} \\
+Ejemplo 8.5 & \lean{identidad_polimorfica} & 13 & \texttt{Teoria/Cubo} \\
+Ejemplos 8.13, 8.15 & \lean{variable_termino}, \lean{debilitamiento_a}\ldots\lean{_d} & 13 & \texttt{Teoria/Cubo} \\
+Ejemplo 8.20 & \lean{derivacion_completa}, \lean{derivacion_abreviada} & 13, 17 & \texttt{Teoria/Cubo} \\
+Regla (conversión) & \lean{conversion_ejemplo}, \lean{constructor_beta} & 13, 9 & \texttt{Teoria/Cubo} \\
+\multicolumn{4}{@{}l}{\textit{Capítulo 9: deducción natural}} \\
+Proposición 9.6 & \lean{distributividad_conj_disy} & 13 & \texttt{Teoria/DeduccionNatural} \\
+Proposición 9.9 & \lean{contrapositiva} (y versiones \lean{_ND}) & 13, 4 & \texttt{Teoria/DeduccionNatural} \\
+MT, LEM, \(\neg\neg\)e & \lean{modus_tollens}, \lean{medio_excluido}, \lean{eliminacion_doble_negacion} & 13 & \texttt{Teoria/DeduccionNatural} \\
+Debilitamiento & \lean{debilitamiento}, \lean{reiterar} & 11 & \texttt{Teoria/DeduccionNatural} \\
+\multicolumn{4}{@{}l}{\textit{Capítulo 11: completitud}} \\
+\(\bot\) en \(\{\neg,\to\}\) & \lean{evaluar_falsedad} & 3, 2, 7 & \texttt{Prop/NaturalDeduction} \\
+Debilitamiento & \lean{debilitamiento} & 11 & \texttt{Prop/NaturalDeduction} \\
+Reglas derivadas & \lean{introduccion_doble_negacion}, \lean{analisis_por_casos} & 13, 2 & \texttt{Prop/NaturalDeduction} \\
+Corrección & \lean{correccion}, \lean{tautologia_de_derivable} & 11, 7, 1 & \texttt{Prop/NaturalDeduction} \\
+Consistencia & \lean{no_derivable_falsedad} & 7, 14 & \texttt{Prop/NaturalDeduction} \\
+Lema de Kalmár & \lean{kalmar} & 10, 4, 6, 7, 9, 13 & \texttt{Prop/Completeness} \\
+Descarga de átomos & \lean{descarga}, \lean{congruencia_contextoLiterales} & 10, 9, 14 & \texttt{Prop/Completeness} \\
+Completitud & \lean{completitud_ND}, \lean{correccion_completitud} & 14, 3 & \texttt{Prop/Completeness} \\
+Validación externa & \lean{evaluar_traduccion}, \lean{traduccion_derivable_de_tautologia} & 16, 10, 6 & \texttt{Prop/Bridge…}, \texttt{Prop/CompletenessVia…} \\
+\multicolumn{4}{@{}l}{\textit{Capítulo 12: Quicksort}} \\
+Terminación & \lean{quicksort}, \lean{longitud_filtro_le}, \lean{longitud_filtro_lt_cons} & 12, 10 & \texttt{Sort/Quicksort} \\
+Partición & \lean{particion_filtros_permutacion} & 10, 9 & \texttt{Sort/Quicksort} \\
+Reglas de \lean{Pairwise} & \lean{relacion_pares_cons_iff}, \lean{relacion_pares_concatenacion_iff} & 3, 4, 10 & \texttt{Sort/Quicksort} \\
+Permutación & \lean{quicksort_permutacion}, \lean{pertenencia_quicksort} & 12, 9, 14 & \texttt{Sort/Quicksort} \\
+Ordenamiento & \lean{quicksort_ordenada} & 12, 5, 9, 14 & \texttt{Sort/Quicksort} \\
+Corrección total & \lean{quicksort_correcto} & 4, 14 & \texttt{Sort/Quicksort} \\
+\bottomrule
+\end{longtable}
+}
+
+%=====================================================================
+\section{Qué garantiza Lean y qué no}\label{sec:garantias}
+%=====================================================================
+
+\textbf{Lo que garantiza.} Si el archivo compila, el núcleo de Lean (un
+comprobador de tipos pequeño) ha verificado que cada término de prueba tiene
+el tipo del enunciado. Las tácticas no forman parte de la base de confianza:
+solo construyen términos, y el núcleo los vuelve a comprobar.
+
+\textbf{Axiomas.} El comando \texttt{\#print axioms t} lista los axiomas de los
+que depende \lean{t}. La herramienta \texttt{tools/check\_axioms.py} rechaza
+cualquier axioma fuera de \lean{propext}, \lean{Classical.choice} y
+\lean{Quot.sound}, los tres estándar de Lean y Mathlib. También rechaza
+\lean{sorryAx}, que aparecería si alguna prueba estuviera incompleta
+(\lean{sorry}). Por ejemplo, la auditoría del capítulo~11 indica:
+\begin{itemize}
+  \item \lean{completitud_ND} y \lean{correccion} dependen de los tres axiomas:
+    usan razonamiento clásico en la metalógica (\lean{by_cases},
+    \lean{by_contra}).
+  \item \lean{ej_identidad} y \lean{ej_eliminacion_doble_negacion} no dependen
+    de ningún axioma: son construcciones directas de derivaciones. Que la
+    segunda use RAA \emph{en el cálculo objeto} no requiere lógica clásica
+    \emph{en Lean}.
+\end{itemize}
+
+\textbf{Lo que no garantiza.} Lean no comprueba que las definiciones
+signifiquen lo que pretende el texto. Si \lean{ND} tuviera una regla de más,
+la completitud sería trivial pero errónea respecto de la tesis. Por eso
+importan:
+\begin{itemize}
+  \item la lectura cuidadosa de las definiciones (\lean{Formula}, \lean{ND},
+    \lean{Deriva}, \lean{PasoBeta}, \lean{sustitucion});
+  \item los teoremas de validación del esquema~17;
+  \item que las hipótesis adicionales sean visibles en los enunciados
+    (esquema~15) y no queden escondidas en axiomas;
+  \item las diferencias declaradas en los comentarios de cabecera de cada
+    archivo (sustitución ingenua con condición lateral en \texttt{Cubo.lean},
+    contextos como conjuntos en \texttt{Prop}, nombres como \lean{String}).
+\end{itemize}
+
+%=====================================================================
+\section{Cómo explicar una prueba en voz alta}\label{sec:explicar}
+%=====================================================================
+
+\subsection{Receta}
+\begin{enumerate}
+  \item \textbf{Enunciado.} Léelo en matemáticas. Señala qué está
+    cuantificado, qué son hipótesis y qué es la conclusión. Si hay notación
+    objeto (\lean{⟶}, \lean{~}, \lean{⊢ₚ}), dilo explícitamente.
+  \item \textbf{Método.} Nombra el esquema: «por inducción sobre la
+    derivación», «por casos sobre el valor de verdad», «construyendo la
+    derivación línea por línea».
+  \item \textbf{Generalización.} Si hay inducción, explica qué quedó
+    cuantificado en la meta y por qué (esquemas~10 y~11).
+  \item \textbf{Casos.} Para cada caso, di qué se sabe (hipótesis, hipótesis
+    inductivas) y qué falta. Usa los estados, no las tácticas.
+  \item \textbf{Paso clave.} Identifica la línea con contenido matemático
+    (la aplicación de la hipótesis inductiva, la regla que descarga, la
+    elección del testigo). Lo demás suele ser contabilidad.
+  \item \textbf{Cierre.} Indica qué regla o lema cierra cada rama.
+  \item \textbf{Confianza.} Menciona los axiomas y, si existen, las
+    hipótesis explícitas.
+\end{enumerate}
+
+\subsection{Diccionario de frases}
+\begin{center}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{En Lean} & \textbf{Se dice} \\
+\midrule
+\lean{intro x hx} & «Sea \(x\) y supongamos \(hx\)\ldots» \\
+\lean{have h : P := t} & «Tenemos \(P\) por \(t\)\ldots» \\
+\lean{exact t} & «\ldots lo cual es exactamente \(t\)» \\
+\lean{induction d with} & «Por inducción sobre la derivación \(d\)\ldots» \\
+\lean{| impI … hipInd =>} & «Si la última regla es \(\to\)I, con hipótesis inductiva\ldots» \\
+\lean{rcases h with a | b} & «Distinguimos dos casos\ldots» \\
+\lean{by_cases h : P} & «Si \(P\)\ldots; en caso contrario\ldots» \\
+\lean{by_contra h} & «Supongamos, por el absurdo, \(\neg\)(meta)\ldots» \\
+\lean{obtain ⟨n, h⟩ := e} & «Sea \(n\) tal que \(h\)\ldots» \\
+\lean{exact ⟨a, h⟩} & «Basta tomar \(a\); en efecto, \(h\)» \\
+\lean{rw [def]} & «Por definición de \ldots» \\
+\lean{calc} & «Encadenando: \(a = b = c\)» \\
+\lean{ND.hyp (Set.mem_insert _ _)} & «\(\varphi\) está entre las suposiciones abiertas» \\
+\lean{ND.impI d} & «Por \(\to\)I, descargando la suposición\ldots» \\
+\lean{debilitamiento d h} & «Reiteramos \(d\) dentro de la caja» \\
+\lean{simp [Contexto.dominio]} & «La condición lateral se comprueba directamente» \\
+\lean{decreasing_by} & «La llamada es sobre una lista más corta» \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Preguntas frecuentes}
+
+\textbf{¿Por qué las pruebas son tan largas?} Porque se eligió el estilo hacia
+adelante con todos los tipos intermedios escritos. Muchas se podrían acortar
+con automatización (\lean{simp}, \lean{aesop}), pero entonces dejarían de
+seguir la prueba en papel paso a paso. Es una decisión de legibilidad, no una
+limitación.
+
+\textbf{¿Qué hace \lean{simp}? ¿No es una caja negra?} Reescribe con lemas
+marcados como simplificaciones. En la tesis se limita a desplegar definiciones
+(\lean{simp only [l]}) o a cerrar condiciones decidibles sobre listas de
+nombres. Además su resultado pasa por el núcleo como cualquier otro término.
+
+\textbf{¿Por qué los contextos son conjuntos en el capítulo~11 y listas en
+tipos simples?} En deducción natural importa solo qué fórmulas están
+disponibles, de modo que un conjunto es lo natural y hace que el
+debilitamiento sea una simple inclusión. En los sistemas de tipos la tesis
+define el contexto como una lista con sujetos distintos, y el orden importa
+(en \(\lambda 2\), una variable de tipo se declara antes de usarse).
+
+\textbf{¿La lógica de Lean es clásica? ¿No afecta a lo que se demuestra?} Lean
+es constructivo por defecto, y la lógica clásica entra a través del axioma
+\lean{Classical.choice}. Lo que se demuestra \emph{sobre} el cálculo ND (que
+toda tautología es derivable) usa razonamiento clásico en la metalógica, como
+la prueba en papel. Las derivaciones \emph{dentro} de ND que usan RAA
+(\lean{ND.classical}) son objetos del cálculo y no requieren axiomas en Lean.
+
+\textbf{¿Por qué Church--Rosser es una hipótesis?} Porque la tesis lo cita sin
+demostración. Declararlo como \lean{axiom} sería ocultarlo; pedirlo como
+premisa \lean{hCR : Confluente sust} hace visible exactamente qué depende de
+él.
+
+\textbf{¿Cómo sé que \lean{AlfaEq} es la \(\alpha\)-equivalencia de la tesis?}
+Por \lean{alfaEq_iff_alfaTesis}: coincide con la relación generada
+literalmente por las reglas de la Definición~7.16.
+
+\appendix
+%=====================================================================
+\section{Reproducir y explorar}
+%=====================================================================
+
+\begin{itemize}
+  \item Compilar y auditar: \texttt{lake build}, \texttt{make check},
+    \texttt{make audit audit-quicksort verification-output}.
+  \item Ver los estados de cualquier prueba: abrir el archivo en VS Code con la
+    extensión de Lean~4 y colocar el cursor tras una táctica; el panel
+    \emph{Lean Infoview} muestra el estado, igual que los recuadros
+    amarillos de este documento.
+  \item Exportar todos los estados: \texttt{make proof-explorer} y
+    \texttt{make proof-explorer-theory} regeneran
+    \texttt{artifacts/explorer/proofs.json} y \texttt{theory.json}.
+  \item Regenerar este documento:
+    \texttt{python3 reports/curso-lean/build.py}. Si cambia el código Lean, los
+    fragmentos se actualizan solos; los estados dependen de los JSON
+    exportados.
+\end{itemize}
+
+\end{document}
