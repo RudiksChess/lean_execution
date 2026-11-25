@@ -1,0 +1,1649 @@
+% Curso intensivo de los esquemas de demostración de los capítulos 7 a 10 de la
+% tesis, en escritura matemática (sin Lean). Fuente: tesis-mate/documento/capitulos
+%   1_contextohistorico_matematico_2.tex  (Cap. 7)
+%   1_contextohistorico_matematico_3.tex  (Cap. 8)
+%   2_linkeo.tex                          (Cap. 9)
+%   3_linkeo.tex                          (Cap. 10)
+% Compilar dos veces:  lualatex CursoTeoria.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.3cm,headheight=14pt]{geometry}
+\usepackage{amsmath,mathtools}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\setmainfont{TeX Gyre Pagella}
+\setmathfont{TeX Gyre Pagella Math}
+\setsansfont{DejaVu Sans}[Scale=MatchLowercase]
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{bussproofs}
+\usepackage{flagderiv}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{tikz-cd}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\AtBeginDocument{\providecommand\square{\mdlgwhtsquare}}
+
+\definecolor{fondoesquema}{HTML}{EEF5EE}
+\definecolor{bordeesquema}{HTML}{5E9A62}
+\definecolor{fondonota}{HTML}{F1EEF8}
+\definecolor{bordenota}{HTML}{8C7DB8}
+\definecolor{fondoejemplo}{HTML}{F7F8FA}
+\definecolor{bordeejemplo}{HTML}{B8C2CF}
+\definecolor{fondotrampa}{HTML}{FFF4EC}
+\definecolor{bordetrampa}{HTML}{D98A4E}
+\definecolor{okverde}{HTML}{2E7D32}
+\definecolor{esbozo}{HTML}{B7791F}
+\definecolor{cita}{HTML}{6B6B9A}
+
+\newtcolorbox{esquema}[1]{enhanced, breakable, colback=fondoesquema,
+  colframe=bordeesquema, boxrule=0.6pt, arc=3pt,
+  colbacktitle=bordeesquema, coltitle=white, fonttitle=\sffamily\bfseries,
+  title={#1}, before skip=10pt, after skip=10pt, before upper={\raggedright}}
+\newtcolorbox{ejemplotesis}[1]{enhanced, breakable, colback=fondoejemplo,
+  colframe=bordeejemplo, boxrule=0.5pt, arc=2pt, colbacktitle=bordeejemplo!40,
+  coltitle=black, fonttitle=\sffamily\small\bfseries, title={#1},
+  before skip=6pt, after skip=8pt}
+\newtcolorbox{nota}[1][Nota]{enhanced, breakable, colback=fondonota,
+  colframe=bordenota, boxrule=0.5pt, arc=3pt, colbacktitle=bordenota,
+  coltitle=white, fonttitle=\sffamily\bfseries\small, title={#1},
+  before skip=8pt, after skip=8pt}
+\newtcolorbox{trampa}[1][Lo que hay que vigilar]{enhanced, breakable,
+  colback=fondotrampa, colframe=bordetrampa, boxrule=0.5pt, arc=3pt,
+  colbacktitle=bordetrampa, coltitle=white, fonttitle=\sffamily\bfseries\small,
+  title={#1}, before skip=8pt, after skip=8pt}
+
+\newcommand{\forma}{\par\noindent\textbf{Forma.}\enspace}
+\newcommand{\porque}{\par\smallskip\noindent\textbf{Por qué es válido.}\enspace}
+\newcommand{\plantilla}{\par\smallskip\noindent\textbf{Cómo se redacta.}\enspace}
+\newcommand{\donde}{\par\smallskip\noindent\textbf{Dónde aparece.}\enspace}
+
+\newcommand{\etiqueta}[2]{\tcbox[on line, boxsep=0pt, left=3pt, right=3pt,
+  top=1pt, bottom=1pt, colback=#1!12, colframe=#1, boxrule=0.4pt,
+  arc=2pt]{\sffamily\scriptsize #2}}
+\newcommand{\dem}{\etiqueta{okverde}{demostrado}}
+\newcommand{\esb}{\etiqueta{esbozo}{esbozado}}
+\newcommand{\cit}{\etiqueta{cita}{citado}}
+\newcommand{\enu}{\etiqueta{cita}{enunciado}}
+
+% Notación
+\newcommand{\Sub}{\operatorname{Sub}}
+\newcommand{\FV}{\operatorname{FV}}
+\newcommand{\dom}{\operatorname{dom}}
+\newcommand{\bred}{\rightarrow_\beta}
+\newcommand{\bmred}{\twoheadrightarrow_\beta}
+\newcommand{\beq}{=_\beta}
+\newcommand{\aeq}{=_\alpha}
+\newcommand{\bconv}{\leftrightarrow_\beta}
+\newcommand{\pr}{\Rightarrow}
+\newcommand{\sus}[3]{#1[#2:=#3]}
+\newcommand{\Elim}{\mathrm{Elim}}
+\newcommand{\Ind}{\mathrm{Ind}}
+\newcommand{\Constr}{\mathrm{Constr}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Esquemas de demostración de los capítulos 7 a 10}
+\fancyhead[R]{\small\sffamily\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist{itemsep=2pt, topsep=4pt}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\EnableBpAbbreviations
+
+\title{\textbf{Curso intensivo de los capítulos teóricos de la tesis}\\[4pt]
+  \large Esquemas de demostración de los capítulos 7 a 10:\\
+  cómo se interpretan y cómo se prueban}
+\author{Material de apoyo para la defensa}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Este documento acompaña la lectura de los capítulos teóricos de la tesis:
+el 7 (cálculo~\(\lambda\) y tipos simples), el 8 (cubo~\(\lambda\)), el 9
+(deducción natural, semántica y Curry--Howard) y el 10 (Cálculo de
+Construcciones Inductivas). Los capítulos 1 a 6 son de contexto y no
+contienen demostraciones; los capítulos 11 y 12 tienen su propio curso.
+
+Aquí no aparece Lean. Todo está escrito en matemática de papel, con la
+notación de la tesis. El núcleo es un catálogo de \emph{esquemas de
+demostración}: las formas de razonamiento que se repiten en esos capítulos.
+Cada esquema tiene la misma estructura: su forma, por qué es válido, cómo se
+redacta, dónde lo usa la tesis y qué hay que vigilar. La numeración (Lema~7.23,
+Proposición~9.9, etc.) es la de la versión compilada de la tesis.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{Cómo usar este documento}
+%=====================================================================
+
+Las demostraciones de los capítulos 7 a 10 usan un repertorio pequeño de
+técnicas. Casi todas son variantes de tres ideas:
+
+\begin{enumerate}
+  \item \textbf{Inducción.} Los objetos de estos capítulos (términos, tipos,
+    fórmulas, derivaciones, números naturales) se definen inductivamente, es
+    decir, como lo mínimo cerrado bajo unas reglas. Por eso casi todo se
+    demuestra recorriendo esas reglas una por una.
+  \item \textbf{Construcción.} Probar un juicio \(\Gamma\vdash M:A\) o un
+    secuente \(\Gamma\vdash\varphi\) es \emph{construir} una derivación. Bajo
+    Curry--Howard, construir una prueba y escribir un programa son la misma
+    actividad.
+  \item \textbf{Reducción a un resultado anterior.} Varios corolarios (la
+    unicidad de la forma normal, Church--Rosser para la conversión) se
+    obtienen combinando un teorema con una propiedad sencilla de los objetos
+    involucrados.
+\end{enumerate}
+
+Para cada resultado conviene distinguir tres situaciones, porque en una
+defensa se pregunta por ellas:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\dem & la tesis da la demostración completa;\\[2pt]
+\esb & la tesis da un esbozo y remite a la fuente para los detalles;\\[2pt]
+\cit & la tesis enuncia el resultado y lo toma de la bibliografía.
+\end{tabular}
+\end{center}
+
+\begin{nota}[Convención de lectura]
+Los recuadros verdes son esquemas. Los grises reproducen o resumen un
+argumento de la tesis. Los naranjas señalan los puntos delicados: pasos que la
+tesis da por obvios y que un examinador puede pedir que se justifiquen. Cuando
+este documento añade un argumento que la tesis no escribe (por ejemplo, el
+contraejemplo al diamante de \(\bred\)), lo indica como
+\emph{complemento}.
+\end{nota}
+
+%=====================================================================
+\section{Mapa de los resultados}
+%=====================================================================
+
+La tabla reúne los resultados con demostración o esbozo de los capítulos 7
+a 10, el esquema que usan (numerado como en la Sección~\ref{sec:catalogo}) y
+su estado.
+
+{\small
+\begin{longtable}{@{}p{0.13\textwidth}p{0.44\textwidth}p{0.17\textwidth}p{0.16\textwidth}@{}}
+\toprule
+\textbf{Resultado} & \textbf{Enunciado (resumido)} & \textbf{Esquemas} & \textbf{Estado}\\
+\midrule
+\endhead
+Lema 7.6 & \(M\in\Sub(M)\); transitividad de \(\Sub\) & 1, 2 & \dem\\
+Lema 7.23 & Lema de sustitución & 1, 2, 3, 4 & \dem\\
+Lema 7.31 & \(\bmred\) extiende \(\bred\), es reflexiva y transitiva & 5 & \dem\\
+Lema 7.32 & \(\beq\) extiende \(\bmred\) y es de equivalencia & 5 & \dem\\
+Teorema 7.37 & Church--Rosser (confluencia) & 8 & \esb\\
+Lemas 7.40--7.41 & Sustitución y diamante para \(\pr\) & 1, 9 & \enu\\
+Corolario 7.43 & Church--Rosser para la conversión & 6 & \dem\\
+Corolario 7.44 & Unicidad de la forma normal & 7 & \dem\\
+Ejemplo 7.49 & \(x\,x\) no es tipable & 17 & \dem\\
+Ejemplos 7.52--7.53 & Derivaciones en \(\lambda\!\to\) & 10 & \dem\\
+Lema 7.57 & \(\FV(L)\subseteq\dom(\Gamma)\) & 9 & \dem\\
+Teorema 7.59 & Decidibilidad en \(\lambda\!\to\) & 23 & \cit\\
+Teorema 7.63 & Church--Rosser en \(\lambda\!\to\) & 8, 23 & \cit\\
+Ejemplo 8.5 & Identidad polimórfica en \(\lambda2\) & 10 & \dem\\
+Ejemplos 8.13, 8.15 & Variable y debilitamiento en \(\lambda\underline{\omega}\) & 11 & \dem\\
+Ejemplos 8.20, 8.22 & Derivación abreviada; conversión & 11 & \dem\\
+§8.3.3 & Un habitante de \((\Pi x\,\Pi y.\,Q\,x\,y)\to\Pi u.\,Q\,u\,u\) & 12, 18 & \dem\\
+Teorema 8.27 & Propiedades del cubo & 23 & \cit\\
+Proposición 9.6 & \(p\wedge(q\vee r)\vdash(p\wedge q)\vee(p\wedge r)\) & 13 & \dem\\
+Proposición 9.9 & \(p\to q\dashv\vdash\neg q\to\neg p\) & 13, 14 & \dem\\
+Teorema 9.13 & Solidez & 9, 15 & \esb\\
+Teorema 9.14 & Completitud (Kalmár) & 16 & \esb\\
+Ejemplo 9.17 & Completitud como construcción: \(p\to p\) & 16 & \dem\\
+Ejemplo 9.20 & Tautologías bajo BHK & 17, 18 & \dem\\
+Teorema 9.22 & Isomorfismo de Curry--Howard & 18, 23 & \cit\\
+Ejemplo 9.24 & La prueba como función \emph{swap} & 18 & \dem\\
+Def.~9.25 & Normalización como evaluación & 19 & ---\\
+§10.2.3 & Iteración sin inducción (Geuvers) & 21, 23 & \cit\\
+§10.3.1--10.3.5 & Recursor, eliminación e \(\iota\)-reducción & 20 & ---\\
+§10.3.2 & Positividad estricta & 22 & ---\\
+\bottomrule
+\end{longtable}
+}
+
+%=====================================================================
+\section{Lo básico: definiciones inductivas y sus dos usos}
+%=====================================================================
+
+\subsection{Conjuntos definidos por reglas}
+
+La Definición 7.1 introduce \(\Lambda\) con tres reglas: toda variable es un
+término; si \(M,N\in\Lambda\) entonces \((MN)\in\Lambda\); si \(u\in V\) y
+\(M\in\Lambda\) entonces \((\lambda u.M)\in\Lambda\). Lo implícito, y lo que
+hace funcionar todas las pruebas, es la cláusula de \emph{minimalidad}:
+
+\begin{center}
+\(\Lambda\) es el \textbf{menor} conjunto que contiene a las variables y es cerrado bajo
+aplicación y abstracción.
+\end{center}
+
+El mismo molde aparece en toda la parte teórica:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Objeto} & \textbf{Reglas} & \textbf{Dónde}\\
+\midrule
+términos \(\Lambda\), \(\Lambda_{\mathbb T}\) & variable, aplicación, abstracción & Def.~7.1, 7.50\\
+tipos simples \(\mathbb T\) & variable de tipo, flecha & Def.~7.45\\
+fórmulas \(\Phi\) & \(\bot\), átomo, \(\to\), \(\vee\), \(\wedge\) & Def.~9.21\\
+\(\bred\) & base \((\lambda x.M)N\bred M[x:=N]\) y compatibilidad & Def.~7.24\\
+\(\Gamma\vdash M:\sigma\) & (variable), (aplicación), (abstracción), \dots & §7.3.3, cap.~8\\
+\(\Gamma\vdash\varphi\) & reglas de introducción y eliminación & §9.1, §9.4.2\\
+\(\mathbb N\), listas, \dots & constructores (\(0\), \(S\)) & §10.3\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Una definición inductiva sirve para dos cosas, y cada una da un esquema de
+demostración:
+
+\begin{itemize}
+  \item \textbf{Para construir:} un objeto pertenece al conjunto si se puede
+    obtener aplicando las reglas un número finito de veces. Para probar
+    \(\Gamma\vdash M:\sigma\) basta exhibir esa sucesión de reglas, es decir,
+    una derivación.
+  \item \textbf{Para razonar sobre todos los objetos:} si una propiedad se
+    conserva bajo cada regla, la minimalidad garantiza que vale para todo el
+    conjunto. Esto es la \emph{inducción}: estructural si el conjunto son
+    términos, sobre derivaciones si son juicios.
+\end{itemize}
+
+El Capítulo~10 convierte esta observación en un teorema del sistema: al
+declarar un tipo inductivo se generan sus constructores (las reglas) y su
+eliminador (el principio de inducción); véase el Esquema~20.
+
+\subsection{Notación que conviene tener presente}
+
+\begin{itemize}
+  \item \(M\equiv N\): identidad sintáctica. Desde la Sección~7.2.4 la tesis
+    identifica términos \(\alpha\)-equivalentes. Por eso \(\equiv\) entre
+    resultados de sustituciones se lee \emph{módulo \(\alpha\)}, y se
+    escribe \(\aeq\) cuando interesa mostrar el renombramiento.
+  \item \(\bred\): un paso de reducción \(\beta\). \(\bmred\): cero o más
+    pasos. \(\beq\): conversión, es decir, cadenas que pueden ir en los dos
+    sentidos.
+  \item \(\Gamma\vdash M:\sigma\): juicio de tipado. \(\Gamma\vdash\varphi\):
+    secuente de deducción natural. \(\Gamma\vDash\varphi\): consecuencia
+    semántica. El mismo símbolo \(\vdash\) se usa en los dos primeros con
+    significados distintos (la tesis lo advierte en §10.3.3).
+\end{itemize}
+
+%=====================================================================
+\section{Catálogo de esquemas}\label{sec:catalogo}
+%=====================================================================
+
+\subsection*{Parte A. Inducción y análisis de casos sobre términos}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 1. Inducción estructural sobre términos}\label{esq:estructural}
+\forma Para probar \(\forall M\in\Lambda.\ \Phi(M)\) se prueban tres cosas:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{caso variable:} \(\Phi(x)\) para toda variable \(x\);
+  \item \textbf{caso aplicación:} si \(\Phi(P)\) y \(\Phi(Q)\) (hipótesis de
+    inducción), entonces \(\Phi(PQ)\);
+  \item \textbf{caso abstracción:} si \(\Phi(P)\), entonces
+    \(\Phi(\lambda x.P)\).
+\end{enumerate}
+\porque El conjunto \(\{M\mid\Phi(M)\}\) contiene a las variables y es cerrado
+bajo aplicación y abstracción. Como \(\Lambda\) es el menor conjunto con esas
+propiedades, \(\Lambda\subseteq\{M\mid\Phi(M)\}\).
+
+\plantilla «Se procede por inducción sobre la estructura de \(M\).
+\emph{Caso \(M\equiv x\):} \dots\ \emph{Caso \(M\equiv PQ\):} por hipótesis de
+inducción, \(\Phi(P)\) y \(\Phi(Q)\); entonces \dots\ \emph{Caso
+\(M\equiv\lambda x.P\):} por hipótesis de inducción, \(\Phi(P)\); entonces
+\dots»
+
+\donde Lema 7.6 (transitividad de \(\Sub\)), Lema 7.23 (sustitución) y, en
+general, cualquier propiedad de \(\Sub\), \(\FV\) o de la sustitución. La
+Nota~7.5 de la tesis presenta el método.
+\end{esquema}
+
+\begin{ejemplotesis}{Lema 7.6 (transitividad): inducción sobre \(N\)}
+\textbf{Enunciado.} Si \(L\in\Sub(M)\) y \(M\in\Sub(N)\), entonces
+\(L\in\Sub(N)\).
+
+\textbf{Elección de la variable.} Se fijan \(L\) y \(M\) y se hace inducción
+sobre \(N\) con la propiedad
+\[
+\Phi(N):\quad L\in\Sub(M)\ \wedge\ M\in\Sub(N)\ \Longrightarrow\ L\in\Sub(N).
+\]
+\textbf{Caso \(N\equiv PQ\).} Por definición,
+\(\Sub(PQ)=\Sub(P)\cup\Sub(Q)\cup\{PQ\}\), así que \(M\in\Sub(N)\) deja tres
+posibilidades:
+\begin{itemize}
+  \item \(M\in\Sub(P)\): la hipótesis de inducción \(\Phi(P)\) da
+    \(L\in\Sub(P)\subseteq\Sub(N)\);
+  \item \(M\in\Sub(Q)\): simétrico, con \(\Phi(Q)\);
+  \item \(M\equiv PQ\equiv N\): entonces \(L\in\Sub(M)=\Sub(N)\) directamente.
+\end{itemize}
+Los casos variable y abstracción son análogos (uno y dos subcasos).
+\end{ejemplotesis}
+
+\begin{trampa}
+\begin{itemize}
+  \item \textbf{¿Por qué sobre \(N\) y no sobre \(M\)?} La hipótesis que hay
+    que descomponer es \(M\in\Sub(N)\), y \(\Sub(N)\) se calcula según la
+    forma de \(N\). Conocer la forma de \(M\) no dice nada sobre \(\Sub(N)\).
+  \item \textbf{La reflexividad no usa la hipótesis de inducción.} Cada
+    cláusula de \(\Sub\) añade el propio término (\(\{x\}\), \(\cup\{MN\}\),
+    \(\cup\{\lambda x.M\}\)), así que \(M\in\Sub(M)\) sale directamente de la
+    definición en cada caso. La tesis la presenta caso por caso dentro del
+    marco inductivo, pero basta un análisis de casos (Esquema~2).
+  \item Aquí \(L\) y \(M\) se mantienen fijos, y la hipótesis de inducción se
+    aplica con los mismos \(L,M\). En otras pruebas hace falta
+    \emph{generalizar}, es decir, cuantificar una variable antes de inducir
+    (véase el Esquema~9 con el contexto \(\Gamma\)).
+\end{itemize}
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 2. Análisis de casos según la definición}
+\forma Cuando un objeto se define por cláusulas (como \(\Sub\), \(\FV\) o la
+sustitución), una pertenencia o una igualdad se descompone en tantos casos
+como cláusulas apliquen, y cada caso se cierra con la cláusula
+correspondiente.
+
+\porque Las cláusulas son exhaustivas (todo término es una variable, una
+aplicación o una abstracción) y mutuamente excluyentes. La disyunción de los
+casos es verdadera y cada rama prueba la meta: es la eliminación de la
+disyunción (\(\vee\)e del Capítulo~9) aplicada a la matemática informal.
+
+\plantilla «Se distinguen tres subcasos según la variable \(z\): \(z\equiv x\),
+\(z\equiv y\) y \(z\not\equiv x,y\). En el primero \dots»
+
+\donde El caso base del Lema 7.23. La pertenencia
+\(M\in\Sub(PQ)\iff M\in\Sub(P)\vee M\in\Sub(Q)\vee M\equiv PQ\) del Lema 7.6.
+\end{esquema}
+
+\begin{ejemplotesis}{Lema 7.23, caso base: tres subcasos}
+Con \(x\not\equiv y\) y \(x\notin\FV(L)\) se quiere
+\(z[x:=N][y:=L]\equiv z[y:=L][x:=N[y:=L]]\) para una variable \(z\).
+\begin{itemize}
+  \item \(z\equiv x\): ambos lados valen \(N[y:=L]\). El lado derecho usa
+    \(x[y:=L]\equiv x\), que requiere \(x\not\equiv y\).
+  \item \(z\equiv y\): el lado izquierdo es \(y[y:=L]\equiv L\). El derecho es
+    \(L[x:=N[y:=L]]\equiv L\), que requiere \(x\notin\FV(L)\).
+  \item \(z\) distinta de ambas: los dos lados valen \(z\).
+\end{itemize}
+Cada hipótesis del lema se usa en exactamente un subcaso. Es una buena forma
+de explicar \emph{por qué} el lema tiene esas hipótesis.
+\end{ejemplotesis}
+
+\begin{trampa}[Un lema auxiliar implícito]
+El subcaso \(z\equiv y\) usa el hecho
+\[
+x\notin\FV(L)\ \Longrightarrow\ L[x:=K]\equiv L,
+\]
+que la tesis no enuncia por separado. Se demuestra por inducción estructural
+sobre \(L\) (Esquema~1). Si un examinador pregunta por esa línea, esta es la
+respuesta.
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 3. Cadena ecuacional justificada}
+\forma Una igualdad (o identidad \(\equiv\)) se prueba con una cadena
+\(A\equiv A_1\equiv\cdots\equiv B\) en la que cada eslabón lleva una
+justificación: una cláusula de una definición, la hipótesis de inducción o un
+lema.
+
+\porque \(\equiv\) (y \(\aeq\), \(\beq\)) es reflexiva, simétrica y
+transitiva, así que la cadena prueba \(A\equiv B\).
+
+\plantilla Una línea por paso, con la razón a la derecha:
+\[
+\begin{aligned}
+(PQ)[x:=N][y:=L]
+&\equiv (P[x:=N][y:=L])\,(Q[x:=N][y:=L])\\
+&\qquad\text{(def. de sustitución, dos veces)}\\
+&\equiv (P[y:=L][x:=N[y:=L]])\,(Q[y:=L][x:=N[y:=L]])\\
+&\qquad\text{(hipótesis de inducción en \(P\) y en \(Q\))}\\
+&\equiv (PQ)[y:=L][x:=N[y:=L]]\\
+&\qquad\text{(def. de sustitución, leída al revés)}
+\end{aligned}
+\]
+
+\donde Caso aplicación del Lema 7.23. Ejemplo 7.22 (cálculo de sustituciones
+regla por regla). Reducciones en los Ejemplos 7.26, 7.30 y 7.42.
+\end{esquema}
+
+\begin{nota}[El paso «leído al revés»]
+El último eslabón usa la definición de sustitución de derecha a izquierda:
+se reconoce que \((P'Q')[x:=K]\) \emph{se escribe} \(P'[x:=K]\,Q'[x:=K]\).
+Es el momento en que la prueba «vuelve a empaquetar» el resultado, y conviene
+señalarlo al explicarla.
+\end{nota}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 4. Variables ligadas: elegir un representante fresco}
+\forma En el caso de abstracción, antes de calcular se renombra la variable
+ligada a una \(z\) \emph{fresca}: distinta de todas las variables relevantes y
+fuera de las variables libres de los términos que se sustituyen.
+
+\porque La tesis identifica términos \(\alpha\)-equivalentes (§7.2.4, tras la
+Definición 7.19) y adopta la convención de Barendregt (§7.2.6). Renombrar una
+variable ligada no cambia el término módulo \(\alpha\), y elegir \(z\) fresca
+hace que la cláusula (3) de la sustitución pase \emph{sin} renombrar, es decir,
+\((\lambda z.P)[x:=N]\equiv\lambda z.(P[x:=N])\).
+
+\plantilla «Se puede renombrar \(z\) para que \(z\not\equiv x\),
+\(z\not\equiv y\) y \(z\notin\FV(N)\cup\FV(L)\). Entonces la sustitución entra
+bajo la abstracción y \dots»
+
+\donde Caso abstracción del Lema 7.23. Ejemplo 7.22, donde no renombrar
+produce la captura de la variable \(y\).
+\end{esquema}
+
+\begin{trampa}[Qué hay que comprobar en el caso abstracción del Lema 7.23]
+La tesis escribe el caso en tres líneas. Cada línea usa una de las condiciones
+de frescura:
+\begin{enumerate}
+  \item \((\lambda z.P)[x:=N]\equiv\lambda z.P[x:=N]\) usa \(z\not\equiv x\) y
+    \(z\notin\FV(N)\);
+  \item aplicar después \([y:=L]\) usa \(z\not\equiv y\) y \(z\notin\FV(L)\);
+  \item en el lado derecho, aplicar \([x:=N[y:=L]]\) usa
+    \(z\notin\FV(N[y:=L])\). Esto se sigue de
+    \(\FV(N[y:=L])\subseteq\FV(N)\cup\FV(L)\), otra pequeña inducción
+    estructural.
+\end{enumerate}
+Como la tesis trabaja módulo \(\alpha\), el Lema 7.23 afirma una identidad
+módulo \(\alpha\). Una igualdad sintáctica literal no se cumple en general,
+porque la elección de la variable fresca no es única.
+\end{trampa}
+
+\subsection*{Parte B. Relaciones de reducción}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 5. Relaciones definidas por cadenas finitas}
+\forma \(M\bmred N\) y \(M\beq N\) se definen por la \emph{existencia} de una
+cadena finita \(M\equiv M_0,\dots,M_n\equiv N\) (Definiciones 7.27 y 7.28).
+\begin{itemize}
+  \item Para \emph{probar} una de estas relaciones se exhibe una cadena
+    (introducción del \(\exists\)).
+  \item Para \emph{usarla} se toma una cadena cualquiera que la testifique
+    (eliminación del \(\exists\)) y se razona sobre ella.
+\end{itemize}
+
+\porque La definición es un existencial: las dos operaciones son exactamente
+sus reglas de introducción y eliminación.
+
+\plantilla Las cuatro operaciones del Lema 7.31 y del Lema 7.32:
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Propiedad} & \textbf{Cadena que se exhibe}\\
+\midrule
+extensión (\(\bred\subseteq\bmred\)) & la cadena de un paso (\(k=1\))\\
+reflexividad & la cadena vacía (\(k=0\))\\
+transitividad & la concatenación (\(r+s\) pasos)\\
+simetría de \(\beq\) & la cadena invertida\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\donde Lema 7.31 y Lema 7.32.
+\end{esquema}
+
+\begin{nota}[Por qué la simetría solo vale para \(\beq\)]
+La inversión funciona porque cada eslabón de \(\beq\) es
+\(M_i\bred M_{i+1}\) \emph{o} \(M_{i+1}\bred M_i\). Al invertir la cadena, un
+eslabón hacia adelante se convierte en uno hacia atrás, y viceversa. En
+\(\bmred\) todos los eslabones van hacia adelante, así que invertir la cadena
+no produce otra cadena de \(\bmred\). Por ejemplo,
+\((\lambda x.x)y\bmred y\) pero no \(y\bmred(\lambda x.x)y\).
+\end{nota}
+
+\begin{nota}[Una presentación equivalente]
+\(\bmred\) es la menor relación reflexiva y transitiva que contiene a
+\(\bred\), y \(\beq\) es la menor relación de equivalencia que contiene a
+\(\bred\). Con esa presentación, el Lema 7.31 y la segunda parte del
+Lema 7.32 se cumplen por construcción. La tesis elige la presentación con
+cadenas porque hace visibles los testigos.
+\end{nota}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 6. Inducción sobre la longitud de una cadena}
+\forma Para probar algo de toda cadena \(M_0\bconv M_1\bconv\cdots\bconv M_k\)
+se hace inducción sobre \(k\in\mathbb N\): el caso \(k=0\) y, para el paso
+inductivo, se aplica la hipótesis a los primeros \(k-1\) eslabones y se trata
+el último por casos.
+
+\porque Es inducción sobre los naturales aplicada a la longitud de la cadena.
+
+\donde Corolario 7.43 (Church--Rosser para la conversión).
+\end{esquema}
+
+\begin{ejemplotesis}{Corolario 7.43: del diamante para \(\bmred\) a la conversión}
+\textbf{Meta.} Si \(M\beq N\), existe \(L\) con \(M\bmred L\) y \(N\bmred L\).
+
+\textbf{\(k=0\).} \(M\equiv N\); se toma \(L\equiv M\).
+
+\textbf{Paso.} La hipótesis de inducción da \(L'\) con \(M\bmred L'\) y
+\(M_{k-1}\bmred L'\). El último eslabón tiene dos orientaciones:
+\begin{itemize}
+  \item \(M_k\bred M_{k-1}\): entonces \(M_k\bmred L'\) por transitividad
+    (Lema 7.31), y \(L\equiv L'\).
+  \item \(M_{k-1}\bred M_k\): \(M_{k-1}\) se reduce a \(L'\) y a \(M_k\).
+    Church--Rosser (Teorema 7.37) da \(L\) con \(L'\bmred L\) y
+    \(M_k\bmred L\); además \(M\bmred L'\bmred L\).
+\end{itemize}
+\[
+\begin{tikzcd}[column sep=small, row sep=small]
+M \arrow[rd, two heads] & & M_{k-1} \arrow[ld, two heads] \arrow[rd] & \\
+& L' \arrow[rd, two heads, dashed] & & M_k \arrow[ld, two heads, dashed]\\
+& & L &
+\end{tikzcd}
+\]
+\end{ejemplotesis}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 7. Unicidad vía confluencia y objetos extremales}
+\forma Para probar que un objeto con cierta propiedad es único: se suponen dos
+(\(N_1,N_2\)), se usa un teorema que los conecta (confluencia) y se usa que
+los objetos con esa propiedad no pueden «moverse» (una forma normal solo se
+reduce a sí misma).
+
+\porque Si \(N_1\bmred L\) y \(N_1\) no tiene redexes, la única cadena posible
+desde \(N_1\) tiene longitud \(0\), así que \(N_1\equiv L\). Lo mismo vale
+para \(N_2\), y por tanto \(N_1\equiv L\equiv N_2\).
+
+\plantilla «Sean \(N_1,N_2\) dos formas normales de \(M\). Por simetría y
+transitividad \(N_1\beq N_2\); por el Corolario 7.43 existe \(L\) con
+\(N_1\bmred L\) y \(N_2\bmred L\). Como las formas normales no tienen redexes,
+\(N_1\equiv L\equiv N_2\).»
+
+\donde Corolario 7.44 (unicidad de la forma normal).
+\end{esquema}
+
+\begin{trampa}
+\begin{itemize}
+  \item La forma normal se define con \(M\beq N\) (Definición 7.33), no con
+    \(M\bmred N\). Por eso la tesis necesita primero el Corolario 7.43, que
+    extiende la confluencia de \(\bmred\) a \(\beq\). Es la razón de ser de
+    ese corolario.
+  \item Church--Rosser \textbf{no} dice que todo término tenga forma normal:
+    \(\Omega\) no la tiene (Ejemplo 7.36). Solo dice que, si existe, es
+    única. La existencia, para términos tipados, es la normalización fuerte
+    (Teorema 8.27, citado).
+\end{itemize}
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 8. Confluencia por el método de Tait y Martin-Löf}\label{esq:tml}
+\forma Para probar que \(\bmred\) tiene la propiedad del diamante:
+\begin{enumerate}
+  \item se define una relación auxiliar \(\pr\) (reducción paralela,
+    Definición 7.39) que contrae cualquier conjunto de redexes a la vez;
+  \item se prueba que \(\pr\) tiene la propiedad del diamante \emph{en un
+    paso} (Lema 7.41), con ayuda del lema de sustitución para \(\pr\)
+    (Lema 7.40);
+  \item se verifica \(\bred\ \subseteq\ \pr\ \subseteq\ \bmred\). Como
+    consecuencia, la clausura reflexiva y transitiva de \(\pr\) coincide con
+    \(\bmred\);
+  \item el diamante de \(\pr\) pasa a su clausura transitiva «embaldosando»
+    el rectángulo.
+\end{enumerate}
+
+\porque El paso 4 es puramente combinatorio. Si \(M\pr^{*}N_1\) en \(m\) pasos
+y \(M\pr^{*}N_2\) en \(n\) pasos, se completa una cuadrícula de
+\(m\times n\) diamantes de un paso:
+\begin{center}
+\begin{tikzpicture}[x=1.45cm,y=1.0cm,>=Stealth]
+  \foreach \i in {0,1,2} \foreach \j in {0,1} {
+    \node (n\i\j) at (\i,-\j) {\(\bullet\)};
+  }
+  \node[above left] at (0,0) {\(M\)};
+  \node[above right] at (2,0) {\(N_1\)};
+  \node[below left] at (0,-1) {\(N_2\)};
+  \node[below right] at (2,-1) {\(L\)};
+  \foreach \i/\k in {0/1,1/2} {
+    \draw[->] (n\i0) -- node[above]{\scriptsize\(\pr\)} (n\k0);
+    \draw[->,dashed] (n\i1) -- node[below]{\scriptsize\(\pr\)} (n\k1);
+  }
+  \foreach \i in {0} \draw[->] (n\i0) -- node[left]{\scriptsize\(\pr\)} (n\i1);
+  \foreach \i in {1,2} \draw[->,dashed] (n\i0) -- node[right]{\scriptsize\(\pr\)} (n\i1);
+\end{tikzpicture}
+\end{center}
+Cada cuadrado se cierra con el Lema 7.41. Las flechas discontinuas existen
+por el diamante, y la esquina \(L\) es el reducto común.
+
+\donde Teorema 7.37 (esbozo, siguiendo a Barendregt, Teorema 3.2.8) y
+Teorema 7.63 (mismo argumento en \(\lambda\!\to\)).
+\end{esquema}
+
+\begin{trampa}[¿Por qué no se embaldosa directamente con \(\bred\)? (complemento)]
+Porque \(\bred\) \emph{no} tiene el diamante en un paso. Sea
+\(M\equiv(\lambda x.xx)\,((\lambda y.y)z)\):
+\[
+M\bred((\lambda y.y)z)\,((\lambda y.y)z),\qquad M\bred(\lambda x.xx)\,z.
+\]
+El segundo llega a \(zz\) en un paso, pero el primero necesita dos, porque el
+redex interno quedó \emph{duplicado}. La reducción paralela contrae las dos
+copias a la vez, y por eso con \(\pr\) los cuadrados sí se cierran en un paso.
+Este es el motivo técnico de introducir \(\pr\).
+
+Tampoco basta la confluencia \emph{local} (cerrar cada par de pasos con
+\(\bmred\)). Sin terminación no implica confluencia (lema de Newman), y el
+cálculo no tipado no termina.
+\end{trampa}
+
+\subsection*{Parte C. Juicios y derivaciones}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 9. Inducción sobre derivaciones (inducción por reglas)}\label{esq:derivaciones}
+\forma Para probar «si \(\Gamma\vdash L:\sigma\) es derivable, entonces
+\(\Psi(\Gamma,L,\sigma)\)», se recorre cada regla de tipado: suponiendo
+\(\Psi\) para las premisas, se prueba \(\Psi\) para la conclusión.
+
+\porque La derivabilidad es la menor relación cerrada bajo las reglas. Si
+\(\Psi\) también es cerrada bajo ellas, contiene a la derivabilidad. Es el
+Esquema~1 aplicado a \emph{árboles de derivación} en lugar de términos.
+
+\plantilla «Por inducción sobre la derivación de \(\Gamma\vdash L:\sigma\).
+\emph{Regla (variable):} \dots\ \emph{Regla (aplicación):} por hipótesis
+inductiva aplicada a las dos premisas \dots\ \emph{Regla (abstracción):} por
+hipótesis inductiva aplicada a la premisa \(\Gamma,x:\sigma\vdash M:\tau\)
+\dots»
+
+\donde Lema 7.57 (variables libres). Teorema 9.13 (solidez), donde Huth y Ryan
+lo llaman «inducción sobre la longitud de la prueba».
+\end{esquema}
+
+\begin{ejemplotesis}{Lema 7.57: \(\FV(L)\subseteq\dom(\Gamma)\)}
+\begin{itemize}
+  \item \textbf{(variable)} \(x:\sigma\in\Gamma\) da \(x\in\dom(\Gamma)\) y
+    \(\FV(x)=\{x\}\).
+  \item \textbf{(aplicación)} Por las hipótesis inductivas,
+    \(\FV(MN)=\FV(M)\cup\FV(N)\subseteq\dom(\Gamma)\).
+  \item \textbf{(abstracción)} La premisa vive en el contexto
+    \emph{extendido} \(\Gamma,x:\sigma\). La hipótesis inductiva da
+    \(\FV(M)\subseteq\dom(\Gamma)\cup\{x\}\), y entonces
+    \(\FV(\lambda x{:}\sigma.M)=\FV(M)\setminus\{x\}\subseteq\dom(\Gamma)\).
+\end{itemize}
+\end{ejemplotesis}
+
+\begin{trampa}
+\begin{itemize}
+  \item \textbf{No fijar el contexto.} En la regla (abstracción) la premisa
+    tiene un contexto distinto del de la conclusión. La propiedad \(\Psi\)
+    debe enunciarse para \emph{todo} \(\Gamma\). Si se fija \(\Gamma\) antes
+    de inducir, la hipótesis inductiva no se aplica a la premisa.
+  \item \textbf{Inducción estructural frente a inducción sobre derivaciones.}
+    En la primera los casos son las formas del término; en la segunda, las
+    reglas. En \(\lambda\!\to\) coinciden porque el sistema está dirigido por
+    la sintaxis: cada forma de término admite una sola regla. En
+    \(\lambda\underline{\omega}\), con (debilitamiento) y (conversión), ya no
+    coinciden: el mismo término puede obtenerse por varias reglas.
+\end{itemize}
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 10. Construir una derivación de tipado}
+\forma Se trabaja \emph{de la meta hacia las hipótesis}: la forma del término
+indica la regla.
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{El término es\dots} & \textbf{Regla} & \textbf{Nueva meta}\\
+\midrule
+una variable \(x\) & (variable) & comprobar \(x:\sigma\in\Gamma\)\\
+\(\lambda x{:}\sigma.M\) con tipo \(\sigma\to\tau\) & (abstracción) & \(\Gamma,x:\sigma\vdash M:\tau\)\\
+\(MN\) con tipo \(\tau\) & (aplicación) & \(\Gamma\vdash M:\sigma\to\tau\) y \(\Gamma\vdash N:\sigma\)\\
+\(\Lambda\alpha{:}*.M\) con tipo \(\Pi\alpha{:}*.A\) & (abstracción\(_2\)) & \(\Gamma,\alpha:*\vdash M:A\)\\
+\bottomrule
+\end{tabular}
+\end{center}
+Una vez llegada a las hojas, la derivación se escribe al revés: de las hojas a
+la raíz.
+
+\porque Cada regla se lee en los dos sentidos. Hacia abajo construye; hacia
+arriba dice qué falta. Cuando se llega a hojas cerradas por (variable), el
+árbol queda completo.
+
+\donde Ejemplos 7.52 (función constante), 7.53 (\(\eta\)-expansión de la
+identidad) y 8.5 (identidad polimórfica).
+\end{esquema}
+
+\begin{ejemplotesis}{Ejemplo 7.53 en los tres formatos de la tesis}
+\textbf{Árbol.}
+\begin{prooftree}
+  \AxiomC{\((y:\alpha\to\beta)\in\Gamma_1\)}
+  \RightLabel{\scriptsize(var)}
+  \UnaryInfC{\(\Gamma_1\vdash y:\alpha\to\beta\)}
+  \AxiomC{\((z:\alpha)\in\Gamma_1\)}
+  \RightLabel{\scriptsize(var)}
+  \UnaryInfC{\(\Gamma_1\vdash z:\alpha\)}
+  \RightLabel{\scriptsize(apl)}
+  \BinaryInfC{\(\Gamma_1\vdash y\,z:\beta\)}
+  \RightLabel{\scriptsize(abs)}
+  \UnaryInfC{\(y:\alpha\to\beta\vdash\lambda z{:}\alpha.\,y\,z:\alpha\to\beta\)}
+  \RightLabel{\scriptsize(abs)}
+  \UnaryInfC{\(\vdash\lambda y{:}\alpha\to\beta.\,\lambda z{:}\alpha.\,y\,z:(\alpha\to\beta)\to\alpha\to\beta\)}
+\end{prooftree}
+con \(\Gamma_1=\{y:\alpha\to\beta,\ z:\alpha\}\).
+
+\textbf{Lineal.} Los juicios (1)--(5) numerados, cada uno con su regla y sus
+premisas (es la redacción de la demostración en la tesis).
+
+\textbf{Banderas.} Cada declaración abre una bandera; las líneas dentro de ella
+la tienen en su contexto. Cerrar la bandera es aplicar (abstracción):
+\begin{center}
+\begin{flagderiv}[fdsiete]
+  \introduce{y}{y:\alpha\to\beta}{}
+  \introduce{z}{z:\alpha}{}
+  \step{yy}{y:\alpha\to\beta}{(var)}
+  \step{zz}{z:\alpha}{(var)}
+  \step{yz}{y\,z:\beta}{(apl) en \ref{yy}, \ref{zz}}
+  \conclude{lz}{\lambda z{:}\alpha.\,y\,z:\alpha\to\beta}{(abs) en \ref{yz}}
+  \conclude{ly}{\lambda y{:}\alpha\to\beta.\,\lambda z{:}\alpha.\,y\,z:(\alpha\to\beta)\to\alpha\to\beta}{(abs) en \ref{lz}}
+\end{flagderiv}
+\end{center}
+Los tres formatos codifican la misma información. El de banderas evita
+repetir el contexto en cada línea, y su «caja» es la misma que la de la
+deducción natural (Nota 9.5).
+\end{ejemplotesis}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 11. Derivar con contextos bien formados (sistemas con sorts)}
+\forma En \(\lambda\underline{\omega}\) y en los sistemas del cubo, la buena
+formación del contexto es parte de la prueba. Cada declaración \(x:A\) que se
+añade exige derivar antes \(\Gamma\vdash A:s\). Las reglas que hacen ese
+trabajo son:
+\[
+\text{(sort)}\ \ \varnothing\vdash *:\square\qquad
+\frac{\Gamma\vdash A:s}{\Gamma,x:A\vdash x:A}\ \text{(var)}\qquad
+\frac{\Gamma\vdash A:B\quad\Gamma\vdash C:s}{\Gamma,x:C\vdash A:B}\ \text{(deb)}
+\]
+y, para cambiar un tipo por otro \(\beta\)-equivalente,
+\[
+\frac{\Gamma\vdash A:B\quad\Gamma\vdash B':s}{\Gamma\vdash A:B'}\ \ (B\beq B')\ \text{(conversión)}.
+\]
+
+\porque Sin la segunda premisa del debilitamiento (\(\Gamma\vdash C:s\)) se
+podrían añadir declaraciones sin sentido, como \(x:3\). Sin la segunda
+premisa de la conversión se podría «convertir» a una expresión mal formada
+(la Definición 8.21 lo advierte).
+
+\plantilla Formato de banderas, indicando en cada paso \emph{las dos}
+premisas: «(debilitamiento) de 2, 3». La tesis señala que pueden coincidir
+(«de 1, 1»), porque cada premisa cumple un papel distinto.
+
+\donde Ejemplo 8.13 (\(\alpha:*,x:\alpha\vdash x:\alpha\)), Ejemplo 8.15
+(debilitamiento), Ejemplo 8.20 (derivación completa frente a abreviada) y
+Ejemplo 8.22 (conversión).
+\end{esquema}
+
+\begin{ejemplotesis}{Ejemplo 8.22: usar la conversión}
+Con \(\Gamma\equiv\beta:*,\ x:(\lambda\alpha{:}*.\,\alpha\to\alpha)\,\beta\) se
+quiere \(\Gamma\vdash x:\beta\to\beta\).
+\begin{enumerate}
+  \item \(\Gamma\vdash x:(\lambda\alpha{:}*.\,\alpha\to\alpha)\,\beta\) por
+    (variable).
+  \item \(\Gamma\vdash\beta\to\beta:*\) por (formación), a partir de
+    \(\Gamma\vdash\beta:*\).
+  \item \((\lambda\alpha{:}*.\,\alpha\to\alpha)\,\beta\bred\beta\to\beta\): un
+    paso \(\beta\), ahora \emph{en el nivel de los tipos}.
+  \item (conversión) con 1, 2 y 3.
+\end{enumerate}
+El punto conceptual es que el tipado se hace \emph{módulo cómputo}: dos tipos
+que se reducen a lo mismo son intercambiables.
+\end{ejemplotesis}
+
+\begin{nota}[Derivaciones abreviadas (Ejemplo 8.20)]
+Una derivación completa en \(\lambda\underline{\omega}\) tiene muchos pasos
+rutinarios de (sort), (variable) y (debilitamiento). La versión abreviada los
+omite y conserva solo (formación), (abstracción), (aplicación) y
+(conversión). Es la misma convención que en matemática ordinaria omite
+«\(x\) es un número real» en cada línea. Al explicar una derivación abreviada
+conviene decir qué pasos se omitieron y por qué son rutinarios.
+\end{nota}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 12. Habitar un tipo es construir una prueba}
+\forma Para probar una proposición \(A\) se busca un término \(M\) con
+\(\Gamma\vdash M:A\) (construcción de términos, §7.3.4). Cada conectivo indica
+qué hacer:
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Meta / hipótesis} & \textbf{Qué se hace} & \textbf{Regla}\\
+\midrule
+meta \(A\to B\) & suponer \(z:A\) y habitar \(B\) & (abstracción)\\
+meta \(\Pi u{:}S.\,C\) & tomar \(u:S\) arbitrario y habitar \(C\) & (abstracción)\\
+hipótesis \(z:\Pi x{:}S.\,D\) & aplicar \(z\) a un \(a:S\) y obtener \(D[x:=a]\) & (aplicación)\\
+hipótesis \(f:A\to B\) y \(a:A\) & aplicar y obtener \(f\,a:B\) & (aplicación)\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\porque Es la correspondencia PAT (Definiciones 7.61 y 8.25): la abstracción
+es la introducción de \(\to\) y de \(\forall\) (generalización), y la
+aplicación es su eliminación (modus ponens y especialización).
+
+\donde §8.3.3 (lógica de predicados en \(\lambda P\)); Ejemplos 7.52 y 9.24.
+\end{esquema}
+
+\begin{ejemplotesis}{§8.3.3: si \(Q\) vale para todos los pares, vale para los pares \((u,u)\)}
+Meta: habitar \((\Pi x{:}S.\,\Pi y{:}S.\,Q\,x\,y)\to(\Pi u{:}S.\,Q\,u\,u)\) con
+\(S:*\) y \(Q:S\to S\to *\).
+\begin{center}
+\begin{flagderiv}[fdpi]
+  \introduce{z}{z:\Pi x{:}S.\,\Pi y{:}S.\,Q\,x\,y}{supuesto}
+  \introduce{u}{u:S}{$u$ arbitrario}
+  \step{zu}{z\,u:\Pi y{:}S.\,Q\,u\,y}{(apl) en \ref{z}, \ref{u}}
+  \step{zuu}{z\,u\,u:Q\,u\,u}{(apl) en \ref{zu}, \ref{u}}
+  \conclude{lu}{\lambda u{:}S.\,z\,u\,u:\Pi u{:}S.\,Q\,u\,u}{(abs) en \ref{zuu}}
+  \conclude{lz}{\lambda z.\,\lambda u{:}S.\,z\,u\,u:(\Pi x\,\Pi y.\,Q\,x\,y)\to\Pi u.\,Q\,u\,u}{(abs) en \ref{lu}}
+\end{flagderiv}
+\end{center}
+\textbf{Lectura en español.} «Supóngase que \(Q(x,y)\) vale para todo par
+(\(z\)). Sea \(u\in S\) arbitrario. Instanciando la hipótesis en \(x:=u\) e
+\(y:=u\) se obtiene \(Q(u,u)\). Como \(u\) era arbitrario, \(\forall u.\,Q(u,u)\).»
+El término \(\lambda z.\lambda u.\,z\,u\,u\) \emph{es} esa frase.
+\end{ejemplotesis}
+
+\subsection*{Parte D. Lógica: deducción natural y semántica}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 13. Derivación en deducción natural con cajas}
+\forma Una prueba es una lista numerada de fórmulas, cada una con su
+justificación (premisa, suposición o regla aplicada a líneas anteriores). Las
+reglas que \emph{descargan} una suposición (\(\to\)i, \(\neg\)i, \(\vee\)e y
+RAA) abren una caja: empieza con la suposición y se cierra al aplicar la regla.
+
+\porque Es la presentación de Fitch (o Huth--Ryan) de las reglas de §9.1. La
+disciplina de cajas (Nota 9.5) garantiza que la conclusión final dependa solo
+de las premisas.
+
+\plantilla Una heurística que funciona casi siempre:
+\begin{enumerate}
+  \item mirar la \emph{meta}: si es \(A\to B\), abrir una caja con \(A\) y
+    buscar \(B\) (\(\to\)i); si es \(\neg A\), abrir una caja con \(A\) y
+    buscar \(\bot\) (\(\neg\)i);
+  \item mirar las \emph{premisas}: descomponer las conjunciones (\(\wedge\)e) y
+    usar las disyunciones por casos (\(\vee\)e);
+  \item si nada de lo anterior funciona y la lógica es clásica, abrir una caja
+    con \(\neg A\) y buscar \(\bot\) (RAA).
+\end{enumerate}
+
+\donde Proposiciones 9.6 y 9.9.
+\end{esquema}
+
+\begin{ejemplotesis}{Proposición 9.6: \(p\wedge(q\vee r)\vdash(p\wedge q)\vee(p\wedge r)\)}
+\begin{center}
+\begin{tabular}{lll}
+1 & \(p\wedge(q\vee r)\) & premisa\\
+2 & \(p\) & \(\wedge\)e\(_1\) 1\\
+3 & \(q\vee r\) & \(\wedge\)e\(_2\) 1\\ \cline{2-3}
+4 & \multicolumn{1}{|l}{\(q\)} & suposición (caso 1)\\
+5 & \multicolumn{1}{|l}{\(p\wedge q\)} & \(\wedge\)i 2, 4\\
+6 & \multicolumn{1}{|l}{\((p\wedge q)\vee(p\wedge r)\)} & \(\vee\)i\(_1\) 5\\ \cline{2-3}
+7 & \multicolumn{1}{|l}{\(r\)} & suposición (caso 2)\\
+8 & \multicolumn{1}{|l}{\(p\wedge r\)} & \(\wedge\)i 2, 7\\
+9 & \multicolumn{1}{|l}{\((p\wedge q)\vee(p\wedge r)\)} & \(\vee\)i\(_2\) 8\\ \cline{2-3}
+10 & \((p\wedge q)\vee(p\wedge r)\) & \(\vee\)e 3, 4--6, 7--9
+\end{tabular}
+\end{center}
+Hay dos lecciones. La línea 2, fuera de las cajas, se usa dentro de ambas. Las
+dos ramas tienen que terminar en \emph{la misma} fórmula; por eso las líneas 6
+y 9 introducen la disyunción completa antes de cerrar.
+\end{ejemplotesis}
+
+\begin{trampa}
+\begin{itemize}
+  \item Lo que está dentro de una caja cerrada \emph{no} puede usarse
+    después (líneas 4--9 no están disponibles en la línea 10, salvo como
+    bloques citados por la regla).
+  \item Bajo Curry--Howard esta restricción es el \emph{alcance de una
+    variable ligada}. La suposición \(q\) de la línea 4 es la variable \(x\)
+    de \(\operatorname{case}(L;x.M;y.N)\) (§9.5.1).
+\end{itemize}
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 14. Equivalencia: dos direcciones y dónde entra lo clásico}
+\forma \(\varphi\dashv\vdash\psi\) se prueba con dos derivaciones
+independientes, \(\varphi\vdash\psi\) y \(\psi\vdash\varphi\)
+(Definición 9.8). Conviene identificar en cuál de ellas, si en alguna, se usa
+una regla clásica (RAA, LEM o \(\neg\neg\)e).
+
+\porque Es la definición. Separar las direcciones permite ver cuál es
+intuicionista y cuál no.
+
+\donde Proposición 9.9 (contrapositiva).
+\end{esquema}
+
+\begin{ejemplotesis}{Proposición 9.9: \(p\to q\dashv\vdash\neg q\to\neg p\)}
+\begin{minipage}[t]{0.49\textwidth}
+\textbf{(\(\Rightarrow\)) intuicionista}\\[2pt]
+\begin{tabular}{lll}
+1 & \(p\to q\) & premisa\\ \cline{2-3}
+2 & \multicolumn{1}{|l}{\(\neg q\)} & sup.\ (\(\to\)i)\\
+3 & \multicolumn{1}{|l}{\quad\(p\)} & sup.\ (\(\neg\)i)\\
+4 & \multicolumn{1}{|l}{\quad\(q\)} & \(\to\)e 1, 3\\
+5 & \multicolumn{1}{|l}{\quad\(\bot\)} & \(\neg\)e 4, 2\\ \cline{3-3}
+6 & \multicolumn{1}{|l}{\(\neg p\)} & \(\neg\)i 3--5\\ \cline{2-3}
+7 & \(\neg q\to\neg p\) & \(\to\)i 2--6
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\textbf{(\(\Leftarrow\)) clásica}\\[2pt]
+\begin{tabular}{lll}
+1 & \(\neg q\to\neg p\) & premisa\\ \cline{2-3}
+2 & \multicolumn{1}{|l}{\(p\)} & sup.\ (\(\to\)i)\\
+3 & \multicolumn{1}{|l}{\quad\(\neg q\)} & sup.\ (RAA)\\
+4 & \multicolumn{1}{|l}{\quad\(\neg p\)} & \(\to\)e 1, 3\\
+5 & \multicolumn{1}{|l}{\quad\(\bot\)} & \(\neg\)e 2, 4\\ \cline{3-3}
+6 & \multicolumn{1}{|l}{\(q\)} & RAA 3--5\\ \cline{2-3}
+7 & \(p\to q\) & \(\to\)i 2--6
+\end{tabular}
+\end{minipage}
+
+\medskip
+Las dos derivaciones tienen la misma forma. La diferencia está en la línea 6:
+\(\neg\)i concluye la \emph{negación} de lo supuesto, mientras que RAA
+concluye la fórmula \emph{sin} la negación supuesta. Por eso la primera
+dirección vale en NJ y la segunda no.
+\end{ejemplotesis}
+
+\begin{nota}[\(\neg\)i no es RAA (Nota 7.60)]
+\[
+\frac{\Gamma,A\vdash\bot}{\Gamma\vdash\neg A}\ \neg\mathrm I
+\qquad\qquad
+\frac{\Gamma,\neg A\vdash\bot}{\Gamma\vdash A}\ \mathrm{RAA}
+\]
+Las dos «derivan una contradicción», pero solo la segunda es clásica. Con
+\(\neg A:=A\to\bot\), la primera es un caso de \(\to\)I. La segunda equivale a
+la eliminación de la doble negación. Es la pregunta más probable sobre lógica
+clásica e intuicionista.
+\end{nota}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 15. Solidez: inducción sobre la prueba y análisis de la última regla}
+\forma Para \(\Gamma\vdash\psi\Rightarrow\Gamma\vDash\psi\): inducción sobre
+la derivación (Esquema 9). Para cada regla se toma una valuación \(v\) que
+satisface \(\Gamma\) y se comprueba que hace verdadera la conclusión, usando
+las hipótesis inductivas de las premisas.
+
+\porque Cada regla \emph{preserva la verdad}: si las premisas son verdaderas
+bajo \(v\), la conclusión también lo es.
+
+\donde Teorema 9.13 (esbozo; detalles en Huth y Ryan, Teorema 1.35).
+\end{esquema}
+
+\begin{ejemplotesis}{Dos casos del Teorema 9.13}
+\textbf{\(\to\)i.} La premisa es \(\Gamma,\varphi\vdash\chi\), así que la
+hipótesis inductiva da \(\Gamma,\varphi\vDash\chi\). Sea \(v\vDash\Gamma\). Si
+\(v(\varphi)=F\), entonces \(v(\varphi\to\chi)=T\). Si \(v(\varphi)=T\), la
+hipótesis da \(v(\chi)=T\). En ambos casos \(v(\varphi\to\chi)=T\).
+
+\textbf{RAA.} La premisa es \(\Gamma,\neg\varphi\vdash\bot\), así que la
+hipótesis da \(\Gamma,\neg\varphi\vDash\bot\). Si fuera \(v(\varphi)=F\),
+entonces \(v\) satisfaría \(\Gamma\cup\{\neg\varphi\}\) y la hipótesis daría
+\(v(\bot)=T\), lo cual es imposible. Luego \(v(\varphi)=T\).
+\end{ejemplotesis}
+
+\begin{trampa}
+El caso RAA es el único, junto con LEM, que usa la \emph{bivalencia}: el paso
+de «no es \(F\)» a «es \(T\)». En una semántica no bivalente (por ejemplo, la
+de Kripke) RAA deja de ser sólida, mientras que las reglas del núcleo
+intuicionista siguen siéndolo. Esto explica por qué NJ no prueba \(p\vee\neg p\).
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 16. Reforzar el enunciado para que la inducción pase (Kalmár)}
+\forma Si una inducción se atasca porque la hipótesis inductiva es demasiado
+débil, se prueba un enunciado \emph{más fuerte} que la incluya. En el lema de
+Kalmár, en lugar de «si \(v(\eta)=T\), los literales de \(v\) derivan
+\(\eta\)», se prueba el enunciado \textbf{bilateral}:
+\[
+\Gamma_v\vdash\eta\ \text{ si } v(\eta)=T,
+\qquad
+\Gamma_v\vdash\neg\eta\ \text{ si } v(\eta)=F,
+\]
+donde \(\Gamma_v\) contiene, para cada átomo \(p\) de \(\eta\), el literal
+\(p\) si \(v(p)=T\) y \(\neg p\) si \(v(p)=F\).
+
+\porque En los casos \(\neg\) y \(\to\) la verdad de la fórmula depende de que
+alguna subfórmula sea \emph{falsa}, y para eso hace falta una hipótesis
+inductiva que hable también de las fórmulas falsas.
+
+\donde Teorema 9.14 (esbozo, Huth y Ryan §1.4.4) y Ejemplo 9.17 (\(p\to p\)).
+El Capítulo 11 lo formaliza.
+\end{esquema}
+
+\begin{ejemplotesis}{Los casos que obligan al enunciado bilateral (desarrollo del esbozo)}
+\textbf{\(\eta\equiv\neg\varphi\).}
+\begin{itemize}
+  \item Si \(v(\neg\varphi)=T\), entonces \(v(\varphi)=F\), y la hipótesis
+    \emph{sobre fórmulas falsas} da \(\Gamma_v\vdash\neg\varphi\). Con un
+    enunciado unilateral no habría nada que usar.
+  \item Si \(v(\neg\varphi)=F\), entonces \(v(\varphi)=T\), y la hipótesis da
+    \(\Gamma_v\vdash\varphi\); de ahí \(\Gamma_v\vdash\neg\neg\varphi\), que es
+    válido intuicionistamente.
+\end{itemize}
+\textbf{\(\eta\equiv\varphi\to\psi\).}
+\begin{itemize}
+  \item \(v(\varphi)=F\): de \(\Gamma_v\vdash\neg\varphi\) se obtiene
+    \(\Gamma_v\vdash\varphi\to\psi\) (suponer \(\varphi\), contradicción,
+    \(\bot\)e).
+  \item \(v(\psi)=T\): de \(\Gamma_v\vdash\psi\) se obtiene
+    \(\Gamma_v\vdash\varphi\to\psi\) (\(\to\)i sin usar la suposición).
+  \item \(v(\varphi)=T\), \(v(\psi)=F\): de \(\Gamma_v\vdash\varphi\) y
+    \(\Gamma_v\vdash\neg\psi\) se obtiene \(\Gamma_v\vdash\neg(\varphi\to\psi)\)
+    (suponer \(\varphi\to\psi\), modus ponens, contradicción).
+\end{itemize}
+\textbf{Ensamblaje.} Si \(\eta\) es tautología, el primer caso ocurre en las
+\(2^k\) filas. Los átomos se descargan uno a uno: de \(\Delta,p\vdash\eta\) y
+\(\Delta,\neg p\vdash\eta\) se obtiene \(\Delta\vdash\eta\). Este es el único
+paso clásico: usa LEM y \(\vee\)e, o RAA en el fragmento \(\{\neg,\to\}\).
+\end{ejemplotesis}
+
+\begin{ejemplotesis}{Ejemplo 9.17: completitud como construcción para \(p\to p\)}
+Para cada fila se da una derivación:
+\begin{center}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(p\vdash p\)}
+\RightLabel{\scriptsize\(\to\)I}\UnaryInfC{\(p\vdash p\to p\)}
+\DisplayProof
+\qquad\qquad
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\neg p,p\vdash p\)}
+\RightLabel{\scriptsize\(\to\)I}\UnaryInfC{\(\neg p\vdash p\to p\)}
+\DisplayProof
+\end{center}
+El análisis por casos clásico sobre \(p\) las combina en \(\vdash p\to p\). El
+ejemplo es pequeño, pero muestra el programa completo: una derivación por
+fila de la tabla y luego la descarga de los átomos.
+\end{ejemplotesis}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 17. Argumentos de imposibilidad}
+\forma Para probar que algo \emph{no} existe (un tipo, una derivación), se
+supone que existe y se deriva una restricción imposible.
+
+\porque Es la introducción de la negación en el metalenguaje: suponer y llegar
+a una contradicción.
+
+\donde Ejemplo 7.49(3): \(x\,x\) no es tipable. Ejemplo 9.20: tautologías
+clásicas que no son válidas bajo BHK.
+\end{esquema}
+
+\begin{ejemplotesis}{Ejemplo 7.49(3): \(x\,x\) no es tipable en \(\lambda\!\to\)}
+Si \(x\,x:\tau\), la regla (aplicación) exige \(x:\sigma\to\tau\) (como
+función) y \(x:\sigma\) (como argumento). Como \(x\) tiene un solo tipo en el
+contexto, \(\sigma\equiv\sigma\to\tau\). Eso es imposible: el tipo de la
+derecha tiene estrictamente más símbolos que el de la izquierda, y dos tipos
+idénticos tienen el mismo tamaño.
+\end{ejemplotesis}
+
+\begin{trampa}[Qué demuestra el Ejemplo 9.20 y qué no]
+El ejemplo argumenta en la lectura informal BHK: «no existe un método
+universal». Es un argumento de motivación, no una prueba de no derivabilidad
+en NJ. La prueba rigurosa de que \(p\vee\neg p\) no es un teorema
+intuicionista requiere un contramodelo de Kripke y la solidez de NJ respecto
+de esa semántica. La tesis lo remite a Sørensen y Urzyczyn (Nota 9.18) y no lo
+formaliza. Conviene decirlo así si se pregunta.
+\end{trampa}
+
+\subsection*{Parte E. Pruebas como programas}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 18. Leer una prueba como un programa (Curry--Howard)}
+\forma A cada derivación se le asocia un término, y viceversa:
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Lógica} & \textbf{Cómputo}\\
+\midrule
+suposición \(A\) (abre caja) & variable \(x:A\)\\
+\(\to\)i (cierra caja) & abstracción \(\lambda x.M\)\\
+\(\to\)e (modus ponens) & aplicación \(M\,N\)\\
+\(\wedge\)i / \(\wedge\)e\(_i\) & par \(\langle M,N\rangle\) / proyección \(\pi_i\)\\
+\(\vee\)i\(_i\) / \(\vee\)e & inyección \(\mathrm{in}_i\) / \(\operatorname{case}\)\\
+\(\forall\)i / \(\forall\)e & abstracción dependiente / aplicación a un término\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\porque Al borrar los términos de las reglas de tipado (Figura de Church) y
+cambiar \(\times,+\) por \(\wedge,\vee\), se obtienen exactamente las reglas de
+Gentzen. El Teorema 9.22 (citado de Sørensen y Urzyczyn) lo enuncia para el
+fragmento implicacional.
+
+\plantilla Para explicar una prueba, escribir su término y leerlo como
+algoritmo: «recibe una prueba de \dots\ y devuelve \dots».
+
+\donde Ejemplo 9.24 (\emph{swap}), Definición 9.19 (BHK), Ejemplo 7.52 y
+§8.3.3.
+\end{esquema}
+
+\begin{ejemplotesis}{Ejemplo 9.24: \((B\wedge A)\to(A\wedge B)\) es \(\lambda z.\langle\pi_2 z,\pi_1 z\rangle\)}
+\begin{prooftree}
+\AxiomC{\([z:B\times A]\)}\UnaryInfC{\(\pi_2 z:A\)}
+\AxiomC{\([z:B\times A]\)}\UnaryInfC{\(\pi_1 z:B\)}
+\BinaryInfC{\(\langle\pi_2 z,\pi_1 z\rangle:A\times B\)}
+\RightLabel{\scriptsize\(\to\)I\(^z\)}
+\UnaryInfC{\(\lambda z.\langle\pi_2 z,\pi_1 z\rangle:(B\times A)\to(A\times B)\)}
+\end{prooftree}
+Al borrar los términos queda la prueba lógica, y al conservarlos queda una
+función que intercambia los componentes de un par.
+\end{ejemplotesis}
+
+\begin{trampa}
+\begin{itemize}
+  \item La correspondencia no asigna un término \emph{único} a cada
+    secuente: \(\varphi\to(\varphi\to\varphi)\) tiene los habitantes
+    \(\lambda x.\lambda y.x\) y \(\lambda x.\lambda y.y\) (§9.5, tras la
+    Nota 9.23). Es
+    biyectiva entre derivaciones con hipótesis etiquetadas y términos.
+  \item Es una correspondencia para la lógica \emph{intuicionista}. El cálculo
+    del Capítulo 11 es clásico (tiene RAA); allí la derivabilidad se
+    representa con un predicado inductivo, lo cual no la vuelve intuicionista
+    (Nota 9.18).
+\end{itemize}
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 19. Normalización de pruebas es evaluación de programas}
+\forma Un \emph{desvío} es una introducción seguida inmediatamente de la
+eliminación del mismo conectivo. Eliminarlo es un paso de reducción:
+\[
+(\lambda x.N)\,M\to N[x:=M],\qquad
+\pi_i\langle M_1,M_2\rangle\to M_i,
+\]
+\[
+\operatorname{case}(\mathrm{in}_1(N);x.K;y.L)\to K[x:=N],\qquad
+\operatorname{case}(\mathrm{in}_2(N);x.K;y.L)\to L[y:=N].
+\]
+
+\porque En la prueba con desvío, la suposición \(A\) se usa en algún lugar de
+la prueba de \(B\). Reemplazar cada uso por la prueba de \(A\) que se tenía da
+una prueba directa de \(B\). Ese reemplazo es literalmente la sustitución
+\(N[x:=M]\) de la reducción \(\beta\).
+
+\donde Definición 9.25 y Figura «Simplificación de pruebas frente a evaluación
+de programas» (§9.5.2).
+\end{esquema}
+
+\begin{nota}[Por qué importa para la tesis]
+Esta lectura explica por qué los metateoremas de la reducción del
+Capítulo 7 (confluencia y normalización) son también metateoremas sobre
+\emph{pruebas}. Por ejemplo, la normalización fuerte de los términos tipados
+(Teorema 8.27) dice que toda prueba puede llevarse a una forma sin desvíos.
+\end{nota}
+
+\subsection*{Parte F. Tipos inductivos (Capítulo 10)}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 20. Recursión e inducción a partir del eliminador}\label{esq:elim}
+\forma Para un tipo inductivo con constructores \(0:\mathbb N\) y
+\(S:\mathbb N\to\mathbb N\):
+\begin{itemize}
+  \item \textbf{Definir una función} \(g:\mathbb N\to C\) es dar un valor base
+    \(x:C\) y una regla de paso \(f:\mathbb N\to C\to C\). El eliminador no
+    dependiente da \(g(n):=R(C,x,f,n)\), con
+    \[
+    R(C,x,f,0)\to_\iota x,\qquad R(C,x,f,S\,n)\to_\iota f\,n\,R(C,x,f,n).
+    \]
+  \item \textbf{Probar \(\forall n.\,P\,n\)} es dar \(p_0:P\,0\) y
+    \(p_S:\forall u.\,P\,u\to P\,(S\,u)\). El eliminador dependiente tiene
+    exactamente el tipo del principio de inducción:
+    \[
+    \forall P:\mathbb N\to\mathrm{Prop},\ P\,0\to(\forall u,\ P\,u\to P\,(S\,u))\to\forall n,\ P\,n.
+    \]
+\end{itemize}
+
+\porque Los constructores son las únicas formas de construir un habitante, y
+el eliminador es la única forma de usarlo (Nota 10.6). La \(\iota\)-reducción
+fija cómo se calcula el eliminador frente a cada constructor.
+
+\plantilla «Se define \(g\) por recursión: \(g(0)=x\) y \(g(n+1)=f(n,g(n))\)».
+«Por inducción sobre \(n\): caso \(0\), \dots; caso \(S\,u\), suponiendo
+\(P\,u\), \dots». Son las frases de siempre; el Capítulo 10 explica de dónde
+salen.
+
+\donde §10.3.1 (recursor y Nota 10.1), Ejemplo 10.4, §10.3.4
+(eliminación dependiente y no dependiente) y §10.3.5 (\(\iota\)).
+\end{esquema}
+
+\begin{ejemplotesis}{Nota 10.1: el factorial con el recursor}
+\(\mathrm{fact}(n):=R(\mathbb N,\,1,\,\lambda n\,r.\,(S\,n)\cdot r,\,n)\). Al
+calcular, cada paso es una \(\iota\)-reducción seguida de una \(\beta\):
+\[
+\begin{aligned}
+R(\mathbb N,1,f,S(S\,0))
+&\to_\iota f\,(S\,0)\,R(\mathbb N,1,f,S\,0)
+\ \to_\beta\ 2\cdot R(\mathbb N,1,f,S\,0)\\
+&\to_\iota 2\cdot\big(f\,0\,R(\mathbb N,1,f,0)\big)
+\ \to_\beta\ 2\cdot\big(1\cdot R(\mathbb N,1,f,0)\big)
+\ \to_\iota\ 2\cdot(1\cdot 1)=2.
+\end{aligned}
+\]
+\end{ejemplotesis}
+
+\begin{nota}[Unificación: todas las inducciones son eliminadores]
+La inducción estructural sobre \(\Lambda\) (Esquema 1) es el eliminador
+dependiente del tipo inductivo de los términos: un caso por constructor y una
+hipótesis inductiva por cada argumento recursivo (\(P\) y \(Q\) en \(PQ\);
+\(P\) en \(\lambda x.P\)). La inducción sobre derivaciones (Esquema 9) es el
+eliminador de la \emph{familia inductiva} \(\Gamma\vdash M:\sigma\), indexada
+por \(\Gamma\), \(M\) y \(\sigma\); por eso el contexto puede variar entre la
+premisa y la conclusión. El Capítulo 10 muestra que los esquemas de los
+capítulos 7 a 9 son instancias de una sola regla del CIC.
+\end{nota}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 21. Codificar por el uso (codificaciones impredicativas)}
+\forma En el CoC puro, un dato o una proposición se define por \emph{cómo se
+usa}:
+\[
+\begin{aligned}
+\mathrm{Nat}&:=\forall A.\ A\to(A\to A)\to A,&\quad n&=\lambda A\,x\,f.\,f^{\,n}x,\\
+A\wedge B&:=\forall C.\ (A\to B\to C)\to C,&\quad a=_L b&:=\forall P.\ P\,a\to P\,b.
+\end{aligned}
+\]
+Las pruebas sobre estas codificaciones son cálculos \(\beta\) o
+instanciaciones bien elegidas.
+
+\porque El producto dependiente \(\Pi\) permite cuantificar sobre todas las
+proposiciones, incluida la que se está definiendo (impredicatividad).
+
+\donde §10.2.2 (Tabla de codificaciones de Coquand y Huet) y §10.2.3
+(numerales, predecesor e igualdad de Leibniz).
+\end{esquema}
+
+\begin{ejemplotesis}{Dos cálculos típicos}
+\textbf{Sucesor.} Con \(S:=\lambda n\,A\,x\,f.\,f\,(n\,A\,x\,f)\),
+\[
+S\,1\ \bred\ \lambda A\,x\,f.\,f\,(1\,A\,x\,f)
+\ \bmred\ \lambda A\,x\,f.\,f\,(f\,x)\ \equiv\ 2.
+\]
+\textbf{Simetría de la igualdad de Leibniz (el truco del predicado).} De
+\(h:\forall P.\ P\,a\to P\,b\) se quiere \(\forall P'.\ P'\,b\to P'\,a\). Se
+instancia \(h\) en \(P(z):=P'(z)\to P'(a)\):
+\[
+h\,P:\ (P'\,a\to P'\,a)\to(P'\,b\to P'\,a),
+\qquad\text{luego}\qquad
+h\,P\,(\lambda t.\,t):\ P'\,b\to P'\,a.
+\]
+Es la instanciación que la tesis menciona en §10.2.3 para mostrar que las dos
+direcciones de la definición son equivalentes. El patrón general consiste en
+elegir el predicado de modo que el caso conocido sea trivial (aquí, la
+identidad).
+\end{ejemplotesis}
+
+\begin{trampa}[El límite que motiva el CIC]
+La codificación da \emph{iteración}, pero no permite derivar el principio de
+inducción dependiente \(\forall P.\,P\,0\to(\forall n.\,P\,n\to P\,(S\,n))\to\forall n.\,P\,n\).
+Es un resultado de no derivabilidad de Geuvers, citado y no demostrado en la
+tesis. Además, el predecesor cuesta \(n\) iteraciones con la construcción por
+pares. Estas dos limitaciones justifican pasar a definiciones inductivas
+primitivas.
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 22. Por qué la positividad estricta (complemento)}
+\forma Las ocurrencias recursivas de \(X\) en los constructores no pueden estar
+a la izquierda de una flecha (§10.3.2). Para justificar la restricción se
+muestra que, sin ella, se obtiene un habitante de \(\bot\).
+
+\porque Este es el argumento que la tesis resume en la frase «se podría
+construir un punto fijo y obtener un habitante de \(\bot\)». Supóngase un tipo
+\(X\) con un único constructor \(c:(X\to\bot)\to X\). El análisis de casos
+daría \(u:X\to(X\to\bot)\) con \(u\,(c\,g)\to g\). Sea
+\[
+d:=\lambda x{:}X.\ u\,x\,x\ :\ X\to\bot.
+\]
+Entonces \(d\,(c\,d):\bot\). Es el argumento diagonal de Cantor y Russell en
+forma de programa: \(d\,(c\,d)\to u\,(c\,d)\,(c\,d)\to d\,(c\,d)\to\cdots\)
+no termina, y la lógica se vuelve inconsistente.
+
+\donde §10.3.2 (tipos estrictamente positivos).
+\end{esquema}
+
+\subsection*{Parte G. Resultados que la tesis cita}
+
+%---------------------------------------------------------------------
+\begin{esquema}{Esquema 23. Presentar un resultado citado}
+\forma Para un teorema que la tesis no demuestra, conviene decir tres cosas:
+qué afirma, de dónde se toma y para qué se usa en la tesis.
+
+\porque Distinguir lo demostrado de lo citado es parte de la honestidad del
+trabajo, y es lo primero que verifica un examinador.
+
+\plantilla
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}p{0.2\linewidth}X@{}}
+\toprule
+\textbf{Resultado} & \textbf{Fuente y papel en la tesis}\\
+\midrule
+Teorema 7.37 & Barendregt, Teorema 3.2.8; esbozo de Tait--Martin-Löf. Se usa en
+los Corolarios 7.43 y 7.44.\\
+Lemas 7.40, 7.41 & Enunciados «sin demostración» dentro del esbozo de 7.37.\\
+Teorema 7.59 & Barendregt (2013). Decidibilidad de tipabilidad, chequeo y
+habitación en \(\lambda\!\to\).\\
+Teorema 7.63 & Barendregt (1992). Church--Rosser en \(\lambda\!\to\).\\
+Teorema 8.27 & Barendregt (1991); Sørensen y Urzyczyn. Confluencia,
+preservación del tipo, unicidad de tipos y normalización fuerte en el cubo.\\
+Teorema 9.22 & Sørensen y Urzyczyn. Isomorfismo de Curry--Howard.\\
+Teoremas 9.13, 9.14 & Huth y Ryan (Teorema 1.35, §1.4.4). Esbozos; la
+completitud se formaliza en el Capítulo 11.\\
+§10.2.3 & Geuvers (2001). La inducción no se deriva de la codificación de
+Church.\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{esquema}
+
+\begin{nota}[Una distinción que la tesis hace explícita (§8.4.3)]
+La \emph{comprobación} de tipos \(\Gamma\overset{?}{\vdash}M:A\) es decidible
+en el cubo, pero la \emph{habitación} \(\exists M.\ \Gamma\vdash M:A\) es
+indecidible en \(\lambda P\) y en \(\lambda C\). Dicho de otro modo,
+comprobar una prueba dada es mecánico, mientras que encontrar una prueba no lo
+es. Esta es la razón de ser de un asistente de pruebas: el humano propone y el
+núcleo comprueba.
+\end{nota}
+
+%=====================================================================
+\section{Lecturas guiadas}
+%=====================================================================
+
+\subsection{El Lema de sustitución (Lema 7.23), de principio a fin}
+
+\textbf{Enunciado.} Si \(x\not\equiv y\) y \(x\notin\FV(L)\), entonces
+\(M[x:=N][y:=L]\equiv M[y:=L][x:=N[y:=L]]\).
+
+\textbf{Qué dice en palabras.} Da igual sustituir primero \(x\) por \(N\) y
+luego \(y\) por \(L\), que sustituir primero \(y\) por \(L\) y luego \(x\) por
+\(N[y:=L]\). La segunda forma «compensa» que \(N\) también deba recibir la
+sustitución de \(y\).
+
+\textbf{Estructura de la prueba.}
+\begin{enumerate}
+  \item \emph{Esquema 1}, inducción sobre \(M\). Los términos \(N\), \(L\) y
+    las variables \(x,y\) se mantienen fijos.
+  \item \emph{Caso variable: Esquema 2}, tres subcasos. Cada hipótesis del
+    lema se usa en uno: \(x\not\equiv y\) en \(z\equiv x\) y
+    \(x\notin\FV(L)\) en \(z\equiv y\).
+  \item \emph{Caso aplicación: Esquema 3}, una cadena de tres igualdades:
+    definición, hipótesis de inducción y definición leída al revés.
+  \item \emph{Caso abstracción: Esquemas 4 y 3}. Se renombra la variable
+    ligada a una \(z\) fresca, la sustitución entra bajo \(\lambda\) en ambos
+    lados y se aplica la hipótesis de inducción.
+\end{enumerate}
+
+\textbf{Qué responder si preguntan.}
+\begin{itemize}
+  \item \emph{¿Por qué hace falta \(x\notin\FV(L)\)?} Contraejemplo con
+    \(M\equiv y\), \(L\equiv x\): el lado izquierdo es \(y[x:=N][y:=x]\equiv x\)
+    y el derecho es \(x[x:=N[y:=x]]\equiv N[y:=x]\), que en general no es
+    \(x\).
+  \item \emph{¿Por qué es «módulo \(\alpha\)»?} Porque la cláusula (3) de la
+    sustitución elige una variable fresca que no es única.
+  \item \emph{¿Para qué sirve?} Es el ingrediente del Lema 7.40 (sustitución
+    para \(\pr\)) y, por tanto, del esbozo de Church--Rosser.
+\end{itemize}
+
+\subsection{De Church--Rosser a la unicidad de la forma normal}
+
+La cadena lógica de §7.2.8 es corta y conviene poder recitarla:
+\[
+\underbrace{\text{Lemas 7.40, 7.41}}_{\pr\ \text{tiene diamante}}
+\ \Longrightarrow\
+\underbrace{\text{Teorema 7.37}}_{\bmred\ \text{confluye}}
+\ \Longrightarrow\
+\underbrace{\text{Corolario 7.43}}_{\beq\ \text{tiene reducto común}}
+\ \Longrightarrow\
+\underbrace{\text{Corolario 7.44}}_{\text{forma normal única}}
+\]
+\begin{itemize}
+  \item Primera flecha: Esquema 8 (embaldosado y \(\bred\subseteq\pr\subseteq\bmred\)).
+  \item Segunda: Esquema 6 (inducción sobre la longitud de la conversión).
+  \item Tercera: Esquema 7 (las formas normales solo se reducen a sí mismas).
+\end{itemize}
+\textbf{Consecuencia que conviene mencionar:} \(\beq\) no identifica formas
+normales distintas. Por ejemplo, \(\lambda x.\lambda y.x\not\beq\lambda x.\lambda y.y\),
+así que la teoría \(\beta\) es consistente en el sentido de no igualar todos los
+términos.
+
+\subsection{Una misma frase, cuatro lenguajes}
+
+La frase «si \(Q\) vale para todos los pares, vale para la diagonal» aparece
+en la tesis (§8.3.3) y permite mostrar en un solo ejemplo cómo encajan los
+capítulos:
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}p{0.27\linewidth}X@{}}
+\toprule
+\textbf{Lenguaje} & \textbf{La misma prueba}\\
+\midrule
+Matemática informal & Sea \(u\) arbitrario; por hipótesis, \(Q(u,u)\).\\
+Deducción natural & Suposición \(\forall x\forall y.Q(x,y)\); \(\forall\)e dos veces; \(\forall\)i; \(\to\)i.\\
+Derivación en \(\lambda P\) & Banderas \(z\), \(u\); (aplicación) dos veces; (abstracción) dos veces.\\
+Término & \(\lambda z.\,\lambda u{:}S.\ z\,u\,u\)\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+%=====================================================================
+\section{Cómo explicarlo en la defensa}
+%=====================================================================
+
+\subsection{Receta de cinco pasos para cualquier demostración}
+
+\begin{enumerate}
+  \item \textbf{Decir el enunciado en palabras}, sin símbolos.
+  \item \textbf{Nombrar el esquema}: «es una inducción sobre la derivación»,
+    «es una cadena de reducciones», «se construye la derivación de abajo
+    hacia arriba».
+  \item \textbf{Nombrar el objeto sobre el que se induce o se analiza}, y por
+    qué ese y no otro.
+  \item \textbf{Ir al caso interesante} (no al rutinario): la abstracción, con
+    su variable fresca; el último eslabón de la cadena; RAA en la solidez.
+  \item \textbf{Decir qué hipótesis se usó dónde}. Si una hipótesis no se
+    usa, o es superflua o hay un error.
+\end{enumerate}
+
+\subsection{Diccionario de frases}
+
+{\small
+\begin{longtable}{@{}p{0.45\textwidth}p{0.5\textwidth}@{}}
+\toprule
+\textbf{Frase en la tesis} & \textbf{Qué significa formalmente}\\
+\midrule
+\endhead
+«Por inducción estructural sobre \(M\)» & Un caso por cada regla de formación
+de términos; hipótesis inductiva para los subtérminos inmediatos.\\
+«Por inducción sobre la derivación» & Un caso por cada regla de tipado o de
+deducción; hipótesis inductiva para las premisas.\\
+«Se puede renombrar \(z\)» & Se elige un representante de la clase de
+\(\alpha\)-equivalencia con \(z\) fresca.\\
+«Existe una secuencia de reducción» & Testigo del existencial que define
+\(\bmred\) o \(\beq\).\\
+«Al concatenar ambas» & Transitividad: la cadena de longitud \(r+s\).\\
+«Invirtiendo la secuencia» & Simetría de \(\beq\), posible por la disyunción en
+cada eslabón.\\
+«Se aplica la regla (abstracción)» & Se descarga la última declaración del
+contexto (se cierra la bandera o la caja).\\
+«Suposición (para \(\to\)i)» & Se abre una caja; su alcance termina al
+aplicar \(\to\)i.\\
+«Por RAA» & Se supuso \(\neg\varphi\), se llegó a \(\bot\) y se concluye
+\(\varphi\). Es el paso clásico.\\
+«El término habita el tipo» & Existe una derivación de \(\vdash M:A\); bajo
+PAT, \(A\) es demostrable.\\
+«Se reduce por \(\iota\)» & El eliminador aplicado a un constructor se
+calcula con la rama de ese constructor.\\
+\bottomrule
+\end{longtable}
+}
+
+\subsection{Preguntas frecuentes}
+
+\begin{description}[style=nextline, leftmargin=0pt, itemsep=6pt]
+\item[¿Qué diferencia hay entre inducción estructural e inducción sobre derivaciones?]
+La primera recorre las reglas que construyen \emph{términos}; la segunda, las
+reglas que construyen \emph{juicios}. En \(\lambda\!\to\) coinciden porque el
+tipado está dirigido por la sintaxis. Ambas son instancias del eliminador de
+un tipo inductivo (Capítulo 10).
+
+\item[¿Church--Rosser implica que todo término tiene forma normal?]
+No. Solo implica que, si existe, es única (Corolario 7.44). \(\Omega\) no tiene
+forma normal. Para términos tipados, la existencia la da la normalización
+fuerte (Teorema 8.27, citado).
+
+\item[¿Por qué se necesita la reducción paralela?]
+Porque \(\bred\) no tiene el diamante en un paso: un redex duplicado obliga a
+dar dos pasos en un lado. \(\pr\) contrae todas las copias a la vez
+(Esquema~8).
+
+\item[¿Por qué el Lema 7.23 es «módulo \(\alpha\)»?]
+Porque la sustitución en una abstracción elige una variable fresca, y esa
+elección no es única. La tesis identifica términos \(\alpha\)-equivalentes
+desde §7.2.4.
+
+\item[¿En qué se diferencian \(\neg\)i y RAA?]
+\(\neg\)i concluye \(\neg A\) de \(A\vdash\bot\) y es intuicionista. RAA
+concluye \(A\) de \(\neg A\vdash\bot\) y es clásica. En la Proposición 9.9
+la primera dirección usa \(\neg\)i y la segunda RAA.
+
+\item[¿Por qué el lema de Kalmár es bilateral?]
+Porque en los casos \(\neg\) y \(\to\) la verdad de la fórmula depende de
+subfórmulas falsas; la hipótesis inductiva tiene que dar
+\(\Gamma_v\vdash\neg\varphi\) cuando \(v(\varphi)=F\).
+
+\item[¿Dónde entra la lógica clásica en la completitud?]
+Solo al descargar los átomos: de \(\Delta,p\vdash\eta\) y
+\(\Delta,\neg p\vdash\eta\) a \(\Delta\vdash\eta\). Eso requiere LEM, o RAA en
+el fragmento \(\{\neg,\to\}\). Por eso la completitud respecto de las tablas
+de verdad falla para NJ.
+
+\item[¿Qué aporta el CIC frente al CoC?]
+El principio de inducción. En el CoC los naturales de Church dan iteración,
+pero la inducción dependiente no es derivable (Geuvers). En el CIC, declarar
+un tipo inductivo genera su eliminador, cuyo tipo es la inducción.
+
+\item[¿Por qué se exige positividad estricta?]
+Porque un constructor como \(c:(X\to\bot)\to X\) permite el término diagonal
+\(d\,(c\,d):\bot\) (Esquema 22), y la lógica se vuelve inconsistente.
+
+\item[¿Comprobar una prueba es lo mismo que encontrarla?]
+No. El chequeo de tipos es decidible; la habitación no lo es en \(\lambda P\)
+ni en \(\lambda C\) (§8.4.3). El asistente comprueba; el humano (o la
+búsqueda) propone.
+
+\item[¿Qué partes del capítulo 7 están demostradas completas?]
+Los Lemas 7.6, 7.23, 7.31, 7.32 y 7.57 y los Corolarios 7.43 y 7.44.
+Church--Rosser (7.37) está esbozado; sus lemas auxiliares (7.40 y 7.41) solo
+se enuncian; los Teoremas 7.59 y 7.63 se citan.
+\end{description}
+
+%=====================================================================
+\appendix
+\section{Hoja de referencia: reglas}
+%=====================================================================
+
+\subsection*{\(\lambda\!\to\) (§7.3.3)}
+\[
+\frac{x:\sigma\in\Gamma}{\Gamma\vdash x:\sigma}\ \text{(var)}
+\qquad
+\frac{\Gamma\vdash M:\sigma\to\tau\quad\Gamma\vdash N:\sigma}{\Gamma\vdash MN:\tau}\ \text{(apl)}
+\qquad
+\frac{\Gamma,x:\sigma\vdash M:\tau}{\Gamma\vdash\lambda x{:}\sigma.M:\sigma\to\tau}\ \text{(abs)}
+\]
+
+\subsection*{\(\lambda2\) (Definición 8.4)}
+\[
+\frac{\Gamma,\alpha:*\vdash M:A}{\Gamma\vdash\Lambda\alpha{:}*.M:\Pi\alpha{:}*.A}\ \text{(abs\(_2\))}
+\qquad
+\frac{\Gamma\vdash M:\Pi\alpha{:}*.A\quad\Gamma\vdash B:*}{\Gamma\vdash M\,B:A[\alpha:=B]}\ \text{(apl\(_2\))}
+\]
+
+\subsection*{\(\lambda\underline{\omega}\) (§8.2)}
+\[
+\varnothing\vdash *:\square\ \text{(sort)}
+\qquad
+\frac{\Gamma\vdash A:s}{\Gamma,x:A\vdash x:A}\ \text{(var)}
+\qquad
+\frac{\Gamma\vdash A:B\quad\Gamma\vdash C:s}{\Gamma,x:C\vdash A:B}\ \text{(deb)}
+\]
+\[
+\frac{\Gamma\vdash A:s\quad\Gamma\vdash B:s}{\Gamma\vdash A\to B:s}\ \text{(form)}
+\qquad
+\frac{\Gamma\vdash M:A\to B\quad\Gamma\vdash N:A}{\Gamma\vdash MN:B}\ \text{(apl)}
+\]
+\[
+\frac{\Gamma,x:A\vdash M:B\quad\Gamma\vdash A\to B:s}{\Gamma\vdash\lambda x{:}A.M:A\to B}\ \text{(abs)}
+\qquad
+\frac{\Gamma\vdash A:B\quad\Gamma\vdash B':s}{\Gamma\vdash A:B'}\ \text{(conv, si \(B\beq B'\))}
+\]
+
+\subsection*{Cubo \(\lambda\) (§8.4.2)}
+\[
+\frac{\Gamma\vdash A:s_1\quad\Gamma,x:A\vdash B:s_2}{\Gamma\vdash\Pi x{:}A.B:s_2}
+\qquad
+\begin{array}{ll}
+(*,*) & \lambda\!\to\ \text{(términos de términos)}\\
+(\square,*) & \lambda2\ \text{(términos de tipos)}\\
+(*,\square) & \lambda P\ \text{(tipos de términos)}\\
+(\square,\square) & \lambda\underline{\omega}\ \text{(tipos de tipos)}
+\end{array}
+\]
+\(\lambda C\) admite los cuatro pares.
+
+\subsection*{Deducción natural (§9.1) y NJ (§9.4.2)}
+\[
+\frac{\varphi\quad\psi}{\varphi\wedge\psi}\wedge\mathrm i
+\quad
+\frac{\varphi\wedge\psi}{\varphi}\wedge\mathrm e_1
+\quad
+\frac{\varphi}{\varphi\vee\psi}\vee\mathrm i_1
+\quad
+\frac{\varphi\vee\psi\quad[\varphi]\cdots\chi\quad[\psi]\cdots\chi}{\chi}\vee\mathrm e
+\quad
+\frac{[\varphi]\cdots\psi}{\varphi\to\psi}\to\mathrm i
+\quad
+\frac{\varphi\quad\varphi\to\psi}{\psi}\to\mathrm e
+\]
+\[
+\frac{\varphi\quad\neg\varphi}{\bot}\neg\mathrm e
+\quad
+\frac{[\varphi]\cdots\bot}{\neg\varphi}\neg\mathrm i
+\quad
+\frac{\bot}{\varphi}\bot\mathrm e
+\qquad\Big|\qquad
+\frac{[\neg\varphi]\cdots\bot}{\varphi}\mathrm{RAA}
+\quad
+\varphi\vee\neg\varphi\ \ \mathrm{LEM}
+\]
+NJ es el bloque de la izquierda (con \(\neg\varphi:=\varphi\to\bot\)); la lógica
+clásica añade RAA o LEM.
+
+\subsection*{CIC (§10.3)}
+\[
+\frac{\Gamma,X:A\vdash C_i:s}{\Gamma\vdash\Ind(X:A)\{C_1|\dots|C_n\}:A}
+\qquad
+\frac{\Gamma\vdash I:A}{\Gamma\vdash\Constr(i,I):C_i[X:=I]}
+\]
+\[
+\Elim(\Constr(i,I)\,\vec m,\,Q)\{\vec f\}\ \to_\iota\ f_i\ \vec m
+\]
+donde \(f_i\) recibe, además de \(\vec m\), las llamadas recursivas sobre los argumentos
+recursivos de \(\vec m\).
+
+\end{document}
