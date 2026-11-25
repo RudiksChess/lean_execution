@@ -1,0 +1,718 @@
+% El diagrama definitivo para la defensa: lo imprescindible, en formato visual
+% y amigable para TDAH (un tema por página, poco texto, colores fijos por tema,
+% resumen de 10 segundos arriba, casillas para marcar).
+% Compilar dos veces:  lualatex DiagramaDefensa.tex
+\documentclass[12pt]{article}
+\usepackage[a4paper,landscape,margin=11mm]{geometry}
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands]{babel}
+\setmainfont{TeX Gyre Heros}
+\setmathfont{TeX Gyre DejaVu Math}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+\usepackage{fontawesome5}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{lastpage}
+\usepackage[hidelinks]{hyperref}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.08}
+
+% ---------- Un color fijo por tema ----------
+\definecolor{fund}{HTML}{3F6FA8}  % Fundamentos (tipos, CIC)
+\definecolor{logi}{HTML}{8C5FB8}  % Lógica y Curry–Howard
+\definecolor{comp}{HTML}{3E9A5A}  % Caso 1: completitud
+\definecolor{qsrt}{HTML}{D9822B}  % Caso 2: quicksort
+\definecolor{conf}{HTML}{2A8C8C}  % Confianza y Lean
+\definecolor{alca}{HTML}{C8463D}  % Alcance
+\definecolor{preg}{HTML}{B8901A}  % Preguntas
+\definecolor{pala}{HTML}{5B6B82}  % Palabras
+\definecolor{tldr}{HTML}{FFF4C2}
+\definecolor{verde}{HTML}{3E9A5A}
+\definecolor{ambar}{HTML}{E0A320}
+\definecolor{rojo}{HTML}{C8463D}
+
+\newcommand{\Taut}{\mathrm{Taut}}
+\newcommand{\Sorted}{\mathrm{Sorted}}
+\newcommand{\qs}{\mathrm{qs}}
+\newcommand{\concat}{\mathbin{+\!\!+}}
+\newcommand{\caja}{\raisebox{-1pt}{\Large\faSquare[regular]}\ }
+
+% ---------- Encabezado de cada página ----------
+% #1 color, #2 icono, #3 título, #4 resumen de 10 segundos
+\newcommand{\encabezado}[4]{%
+  \begin{tcolorbox}[colback=#1, colframe=#1, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=5pt, bottom=5pt, after skip=4pt]
+    \color{white}\LARGE #2\quad\bfseries #3\hfill
+    \normalfont\large página \thepage\ de \pageref{LastPage}
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=#1, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=8pt]
+    \large\faBolt\ \textbf{En 10 segundos:}\ #4
+  \end{tcolorbox}}
+
+% Tarjeta de color: #1 color, #2 título, #3 contenido
+\newtcolorbox{tarjeta}[3][]{colback=#2!7, colframe=#2, boxrule=1.1pt, arc=5pt,
+  left=6pt, right=6pt, top=4pt, bottom=5pt, fonttitle=\bfseries\large,
+  colbacktitle=#2, coltitle=white, title={#3}, #1}
+
+% Etiqueta pequeña tipo «pegatina»
+\newcommand{\pega}[2]{\tikz[baseline=(t.base)]\node[fill=#1, text=white,
+  rounded corners=3pt, inner sep=3pt, font=\bfseries\small](t){#2};}
+
+\tikzset{
+  rama/.style={draw=#1, fill=#1!7, line width=1.3pt, rounded corners=7pt,
+    text width=7.5cm, inner sep=7pt, align=left},
+  num/.style={circle, fill=#1, text=white, font=\bfseries\Large,
+    minimum size=9mm, inner sep=0pt},
+  flecha/.style={-{Stealth[length=3.2mm]}, line width=1.6pt, color=#1},
+}
+
+\begin{document}
+
+%=====================================================================
+% 1. EMPIEZA AQUÍ
+%=====================================================================
+\encabezado{pala}{\faRocket}{Empieza aquí}{la tesis cabe en una frase. Todo lo
+demás es esa frase aplicada dos veces.}
+
+\begin{tcolorbox}[colback=white, colframe=black!70, boxrule=1.5pt, arc=8pt,
+  halign=center, top=8pt, bottom=8pt]
+{\Huge\bfseries Proposiciones = tipos \quad·\quad Pruebas = términos}\\[6pt]
+{\LARGE Verificar una demostración $=$ comprobar el tipo de un término.}\\[4pt]
+{\large (Curry–Howard. Lean hace esa comprobación.)}
+\end{tcolorbox}
+
+\vspace{4pt}
+\begin{minipage}[t]{0.40\textwidth}
+{\Large\bfseries Cómo usar este PDF}\\[6pt]
+\begin{tikzpicture}[baseline=(current bounding box.north),
+    txt/.style={align=left, text width=8.6cm, anchor=west}]
+  \node[num=pala] (a) at (0,0) {1};
+  \node[txt, right=4mm of a] {\large Mira el \textbf{diagrama} de la página 2.\\ Es el mapa de todo.};
+  \node[num=pala] (b) at (0,-1.6) {2};
+  \node[txt, right=4mm of b] {\large \textbf{Una página = un tema.}\\ Lee primero la franja amarilla.};
+  \node[num=pala] (c) at (0,-3.2) {3};
+  \node[txt, right=4mm of c] {\large Di cada idea \textbf{en voz alta}.\\ Marca la casilla \faSquare[regular] en la pág.\ 12.};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.57\textwidth}
+{\Large\bfseries Los colores siempre significan lo mismo}\\[6pt]
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster row skip=5pt,
+  raster equal height, raster every box/.style={before upper=\raggedright}]
+\begin{tcolorbox}[colback=fund, colframe=fund, arc=4pt]\color{white}\large\faCubes\ \textbf{Fundamentos} · pág.\ 4\end{tcolorbox}
+\begin{tcolorbox}[colback=comp, colframe=comp, arc=4pt]\color{white}\large\faCheckDouble\ \textbf{Completitud} · pág.\ 6\end{tcolorbox}
+\begin{tcolorbox}[colback=logi, colframe=logi, arc=4pt]\color{white}\large\faProjectDiagram\ \textbf{Lógica} · pág.\ 5\end{tcolorbox}
+\begin{tcolorbox}[colback=qsrt, colframe=qsrt, arc=4pt]\color{white}\large\faSortAmountUp\ \textbf{Quicksort} · pág.\ 7\end{tcolorbox}
+\begin{tcolorbox}[colback=conf, colframe=conf, arc=4pt]\color{white}\large\faShield*\ \textbf{Confianza} · pág.\ 8\end{tcolorbox}
+\begin{tcolorbox}[colback=alca, colframe=alca, arc=4pt]\color{white}\large\faTrafficLight\ \textbf{Alcance} · pág.\ 9\end{tcolorbox}
+\begin{tcolorbox}[colback=preg, colframe=preg, arc=4pt]\color{white}\large\faQuestionCircle\ \textbf{Preguntas} · pág.\ 10\end{tcolorbox}
+\begin{tcolorbox}[colback=pala, colframe=pala, arc=4pt]\color{white}\large\faBook\ \textbf{Palabras} · pág.\ 11\end{tcolorbox}
+\end{tcbraster}
+\end{minipage}
+
+\vfill
+\begin{tcolorbox}[colback=pala!8, colframe=pala, arc=4pt, boxrule=0.8pt]
+\large\faMicrophone\ \textbf{El pitch de 60 segundos} está en la página 3.
+\quad\faTasks\ \textbf{La lista para marcar} está en la página 12.
+\end{tcolorbox}
+
+\newpage
+%=====================================================================
+% 2. EL DIAGRAMA DEFINITIVO
+%=====================================================================
+\encabezado{pala}{\faMapSigns}{El diagrama definitivo}{una idea en el centro,
+seis ramas. Sigue los números del 1 al 6.}
+
+\begin{center}
+\begin{tikzpicture}[font=\normalsize]
+  % Centro
+  \node[draw=black!75, fill=tldr, line width=2pt, rounded corners=10pt,
+        text width=6.2cm, align=center, inner sep=9pt] (c) at (0,0)
+    {{\Large\bfseries Curry–Howard}\\[4pt]
+     proposición $=$ tipo\\ prueba $=$ término\\[5pt]
+     \textbf{Lean comprueba el tipo}\\
+     $\Downarrow$\\
+     \textbf{la prueba es correcta}};
+
+  % Columna izquierda: teoría
+  \node[rama=fund] (f) at (-9.4,4.35)
+    {{\large\bfseries\color{fund}\faCubes\ Fundamentos}\hfill\pega{fund}{pág.\ 4}\\[3pt]
+     • λ-cálculo y tipos simples (Cap.\ 7)\\
+     • cubo-λ hasta el CoC (Cap.\ 8)\\
+     • \textbf{CIC} $=$ CoC $+$ tipos inductivos\\\hphantom{• }$=$ el núcleo de Lean (Cap.\ 10)};
+  \node[rama=logi] (l) at (-9.4,0)
+    {{\large\bfseries\color{logi}\faProjectDiagram\ Lógica}\hfill\pega{logi}{pág.\ 5}\\[3pt]
+     • sintaxis $\vdash$ \ vs \ semántica $\models$ (Cap.\ 9)\\
+     • deducción natural: 6 reglas\\\hphantom{• }intuicionistas $+$ \textbf{RAA} $=$ clásica\\
+     • el diccionario de Curry–Howard};
+  \node[rama=conf] (k) at (-9.4,-4.35)
+    {{\large\bfseries\color{conf}\faShield*\ Confianza}\hfill\pega{conf}{pág.\ 8}\\[3pt]
+     • el núcleo \textbf{solo comprueba tipos}\\
+     • \texttt{\#print axioms}: 3 axiomas, 0 \texttt{sorry}\\
+     • lo único que puede fallar:\\\hphantom{• }\textbf{el enunciado}};
+
+  % Columna derecha: casos y límites
+  \node[rama=comp] (p) at (9.4,4.35)
+    {{\large\bfseries\color{comp}\faCheckDouble\ Caso 1: completitud}\hfill\pega{comp}{pág.\ 6}\\[3pt]
+     • $\Taut(\varphi)\Rightarrow\varnothing\vdash\varphi$ \ (Teo.\ 11.18)\\
+     • \textbf{Kalmár}: cada fila deriva $\varphi$ o $\neg\varphi$\\
+     • \textbf{descarga}: RAA borra los átomos\\\hphantom{• }uno a uno};
+  \node[rama=qsrt] (q) at (9.4,0)
+    {{\large\bfseries\color{qsrt}\faSortAmountUp\ Caso 2: quicksort}\hfill\pega{qsrt}{pág.\ 7}\\[3pt]
+     • $\qs(\ell)\sim\ell$ \ y \ $\Sorted(\qs(\ell))$\\\hphantom{• }(Teo.\ 12.12)\\
+     • \textbf{termina}: la longitud baja\\
+     • \textbf{permuta} (12.8) $+$ \textbf{ordena} (12.11)};
+  \node[rama=alca] (a) at (9.4,-4.35)
+    {{\large\bfseries\color{alca}\faTrafficLight\ Alcance}\hfill\pega{alca}{pág.\ 9}\\[3pt]
+     {\color{verde}\faCheckCircle} débil, corrección, quicksort\\
+     {\color{ambar}\faAdjust} $\Gamma$ finito: solo esbozo\\
+     {\color{rojo}\faTimesCircle} $\Gamma$ infinito, primer orden,\\\hphantom{\faTimesCircle{} }$O(n\log n)$, versión \emph{in-place}};
+
+  % Aristas desde el centro
+  \foreach \n/\col in {f/fund, l/logi, k/conf, p/comp, q/qsrt, a/alca}
+    \draw[line width=2.2pt, \col] (c) -- (\n);
+  \node[draw=black!75, fill=tldr, line width=2pt, rounded corners=10pt,
+        text width=6.2cm, align=center, inner sep=9pt] at (0,0)
+    {{\Large\bfseries Curry–Howard}\\[4pt]
+     proposición $=$ tipo\\ prueba $=$ término\\[5pt]
+     \textbf{Lean comprueba el tipo}\\
+     $\Downarrow$\\
+     \textbf{la prueba es correcta}};
+
+  % Números de orden de estudio
+  \node[num=fund] at (f.north west) {1};
+  \node[num=logi] at (l.north west) {2};
+  \node[num=comp] at (p.north west) {3};
+  \node[num=qsrt] at (q.north west) {4};
+  \node[num=conf] at (k.north west) {5};
+  \node[num=alca] at (a.north west) {6};
+\end{tikzpicture}
+\end{center}
+
+\vfill
+\begin{tcolorbox}[colback=pala!8, colframe=pala, arc=4pt, boxrule=0.8pt, halign=center]
+\large Izquierda: \textbf{la teoría} que hace posible verificar.\qquad
+Derecha: \textbf{lo que se verificó} y dónde termina.
+\end{tcolorbox}
+
+\newpage
+%=====================================================================
+% 3. EL PITCH
+%=====================================================================
+\encabezado{pala}{\faMicrophone}{La historia en 6 pasos}{este es tu pitch de 60
+segundos: un paso cada 10 segundos.}
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={align=center}]
+  \foreach \i/\col/\ico/\tit/\txt in {
+    1/pala/\faQuestion/Problema/{¿Cómo saber que\\ una prueba es\\ correcta? Que la\\ compruebe una\\ máquina.},
+    2/logi/\faLightbulb/Idea/{Curry–Howard:\\ proposición\\ $=$ tipo,\\ prueba $=$ término.},
+    3/fund/\faCubes/Teoría/{λ-cálculo $\to$\\ cubo-λ $\to$ CIC,\\ la lógica de Lean.},
+    4/comp/\faCheckDouble/Caso 1/{Completitud de la\\ deducción natural\\ clásica, vía Kalmár,\\ sin importarla.},
+    5/qsrt/\faSortAmountUp/Caso 2/{Quicksort termina,\\ permuta y ordena.},
+    6/conf/\faShield*/Garantía/{Núcleo $+$ axiomas\\ $+$ CI.\\ Límites claros.}}
+  {
+    \node[circle, fill=\col, text=white, minimum size=17mm, font=\Huge]
+      (n\i) at ({(\i-1)*4.55},0) {\ico};
+    \node[font=\bfseries\Large, text=\col] at ({(\i-1)*4.55},-1.35) {\i. \tit};
+    \node[font=\large, text width=4.3cm, anchor=north] at ({(\i-1)*4.55},-1.85) {\hyphenpenalty=10000\txt};
+    \node[font=\small, text=black!55] at ({(\i-1)*4.55},1.25)
+      {\faClock\ \pgfmathparse{int((\i-1)*10)}\pgfmathresult–\pgfmathparse{int(\i*10)}\pgfmathresult\,s};
+  }
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {1,...,5}
+    \draw[-{Stealth[length=4mm]}, line width=2pt, black!40] (n\i) -- (n\j);
+\end{tikzpicture}
+\end{center}
+
+\vspace{4pt}
+\begin{tcolorbox}[colback=white, colframe=black!70, boxrule=1.2pt, arc=6pt,
+  title={\faMicrophone\ Dilo así (en voz alta, dos veces)}, colbacktitle=black!70,
+  fonttitle=\bfseries\large]
+\large
+«Un asistente de pruebas convierte la pregunta \emph{¿es correcta esta
+demostración?} en la pregunta \emph{¿tiene este término este tipo?} Eso es
+Curry–Howard. La tesis reconstruye la teoría que lo hace posible, del λ-cálculo
+al Cálculo de Construcciones Inductivas, que es la lógica de Lean. Después la
+aplica a dos casos opuestos: un \textbf{teorema de lógica}, la completitud de la
+deducción natural clásica, demostrada desde cero con el lema de Kalmár, y un
+\textbf{algoritmo}, quicksort, que termina, permuta y ordena. El núcleo de Lean
+lo comprueba todo; la auditoría muestra solo los tres axiomas estándar.»
+\end{tcolorbox}
+
+\vfill
+\begin{tcbraster}[raster columns=3, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=fund!10, colframe=fund, arc=4pt, halign=center]\large\textbf{Contribución 1}\\ exposición en español,\\ autocontenida\end{tcolorbox}
+\begin{tcolorbox}[colback=comp!10, colframe=comp, arc=4pt, halign=center]\large\textbf{Contribución 2}\\ dos casos verificados\\ y contrastantes\end{tcolorbox}
+\begin{tcolorbox}[colback=conf!10, colframe=conf, arc=4pt, halign=center]\large\textbf{Contribución 3}\\ artefacto reproducible\\ (compila en CI)\end{tcolorbox}
+\end{tcbraster}
+
+\newpage
+%=====================================================================
+% 4. FUNDAMENTOS
+%=====================================================================
+\encabezado{fund}{\faCubes}{Fundamentos: la escalera hasta Lean}{cada peldaño
+añade una cosa. Arriba del todo está la lógica en la que Lean comprueba.}
+
+\begin{minipage}[t]{0.63\textwidth}
+\begin{tikzpicture}[baseline=(current bounding box.north),
+  peld/.style={draw=fund, fill=fund!#1, line width=1.2pt, rounded corners=5pt,
+    minimum width=5.4cm, minimum height=1.25cm, font=\bfseries\large, align=center},
+  nota/.style={text width=9.5cm, align=left, font=\normalsize, anchor=west}]
+  \foreach \y/\sat/\nom/\capi/\txt in {
+     0/6/λ-cálculo sin tipos/Cap.\ 7/{funciones como reglas; \textbf{β-reducción};\\ confluencia: el resultado no depende del orden},
+     1.9/12/λ$\to$ (tipos simples)/Cap.\ 7/{los tipos prohíben $(\lambda x.\,x\,x)$; todo término normaliza;\\ tipos $\approx$ fórmulas},
+     3.8/18/cubo-λ/Cap.\ 8/{3 dependencias: polimorfismo, operadores de tipos,\\ tipos dependientes},
+     5.7/26/CoC $=\lambda C$/Cap.\ 8/{las tres a la vez; el $\forall$ es un tipo $\Pi$},
+     7.6/36/CIC/Cap.\ 10/{$+$ \textbf{tipos inductivos}: constructores, eliminador,\\ ι-reducción, positividad estricta},
+     9.5/50/Lean 4//{CIC $+$ universos $+$ \texttt{Prop} impredicativa\\ $+$ 3 axiomas (pág.\ 8)}}
+  {
+    \node[peld=\sat] (r\y) at (0,\y) {\nom};
+    \node[font=\small, text=fund!80!black, anchor=east] at (-2.85,\y) {\capi};
+    \node[nota] at (3.0,\y) {\txt};
+  }
+  \foreach \a/\b in {0/1.9, 1.9/3.8, 3.8/5.7, 5.7/7.6, 7.6/9.5}
+    \draw[-{Stealth[length=3mm]}, line width=1.6pt, fund] (0,\a+0.63) -- (0,\b-0.63);
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.33\textwidth}
+\vspace{0pt}
+\begin{tarjeta}{fund}{\faBalanceScale\ \texttt{Prop} vs \texttt{Type}}
+\textbf{Type}: datos que \emph{computan}\\ (naturales, listas).\\[3pt]
+\textbf{Prop}: proposiciones. Dos pruebas de lo mismo son
+indistinguibles, así que se pueden borrar al compilar.\\[3pt]
+\emph{Los datos computan; las pruebas certifican.}
+\end{tarjeta}
+\begin{tarjeta}{fund}{\faPlusCircle\ ¿Qué añade el CIC al CoC?}
+En el CoC los datos se codifican con funciones (Church): lento y
+\textbf{sin principio de inducción}.\\[3pt]
+En el CIC se \emph{declara} el tipo y la inducción viene gratis:\\
+\texttt{inductive Nat | zero | succ}
+\end{tarjeta}
+\end{minipage}
+
+\newpage
+%=====================================================================
+% 5. LÓGICA
+%=====================================================================
+\encabezado{logi}{\faProjectDiagram}{Lógica: dos mundos y un diccionario}{$\vdash$
+es «se puede derivar», $\models$ es «es verdad». Los dos teoremas los conectan.}
+
+\begin{minipage}[t]{0.47\textwidth}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+  \node[draw=logi, fill=logi!10, line width=1.4pt, rounded corners=8pt,
+        minimum width=4.1cm, minimum height=3.1cm, align=center, font=\large] (s) at (0,0)
+    {\textbf{\LARGE Sintaxis}\\[3pt] $\Gamma\vdash\varphi$\\ árboles de reglas\\ «se deriva»};
+  \node[draw=verde, fill=verde!10, line width=1.4pt, rounded corners=8pt,
+        minimum width=4.1cm, minimum height=3.1cm, align=center, font=\large] (m) at (8.4,0)
+    {\textbf{\LARGE Semántica}\\[3pt] $\Gamma\models\varphi$\\ tablas de verdad\\ «es verdad»};
+  \draw[-{Stealth[length=4mm]}, line width=2pt, logi] ([yshift=8mm]s.east) --
+     node[above, align=center, font=\large\bfseries, text=logi]{corrección\\[-2pt]{\normalfont\small $\vdash\;\Rightarrow\;\models$ \ (Ap.\ A)}}
+     ([yshift=8mm]m.west);
+  \draw[-{Stealth[length=4mm]}, line width=2pt, verde] ([yshift=-8mm]m.west) --
+     node[below, align=center, font=\large\bfseries, text=verde]{completitud\\[-2pt]{\normalfont\small $\models\;\Rightarrow\;\vdash$ \ (Cap.\ 11)}}
+     ([yshift=-8mm]s.east);
+\end{tikzpicture}
+
+\vspace{10pt}
+\begin{tarjeta}{logi}{\faLayerGroup\ Las 7 reglas $=$ los 7 constructores de \texttt{ND}}
+\large
+\pega{logi}{hip.}\ \pega{logi}{$\to$I}\ \pega{logi}{$\to$E}\ \pega{logi}{$\neg$I}\
+\pega{logi}{$\neg$E}\ \pega{logi}{$\bot$E}\quad$+$\quad\pega{rojo}{RAA}\\[6pt]
+Las 6 primeras: lógica \textbf{intuicionista}.\\
+$+$ RAA \ ($\Gamma,\neg\varphi\vdash\bot \;\Rightarrow\; \Gamma\vdash\varphi$):
+lógica \textbf{clásica}.\\[3pt]
+RAA, tercero excluido y $\neg\neg$E son intercambiables.\\
+Sin RAA, $\neg\neg p\to p$ no se deriva.
+\end{tarjeta}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=logi!6, colframe=logi, boxrule=1.2pt, arc=6pt,
+  title={\faExchange*\ El diccionario de Curry–Howard}, colbacktitle=logi,
+  fonttitle=\bfseries\large, left=1pt, right=1pt]
+\large
+\renewcommand{\arraystretch}{1.42}
+\begin{tabular}{@{}>{\bfseries}r@{\quad\color{logi}$\longleftrightarrow$\quad}l@{}}
+proposición & tipo\\
+demostración & término (programa)\\
+$A\to B$ & función de $A$ en $B$\\
+$A\wedge B$ & par $(a,b)$\\
+suponer $A$ & tomar un argumento $x:A$\\
+descargar la hipótesis & $\lambda x.\ \dots$\\
+modus ponens ($\to$E) & aplicar la función\\
+$\forall x$ & función dependiente ($\Pi$)\\
+inducción & recursión\\
+simplificar la prueba & ejecutar (β)\\
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}
+
+\newpage
+%=====================================================================
+% 6. COMPLETITUD
+%=====================================================================
+\encabezado{comp}{\faCheckDouble}{Caso 1: completitud en 4 pasos}{de la tabla de
+verdad se fabrica una derivación: una por fila, y luego se pegan todas.}
+
+\begin{center}
+\begin{tcolorbox}[colback=comp!10, colframe=comp, boxrule=1.6pt, arc=6pt,
+  halign=center, width=0.62\textwidth, top=3pt, bottom=3pt]
+\LARGE\bfseries $\Taut(\varphi)\;\Longrightarrow\;\varnothing\vdash\varphi$
+\quad{\normalfont\large(Teorema 11.18)}
+\end{tcolorbox}
+\end{center}
+
+\vspace{-4pt}
+\begin{tikzpicture}[
+  bx/.style={draw=comp, fill=comp!7, line width=1.3pt, rounded corners=6pt,
+    text width=5.75cm, minimum height=3.15cm, align=left, inner sep=6pt}]
+  \node[bx] (a) at (0,0)
+    {{\large\bfseries\color{comp}\textcircled{\small 1} Lenguaje $\{\neg,\to\}$}\\[2pt]
+     Es \textbf{funcionalmente completo}: toda tabla de verdad se escribe con
+     $\neg$ y $\to$. $\wedge,\vee,\leftrightarrow$ entran por traducción.};
+  \node[bx] (b) at (6.9,0)
+    {{\large\bfseries\color{comp}\textcircled{\small 2} Kalmár} (Lema 11.15)\\[2pt]
+     Para cada fila $v$: los literales de los átomos derivan
+     $\varphi$ si $v(\varphi)=V$, o $\neg\varphi$ si $v(\varphi)=F$.
+     Inducción sobre $\varphi$.};
+  \node[bx] (c) at (13.8,0)
+    {{\large\bfseries\color{comp}\textcircled{\small 3} Tautología}\\[2pt]
+     Si $\varphi$ es tautología, en \textbf{todas} las $2^n$ filas sale
+     $\varphi$ (nunca $\neg\varphi$).\\ Hay $2^n$ derivaciones.};
+  \node[bx] (d) at (20.7,0)
+    {{\large\bfseries\color{comp}\textcircled{\small 4} Descarga} (Lema 11.17)\\[2pt]
+     $\Gamma,p\vdash\varphi$ y $\Gamma,\neg p\vdash\varphi$
+     $\Rightarrow$ $\Gamma\vdash\varphi$ \ (Lema 11.11, usa RAA).
+     Repetir $n$ veces: contexto vacío.};
+  \foreach \x/\y in {a/b, b/c, c/d}
+    \draw[-{Stealth[length=3.5mm]}, line width=2pt, comp] (\x) -- (\y);
+\end{tikzpicture}
+
+\vspace{6pt}
+\begin{minipage}[t]{0.52\textwidth}
+{\large\bfseries\color{comp}\faSitemap\ La descarga con 2 átomos ($p$, $q$)}\\[2pt]
+\begin{tikzpicture}[
+  h/.style={draw=comp, fill=white, line width=1.2pt, rounded corners=4pt,
+    font=\large, inner sep=5pt},
+  up/.style={-{Stealth[length=2.6mm]}, line width=1.2pt, comp}]
+  \node[h] (l1) at (0,0) {$p,q\vdash\varphi$};
+  \node[h] (l2) at (3.65,0) {$p,\neg q\vdash\varphi$};
+  \node[h] (l3) at (7.55,0) {$\neg p,q\vdash\varphi$};
+  \node[h] (l4) at (11.4,0) {$\neg p,\neg q\vdash\varphi$};
+  \node[h] (m1) at (1.8,1.75) {$p\vdash\varphi$};
+  \node[h] (m2) at (9.5,1.75) {$\neg p\vdash\varphi$};
+  \node[h, fill=comp!15, font=\Large\bfseries] (r) at (5.65,3.5) {$\varnothing\vdash\varphi$};
+  \draw[up] (l1) -- (m1); \draw[up] (l2) -- (m1);
+  \draw[up] (l3) -- (m2); \draw[up] (l4) -- (m2);
+  \draw[up] (m1) -- (r); \draw[up] (m2) -- (r);
+  \node[font=\small, text=comp!70!black] at (5.65,-0.75) {4 filas: Kalmár da las hojas};
+  \node[font=\small, text=comp!70!black, fill=white, inner sep=1pt] at (5.65,1.75) {descargar $q$};
+  \node[font=\small, text=comp!70!black, anchor=west] at (6.75,3.5) {descargar $p$};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=rojo!8, colframe=rojo, arc=4pt, boxrule=1pt, top=3pt, bottom=3pt, fontupper=\large]
+\faExclamationTriangle\ \textbf{Lo clásico entra solo aquí:} el análisis por casos
+(Lema 11.11) es el único uso de RAA dentro del cálculo.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=comp!8, colframe=comp, arc=4pt, boxrule=1pt, top=3pt, bottom=3pt, fontupper=\large]
+\faSync*\ \textbf{¿Por qué Kalmár es bilateral?} En $\neg$ y $\to$ hay que
+saber derivar también las subfórmulas \emph{falsas}.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=comp!8, colframe=comp, arc=4pt, boxrule=1pt, top=3pt, bottom=3pt, fontupper=\large]
+\faArrowsAltH\ \textbf{Con la corrección} (Teo.\ A.3, inducción sobre la
+derivación): $\Taut(\varphi)\iff\varnothing\vdash\varphi$ \ (Teo.\ A.6).
+\end{tcolorbox}
+\begin{tcolorbox}[colback=ambar!12, colframe=ambar, arc=4pt, boxrule=1pt, top=3pt, bottom=3pt, fontupper=\large]
+\faInfoCircle\ Es la completitud \textbf{débil} ($\Gamma=\varnothing$). Ver pág.\ 9.
+\end{tcolorbox}
+\end{minipage}
+
+\newpage
+%=====================================================================
+% 7. QUICKSORT
+%=====================================================================
+\encabezado{qsrt}{\faSortAmountUp}{Caso 2: quicksort en 3 obligaciones}{la
+salida tiene los mismos elementos y está en orden. Y, antes, la función tiene
+que terminar.}
+
+\begin{minipage}[t]{0.47\textwidth}
+\begin{tcolorbox}[colback=qsrt!10, colframe=qsrt, boxrule=1.6pt, arc=6pt,
+  halign=center, top=3pt, bottom=3pt]
+\Large\bfseries $\qs(\ell)\sim\ell\quad\wedge\quad\Sorted(\qs(\ell))$\\
+{\normalfont\large (Teorema 12.12)}
+\end{tcolorbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.50\textwidth}
+\large
+$\qs([\,])=[\,]$\\
+$\qs(p::r)=\qs(L)\concat(p::\qs(R))$\\
+{\normalsize $L$: los de $r$ que son $\le p$. \ $R$: los de $r$ que son $>p$.}
+\end{minipage}
+
+\vspace{6pt}
+\begin{center}
+\begin{tikzpicture}[
+  l/.style={draw=qsrt, fill=qsrt!8, rounded corners=4pt, font=\large, inner sep=5pt},
+  a/.style={-{Stealth[length=3mm]}, line width=1.4pt, qsrt}]
+  \node[l] (x) at (0,0) {$[3,1,2,5,4]$};
+  \node[l] (L) at (5.2,0.75) {$L=[1,2]$};
+  \node[l, fill=qsrt!30] (p) at (5.2,0) {pivote $3$};
+  \node[l] (R) at (5.2,-0.75) {$R=[5,4]$};
+  \node[l] (sL) at (10.4,0.75) {$[1,2]$};
+  \node[l] (sR) at (10.4,-0.75) {$[4,5]$};
+  \node[l, fill=qsrt!20, font=\large\bfseries] (y) at (15.6,0) {$[1,2,3,4,5]$};
+  \draw[a] (x) -- (L); \draw[a] (x) -- (p); \draw[a] (x) -- (R);
+  \draw[a] (L) -- node[above, font=\small]{qs} (sL);
+  \draw[a] (R) -- node[below, font=\small]{qs} (sR);
+  \draw[a] (sL) -- (y); \draw[a] (p) -- (y); \draw[a] (sR) -- (y);
+  \node[font=\small, text=black!60] at (12.9,0.05) {pegar};
+\end{tikzpicture}
+\end{center}
+
+\vspace{2pt}
+\begin{tcbraster}[raster columns=3, raster column skip=8pt, raster equal height, raster every box/.style={before upper=\large}]
+\begin{tarjeta}{qsrt}{\faClock\ 1. Termina \ (Prop.\ 12.6)}
+No es recursión estructural: $L$ y $R$ salen de \texttt{filter}, no son
+«trozos» de la lista.\\[4pt]
+\textbf{Medida:} la longitud.\\
+$|L|\le|r|<|p::r|$ \ (Lema 12.5).
+\end{tarjeta}
+\begin{tarjeta}{qsrt}{\faExchange*\ 2. Permuta \ (Teo.\ 12.8)}
+Cadena de permutaciones:\\[2pt]
+$\qs(L)\concat(p::\qs(R))$\\
+$\;\sim L\concat(p::R)$ \hfill{\small hipótesis}\\
+$\;\sim p::(L\concat R)$ \hfill{\small mover $p$}\\
+$\;\sim p::r$ \hfill{\small Lema 12.7}
+\end{tarjeta}
+\begin{tarjeta}{qsrt}{\faSortAmountUp\ 3. Ordena \ (Teo.\ 12.11)}
+Pegar dos listas ordenadas da una ordenada \textbf{si} todo lo de la
+izquierda es $\le$ todo lo de la derecha (Lema 12.10).\\[4pt]
+Aquí: $\qs(L)\le p<\qs(R)$.
+\end{tarjeta}
+\end{tcbraster}
+
+\vfill
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=ambar!12, colframe=ambar, arc=4pt, boxrule=1pt]
+\faQuestionCircle\ \textbf{¿Por qué dos mitades?} $f(\ell)=[\,]$ ordena pero no
+permuta. $f(\ell)=\ell$ permuta pero no ordena.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=ambar!12, colframe=ambar, arc=4pt, boxrule=1pt]
+\faExclamationTriangle\ \textbf{Ojo:} «mismos elementos» (Cor.\ 12.9) es más
+débil que permutación: $[1,1]$ y $[1]$ tienen los mismos elementos.
+\end{tcolorbox}
+\end{tcbraster}
+
+\newpage
+%=====================================================================
+% 8. CONFIANZA
+%=====================================================================
+\encabezado{conf}{\faShield*}{Confianza: ¿por qué creerle a Lean?}{el núcleo
+solo comprueba tipos. El riesgo real no es la prueba, es que el enunciado diga
+otra cosa.}
+
+\begin{minipage}[t]{0.55\textwidth}
+\begin{tikzpicture}[baseline=(current bounding box.north),
+  capa/.style={draw=conf, fill=conf!#1, line width=1.2pt, rounded corners=6pt,
+    minimum width=14.6cm, minimum height=2.15cm, text width=13.9cm, align=left,
+    inner sep=6pt, font=\large}]
+  \node[capa=8] (e) at (0,0)
+    {\large\bfseries 1. El enunciado \normalfont\large — lo escribes tú\\
+     \faExclamationTriangle\ Aquí está el riesgo. Por eso es corto:
+     $\qs(\ell)\sim\ell\wedge\Sorted(\qs(\ell))$};
+  \node[capa=14] (t) at (0,-2.5)
+    {\large\bfseries 2. El término \normalfont\large — lo producen las tácticas (o la IA)\\
+     Da igual quién lo escriba: no se le cree, se comprueba.};
+  \node[capa=22] (n) at (0,-5.0)
+    {\large\bfseries 3. El núcleo \normalfont\large — comprueba el tipo con las reglas del CIC\\
+     Pequeño, independiente y re-ejecutable (criterio de De Bruijn).};
+  \node[capa=30] (x) at (0,-7.5)
+    {\large\bfseries 4. \texttt{\#print axioms} \normalfont\large — lista \emph{todos} los axiomas usados\\
+     Un \texttt{sorry} saldría como \texttt{sorryAx}: no se puede esconder.};
+  \node[capa=40] (ci) at (0,-10.0)
+    {\large\bfseries 5. Integración continua \normalfont\large — recompila todo en cada cambio\\
+     Cualquiera puede re-ejecutar la auditoría.};
+  \foreach \a/\b in {e/t, t/n, n/x, x/ci}
+    \draw[-{Stealth[length=3mm]}, line width=1.6pt, conf] (\a) -- (\b);
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.42\textwidth}
+\vspace{0pt}
+\begin{tarjeta}{conf}{\faKey\ Los 3 axiomas (y nada más)}
+\large
+\textbf{\texttt{propext}}: si $a\leftrightarrow b$, entonces $a=b$.\\[3pt]
+\textbf{\texttt{Classical.choice}}: si existe algo, se puede elegir uno.
+Hace la lógica clásica.\\[3pt]
+\textbf{\texttt{Quot.sound}}: elementos relacionados tienen la misma clase en
+un cociente.\\[3pt]
+Son los estándar de Lean y Mathlib, y son consistentes con el CIC.
+\end{tarjeta}
+\begin{tarjeta}{conf}{\faRobot\ Si preguntan por la IA: 3 capas}
+\large
+\textbf{Corrección:} lo comprueba el núcleo, no la procedencia.\\
+\textbf{Autoría:} yo definí estructura y alcance, revisé línea por línea y
+puedo re-derivar cualquier paso.\\
+\textbf{Transparencia:} el uso está declarado en la tesis.
+\end{tarjeta}
+\end{minipage}
+
+\newpage
+%=====================================================================
+% 9. ALCANCE
+%=====================================================================
+\encabezado{alca}{\faTrafficLight}{Alcance: el semáforo}{decir los límites antes
+de que pregunten da credibilidad. Verde está verificado; amarillo es papel; rojo
+no se hizo.}
+
+\begin{tcbraster}[raster columns=3, raster column skip=8pt, raster equal height]
+\begin{tarjeta}{verde}{\faCheckCircle\ Verde: verificado en Lean}
+\large
+• Completitud \textbf{débil}:\\ \hphantom{• }$\Taut(\varphi)\Rightarrow\varnothing\vdash\varphi$\\[3pt]
+• Corrección, consistencia y\\ \hphantom{• }adecuación (Apéndice A)\\[3pt]
+• La traducción de $\wedge,\vee,\leftrightarrow$\\ \hphantom{• }conserva el valor de verdad\\[3pt]
+• Quicksort: termina, permuta\\ \hphantom{• }y ordena
+\end{tarjeta}
+\begin{tarjeta}{ambar}{\faAdjust\ Amarillo: solo en papel}
+\large
+• $\Gamma$ \textbf{finito}: se reduce al caso\\ \hphantom{• }vacío (esbozo del Cap.\ 9)\\[3pt]
+• Teoría de los Cap.\ 7–10: parte\\ \hphantom{• }demostrada, parte esbozada\\ \hphantom{• }o citada (p.\ ej.\ Teo.\ 8.27)\\[3pt]
+• $\wedge,\vee,\leftrightarrow$ como reglas propias:\\ \hphantom{• }solo por traducción
+\end{tarjeta}
+\begin{tarjeta}{rojo}{\faTimesCircle\ Rojo: fuera del alcance}
+\large
+• Completitud \textbf{fuerte}\\ \hphantom{• }($\Gamma$ infinito: hace falta compacidad)\\[3pt]
+• Lógica de primer orden\\[3pt]
+• Complejidad $O(n\log n)$\\[3pt]
+• Quicksort \emph{in-place} sobre arreglos\\[3pt]
+• Extraer derivaciones ejecutables
+\end{tarjeta}
+\end{tcbraster}
+
+\vfill
+{\Large\bfseries\color{alca}\faLifeRing\ Si te preguntan algo que no hiciste: 3 pasos}\\[4pt]
+\begin{tikzpicture}[
+  s/.style={draw=alca, fill=alca!8, line width=1.3pt, rounded corners=6pt,
+    text width=7.6cm, minimum height=2.1cm, align=left, inner sep=7pt, font=\large}]
+  \node[s] (a) at (0,0) {{\large\bfseries 1. Decirlo}\\ «No lo demostré y no quiero especular.»};
+  \node[s] (b) at (9.2,0) {{\large\bfseries 2. Acotarlo}\\ «Está fuera del alcance declarado; la frontera está aquí…»};
+  \node[s] (c) at (18.4,0) {{\large\bfseries 3. Ofrecer}\\ «Lo que sí puedo afirmar es… y se extendería así…»};
+  \draw[-{Stealth[length=3.5mm]}, line width=2pt, alca] (a) -- (b);
+  \draw[-{Stealth[length=3.5mm]}, line width=2pt, alca] (b) -- (c);
+\end{tikzpicture}
+
+\newpage
+%=====================================================================
+% 10. PREGUNTAS
+%=====================================================================
+\encabezado{preg}{\faQuestionCircle}{12 preguntas, 12 respuestas de una línea}{tapa
+la respuesta, lee la pregunta, contesta en voz alta.}
+
+\newcommand{\pr}[3]{\begin{tcolorbox}[colback=#1!7, colframe=#1, boxrule=1.1pt,
+  arc=5pt, left=5pt, right=5pt, top=3pt, bottom=4pt, before upper=\raggedright\large]
+  {\bfseries\color{#1!75!black}#2}\par\vspace{3pt}\faArrowRight\ #3\end{tcolorbox}}
+
+\begin{tcbraster}[raster columns=4, raster column skip=6pt, raster row skip=6pt,
+  raster equal height=rows]
+\pr{logi}{¿Qué es Curry–Howard?}{Proposición $=$ tipo, prueba $=$ término. Verificar es comprobar un tipo.}
+\pr{fund}{¿Qué añade el CIC al CoC?}{Tipos inductivos, con el principio de inducción gratis.}
+\pr{conf}{¿Qué hace el núcleo?}{Solo comprueba tipos. Es pequeño y re-ejecutable.}
+\pr{comp}{¿Por qué solo $\{\neg,\to\}$?}{Es funcionalmente completo, y hay menos reglas y menos casos.}
+\pr{comp}{¿Cuál es la difícil: corrección o completitud?}{Completitud: hay que fabricar una derivación desde la tabla.}
+\pr{comp}{¿Dónde entra lo clásico?}{En RAA, solo en el análisis por casos de la descarga (Lema 11.11).}
+\pr{alca}{¿Cubre $\Gamma\models\varphi\Rightarrow\Gamma\vdash\varphi$?}{Para $\Gamma=\varnothing$ sí. Finito: se reduce (esbozo). Infinito: compacidad.}
+\pr{qsrt}{¿Por qué dos mitades en la especificación?}{$[\,]$ ordena sin permutar; la identidad permuta sin ordenar.}
+\pr{qsrt}{¿Por qué Lean rechaza el quicksort ingenuo?}{No es recursión estructural. Medida: la longitud.}
+\pr{conf}{¿Qué garantiza \texttt{\#print axioms}?}{Lista todos los axiomas; un \texttt{sorry} saldría como \texttt{sorryAx}.}
+\pr{conf}{¿Qué puede seguir estando mal?}{El enunciado. Por eso es corto y legible.}
+\pr{conf}{¿Y la IA?}{Núcleo $+$ autoría línea por línea $+$ declaración formal.}
+\end{tcbraster}
+
+\newpage
+%=====================================================================
+% 11. PALABRAS
+%=====================================================================
+\encabezado{pala}{\faBook}{16 palabras que tienes que usar con soltura}{si una
+de estas te hace dudar, ese es el tema que falta estudiar.}
+
+\newcommand{\pal}[3]{\begin{tcolorbox}[colback=#1!6, colframe=#1, boxrule=1pt,
+  arc=4pt, left=5pt, right=5pt, top=3pt, bottom=4pt, leftrule=5pt, before upper=\raggedright\large]
+  {\Large\bfseries #2}\par\vspace{2pt}#3\end{tcolorbox}}
+
+\begin{tcbraster}[raster columns=4, raster column skip=6pt, raster row skip=6pt,
+  raster equal height=rows]
+\pal{logi}{Tautología}{Verdadera en todas las filas de la tabla.}
+\pal{logi}{Valuación}{Una fila: a cada átomo le da V o F.}
+\pal{logi}{Derivación ($\vdash$)}{Árbol hecho solo con las reglas.}
+\pal{logi}{Consecuencia ($\models$)}{Si $\Gamma$ es verdad, $\varphi$ también, en toda fila.}
+\pal{comp}{Corrección}{$\vdash\Rightarrow\models$: lo derivable es verdad.}
+\pal{comp}{Completitud}{$\models\Rightarrow\vdash$. \textbf{Débil}: $\Gamma=\varnothing$. \textbf{Fuerte}: todo $\Gamma$.}
+\pal{comp}{Funcionalmente completo}{Con esos conectivos se escribe cualquier tabla de verdad.}
+\pal{comp}{Literal}{Un átomo $p$ o su negación $\neg p$, según la fila.}
+\pal{comp}{Descargar}{Cerrar una hipótesis: deja de estar a la izquierda de $\vdash$.}
+\pal{comp}{Debilitamiento}{Añadir hipótesis no rompe una derivación (Lema 11.9).}
+\pal{fund}{Inducción estructural}{Caso base y un caso por constructor.}
+\pal{qsrt}{Inducción bien fundada}{Vale si una medida baja siempre y no baja para siempre.}
+\pal{fund}{Tipo inductivo}{Definido por sus constructores; trae su eliminador.}
+\pal{fund}{Impredicativo}{\texttt{Prop} puede cuantificar sobre todas las proposiciones.}
+\pal{qsrt}{Permutación ($\sim$)}{Mismos elementos, \emph{contando repeticiones}.}
+\pal{conf}{Auditoría de axiomas}{\texttt{\#print axioms}: de qué axiomas depende un teorema.}
+\end{tcbraster}
+
+\newpage
+%=====================================================================
+% 12. LISTA
+%=====================================================================
+\encabezado{pala}{\faTasks}{¿Listo? Marca cuando lo digas sin mirar}{no hace
+falta memorizar frases: hace falta poder reconstruirlas.}
+
+\newcommand{\grupo}[3]{\begin{tcolorbox}[colback=#1!6, colframe=#1, boxrule=1.1pt,
+  arc=5pt, title={#2}, colbacktitle=#1, fonttitle=\bfseries\large,
+  left=6pt, top=4pt, bottom=4pt]
+  \large\begin{itemize}[label={\faSquare[regular]}, leftmargin=7mm, itemsep=3pt, topsep=0pt]#3\end{itemize}\end{tcolorbox}}
+
+\begin{tcbraster}[raster columns=3, raster column skip=8pt, raster row skip=6pt,
+  raster equal height=rows]
+\grupo{pala}{\faMicrophone\ El pitch}{
+  \item La frase central en 1 línea
+  \item Los 6 pasos en 60 segundos
+  \item Las 3 contribuciones}
+\grupo{fund}{\faCubes\ Fundamentos}{
+  \item La escalera λ $\to$ CIC $\to$ Lean
+  \item Qué añade el CIC al CoC
+  \item \texttt{Prop} vs \texttt{Type}}
+\grupo{logi}{\faProjectDiagram\ Lógica}{
+  \item $\vdash$ vs $\models$, corrección vs completitud
+  \item Las 7 reglas; cuál es la clásica
+  \item 5 entradas del diccionario}
+\grupo{comp}{\faCheckDouble\ Completitud}{
+  \item Los 4 pasos, en la pizarra
+  \item El árbol de descarga con $p,q$
+  \item Por qué Kalmár es bilateral}
+\grupo{qsrt}{\faSortAmountUp\ Quicksort}{
+  \item Especificación y contraejemplos
+  \item La medida de terminación
+  \item La cadena de permutaciones}
+\grupo{conf}{\faShield*\ Confianza y alcance}{
+  \item Los 3 axiomas, uno por línea
+  \item Qué puede seguir estando mal
+  \item El semáforo y los 3 pasos}
+\end{tcbraster}
+
+\vfill
+\begin{tcolorbox}[colback=tldr, colframe=black!60, boxrule=1pt, arc=6pt,
+  title={\faSun\ El día de la defensa}, colbacktitle=black!60, fonttitle=\bfseries\large]
+\large
+\faPause\ Antes de responder, \textbf{respira} y repite la pregunta con tus palabras.\\[3pt]
+\faPen\ En la pizarra, dibuja el \textbf{árbol de descarga} o la \textbf{cadena de permutaciones}.\\[3pt]
+\faHandPaper\ Si te bloqueas, vuelve a la frase central (pág.\ 1) y baja desde ahí.
+\end{tcolorbox}
+
+\end{document}
