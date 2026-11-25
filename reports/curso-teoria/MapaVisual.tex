@@ -481,25 +481,129 @@ desvío en una prueba & redex & normalizar & evaluar\\
 \end{center}
 
 %=====================================================================
-\section{Lógica clásica e intuicionista}
+\section{Tipos de lógica en la tesis}
 %=====================================================================
 
-\begin{figura}{Un núcleo común y una regla más}
+La tesis nombra varias lógicas: clásica, intuicionista, mínima, de Heyting,
+proposicional, de predicados, de primer orden, de orden superior y «la lógica
+de Lean». No son una lista plana: responden a dos preguntas independientes.
+
+\begin{clave}
+\textbf{Pregunta 1: ¿qué cuenta como prueba?} Es decir, qué reglas se
+permiten. De menos a más reglas:
+\termino{mínima} \(\subset\) \termino{intuicionista} \(\subset\) \termino{clásica}.
+
+\smallskip
+\textbf{Pregunta 2: ¿de qué se puede hablar?} Es decir, sobre qué se
+cuantifica. De menos a más expresiva:
+\termino{proposicional} \(\subset\) \termino{de predicados (primer orden)}
+\(\subset\) \termino{de orden superior}.
+
+\smallskip
+Cada lógica concreta es una respuesta a las dos. El cálculo del Capítulo 11 es
+\emph{clásico y proposicional}; Lean es \emph{clásico (por un axioma) y de
+orden superior}.
+\end{clave}
+
+\subsection{Las dos preguntas en una tabla}
+
+\begin{figura}{Dónde cae cada sistema de la tesis}
+\begin{tikzpicture}[
+  celda/.style={caja, text width=3.45cm, minimum height=1.55cm, font=\footnotesize},
+  vacia/.style={celda, fill=gray!6, draw=gray!50, text=gray!70!black}]
+\node[font=\small\bfseries] at (4.4,1.05) {Mínima};
+\node[font=\small\bfseries] at (8.3,1.05) {Intuicionista};
+\node[font=\small\bfseries] at (12.2,1.05) {Clásica};
+\draw[flecha] (2.6,1.6) -- node[et, above]{más reglas \(\Rightarrow\) más teoremas} (14.1,1.6);
+\node[font=\small\bfseries, align=center] at (1.1,0) {Proposicional};
+\node[font=\small\bfseries, align=center] at (1.1,-1.8) {De predicados\\(primer orden)};
+\node[font=\small\bfseries, align=center] at (1.1,-3.6) {De orden\\superior};
+\draw[flecha] (-0.45,0.7) -- node[et, rotate=90, above]{más expresiva} (-0.45,-4.3);
+%
+\node[vacia] at (4.4,0) {Solo se menciona para aclarar que \(\{\neg,\to\}\) \emph{no} es lógica mínima (Cap.\ 9)};
+\node[verde, celda] at (8.3,0) {NJ, BHK, Curry--Howard\\\(\lambda_\to\) (Caps.\ 7 y 9)};
+\node[amarillo, celda] at (12.2,0) {\textbf{\(\Provnd\) del Cap.\ 11}\\tablas de verdad\\\(\star\) demostrada en Lean};
+\node[vacia] at (4.4,-1.8) {---};
+\node[verde, celda] at (8.3,-1.8) {\(\lambda P\): predicados\\como tipos (Cap.\ 8)};
+\node[naranja, celda] at (12.2,-1.8) {Completitud de Gödel (1929)\\\emph{fuera de la tesis}};
+\node[vacia] at (4.4,-3.6) {---};
+\node[verde, celda] at (8.3,-3.6) {CoC y CIC sin axiomas\\(Caps.\ 8 y 10)};
+\node[morado, celda] at (12.2,-3.6) {\textbf{Lógica de Lean}\\CIC + \texttt{Classical.choice}\\(nivel meta)};
+\end{tikzpicture}
+
+\smallskip
+{\footnotesize
+\tikz\node[amarillo, minimum width=4mm, minimum height=3mm, inner sep=0pt]{}; demostrado (nivel objeto)\qquad
+\tikz\node[morado, minimum width=4mm, minimum height=3mm, inner sep=0pt]{}; lógica en la que se demuestra (nivel meta)\\
+\tikz\node[verde, minimum width=4mm, minimum height=3mm, inner sep=0pt]{}; presentado\qquad
+\tikz\node[naranja, minimum width=4mm, minimum height=3mm, inner sep=0pt]{}; no demostrado}
+\end{figura}
+
+\subsection{Pregunta 1: mínima, intuicionista y clásica}
+
+\begin{figura}{Cada lógica añade una regla a la anterior}
 \begin{tikzpicture}
-\draw[thick, rounded corners, draw=c3, fill=c3!8] (0,0) rectangle (9,4);
-\node[anchor=north west, font=\small\bfseries, text=c3] at (0.1,3.95) {Lógica clásica (NK): núcleo + RAA};
-\draw[thick, rounded corners, draw=c2, fill=c2!12] (0.4,0.4) rectangle (5.4,3.2);
-\node[align=center, font=\small] at (2.9,1.8) {\textbf{Núcleo intuicionista (NJ)}\\\(\to\)I, \(\to\)E, \(\neg\)I, \(\neg\)E,\\\(\bot\)E, \(\wedge\), \(\vee\)\\\footnotesize prueba = construcción (BHK)};
-\node[align=center, font=\small] at (7.2,1.8) {\(p\vee\neg p\)\\\(\neg\neg p\to p\)\\\footnotesize solo aquí};
-\begin{scope}[xshift=11.7cm, yshift=2cm]
-\node[amarillo] (raa) at (90:1.5) {RAA};
-\node[amarillo] (lem) at (210:1.5) {LEM};
-\node[amarillo] (dne) at (330:1.5) {\(\neg\neg\)E};
+\draw[thick, rounded corners, draw=c3, fill=c3!8] (0,0) rectangle (10.2,5);
+\node[anchor=north west, font=\small\bfseries, text=c3] at (0.15,4.95) {Clásica (NK) = intuicionista + RAA};
+\draw[thick, rounded corners, draw=c2, fill=c2!12] (0.35,0.35) rectangle (7.1,4.25);
+\node[anchor=north west, font=\small\bfseries, text=c2!70!black] at (0.5,4.2) {Intuicionista (NJ) = mínima + \(\bot\)E};
+\draw[thick, rounded corners, draw=c1, fill=c1!10] (0.7,0.7) rectangle (3.9,3.45);
+\node[align=center, font=\small] at (2.3,2.05) {\textbf{Mínima}\\\(\to\), \(\wedge\), \(\vee\)\\\(\neg\)I, \(\neg\)E\\\footnotesize sin ex falso};
+\node[align=center, font=\footnotesize] at (5.5,2.05) {\(\bot\to p\)\\[2pt]\((\neg p\vee q)\to(p\to q)\)\\[2pt]\emph{desde aquí}};
+\node[align=center, font=\footnotesize] at (8.65,2.05) {\(p\vee\neg p\)\\[2pt]\(\neg\neg p\to p\)\\[2pt]\(((p\to q)\to p)\to p\)\\[2pt]\emph{solo aquí}};
+\begin{scope}[xshift=12.75cm, yshift=2.6cm]
+\node[amarillo] (raa) at (90:1.3) {RAA};
+\node[amarillo] (lem) at (210:1.3) {LEM};
+\node[amarillo] (dne) at (330:1.3) {\(\neg\neg\)E};
 \draw[dflecha] (raa) -- (lem); \draw[dflecha] (lem) -- (dne); \draw[dflecha] (dne) -- (raa);
-\node[font=\scriptsize, align=center] at (0,-2.1) {cualquiera de las tres\\añadida al núcleo da\\la lógica clásica};
+\node[font=\scriptsize, align=center] at (0,-2.0) {cualquiera de las tres\\añadida a NJ da\\la lógica clásica};
 \end{scope}
 \end{tikzpicture}
 \end{figura}
+
+\paragraph{Lógica clásica.} Cada fórmula es verdadera o falsa, sin tercera
+opción (\termino{bivalencia}); su semántica son las tablas de verdad. La
+caracteriza cualquiera de tres principios equivalentes: el tercero excluido
+(LEM, \(\varphi\vee\neg\varphi\)), la eliminación de la doble negación
+(\(\neg\neg\varphi\Rightarrow\varphi\)) y la reducción al absurdo clásica (RAA).
+El cálculo \(\Provnd\) del Capítulo 11 es clásico; su única regla clásica es RAA,
+y dentro del cálculo solo se usa en el Lema 11.11.
+
+\paragraph{Lógica intuicionista} (también \termino{lógica de Heyting} o
+constructiva). Ser verdadero es \emph{tener una construcción}: no basta mostrar
+que algo no puede ser falso. La interpretación BHK (Cap.\ 9) dice qué es una
+prueba de cada conectivo; Curry--Howard la convierte en programas.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+{\small
+\begin{tabular}{@{}l >{\raggedright\arraybackslash}p{6.3cm} >{\raggedright\arraybackslash}p{4.6cm}@{}}
+\toprule
+\textbf{Fórmula} & \textbf{Una prueba es\dots{} (BHK)} & \textbf{En Curry--Howard / Lean}\\
+\midrule
+\(\varphi\wedge\psi\) & un par: una prueba de \(\varphi\) y una de \(\psi\) & par \(\langle a,b\rangle\)\\
+\(\varphi\vee\psi\) & una prueba de \emph{uno} de los dos, \emph{diciendo cuál} & \texttt{Or.inl a} o \texttt{Or.inr b}\\
+\(\varphi\to\psi\) & un método que convierte pruebas de \(\varphi\) en pruebas de \(\psi\) & función \(\lambda x.\,M\)\\
+\(\bot\) & no hay ninguna & tipo vacío \texttt{False}\\
+\(\neg\varphi\) (\(=\varphi\to\bot\)) & un método que convierte pruebas de \(\varphi\) en absurdo & función hacia \texttt{False}\\
+\(\forall x.\,P(x)\)\(^{*}\) & un método que a cada \(x\) le asigna una prueba de \(P(x)\) & función dependiente (\(\Pi\))\\
+\(\exists x.\,P(x)\)\(^{*}\) & un testigo \(a\) junto con una prueba de \(P(a)\) & par dependiente\\
+\bottomrule
+\end{tabular}}
+
+{\footnotesize \(^{*}\)Extensión estándar; la definición de la tesis cubre \(\wedge\), \(\vee\), \(\to\) y \(\bot\).}
+\end{center}
+
+\textbf{Por qué falla \(p\vee\neg p\).} BHK exige decir \emph{cuál} de los dos
+lados vale, y en general no se sabe. Ejemplo estándar (fuera de la tesis):
+existen irracionales \(a,b\) con \(a^b\) racional. Si \(\sqrt2^{\sqrt2}\) es
+racional, sirven \(a=b=\sqrt2\); si no, sirven \(a=\sqrt2^{\sqrt2}\) y
+\(b=\sqrt2\), porque \(a^b=\sqrt2^{\,2}=2\). La prueba es clásicamente
+correcta, pero no dice cuál de los dos pares funciona: no es constructiva.
+
+\textbf{Lo que se conserva.} El ex falso (\(\bot\)E) y la introducción de la
+negación: para probar \(\neg A\) se supone \(A\) y se llega a \(\bot\). Eso
+\emph{no} es RAA; es \(\to\)I, porque \(\neg A\) abrevia \(A\to\bot\).
 
 \begin{center}
 \begin{tabular}{c@{\qquad}c}
@@ -508,6 +612,166 @@ desvío en una prueba & redex & normalizar & evaluar\\
 \AxiomC{\(\Gamma,\neg A\vdash\bot\)}\RightLabel{\scriptsize RAA (clásica)}\UnaryInfC{\(\Gamma\vdash A\)}\DisplayProof
 \end{tabular}
 \end{center}
+
+\paragraph{Lógica mínima.} Es la intuicionista \emph{sin} ex falso: \(\bot\)
+es un átomo más, sin poderes especiales. La tesis la menciona una sola vez
+(Cap.\ 9), para aclarar que usar la base \(\{\neg,\to\}\) \emph{no} es lógica
+mínima: es lógica clásica escrita con menos conectivos primitivos.
+
+\newcommand{\lsi}{\textcolor{c2!80!black}{\textbf{sí}}}
+\newcommand{\lno}{\textcolor{c3}{no}}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+{\small
+\begin{tabular}{@{}l c c c >{\raggedright\arraybackslash}p{5.2cm}@{}}
+\toprule
+\textbf{Fórmula} & \textbf{Mín.} & \textbf{Intuic.} & \textbf{Clás.} & \textbf{Comentario}\\
+\midrule
+\(p\to\neg\neg p\) & \lsi & \lsi & \lsi & la doble negación se \emph{introduce} siempre\\
+\(\neg\neg\neg p\to\neg p\) & \lsi & \lsi & \lsi & tres negaciones se reducen a una\\
+\(\neg\neg(p\vee\neg p)\) & \lsi & \lsi & \lsi & LEM doblemente negado\\
+\((\neg p\vee\neg q)\to\neg(p\wedge q)\) & \lsi & \lsi & \lsi & De Morgan, dirección fácil\\
+\midrule
+\(\bot\to p\) & \lno & \lsi & \lsi & ex falso (\(\bot\)E)\\
+\((\neg p\vee q)\to(p\to q)\) & \lno & \lsi & \lsi & el caso \(\neg p\) necesita ex falso\\
+\midrule
+\(p\vee\neg p\) & \lno & \lno & \lsi & tercero excluido (LEM)\\
+\(\neg\neg p\to p\) & \lno & \lno & \lsi & eliminación de la doble negación\\
+\(((p\to q)\to p)\to p\) & \lno & \lno & \lsi & ley de Peirce\\
+\(\neg(p\wedge q)\to(\neg p\vee\neg q)\) & \lno & \lno & \lsi & De Morgan, dirección difícil\\
+\((p\to q)\to(\neg p\vee q)\) & \lno & \lno & \lsi & \(\to\) como disyunción\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+\begin{nota}[Resultado estándar, fuera de la tesis: teorema de Glivenko]
+Una fórmula proposicional \(\varphi\) es tautología clásica si y solo si
+\(\neg\neg\varphi\) es teorema intuicionista. La lógica intuicionista no
+pierde verdades clásicas: las conserva «bajo doble negación».
+\end{nota}
+
+\subsection{La semántica de la lógica intuicionista: modelos de Kripke}
+
+Las tablas de verdad no sirven para la lógica intuicionista: NJ no prueba
+\(p\vee\neg p\), que es tautología. Su semántica son los \termino{modelos de
+Kripke}: \emph{mundos} (estados de conocimiento) ordenados por «saber más».
+Lo que se sabe en un mundo se sigue sabiendo en los posteriores. La tesis los
+cita (Cap.\ 9, Sørensen--Urzyczyn) pero no los desarrolla; el anexo de Kripke
+está excluido de la versión compilada.
+
+\begin{figura}{El contramodelo más pequeño de \(p\vee\neg p\)}
+\begin{tikzpicture}
+\node[circle, draw=c1, fill=c1!10, minimum size=1.7cm, align=center] (w0) at (0,0) {\(w_0\)\\\footnotesize \(p\) aún\\\footnotesize no se sabe};
+\node[circle, draw=c2, fill=c2!14, minimum size=1.7cm, align=center] (w1) at (4.2,0) {\(w_1\)\\\footnotesize \(p\) verdadera};
+\draw[flecha] (w0) -- node[et, above]{se aprende más} (w1);
+\node[align=left, font=\small, anchor=west] at (6.2,0) {%
+\(w_0\nVdash p\)\\
+\(w_0\nVdash\neg p\), porque en \(w_1\) llega a valer \(p\)\\
+luego \(w_0\nVdash p\vee\neg p\)\\[3pt]
+además \(w_0\Vdash\neg\neg p\) pero \(w_0\nVdash p\):\\
+falla \(\neg\neg p\to p\)};
+\end{tikzpicture}
+\end{figura}
+
+\begin{center}
+{\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}l@{\qquad}l@{}}
+\toprule
+\textbf{Cuándo} & \textbf{significa}\\
+\midrule
+\(w\Vdash\varphi\wedge\psi\) & \(w\Vdash\varphi\) y \(w\Vdash\psi\)\\
+\(w\Vdash\varphi\vee\psi\) & \(w\Vdash\varphi\) o \(w\Vdash\psi\), \emph{ya} en \(w\)\\
+\(w\Vdash\varphi\to\psi\) & en todo \(w'\geq w\): si \(w'\Vdash\varphi\), entonces \(w'\Vdash\psi\)\\
+\(w\Vdash\neg\varphi\) & ningún \(w'\geq w\) cumple \(w'\Vdash\varphi\)\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+Se lee «\(w\) \termino{fuerza} \(\varphi\)». Con un solo mundo, las cláusulas
+coinciden con las tablas de verdad: la lógica clásica es el caso en que ya no
+se aprende nada nuevo.
+
+\subsection{Pregunta 2: proposicional, de predicados y de orden superior}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+{\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}p{3.9cm} >{\raggedright\arraybackslash}p{3.5cm}@{}}
+\toprule
+\textbf{Lógica} & \textbf{Qué añade} & \textbf{Ejemplo} & \textbf{En la tesis}\\
+\midrule
+proposicional & átomos \(p,q,\dots\) y conectivos; sin cuantificadores & \(p\to(q\to p)\) & Caps.\ 9 y 11; \(\lambda_\to\)\\
+de predicados (primer orden) & predicados sobre individuos y \(\forall x\), \(\exists x\) sobre individuos & \(\forall x\,(P(x)\to\exists y\,R(x,y))\) & \(\lambda P\) (Cap.\ 8); Frege; su completitud no se demuestra\\
+de orden superior & cuantificar sobre predicados y proposiciones & \(\forall P.\,(P\to P)\), con \(P\) una proposición & CoC y CIC (Caps.\ 8 y 10); Lean\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+El ejemplo más importante de orden superior es el \emph{principio de
+inducción}, que cuantifica sobre todos los predicados \(P\):
+\[
+\forall P.\;\bigl(P(0)\wedge\forall n\,(P(n)\to P(n+1))\bigr)\to\forall n\,P(n).
+\] Por eso en CIC la inducción es un único
+teorema (el eliminador) y no un esquema con una instancia por fórmula.
+
+\subsection{Las dos lógicas de la demostración del Capítulo 11}
+
+\begin{figura}{El cálculo estudiado vive dentro de la lógica que lo estudia}
+\begin{tikzpicture}
+\draw[thick, rounded corners, draw=c4, fill=c4!8] (0,0) rectangle (15,3.9);
+\node[anchor=north west, font=\small\bfseries, text=c4!80!black, align=left] at (0.15,3.85) {Nivel meta: la lógica de Lean = CIC + \texttt{propext} + \texttt{Classical.choice} + \texttt{Quot.sound}\\\footnotesize\mdseries clásica (por \texttt{Classical.choice}) y de orden superior};
+\draw[thick, rounded corners, draw=c5, fill=c5!15] (0.4,0.35) rectangle (7.4,2.55);
+\node[align=center, font=\small] at (3.9,1.45) {\textbf{Nivel objeto: el cálculo \(\Provnd\)}\\clásico, proposicional, base \(\{\neg,\to\}\)\\\footnotesize RAA es un \emph{constructor} del predicado inductivo};
+\node[align=left, font=\small, anchor=west] at (7.8,1.45) {Lean demuestra teoremas \emph{sobre} \(\Provnd\):\\\(\mathrm{Taut}(\varphi)\Rightarrow\varnothing\Provnd\varphi\).\\[2pt]\footnotesize El análisis por casos sobre si \(v(p)\) es verdadera\\\footnotesize usa \texttt{Classical.em}, derivado de \texttt{Classical.choice}.};
+\end{tikzpicture}
+\end{figura}
+
+\begin{nota}[Pregunta probable: «Si Curry--Howard es intuicionista, ¿cómo vive en Lean una prueba clásica?»]
+Hay que separar los dos niveles. \emph{En el objeto}, RAA es solo un
+constructor del predicado inductivo \(\Provnd\): construir una derivación que lo
+use no requiere nada clásico de Lean. \emph{En el meta}, la demostración
+razona por casos sobre el valor de verdad de los átomos; como las valuaciones
+viven en \texttt{Prop}, ese paso usa \texttt{Classical.choice}, y la auditoría
+de axiomas lo confirma. El núcleo de Lean (CIC) es intuicionista; el axioma lo
+vuelve clásico. Más detalle en la sección «Nivel objeto y nivel meta».
+\end{nota}
+
+\subsection{Dónde aparece cada lógica}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+{\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}p{5.6cm} >{\raggedright\arraybackslash}p{5.6cm}@{}}
+\toprule
+\textbf{Lógica} & \textbf{Dónde aparece} & \textbf{Qué se hace con ella}\\
+\midrule
+clásica proposicional & Cap.\ 9 (NK, tablas), Cap.\ 11, Ap.\ A & \textbf{demostrada en Lean}: completitud débil, corrección, adecuación\\
+intuicionista proposicional (NJ) & Cap.\ 9: reglas, BHK, Curry--Howard & presentada; no formalizada\\
+semántica de Kripke & Cap.\ 9 (nota); anexo excluido & citada (Sørensen--Urzyczyn)\\
+mínima & Cap.\ 9, una mención & solo para aclarar que \(\{\neg,\to\}\) no es lógica mínima\\
+de predicados / primer orden & contexto histórico (Frege), Cap.\ 8 (\(\lambda P\)), conclusiones & presentada como sistema de tipos; su completitud no se demuestra\\
+intuicionista de orden superior & Cap.\ 10 (Coquand--Huet) & la lógica para la que se diseñó el CoC\\
+lógica de Lean & glosario de la tesis, auditorías de axiomas & la lógica en la que se demuestra todo\\
+de Heyting & Cap.\ 10, diagrama & otro nombre de la intuicionista\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+\begin{nota}[No confundir]
+\begin{itemize}
+\item \emph{Lógica mínima} (sin ex falso) \(\neq\) \emph{base mínima de
+  conectivos} (\(\{\neg,\to\}\), que es lógica clásica completa).
+\item \(\neg\)I (suponer \(A\), llegar a \(\bot\), concluir \(\neg A\)) es
+  intuicionista; RAA (suponer \(\neg A\), llegar a \(\bot\), concluir \(A\)) es
+  clásica.
+\item «Intuicionista» no significa «intuitiva»: viene del intuicionismo de
+  Brouwer, que exige construcciones.
+\item «Lógica inclusiva» no es una lógica: la tesis dice «disyunción lógica
+  inclusiva» para el \(\vee\) que vale si vale uno de los lados o ambos.
+\end{itemize}
+\end{nota}
 
 %=====================================================================
 \section{Bases de conectivos y completitud funcional}
@@ -695,6 +959,7 @@ congruencia & Relación compatible con los constructores: si \(M\,R\,N\), entonc
 conectivo & Símbolo que combina fórmulas: \(\neg,\wedge,\vee,\to\).\\
 consecuencia semántica & \(\Gamma\models\varphi\): toda valuación que satisface \(\Gamma\) hace verdadera \(\varphi\). [9.2]\\
 consistencia & No se deriva \(\bot\). [Cor.\ A.5]\\
+constructiva (prueba) & Prueba que exhibe lo que afirma: un testigo para \(\exists\), el lado concreto para \(\vee\). Es el criterio de la lógica intuicionista. [9.4]\\
 constructor & Regla que genera elementos de un tipo inductivo: \(0\), \(S\), \([\,]\), \(::\).\\
 contexto & Conjunto (o lista) de hipótesis o declaraciones: \(\Gamma\).\\
 contractum & Resultado de contraer un redex: \(M[x:=N]\).\\
@@ -717,6 +982,8 @@ forma normal (\(\beta\)) & Término sin redexes. [Def.\ 7.33]\\
 forma normal disyuntiva & Disyunción de conjunciones de literales; existe para toda tabla.\\
 función total / parcial & Total: definida en todo argumento. Parcial: puede no estarlo (no terminar).\\
 generalizar (la hipótesis) & Cuantificar una variable antes de inducir para que la hipótesis inductiva sirva en otros casos.\\
+Glivenko (teorema de) & \(\varphi\) es tautología clásica si y solo si \(\neg\neg\varphi\) es teorema intuicionista. Resultado estándar, fuera de la tesis.\\
+Heyting (lógica de) & Otro nombre de la lógica intuicionista. [Cap.\ 10]\\
 hipótesis inductiva & Lo que se supone para los casos menores en una inducción.\\
 impredicativo & Definición que cuantifica sobre una colección que incluye lo que se define. [10.2]\\
 inducción bien fundada & Suponer la propiedad para todo lo «más pequeño». [12.4]\\
@@ -728,14 +995,24 @@ kind & Tipo de los tipos: \(*\), \(*\to*\). [8.2]\\
 lenguaje objeto / metalenguaje & El sistema estudiado frente al lenguaje en que se razona sobre él.\\
 LEM & Tercero excluido: \(\varphi\vee\neg\varphi\).\\
 literal & Un átomo o su negación: \(p\) o \(\neg p\). [Def.\ 11.13]\\
+lógica clásica & Bivalente: incluye LEM, \(\neg\neg\)E o RAA (equivalentes). Su semántica son las tablas de verdad. [Caps.\ 9 y 11]\\
+lógica de Lean & CIC con \texttt{propext}, \texttt{Classical.choice} y \texttt{Quot.sound}. Es clásica porque \texttt{Classical.choice} implica LEM.\\
+lógica de orden superior & Permite cuantificar sobre predicados y proposiciones: \(\forall P.\,P\to P\). [Cap.\ 10]\\
+lógica de predicados (primer orden) & Añade predicados y cuantificadores sobre individuos. Su completitud (Gödel, 1929) no está en la tesis. [Cap.\ 8, \(\lambda P\)]\\
+lógica intuicionista & Una prueba es una construcción (BHK). Sin LEM, \(\neg\neg\)E ni RAA; con ex falso. Su cálculo es NJ. [9.4]\\
+lógica mínima & La intuicionista sin ex falso (\(\bot\)E). No es la base \(\{\neg,\to\}\). [Cap.\ 9]\\
+lógica proposicional & Solo átomos y conectivos, sin cuantificadores. [Caps.\ 9 y 11]\\
 medida & Función hacia \(\mathbb N\) que decrece en cada llamada recursiva: \(|\ell|\). [12.4]\\
 metateorema & Teorema \emph{sobre} un sistema formal (corrección, completitud).\\
+modelo de Kripke & Semántica de la lógica intuicionista: mundos ordenados por «saber más»; lo que vale en un mundo sigue valiendo en los posteriores. [Cap.\ 9, citado]\\
 modus ponens & De \(\varphi\) y \(\varphi\to\psi\), concluir \(\psi\) (\(\to\)E).\\
 multiplicidad & Número de veces que un elemento aparece en una lista. [12.2]\\
+NJ / NK & Deducción natural intuicionista / clásica; NK = NJ + RAA. [Cap.\ 9]\\
 normalización débil / fuerte & Alguna / toda ruta de reducción termina. [Def.\ 7.35]\\
 núcleo (kernel) & Parte mínima del asistente que comprueba los tipos.\\
 orden lineal & Reflexivo, antisimétrico, transitivo y total. [12.2]\\
 PAT & «Propositions as types»: la lectura de Curry--Howard. [Def.\ 7.61]\\
+Peirce (ley de) & \(((p\to q)\to p)\to p\): tautología clásica que no es teorema intuicionista.\\
 permutación & Misma lista salvo el orden (mismas multiplicidades). [Def.\ 12.3]\\
 pivote & Elemento que separa la lista en Quicksort.\\
 positividad estricta & La variable recursiva no aparece a la izquierda de \(\to\) en un constructor. [10.3.2]\\
@@ -788,6 +1065,8 @@ consistente & (1) Un cálculo: no deriva \(\bot\). (2) Un conjunto de fórmulas:
 decidir & (1) Decidibilidad: hay un algoritmo. (2) \(\mathsf{decidir}(x\leq p)\): calcular el valor booleano de una comparación (Cap.\ 12).\\
 \(\Rightarrow\) & (1) Implicación del metalenguaje. (2) Reducción paralela en la prueba de Church--Rosser (Def.\ 7.39).\\
 \(\bot\) & (1) Fórmula falsa del cálculo. (2) A veces se usa para «Falso»; la tesis los distingue (Nota 11.1).\\
+mínima & (1) \emph{Lógica mínima}: intuicionista sin ex falso. (2) \emph{Base mínima} de conectivos \(\{\neg,\to\}\): sigue siendo lógica clásica completa. La tesis lo aclara en el Cap.\ 9.\\
+clásico / clásica & (1) \emph{Lógica clásica}: con LEM o RAA. (2) \emph{Resultado clásico}: conocido, de la literatura. (3) En Lean, \texttt{Classical}: el axioma de elección y sus consecuencias, como \texttt{Classical.em}.\\
 inducción & Sobre \(\mathbb N\), estructural, sobre derivaciones, bien fundada: misma idea, distinto conjunto.\\
 \bottomrule
 \end{longtable}
