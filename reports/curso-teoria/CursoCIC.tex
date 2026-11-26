@@ -1,0 +1,1102 @@
+% CIC (Cálculo de Construcciones Inductivas): curso exprés visual, amigable para
+% TDAH e interactivo (PDF con enlaces). Sigue el Capítulo 10 de la tesis: nueve
+% estaciones, un guion para explicarlo en voz alta, 18 preguntas de defensa con
+% su respuesta, trampas, hoja de reglas e índice.
+% Compilar dos veces:  lualatex CursoCIC.tex
+\documentclass[12pt]{article}
+\usepackage[a4paper,landscape,margin=11mm,bottom=17mm]{geometry}
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands]{babel}
+\setmainfont{TeX Gyre Heros}
+\setmonofont{DejaVu Sans Mono}[Scale=0.86]
+\setmathfont{TeX Gyre DejaVu Math}
+\usepackage[table]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+\usepackage{fontawesome5}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{bussproofs}
+\usepackage{lastpage}
+\usepackage[hidelinks]{hyperref}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.06}
+
+% ---------- Un color por estación ----------
+\definecolor{e1}{HTML}{B8901A}   % por qué no basta el CoC
+\definecolor{e2}{HTML}{D9822B}   % los cuatro tiempos
+\definecolor{e3}{HTML}{8C5FB8}   % Prop y Type
+\definecolor{e4}{HTML}{A8456B}   % qué se puede declarar
+\definecolor{e5}{HTML}{3F6FA8}   % formación e introducción
+\definecolor{e6}{HTML}{2A8C8C}   % eliminación
+\definecolor{e7}{HTML}{3E9A5A}   % cómputo iota
+\definecolor{e8}{HTML}{2F5D8C}   % el CIC de Lean
+\definecolor{e9}{HTML}{5E4A96}   % el CIC en la tesis
+\definecolor{gris}{HTML}{5B6B82}
+\definecolor{tldr}{HTML}{FFF4C2}
+\definecolor{verde}{HTML}{3E9A5A}
+\definecolor{ambar}{HTML}{E0A320}
+\definecolor{rojo}{HTML}{C8463D}
+\definecolor{pizarra}{HTML}{24443A}
+
+\AtBeginDocument{\providecommand\square{\mdlgwhtsquare}}
+\newcommand{\bred}{\to_\beta}
+\newcommand{\bmred}{\twoheadrightarrow_\beta}
+\newcommand{\beq}{=_\beta}
+\newcommand{\aeq}{=_\alpha}
+\newcommand{\lw}{\lambda\underline{\omega}}
+\newcommand{\FV}{\mathrm{FV}}
+\EnableBpAbbreviations
+
+% ---------- Botones y navegación ----------
+\newcommand{\boton}[2][gris]{\tikz[baseline=(b.base)]\node[draw=#1, fill=#1!10,
+  line width=1pt, rounded corners=5pt, inner xsep=8pt, inner ysep=4pt,
+  font=\bfseries\normalsize, text=#1!80!black](b){#2};}
+\newcommand{\ir}[3][gris]{\hyperlink{#2}{\boton[#1]{#3}}}
+\newcommand{\chip}[1]{\hyperlink{est#1}{\tikz[baseline=(c.base)]\node[fill=e#1,
+  text=white, rounded corners=3pt, inner sep=2.5pt, font=\bfseries\footnotesize](c){#1};}}
+
+% #1 destino anterior, #2 texto, #3 destino siguiente, #4 texto
+\makeatletter\newcommand\pdim[1]{\strip@pt\dimexpr#1\relax}\makeatother
+\newcommand{\navegacion}[4]{\AddToHookNext{shipout/foreground}{%
+  \put(\pdim{0.5\paperwidth},\pdim{-\paperheight+4mm}){\makebox(0,0)[b]{%
+  \ir{#1}{\faArrowLeft\ #2}\hspace{4mm}\ir{mapa}{\faMap\ Mapa}%
+  \hspace{4mm}\ir{guion}{\faMicrophone\ Guion}%
+  \hspace{4mm}\ir{preguntas}{\faQuestionCircle\ Preguntas}%
+  \hspace{4mm}\ir{indice}{\faFont\ Índice}\hspace{4mm}\ir{#3}{#4\ \faArrowRight}}}}}
+
+% ---------- Encabezado de estación ----------
+% [#1 destino] #2 número, #3 icono, #4 título, #5 para qué sirve
+\NewDocumentCommand{\estacion}{O{est#2} m m m m}{%
+  \begin{tcolorbox}[colback=e#2, colframe=e#2, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=5pt, bottom=5pt, after skip=4pt]
+    \hypertarget{#1}{}\color{white}\LARGE #3\quad\bfseries #4\hfill
+    \normalfont\large\faMapSigns\ estación #2 de 9
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=e#2, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=6pt]
+    \large\faBullseye\ \textbf{Para qué sirve:}\ #5
+  \end{tcolorbox}}
+
+% Encabezado de página general: #1 destino, #2 color, #3 icono, #4 título, #5 franja
+\newcommand{\pagina}[5]{%
+  \begin{tcolorbox}[colback=#2, colframe=#2, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=5pt, bottom=5pt, after skip=4pt]
+    \hypertarget{#1}{}\color{white}\LARGE #3\quad\bfseries #4\hfill
+    \normalfont\large página \thepage\ de \pageref{LastPage}
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=#2, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=6pt]
+    \large\faBolt\ \textbf{En 10 segundos:}\ #5
+  \end{tcolorbox}}
+
+% ---------- Tarjeta ----------
+% #1 color, #2 título, #3 cuerpo
+\NewDocumentCommand{\tarj}{m m +m}{\begin{tcolorbox}[colback=#1!6, colframe=#1,
+  boxrule=1pt, arc=4pt, left=6pt, right=6pt, top=4pt, bottom=4pt, leftrule=5pt,
+  before upper=\raggedright]
+  {\large\bfseries\color{#1!80!black}#2}\par\vspace{2pt}\tarjsize #3\end{tcolorbox}}
+\newcommand{\tarjsize}{\normalsize}
+\newcommand{\medio}{\fontsize{13}{16.2}\selectfont}
+\newcommand{\grande}{\renewcommand{\tarjsize}{\large}}
+\newcommand{\normal}{\renewcommand{\tarjsize}{\normalsize}}
+\newcommand{\tesis}[1]{{\small\color{black!60}\faMapMarker*\ #1}}
+\newcommand{\clave}[2]{\begin{tcolorbox}[colback=tldr, colframe=#1, boxrule=0.8pt,
+  arc=4pt, left=8pt, right=8pt, top=3pt, bottom=3pt]\faKey\ \textbf{Clave:}\ #2\end{tcolorbox}}
+
+% ---------- Pregunta de defensa ----------
+% * = imprescindible; #2 color, #3 número, #4 pregunta, #5 respuesta, #6 dónde
+\NewDocumentCommand{\preg}{s m m m +m m}{%
+  \begin{tcolorbox}[colback=white, colframe=#2, boxrule=1.1pt, arc=5pt,
+    left=7pt, right=7pt, top=3pt, bottom=3pt, colbacktitle=#2,
+    fonttitle=\bfseries\large, before upper=\raggedright,
+    title={\IfBooleanT{#1}{\faStar\ }#3.\ #4}]
+    \medio\faCommentDots\ #5\par\vspace{2pt}\tesis{#6}
+  \end{tcolorbox}}
+
+% ---------- Pruébate (respuestas al revés) ----------
+\newcommand{\pruebate}[3]{%
+  \begin{tcolorbox}[colback=white, colframe=#1, boxrule=1.1pt, arc=5pt,
+    left=8pt, right=8pt, top=4pt, bottom=4pt, sidebyside, lefthand width=0.56\linewidth,
+    sidebyside gap=10pt, segmentation style={solid, #1!40}]
+    {\large\bfseries\color{#1!80!black}\faBrain\ Pruébate} \ {\small(dilo en voz alta)}
+    \begin{enumerate}[leftmargin=6mm, itemsep=1pt, topsep=2pt]#2\end{enumerate}
+    \tcblower
+    \centering{\footnotesize\color{black!50}\faSync*\ respuestas: gira la página}\par\vspace{2pt}
+    \rotatebox{180}{\parbox{0.92\linewidth}{\small\raggedright #3}}
+  \end{tcolorbox}}
+
+\tikzset{
+  num/.style={circle, fill=#1, text=white, font=\bfseries\Large,
+    minimum size=9mm, inner sep=0pt},
+  caja/.style={draw=#1, fill=#1!8, line width=1.1pt, rounded corners=5pt,
+    align=center, inner sep=5pt},
+}
+
+% ---------- Código Lean ----------
+% #1 color, #2 título, #3 líneas
+\NewDocumentCommand{\codigo}{m m +m}{\begin{tcolorbox}[colback=black!3, colframe=#1,
+  boxrule=1pt, arc=4pt, left=6pt, right=6pt, top=3pt, bottom=3pt, title={#2},
+  colbacktitle=#1, fonttitle=\bfseries]\ttfamily\codesize\raggedright #3\end{tcolorbox}}
+\newcommand{\codesize}{\normalsize}
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\ired}{\to_\iota}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Ind}{\mathrm{Ind}}
+\newcommand{\Constr}{\mathrm{Constr}}
+\newcommand{\Elim}{\mathrm{Elim}}
+\newcommand{\Prop}{\mathrm{Prop}}
+\newcommand{\Set}{\mathrm{Set}}
+\newcommand{\Type}{\mathrm{Type}}
+
+\begin{document}
+
+%=====================================================================
+% PORTADA
+%=====================================================================
+\hypertarget{portada}{}
+\begin{tcolorbox}[colback=e9, colframe=e9, arc=8pt, boxrule=0pt, halign=center,
+  top=14pt, bottom=14pt]
+\color{white}{\fontsize{32}{38}\selectfont\bfseries \faCubes\ \ CIC: Cálculo de Construcciones Inductivas}\\[8pt]
+{\LARGE Curso exprés para explicarlo en la defensa}\\[4pt]
+{\large Capítulo 10 de la tesis · 9 estaciones · un guion para decirlo en voz alta · 18 preguntas con respuesta}
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{minipage}[t]{0.50\textwidth}
+{\Large\bfseries Cómo se usa}\\[8pt]
+\begin{tikzpicture}[baseline=(current bounding box.north),
+    txt/.style={align=left, text width=11.2cm, anchor=west, font=\large}]
+  \node[num=gris] (a) at (0,0) {1};
+  \node[txt, right=4mm of a] {Lee \textbf{el guion}: es el CIC dicho en\\ 15 segundos, en 1 minuto y en la pizarra.};
+  \node[num=gris] (b) at (0,-1.55) {2};
+  \node[txt, right=4mm of b] {Recorre \textbf{el mapa}: 9 estaciones, de\\ «¿por qué no basta el CoC?» a tu tesis.};
+  \node[num=gris] (c) at (0,-3.1) {3};
+  \node[txt, right=4mm of c] {En cada estación: \textbf{para qué sirve} $\to$\\ \textbf{tarjetas} $\to$ \textbf{pruébate} (respuestas al revés).};
+  \node[num=gris] (d) at (0,-4.65) {4};
+  \node[txt, right=4mm of d] {Termina con las \textbf{18 preguntas}:\\ tapa la respuesta y contesta en voz alta.};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.46\textwidth}
+{\Large\bfseries Empieza por aquí (haz clic)}\\[10pt]
+\begin{tcolorbox}[colback=e2, colframe=e2, arc=6pt, halign=center, hyperlink=guion]
+  \color{white}\Large\faMicrophone\ \textbf{El guion}\\ \normalsize cómo explicar el CIC en voz alta\end{tcolorbox}
+\begin{tcolorbox}[colback=rojo, colframe=rojo, arc=6pt, halign=center, hyperlink=preguntas]
+  \color{white}\Large\faQuestionCircle\ \textbf{Las 18 preguntas}\\ \normalsize lo que te van a preguntar, con la respuesta\end{tcolorbox}
+\begin{tcbraster}[raster columns=3, raster column skip=6pt, raster equal height]
+\begin{tcolorbox}[colback=e5, colframe=e5, arc=6pt, halign=center, hyperlink=mapa]
+  \color{white}\large\faMap\ \textbf{Mapa}\\ \small 9 estaciones\end{tcolorbox}
+\begin{tcolorbox}[colback=gris, colframe=gris, arc=6pt, halign=center, hyperlink=reglas]
+  \color{white}\large\faScroll\ \textbf{Reglas}\\ \small en una página\end{tcolorbox}
+\begin{tcolorbox}[colback=gris, colframe=gris, arc=6pt, halign=center, hyperlink=indice]
+  \color{white}\large\faFont\ \textbf{Índice}\\ \small A–Z\end{tcolorbox}
+\end{tcbraster}
+\end{minipage}
+
+\vfill
+\begin{tcolorbox}[colback=tldr, colframe=gris, arc=4pt, boxrule=0.8pt, halign=center]
+\large\faLightbulb\ \textbf{La frase que lo une todo:}\ \ CIC $=$ CoC $+$ tipos inductivos.\ \ Un tipo
+inductivo se declara por sus \textbf{constructores},\\ y el sistema entrega su \textbf{recursor}:
+con él se define por recursión y se demuestra por inducción.
+\end{tcolorbox}
+
+\newpage
+%=====================================================================
+% MAPA
+%=====================================================================
+\pagina{mapa}{gris}{\faMap}{El mapa: 9 estaciones}{el CoC ya tiene funciones y «para todo».
+El CIC le añade tipos de datos con inducción. Eso es lo que usa Lean, y lo que usa tu tesis.}
+
+\newcommand{\parada}[4]{\begin{tcolorbox}[colback=e#1!8, colframe=e#1, boxrule=1.2pt,
+  arc=6pt, halign=center, left=3pt, right=3pt, top=3pt, bottom=3pt, hyperlink=est#1]
+  \tikz\node[num=e#1]{#1};\\[2pt]{\large\bfseries\color{e#1!80!black}#2}\\[1pt]
+  {\small #3}\\[1pt]{\footnotesize\color{black!55}#4}\end{tcolorbox}}
+
+\begin{tcbraster}[raster columns=5, raster column skip=6pt, raster row skip=6pt,
+  raster equal height=rows]
+\parada{1}{¿Por qué no basta el CoC?}{datos codificados con funciones}{§10.2}
+\parada{2}{Los cuatro tiempos}{formar, introducir, eliminar, computar}{§10.3 · Nota 10.6}
+\parada{3}{\lean{Prop} y \lean{Type}}{proposiciones y datos}{Nota 10.2}
+\parada{4}{Qué se puede declarar}{aridad, constructor, positividad}{§10.3.2}
+\parada{5}{Formación e introducción}{las reglas Ind y Constr}{§10.3.3}
+\parada{6}{Eliminación}{el recursor: recursión e inducción}{§10.3.1 y §10.3.4}
+\parada{7}{Cómputo $\iota$}{el recursor frente a un constructor}{§10.3.5}
+\parada{8}{El CIC de Lean}{tres diferencias y las tácticas}{Nota 10.7 · §10.4}
+\parada{9}{El CIC en mi tesis}{\lean{Formula}, \lean{ND}, listas}{Capítulos 11 y 12}
+\begin{tcolorbox}[colback=e2!10, colframe=e2, boxrule=1.2pt, arc=6pt, halign=center,
+  left=3pt, right=3pt, top=3pt, bottom=3pt, hyperlink=guion]
+  \tikz\node[num=e2]{\faMicrophone};\\[2pt]{\large\bfseries\color{e2!80!black}El guion}\\[1pt]
+  {\small todo lo anterior, dicho en voz alta}\\[1pt]{\footnotesize\color{black!55}empieza aquí}\end{tcolorbox}
+\end{tcbraster}
+
+\vspace{4pt}
+\begin{center}
+\begin{tikzpicture}[font=\normalsize, >={Stealth[length=3mm]},
+  paso/.style={draw=#1, fill=#1!10, line width=1.1pt, rounded corners=5pt,
+    align=center, text width=3.6cm, minimum height=1.45cm, inner sep=4pt}]
+  \node[paso=e1] (a) {\textbf{CoC}\\ \small solo $\lambda$ y $\Pi$:\\ los datos se codifican};
+  \node[paso=e1, right=7mm of a] (b) {\textbf{El problema}\\ \small hay iteración,\\ falta la inducción};
+  \node[paso=e2, right=7mm of b] (c) {\textbf{Tipo inductivo}\\ \small se declaran\\ los constructores};
+  \node[paso=e6, right=7mm of c] (d) {\textbf{Recursor $+$ $\iota$}\\ \small recursión, inducción\\ y cómputo};
+  \node[paso=e8, right=7mm of d] (e) {\textbf{Lean}\\ \small una variante del CIC\\ en el núcleo};
+  \node[paso=e9, right=7mm of e] (f) {\textbf{Mi tesis}\\ \small \lean{Formula} y \lean{ND}\\ son inductivos};
+  \foreach \u/\v in {a/b,b/c,c/d,d/e,e/f} \draw[->, line width=1.3pt, black!60] (\u) -- (\v);
+\end{tikzpicture}
+\end{center}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=tldr, colframe=black!50, arc=5pt, boxrule=0.8pt]
+\faRunning\ \textbf{Ruta rápida (15 minutos):}\ \ir[e2]{guion}{\faMicrophone\ Guion} $\to$ \chip{2} $\to$ \chip{6} $\to$
+\chip{7} $\to$ \chip{9} $\to$ \ir[rojo]{preguntas}{\faQuestionCircle\ Preguntas}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=tldr, colframe=black!50, arc=5pt, boxrule=0.8pt]
+\faExclamationTriangle\ \textbf{Recuerda:} el Capítulo 10 es \textbf{exposición}. Las reglas son de
+Paulin-Mohring (1993). Tú no demuestras nada sobre el CIC: lo \textbf{usas}.
+\end{tcolorbox}
+\end{tcbraster}
+\navegacion{portada}{Portada}{guion}{Guion}
+
+\newpage
+%=====================================================================
+% GUION
+%=====================================================================
+\pagina{guion}{e2}{\faMicrophone}{El guion: explica el CIC en voz alta}{elige la versión según el
+tiempo que te den. Las tres dicen lo mismo; solo cambia el detalle.}
+
+\begin{minipage}[t]{0.37\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=e2!8, colframe=e2, boxrule=1.3pt, arc=6pt, left=7pt, right=7pt,
+  title={\faStopwatch\ En 15 segundos}, colbacktitle=e2, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\large «El CIC es el Cálculo de Construcciones más \textbf{tipos inductivos}. Un tipo inductivo se
+declara dando sus \textbf{constructores}, y el sistema genera su \textbf{eliminador}, que sirve a la
+vez para la recursión y para la inducción. Con variantes, es la teoría que implementa el núcleo de Lean.»
+\end{tcolorbox}
+\begin{tcolorbox}[colback=pizarra, colframe=black!70, boxrule=2pt, arc=4pt, left=8pt, right=8pt,
+  top=5pt, bottom=5pt, title={\faChalkboard\ En la pizarra: escribe solo esto},
+  colbacktitle=black!70, fonttitle=\bfseries\large]
+\color{white}\ttfamily\normalsize\raggedright
+\newcommand{\eti}[2]{\hfill{\rmfamily\small\color{ambar}\tikz[baseline=(q.base)]\node[circle,fill=ambar,text=black,inner sep=1.2pt,font=\bfseries\footnotesize](q){#1};\ #2}}
+inductive Nat\eti{1}{formar}\\
+| zero : Nat\eti{2}{introducir}\\
+| succ : Nat → Nat\\[5pt]
+Nat.rec :\ \ P 0 →\eti{3}{eliminar}\\
+\ \ (∀ n, P n → P (n+1)) →\\
+\ \ ∀ n, P n\\[5pt]
+rec z s 0\ \ \ \ \ $\longrightarrow$\ z\eti{4}{computar ($\iota$)}\\
+rec z s (n+1) $\longrightarrow$\ s n (rec z s n)
+\end{tcolorbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.61\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=e2, boxrule=1.3pt, arc=6pt, left=7pt, right=7pt,
+  title={\faClock\ En 1 minuto: seis frases, en este orden}, colbacktitle=e2,
+  fonttitle=\bfseries\large, before upper=\raggedright]
+\large\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}c>{\raggedright\arraybackslash}p{14.1cm}@{}}
+\tikz[baseline=-4pt]\node[num=e1, minimum size=7mm, font=\bfseries\large]{1}; &
+«El CoC ya tiene funciones y cuantificación. Por Curry–Howard, las proposiciones son tipos y las
+pruebas son términos.»\\
+\tikz[baseline=-4pt]\node[num=e1, minimum size=7mm, font=\bfseries\large]{2}; &
+«Pero en el CoC puro los datos se \textbf{codifican} con funciones. Eso da iteración; el principio de
+inducción no sale de la codificación.»\\
+\tikz[baseline=-4pt]\node[num=e2, minimum size=7mm, font=\bfseries\large]{3}; &
+«El CIC añade \textbf{tipos inductivos}: se declaran los constructores. Para los naturales, el cero y el sucesor.»\\
+\tikz[baseline=-4pt]\node[num=e6, minimum size=7mm, font=\bfseries\large]{4}; &
+«De esa declaración salen cuatro cosas: el tipo, sus constructores, su \textbf{recursor} y la regla de
+cómputo $\iota$.»\\
+\tikz[baseline=-4pt]\node[num=e6, minimum size=7mm, font=\bfseries\large]{5}; &
+«El recursor es una sola pieza con dos usos: si devuelve datos, es la \textbf{recursión}; si devuelve
+pruebas, su tipo es el \textbf{principio de inducción}.»\\
+\tikz[baseline=-4pt]\node[num=e9, minimum size=7mm, font=\bfseries\large]{6}; &
+«En mi tesis, las fórmulas y la derivabilidad \lean{ND} son tipos inductivos. “Inducción sobre la
+derivación” es aplicar el recursor de \lean{ND}.»
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}
+
+\vfill
+\begin{tcolorbox}[colback=tldr, colframe=black!50, boxrule=0.8pt, arc=5pt, before upper=\raggedright]
+\faShield*\ \textbf{Si preguntan «¿eso lo demostró usted?»:} «No: el Capítulo 10 es exposición y sigo a
+Paulin-Mohring (1993). Mi aporte está en los Capítulos 11 y 12.»
+\end{tcolorbox}
+\navegacion{mapa}{Mapa}{est1}{Estación 1}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 1: POR QUÉ NO BASTA EL COC
+%=====================================================================
+\grande
+\estacion{1}{\faPuzzlePiece}{¿Por qué no basta el CoC?}{es la motivación del capítulo. Si
+explicas bien este problema, los tipos inductivos se entienden como su solución.}
+
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e1}{\faCode\ Codificación impredicativa}{
+En el CoC puro no hay naturales, listas ni conectivos: todo se construye con $\lambda$ y $\Pi$.\par\vspace{3pt}
+\centerline{$\mathrm{Nat} := \forall A,\ A \to (A\to A)\to A$}\par\vspace{3pt}
+$0=\lambda A\,x\,f.\,x \qquad 2=\lambda A\,x\,f.\,f\,(f\,x)$\par\vspace{2pt}
+El número $n$ \textbf{es} «aplicar $f$ un total de $n$ veces».}
+\normal\tarj{gris}{\faTable\ Más codificaciones (Tabla 10.1)}{
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}ll@{}}
+Falsedad $\bot$ & $\forall A:\Prop,\ A$\\
+Par $A\times B$ & $\forall C:\Prop,\ (A\to B\to C)\to C$\\
+Igualdad $x=y$ & $\forall P:A\to\Prop,\ P\,y\to P\,x$\quad (Leibniz)
+\end{tabular}\\[2pt]
+\textbf{Impredicativa:} cuantifica sobre una colección que incluye lo que se está definiendo.}\grande
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{rojo}{\faExclamationTriangle\ Tres límites de la codificación}{
+\textbf{1. Solo itera.} No hay acceso directo a $n-1$: el predecesor se calcula con pares
+y cuesta $n$ pasos.\par\vspace{3pt}
+\textbf{2. La inducción no sale.} De la codificación no se obtiene\par
+\centerline{$\forall P,\ P\,0\to(\forall n,\ P\,n\to P\,(S\,n))\to\forall n,\ P\,n$}\par
+\textbf{Citado:} Geuvers (2001).\par\vspace{3pt}
+\textbf{3. En Lean no son datos.} Lo cuantificado sobre \lean{Prop} vive en \lean{Prop}, y ahí
+dos pruebas no se distinguen.}
+\clave{e1}{Tener $0$ y $S$ no basta. Falta un principio para razonar sobre
+\textbf{cualquier} habitante del tipo. Eso es lo que añade el CIC.}
+\tesis{Codificaciones: §10.2.2 · Iteración, costo e inducción: §10.2.3}
+\end{minipage}
+
+\vfill
+\pruebate{e1}{
+\item ¿Cómo se escribe el número 2 en la codificación de Church?
+\item ¿Qué da la codificación y qué no da?
+\item ¿Quién prueba que la inducción no es derivable? ¿Lo demuestras tú?
+}{\textbf{1.} $\lambda A\,x\,f.\,f\,(f\,x)$: aplicar $f$ dos veces.\quad
+\textbf{2.} Da iteración. No da la inducción dependiente ni un predecesor barato.\quad
+\textbf{3.} Geuvers (2001). No: lo cito.}
+\navegacion{guion}{Guion}{est2}{Estación 2}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 2: LOS CUATRO TIEMPOS
+%=====================================================================
+\grande
+\estacion{2}{\faLayerGroup}{Los cuatro tiempos de un tipo inductivo}{es el molde de todo el
+capítulo. Cualquier tipo inductivo, también \lean{Formula} y \lean{ND}, se explica con estas cuatro piezas.}
+
+\begin{center}
+\begin{tikzpicture}[>={Stealth[length=3mm]},
+  pieza/.style={draw=#1, fill=#1!9, line width=1.3pt, rounded corners=6pt, align=center,
+    text width=6.0cm, minimum height=3.0cm, inner sep=5pt, font=\normalsize}]
+  \node[draw=e2, fill=white, line width=1.6pt, rounded corners=6pt, inner sep=7pt,
+    font=\ttfamily\large, align=left] (decl) at (0,0)
+    {inductive Nat\ \ |\ \ zero : Nat\ \ |\ \ succ : Nat → Nat};
+  \node[pieza=e5, anchor=north] (f) at (-10.2,-1.75)
+    {{\large\bfseries\color{e5!80!black}1 · Formación}\\[2pt] \emph{¿Qué tipo es?}\\[3pt]
+     \lean{Nat : Type}\\[3pt] {\small regla \textbf{Ind}}};
+  \node[pieza=e5, anchor=north] (i) at (-3.4,-1.75)
+    {{\large\bfseries\color{e5!80!black}2 · Introducción}\\[2pt] \emph{¿Cómo construyo uno?}\\[3pt]
+     \lean{Nat.zero},\ \ \lean{Nat.succ}\\[3pt] {\small las \textbf{únicas} maneras · \textbf{Constr}}};
+  \node[pieza=e6, anchor=north] (e) at (3.4,-1.75)
+    {{\large\bfseries\color{e6!80!black}3 · Eliminación}\\[2pt] \emph{¿Cómo uso uno?}\\[3pt]
+     \lean{Nat.rec}\\[3pt] {\small la \textbf{única} manera · \textbf{Elim}}};
+  \node[pieza=e7, anchor=north] (c) at (10.2,-1.75)
+    {{\large\bfseries\color{e7!80!black}4 · Cómputo}\\[2pt] \emph{¿Y si elimino lo que construí?}\\[3pt]
+     reducción $\iota$\\[3pt] {\small recursor frente a constructor}};
+  \foreach \n in {f,i,e,c} \draw[->, line width=1.3pt, black!55] (decl.south) -- (\n.north);
+\end{tikzpicture}
+\end{center}
+
+\normal\begin{tcbraster}[raster columns=3, raster column skip=7pt, raster equal height]
+\tarj{e2}{\faSeedling\ La menor colección cerrada}{
+$\N$ es la \textbf{menor} colección que contiene $0$ y está cerrada bajo $S$. No hay más
+habitantes que los que producen los constructores. Por eso vale la inducción: si algo vale
+para $0$ y se conserva con $S$, vale para todos.}
+\tarj{e2}{\faProjectDiagram\ El mismo molde en la lógica}{
+En Lean los conectivos \textbf{no son primitivos}: son tipos inductivos (Listado 10.7).\\[2pt]
+\lean{And}: un constructor, \lean{intro}.\\
+\lean{Or}: dos, \lean{inl} e \lean{inr}.\\
+\lean{False}: \textbf{ninguno}; por eso de \lean{False} se sigue todo.}
+\tarj{e2}{\faHistory\ De dónde viene}{
+Coquand y Paulin (1990) extienden el CoC con definiciones inductivas primitivas.
+Las reglas están en Paulin-Mohring (1993) y la metateoría en Werner (1994).
+La teoría de Martin-Löf (1984) usa la misma idea: constructores con reglas de eliminación.}
+\end{tcbraster}
+
+\vfill
+\pruebate{e2}{
+\item Di los cuatro tiempos en orden.
+\item ¿Qué significa que los constructores sean las «únicas maneras»?
+\item ¿Cuántos constructores tiene \lean{False}? ¿Qué se sigue de eso?
+}{\textbf{1.} Formación, introducción, eliminación, cómputo.\quad
+\textbf{2.} Que todo habitante se obtiene con ellos: el tipo es la menor colección cerrada.\quad
+\textbf{3.} Ninguno. Su eliminador no tiene casos que probar: de \lean{False} se sigue cualquier cosa.}
+\navegacion{est1}{Estación 1}{est3}{Estación 3}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 3: PROP Y TYPE
+%=====================================================================
+\grande
+\estacion{3}{\faBalanceScale}{\lean{Prop} y \lean{Type}: proposiciones y datos}{explica una decisión
+de tu código: \lean{Formula} vive en \lean{Type} y \lean{ND} vive en \lean{Prop}.}
+
+\begin{tcolorbox}[colback=white, colframe=e3, boxrule=1.5pt, arc=6pt, halign=center,
+  top=4pt, bottom=4pt]
+{\Large $\underbrace{0}_{\text{\normalsize dato}} :\ \underbrace{\N}_{\text{\normalsize tipo}} :\
+\underbrace{\texttt{Type}}_{\text{\normalsize sort}} :\ \texttt{Type 1} :\ \cdots
+\qquad\qquad
+\underbrace{h}_{\text{\normalsize prueba}} :\ \underbrace{p}_{\text{\normalsize proposición}} :\
+\underbrace{\texttt{Prop}}_{\text{\normalsize sort}} :\ \texttt{Type}$}\\[3pt]
+{\normalsize Un \textbf{sort} es un «tipo de tipos»: así como un número pertenece a $\N$, un tipo pertenece a un sort.}
+\end{tcolorbox}
+
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e3}{\faGavel\ \lean{Prop}: proposiciones}{
+Sus habitantes son \textbf{pruebas}. Importa que haya una, no cuál: son irrelevantes para el cómputo.\par\vspace{2pt}
+\textbf{Impredicativa:} $\forall p:\texttt{Prop},\ p$ cuantifica sobre todas las proposiciones y
+sigue siendo una proposición.}
+\tarj{e3}{\faDatabase\ \lean{Type}: datos}{
+Sus habitantes son \textbf{datos} que sí se distinguen: $0\neq 1$.\par\vspace{2pt}
+\textbf{Predicativa:} cuantificar sobre un universo sube de universo.
+$\N\to\texttt{Type}$ vive en \lean{Type 1}.}
+\tesis{Nota 10.2 · GTS: §10.3.1, tras la Nota 10.1}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e9}{\faThumbtack\ En mi tesis}{
+\lean{Formula : Type}\quad es sintaxis: un \textbf{dato}.\\
+\lean{ND Γ φ : Prop}\quad es una afirmación: «$\varphi$ se deriva de $\Gamma$».}
+\normal\tarj{gris}{\faSitemap\ Sistemas de tipos generalizados (GTS o PTS)}{
+Tres datos $(\mathcal S,\mathcal A,\mathcal R)$: \textbf{sorts}, \textbf{axiomas} (qué sort habita
+cuál) y \textbf{reglas} (qué productos se permiten).\par\vspace{2pt}
+CoC puro:\ \ $\mathcal S=\{\Set,\Type_S\}$,\ \ $\mathcal A=\{\Set:\Type_S\}$,\ \ $\mathcal R=\mathcal S\times\mathcal S$.}
+\tarj{gris}{\faExchange*\ Coq y Lean}{
+Coq: \lean{Prop}, \lean{Set} y \lean{Type}.\quad Lean \textbf{elimina} \lean{Set}: queda una \lean{Prop}
+impredicativa y la jerarquía predicativa \lean{Type u}.}\grande
+\end{minipage}
+
+\vfill
+\pruebate{e3}{
+\item ¿Qué es un sort?
+\item ¿Qué significa que \lean{Prop} sea impredicativa?
+\item ¿Por qué \lean{Formula} está en \lean{Type} y \lean{ND} en \lean{Prop}?
+}{\textbf{1.} Un tipo de tipos: \lean{Prop}, \lean{Type}, \lean{Type 1}\ldots\quad
+\textbf{2.} Que cuantificar sobre todas las proposiciones da otra proposición.\quad
+\textbf{3.} Una fórmula es un dato que se inspecciona; una derivación es una prueba: solo importa que exista.}
+\navegacion{est2}{Estación 2}{est4}{Estación 4}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 4: QUÉ SE PUEDE DECLARAR
+%=====================================================================
+\grande
+\estacion{4}{\faClipboardCheck}{Qué se puede declarar: aridad, constructor, positividad}{no toda declaración se acepta: tres condiciones mantienen consistente el sistema.}
+
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e4}{\faRulerHorizontal\ Aridad: argumentos y un sort final}{
+\centerline{$Ar ::= s \ \mid\ (x:M)\,Ar$}\par\vspace{2pt}
+\lean{nat}: $\Set$.\quad \lean{list}: $(A{:}\Set)\,\Set$.\quad En Lean se llama \textbf{firma}.}
+\tarj{e4}{\faSlidersH\ Parámetro o índice}{
+\textbf{Parámetro:} fijo en toda la declaración, como el $\alpha$ de \lean{List α}.\par\vspace{2pt}
+\textbf{Índice:} lo fija cada constructor en su conclusión. En \lean{ND}, $\Gamma$ y $\varphi$ son
+índices: es una \textbf{familia inductiva} (Dybjer, 1994).}
+\normal\codigo{rojo}{\faLaptopCode\ Extra, para mostrar en vivo: Lean lo rechaza}{
+inductive Malo : Type\\
+| mk : (Malo → False) → Malo\\[2pt]
+{\small\color{rojo!80!black}(kernel) arg \#1 of 'Malo.mk' has a non positive\\ occurrence of the datatypes being declared}}\grande
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e4}{\faHammer\ Forma de constructor}{
+Un tipo cuya \textbf{conclusión} es $X$, el tipo que se define, y donde $X$ solo aparece de forma
+estrictamente positiva en los argumentos.\\ Para \lean{Nat}:\ \ $X$\ \ (cero)\ \ y\ \ $X\to X$\ \ (sucesor).}
+\tarj{rojo}{\faBan\ Positividad estricta}{
+$X$ \textbf{no puede aparecer a la izquierda de una flecha}, a ninguna profundidad.\par\vspace{2pt}
+En $(X\to A)\to B$ la $X$ es covariante, pero \textbf{no} es estrictamente positiva.\par\vspace{2pt}
+\textbf{Por qué:} con un constructor $(X\to\bot)\to X$ se construye un punto fijo y un habitante
+de $\bot$.}
+\tesis{§10.3.2 · el ejemplo \lean{Malo} no está en la tesis: lo comprobé en Lean}
+\end{minipage}
+
+\vfill
+\pruebate{e4}{
+\item ¿Qué diferencia hay entre un parámetro y un índice?
+\item ¿Es $X$ estrictamente positiva en $(X\to A)\to B$?
+\item ¿Qué pasaría si se admitiera el constructor $(X\to\bot)\to X$?
+}{\textbf{1.} El parámetro es el mismo en toda la declaración; el índice lo decide cada constructor.\quad
+\textbf{2.} No: está a la izquierda de una flecha, aunque sea covariante.\quad
+\textbf{3.} Se obtiene un habitante de $\bot$: el sistema sería inconsistente.}
+\navegacion{est3}{Estación 3}{est5}{Estación 5}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 5: FORMACIÓN E INTRODUCCIÓN
+%=====================================================================
+\grande
+\estacion{5}{\faIndustry}{Formación e introducción: las reglas Ind y Constr}{son las dos
+reglas que dicen qué es declarar un tipo inductivo y qué tipo tienen sus constructores.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=white, colframe=e5, boxrule=1.5pt, arc=6pt, halign=center,
+  title={Formación (Ind)}, colbacktitle=e5, fonttitle=\bfseries\large]
+{\large $\displaystyle\frac{\Gamma,\,X:A\ \vdash\ C_i:s\qquad (i=1,\dots,n)}
+{\Gamma\ \vdash\ \Ind(X:A)\{C_1\mid\dots\mid C_n\}\ :\ A}$}\\[5pt]
+{\normalsize si $A$ es una aridad de $s$ y cada $C_i$ es una forma de constructor de $X$}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=white, colframe=e5, boxrule=1.5pt, arc=6pt, halign=center,
+  title={Introducción (Constr)}, colbacktitle=e5, fonttitle=\bfseries\large]
+{\large $\displaystyle\frac{\Gamma\ \vdash\ I:A}
+{\Gamma\ \vdash\ \Constr(i,I)\ :\ C_i[X:=I]}$}\\[5pt]
+{\normalsize donde $I=\Ind(X:A)\{C_1\mid\dots\mid C_n\}$ y $1\le i\le n$}
+\end{tcolorbox}
+\end{tcbraster}
+
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e5}{\faBookReader\ Cómo se lee}{
+$X$ nombra al tipo \textbf{dentro} de su propia definición; la barra $\mid$ separa los constructores.
+$\Constr(i,I)$ es el constructor $i$: su tipo es $C_i$ con $X:=I$.}
+\tarj{e5}{\faCalculator\ El ejemplo: los naturales (Ejemplo 10.3)}{
+\centerline{$\texttt{nat}\ \equiv\ \Ind(X:\Set)\{\,X \mid X\to X\,\}$}\par\vspace{3pt}
+$\Constr(1,\texttt{nat}):\texttt{nat}$\hfill el cero\\
+$\Constr(2,\texttt{nat}):\texttt{nat}\to\texttt{nat}$\hfill el sucesor}
+\tesis{§10.3.3 · Ejemplo 10.3}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{rojo}{\faExclamationTriangle\ No es sintaxis de Lean}{
+$\Ind$, $\Constr$ y $\Elim$ son \textbf{pseudo-términos} de Paulin-Mohring. En Lean se escribe
+\lean{inductive}, los nombres de los constructores y \lean{.rec}.}
+\tarj{gris}{\faGripLinesVertical\ Tres usos del torniquete $\vdash$}{
+$\Gamma\vdash t:A$\hfill \textbf{tipado}: $t$ tiene tipo $A$\\
+$\Gamma\vdash\varphi$\hfill \textbf{derivabilidad}: mi \lean{ND}\\
+$\vdash\varphi$ en Lean\hfill la \textbf{meta} pendiente}
+\end{minipage}
+
+\vfill
+\pruebate{e5}{
+\item Escribe los naturales con $\Ind$.
+\item ¿Qué tipo tiene $\Constr(2,\texttt{nat})$? ¿De dónde sale?
+\item ¿Se escribe $\Ind$ en un archivo de Lean?
+}{\textbf{1.} $\Ind(X:\Set)\{X\mid X\to X\}$.\quad
+\textbf{2.} $\texttt{nat}\to\texttt{nat}$: es $X\to X$ con $X:=\texttt{nat}$.\quad
+\textbf{3.} No. Es notación de Paulin-Mohring; en Lean se escribe \lean{inductive}.}
+\navegacion{est4}{Estación 4}{est6}{Estación 6}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 6: ELIMINACIÓN
+%=====================================================================
+\grande
+\estacion{6}{\faRecycle}{Eliminación: el recursor}{es la pieza central. De aquí salen la recursión
+y la inducción. «Por inducción sobre la derivación» es aplicar un recursor.}
+
+\begin{tcolorbox}[colback=white, colframe=e6, boxrule=1.6pt, arc=6pt, halign=center,
+  top=3pt, bottom=3pt]
+{\Large $\texttt{Nat.rec}\ :\
+\underbrace{(P:\N\to\texttt{Sort}\ u)}_{\text{\normalsize\textbf{motivo}: lo que quiero}}\ \to\
+\underbrace{P\,0}_{\text{\normalsize caso base}}\ \to\
+\underbrace{(\forall n,\ P\,n\to P\,(n{+}1))}_{\text{\normalsize paso, con hipótesis inductiva}}\ \to\
+\underbrace{\forall n,\ P\,n}_{\text{\normalsize conclusión}}$}\\[2pt]
+{\normalsize Con \mbox{$u=0$}, que es \lean{Prop}, el recursor es \textbf{inducción}. Con \mbox{$u\ge 1$} es \textbf{recursión}.}
+\end{tcolorbox}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\tarj{e6}{\faRedo\ No dependiente: recursión}{
+El motivo $Q$ es un tipo \textbf{fijo}. Sirve para \textbf{definir funciones}.\\[2pt]
+Manejadores:\ \ cero: $Q$\qquad sucesor: $\N\to Q\to Q$\\[2pt]
+Es la recursión primitiva:\ \ $g(0)=x$,\ \ $g(n{+}1)=f(n,g(n))$.}
+\tarj{e6}{\faStream\ Dependiente: inducción}{
+El motivo $Q$ \textbf{depende del valor}. Sirve para \textbf{demostrar}.\\[2pt]
+Manejadores:\ \ $Q\,0$\quad y\quad $(n{:}\N)\to Q\,n\to Q\,(S\,n)$\\[2pt]
+El segundo es el \textbf{paso inductivo}. Peano lo postula; el CIC lo genera.}
+\end{tcbraster}
+
+\tarj{rojo}{\faLock\ Restricción: de \lean{Prop} solo hacia \lean{Prop} (Nota 10.5)}{
+Un inductivo que vive en \lean{Prop} solo se elimina hacia \lean{Prop}, salvo los casos \textbf{vacío} y
+\textbf{unitario} (eliminación singleton). \textbf{Por qué:} la eliminación fuerte sobre una sort
+impredicativa haría inconsistente el sistema, y las pruebas dejarían de ser borrables.
+\textbf{En Lean:} el motivo de \lean{Or.rec} y el de \lean{ND.rec} llegan a \lean{Prop}; el de
+\lean{False.rec} y el de \lean{Nat.rec}, a \lean{Sort u}.}
+\tesis{Recursor de $\N$: §10.3.1 y Nota 10.1 · Reglas generales: §10.3.4 y \hyperlink{reglas}{hoja de reglas} · Ejemplo 10.4}
+
+\vfill
+\pruebate{e6}{
+\item ¿Qué es el motivo?
+\item ¿Qué cambia entre la eliminación no dependiente y la dependiente?
+\item ¿Puedo definir una función a \lean{Nat} por casos sobre una prueba de $p\lor q$?
+}{\textbf{1.} El tipo de retorno del recursor: la propiedad que se prueba o el tipo que se calcula.\quad
+\textbf{2.} En la dependiente el motivo depende del valor: de recursión se pasa a inducción.\quad
+\textbf{3.} No: \lean{Or} vive en \lean{Prop} y solo se elimina hacia \lean{Prop}.}
+\navegacion{est5}{Estación 5}{est7}{Estación 7}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 7: CÓMPUTO IOTA
+%=====================================================================
+\grande
+\estacion{7}{\faCogs}{Cómputo: la reducción $\iota$}{es lo que hace que una definición recursiva \textbf{calcule}. Detrás de cada \lean{rfl} está esto.}
+
+\begin{tcolorbox}[colback=white, colframe=e7, boxrule=1.6pt, arc=6pt, halign=center,
+  top=5pt, bottom=5pt]
+{\Large $\Elim(\texttt{zero},Q)\{f_0\mid f_S\}\ \ired\ f_0
+\qquad\qquad
+\Elim(S\,n,Q)\{f_0\mid f_S\}\ \ired\ f_S\ n\ \bigl(\Elim(n,Q)\{f_0\mid f_S\}\bigr)$}\\[4pt]
+{\normalsize\textbf{En una frase:} el recursor frente a un constructor elige el manejador de ese
+constructor, le pasa sus argumentos y repite en los argumentos recursivos.}
+\end{tcolorbox}
+
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\normal\codigo{e7}{\faLaptopCode\ En Lean: las dos reglas valen por \texttt{rfl} (Listado 10.4)}{
+example : Nat.rec z s 0 = z := rfl\\[3pt]
+example : Nat.rec z s (n+1)\\
+\ \ \ \ \ \ \ \ \ \ = s n (Nat.rec z s n) := rfl}
+\tarj{e7}{\faShoePrints\ Un cálculo paso a paso}{
+La suma recurre sobre el \textbf{segundo} argumento. Al desplegarla ($\delta$) y reducir ($\beta$, $\iota$):\\
+$m+0\ \longrightarrow\ m$\qquad $m+S\,n\ \longrightarrow\ S\,(m+n)$\par\vspace{3pt}
+\centerline{$2+1\ =\ 2+S\,0\ \longrightarrow\ S\,(2+0)\ \longrightarrow\ S\,2\ =\ 3$}}
+\grande\tesis{§10.3.5 · §10.4.2 · regla general: \hyperlink{reglas}{hoja de reglas}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e7}{\faEquals\ Dos igualdades distintas}{
+\textbf{Por definición.} El núcleo reduce los dos lados y compara; se cierra con \lean{rfl}.\\
+\quad$\beta$ aplicar\ \ ·\ \ $\delta$ desplegar\ \ ·\ \ $\iota$ recursor sobre constructor\par\vspace{3pt}
+\textbf{Proposicional.} $a=b$ es una proposición que hay que \textbf{demostrar}; se usa con \lean{rw}.}
+\normal\tarj{e9}{\faLightbulb\ El ejemplo que lo aclara (Ejemplo 10.14)}{
+$0+0=0$ sale por \lean{rfl}: se reduce.\\
+$0+n=n$ \textbf{no}: $n$ es una variable, no un constructor, y $\iota$ no avanza. Hace falta \lean{induction}.}\grande
+\end{minipage}
+
+\vfill
+\pruebate{e7}{
+\item ¿Qué dice la reducción $\iota$, en una frase?
+\item ¿Qué tres reducciones usa el núcleo para comprobar un \lean{rfl}?
+\item ¿Por qué $0+n=n$ necesita inducción y $0+0=0$ no?
+}{\textbf{1.} Cómo se reduce el recursor aplicado a un constructor.\quad
+\textbf{2.} $\beta$, $\delta$ y $\iota$.\quad
+\textbf{3.} La suma recurre sobre el segundo argumento: con $0$ se reduce; con la variable $n$, no.}
+\navegacion{est6}{Estación 6}{est8}{Estación 8}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 8: EL CIC DE LEAN
+%=====================================================================
+\grande
+\estacion{8}{\faMicrochip}{El CIC de Lean y las tácticas}{dos precisiones que te van a pedir:
+Lean no es «el CIC» tal cual, y una táctica no es una prueba.}
+
+\begin{minipage}[t]{0.47\textwidth}\vspace{0pt}
+\tarj{e8}{\faNotEqual\ Tres diferencias con el CIC de Coq (Nota 10.7)}{
+\textbf{1. Irrelevancia de pruebas por definición.} Dos pruebas de la misma proposición son
+iguales por una \textbf{regla}, no por un axioma.\par\vspace{3pt}
+\textbf{2. Cocientes primitivos.} El núcleo trae \lean{Quot} con su regla de cómputo; solo
+\lean{Quot.sound} es axioma.\par\vspace{3pt}
+\textbf{3. Universos no acumulativos.} Un tipo de \lean{Type 0} no habita automáticamente \lean{Type 1};
+se sube con \lean{ULift}. A cambio hay unicidad de tipos.\par\vspace{2pt}
+{\normalsize Fuentes: Carneiro (2019); de Moura y Ullrich (2021).}}
+\normal\tarj{rojo}{\faPlusCircle\ Los axiomas van encima, no dentro}{
+\lean{propext}, \lean{Classical.choice} y \lean{Quot.sound} \textbf{no} son reglas del CIC: se añaden, y
+\lean{\#print axioms} los lista.\\[2pt]
+\lean{completitud\_ND}: los tres.\\
+\lean{quicksort\_correcto}: \lean{propext} y \lean{Quot.sound}.}\grande
+\end{minipage}\hfill
+\begin{minipage}[t]{0.51\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=e8!5, colframe=e8, boxrule=1.2pt, arc=5pt, left=5pt, right=5pt,
+  title={\faTools\ Cada táctica construye un término del CIC (Tabla 10.2)},
+  colbacktitle=e8, fonttitle=\bfseries\large]
+\renewcommand{\arraystretch}{1.22}\normalsize
+\begin{tabular}{@{}lll@{}}
+\textbf{Táctica} & \textbf{Construye} & \textbf{Regla lógica}\\\hline
+\lean{intro} & una $\lambda$:\ \ \lean{fun h => …} & introducción de $\to$ y $\forall$\\
+\lean{apply}, \lean{exact} & una aplicación:\ \ \lean{h a} & modus ponens\\
+\lean{constructor} & \lean{And.intro} & introducción de $\land$\\
+\lean{left}, \lean{right} & \lean{Or.inl}, \lean{Or.inr} & introducción de $\lor$\\
+\lean{cases} & el eliminador \lean{.casesOn} & eliminación por casos\\
+\lean{induction} & el recursor \lean{.rec} & inducción\\
+\lean{rfl} & reducir y comparar & igualdad por definición
+\end{tabular}
+\end{tcolorbox}
+\normal\tarj{e8}{\faCodeBranch\ \lean{cases} o \lean{induction}}{
+Las dos abren \textbf{un caso por constructor}. Solo \lean{induction} entrega una
+\textbf{hipótesis inductiva} por cada argumento recursivo.}
+\clave{e8}{Una táctica es un \textbf{metaprograma} que escribe un término. El núcleo comprueba el
+término final, no la táctica.}
+\end{minipage}
+
+\vfill
+\pruebate{e8}{
+\item Di las tres diferencias entre el CIC de Lean y el de Coq.
+\item ¿Qué término construye \lean{intro}? ¿Y \lean{induction}?
+\item ¿Los tres axiomas de la auditoría son parte del CIC?
+}{\textbf{1.} Irrelevancia de pruebas por definición, cocientes primitivos, universos no acumulativos.\quad
+\textbf{2.} Una $\lambda$; una aplicación del recursor \lean{.rec}.\quad
+\textbf{3.} No: se añaden encima, y por eso se auditan.}
+\navegacion{est7}{Estación 7}{est9}{Estación 9}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 9: EL CIC EN MI TESIS
+%=====================================================================
+\grande
+\estacion{9}{\faGraduationCap}{El CIC en mi tesis}{aquí se cierra el círculo. Señala tu código y di
+qué pieza del CIC es cada línea.}
+
+\begin{minipage}[t]{0.53\textwidth}\vspace{0pt}
+\codigo{e9}{\faFont\ \texttt{Formula}: un dato\ \ ·\ \ \texttt{ND}: una proposición, un constructor por regla}{
+inductive Formula : Type\\
+| atom : String → Formula\\
+| neg\ \ : Formula → Formula\\
+| impl : Formula → Formula → Formula\\[6pt]
+inductive ND : Set Formula → Formula → Prop\\
+| hyp\ \ \ \ \ \ \ : φ ∈ Γ → ND Γ φ\\
+| impI\ \ \ \ \ \ : ND (insert φ Γ) ψ → ND Γ (φ $\longrightarrow$ ψ)\\
+| impE\ \ \ \ \ \ : ND Γ (φ $\longrightarrow$ ψ) → ND Γ φ → ND Γ ψ\\
+| negI\ \ \ \ \ \ : ND (insert φ Γ) Falsedad → ND Γ (\textasciitilde φ)\\
+| negE\ \ \ \ \ \ : ND Γ (\textasciitilde φ) → ND Γ φ → ND Γ Falsedad\\
+| botE\ \ \ \ \ \ : ND Γ Falsedad → ND Γ φ\\
+| classical : ND (insert (\textasciitilde φ) Γ) Falsedad → ND Γ φ\\[2pt]
+{\rmfamily\footnotesize\color{black!60}Capítulo 11. Se omiten los argumentos implícitos \{Γ φ ψ\} de cada constructor.}}
+\normal\tarj{e7}{\faSortAmountDown\ Quicksort (Capítulo 12)}{
+\lean{List} es inductivo (\lean{nil}, \lean{cons}), pero quicksort \textbf{no} es recursión estructural:
+llama sobre listas filtradas, no sobre la cola. Por eso lleva \lean{termination\_by l => l.length} y
+una prueba de que la longitud decrece.}\grande
+\end{minipage}\hfill
+\begin{minipage}[t]{0.455\textwidth}\vspace{0pt}
+\normal\tarj{e9}{\faLayerGroup\ Los cuatro tiempos, en \lean{ND}}{
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{8.0cm}@{}}
+\textbf{Formación} & \lean{ND : Set Formula → Formula → Prop}\\
+\textbf{Introducción} & 7 constructores $=$ 7 reglas de inferencia\\
+\textbf{Eliminación} & \lean{ND.rec}: inducción sobre la derivación\\
+\textbf{Cómputo} & no hace falta: en \lean{Prop} dos pruebas ya son iguales
+\end{tabular}}\grande
+\tarj{e6}{\faStream\ «Por inducción sobre la derivación»}{
+\lean{induction d} aplica \lean{ND.rec}: \textbf{7 casos}, uno por regla, con una hipótesis inductiva
+por cada premisa que es una derivación. Así pruebo el \textbf{debilitamiento} y la \textbf{corrección}.\par\vspace{2pt}
+\lean{induction φ} aplica \lean{Formula.rec}: \textbf{3 casos}.}
+\clave{e9}{Un teorema es un término. \lean{completitud\_ND} tiene tipo
+\lean{EsTautologia φ → ND ∅ φ}, y el núcleo comprueba ese tipo.}
+\end{minipage}
+
+\vfill
+\pruebate{e9}{
+\item ¿Cuántos casos tiene una inducción sobre \lean{ND}? ¿Y sobre \lean{Formula}?
+\item ¿Qué pieza del CIC es la regla \lean{impI}?
+\item ¿Por qué quicksort necesita \lean{termination\_by}?
+}{\textbf{1.} Siete y tres: uno por constructor.\quad
+\textbf{2.} Un constructor de \lean{ND}: una regla de introducción del tipo inductivo.\quad
+\textbf{3.} Porque no llama sobre una componente inmediata del argumento; hay que dar una medida que decrece.}
+\navegacion{est8}{Estación 8}{preguntas}{Preguntas}
+
+\newpage
+%=====================================================================
+% PREGUNTAS 1
+%=====================================================================
+\pagina{preguntas}{rojo}{\faQuestionCircle}{Preguntas imprescindibles (1 de 3): qué es el CIC}{tapa
+la respuesta, contesta en voz alta y compara. Las de \faStar\ son las que no pueden fallar.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\preg*{e2}{1}{¿Qué es el CIC, en una frase?}{Es el Cálculo de Construcciones extendido con tipos
+inductivos: tipos que se declaran por sus constructores y que traen su eliminador y sus reglas de
+cómputo $\iota$. Con variantes, es la teoría de tipos que implementa el núcleo de Lean.}{estaciones \chip{2} y \chip{8} · \ir[e2]{guion}{\faMicrophone\ Guion}}
+\preg*{e1}{2}{¿Qué le falta al CoC?}{Tipos de datos con inducción. En el CoC puro los naturales se
+codifican como funciones, los numerales de Church. Eso da iteración, pero el principio de
+inducción dependiente no se obtiene de la codificación: lo cito de Geuvers (2001).}{estación \chip{1} · §10.2.3}
+\preg*{e2}{3}{¿Qué genera una declaración inductiva?}{Cuatro piezas. La formación: el tipo. La
+introducción: los constructores, que son las únicas maneras de construir. La eliminación: el
+recursor, la única manera de usar. Y el cómputo: la regla $\iota$.}{estación \chip{2} · Nota 10.6}
+\preg*{e6}{4}{¿Por qué el recursor es recursión e inducción?}{Porque es un solo término con un
+tipo de retorno variable, el motivo. Si el motivo no depende del valor, define funciones: es la
+recursión primitiva. Si depende del valor y vive en \lean{Prop}, su tipo es el principio de
+inducción.}{estación \chip{6} · §10.3.1}
+\preg*{e7}{5}{¿Qué es la reducción $\iota$?}{La regla de cómputo del eliminador. Aplicado a un
+constructor, elige el manejador de ese constructor, le pasa sus argumentos y repite en los
+argumentos recursivos. Para $\N$: en cero devuelve la base; en $S\,n$ aplica el paso a $n$ y al
+resultado recursivo.}{estación \chip{7} · §10.3.5}
+\preg*{e4}{6}{¿Qué es la positividad estricta?}{El tipo que se define no puede
+aparecer a la izquierda de una flecha en los argumentos de sus constructores, a ninguna
+profundidad. Se exige porque, con un constructor como $(X\to\bot)\to X$, se construiría un
+habitante de $\bot$: el sistema sería inconsistente.}{estación \chip{4} · §10.3.2}
+\end{tcbraster}
+\navegacion{est9}{Estación 9}{preguntas2}{Preguntas 2}
+
+\newpage
+%=====================================================================
+% PREGUNTAS 2
+%=====================================================================
+\pagina{preguntas2}{rojo}{\faQuestionCircle}{Preguntas imprescindibles (2 de 3): sorts, Lean y tácticas}{aquí
+te piden precisión. Distingue siempre regla, axioma y táctica.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\preg*{e3}{7}{¿Qué diferencia hay entre \lean{Prop} y \lean{Type}?}{Son sorts, tipos de tipos. \lean{Prop}
+contiene proposiciones: sus pruebas son irrelevantes y se pueden borrar. \lean{Type} contiene
+datos, que sí se distinguen y se computan. En mi tesis, \lean{Formula} vive en \lean{Type} porque
+es sintaxis, y \lean{ND} en \lean{Prop} porque es una afirmación.}{estación \chip{3} · Nota 10.2}
+\preg{e3}{8}{¿Qué significa que \lean{Prop} sea impredicativa?}{Que una proposición puede cuantificar
+sobre todas las proposiciones, incluida ella misma, y sigue siendo una proposición:
+$\forall p{:}\texttt{Prop},\ p$ vive en \lean{Prop}. La jerarquía \lean{Type u} es predicativa:
+cuantificar sobre un universo sube de universo.}{estación \chip{3}}
+\preg{e6}{9}{¿Por qué un inductivo de \lean{Prop} solo se elimina hacia \lean{Prop}?}{Por dos razones
+que da la tesis: la eliminación fuerte sobre una sort impredicativa haría inconsistente el sistema,
+y las pruebas dejarían de ser borrables. Las excepciones son el caso vacío y el unitario. Por eso
+el motivo de \lean{ND.rec} solo llega a \lean{Prop}.}{estación \chip{6} · Nota 10.5}
+\preg*{e8}{10}{¿Lean implementa exactamente el CIC?}{No: una variante. Tres diferencias. La
+irrelevancia de pruebas vale por definición. Los cocientes son primitivos y solo
+\lean{Quot.sound} es axioma. Y los universos no son acumulativos. La descripción precisa es de
+Carneiro (2019).}{estación \chip{8} · Nota 10.7}
+\preg*{e8}{11}{¿Los axiomas de su auditoría son parte del CIC?}{No. Las reglas del CIC no los
+incluyen: \lean{propext}, \lean{Classical.choice} y \lean{Quot.sound} se añaden encima, y
+\lean{\#print axioms} los lista. La completitud usa los tres; la corrección de quicksort, solo
+\lean{propext} y \lean{Quot.sound}.}{estación \chip{8}}
+\preg*{e8}{12}{¿Qué relación hay entre las tácticas y el CIC?}{Una táctica es un metaprograma que
+construye un término del CIC. \lean{intro} construye una $\lambda$; \lean{apply}, una aplicación;
+\lean{constructor}, un constructor; \lean{cases} e \lean{induction}, el eliminador. El núcleo
+comprueba el término final, no las tácticas.}{estación \chip{8} · Tabla 10.2}
+\end{tcbraster}
+\navegacion{preguntas}{Preguntas 1}{preguntas3}{Preguntas 3}
+
+\newpage
+%=====================================================================
+% PREGUNTAS 3
+%=====================================================================
+\pagina{preguntas3}{rojo}{\faQuestionCircle}{Preguntas imprescindibles (3 de 3): tu tesis}{termina
+cada respuesta volviendo a lo que hiciste. Y di sin dudar qué es tuyo y qué citas.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\preg*{e9}{13}{¿Dónde usa su tesis el CIC?}{En las definiciones y en cada inducción. \lean{Formula}
+es un tipo inductivo con tres constructores, y \lean{ND} es una familia inductiva en \lean{Prop} con
+siete, uno por regla. «Inducción sobre la derivación» es aplicar \lean{ND.rec}: siete casos. Así
+pruebo la corrección y el debilitamiento.}{estación \chip{9}}
+\preg*{gris}{14}{¿Qué demostró usted sobre el CIC?}{Nada: el Capítulo 10 es exposición. Las reglas son
+las de Paulin-Mohring (1993), la metateoría es de Werner (1994) y la teoría de Lean la describe
+Carneiro (2019). Mi aporte está en los Capítulos 11 y 12, donde uso el CIC para formalizar.}{\ir[e2]{guion}{\faMicrophone\ Guion}}
+\preg{e8}{15}{¿\lean{cases} o \lean{induction}?}{Las dos analizan por casos: un caso por constructor.
+Solo \lean{induction} entrega una hipótesis inductiva por cada argumento recursivo, porque usa
+\lean{.rec}; \lean{cases} usa \lean{.casesOn}. Si necesito $P(k)$ para probar $P(S\,k)$, necesito
+\lean{induction}.}{estación \chip{8} · §10.4.1}
+\preg{e7}{16}{¿Igualdad por definición o igualdad proposicional?}{Por definición: el núcleo reduce
+los dos lados con $\beta$, $\delta$ e $\iota$ y compara; se cierra con \lean{rfl}. Proposicional:
+$a=b$ es una proposición que hay que demostrar, y se usa con \lean{rw}. $0+0=0$ sale por
+\lean{rfl}; $0+n=n$ necesita inducción.}{estación \chip{7}}
+\preg{e9}{17}{Quicksort no es recursión estructural. ¿Cómo se acepta?}{Las llamadas son sobre listas
+filtradas, no sobre la cola. Doy una medida, la longitud, y pruebo que decrece en cada llamada:
+\lean{termination\_by} y \lean{decreasing\_by}. Como $(\N,<)$ es bien fundado, la función es
+total.}{estación \chip{9} · Capítulo 12}
+\preg{gris}{18}{¿Cómo sabe que el sistema es consistente?}{No lo demuestro. La tesis cita a Werner
+para la metateoría del CIC y a Carneiro para la teoría de Lean. {\small(Fuera del texto de la tesis:
+Carneiro da un modelo en teoría de conjuntos, así que la consistencia es relativa.)} Lo que
+garantizo es que mis pruebas pasan el núcleo y que la auditoría lista los axiomas.}{estación \chip{8}}
+\end{tcbraster}
+\navegacion{preguntas2}{Preguntas 2}{trampas}{Trampas}
+
+\newpage
+%=====================================================================
+% TRAMPAS Y CÓMO DECIRLO
+%=====================================================================
+\pagina{trampas}{e4}{\faBomb}{Diez trampas y cómo leer los símbolos}{frases que suenan
+bien y son falsas. Si te oyes decir una, corrígete en el momento.}
+
+\newcommand{\trampa}[3]{\begin{tcolorbox}[colback=white, colframe=black!35, boxrule=0.8pt, arc=4pt,
+  left=6pt, right=6pt, top=2pt, bottom=2pt, before upper=\raggedright]
+  \medio\chip{#3}\ {\color{rojo}\faTimes}\ {\color{rojo!80!black}«#1»}\\
+  {\color{verde!70!black}\faCheck}\ #2\end{tcolorbox}}
+
+\begin{minipage}[t]{0.62\textwidth}\vspace{0pt}
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster row skip=4pt,
+  raster equal height=rows]
+\trampa{El CIC es el CoC.}{Es el CoC \textbf{más} tipos inductivos, con eliminadores y $\iota$.}{2}
+\trampa{Con Church no hay recursión.}{Sí hay iteración. Lo que falta es la inducción dependiente.}{1}
+\trampa{Lean es el CIC.}{Es una variante: tres diferencias (Nota 10.7).}{8}
+\trampa{Ind, Constr y Elim son comandos de Lean.}{Son pseudo-términos de Paulin-Mohring.}{5}
+\trampa{Positiva y estrictamente positiva es lo mismo.}{En $(X\to A)\to B$ es covariante y no estricta.}{4}
+\trampa{\lean{Prop} es \lean{Bool}.}{\lean{Prop} es un sort de proposiciones; \lean{Bool} es un dato con dos valores.}{3}
+\trampa{Los axiomas son parte del CIC.}{Se añaden encima; por eso se auditan.}{8}
+\trampa{\lean{rfl} prueba cualquier igualdad.}{Solo las que valen por definición.}{7}
+\trampa{La táctica es la prueba.}{La prueba es el término; la táctica lo escribe.}{8}
+\trampa{Demostré propiedades del CIC.}{No: lo expongo y lo uso. Cito a Paulin-Mohring y a Werner.}{9}
+\end{tcbraster}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.36\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=e4!6, colframe=e4, boxrule=1.1pt, arc=5pt, left=6pt, right=6pt,
+  top=4pt, bottom=4pt, title={\faVolumeUp\ Cómo se lee en voz alta}, colbacktitle=e4,
+  fonttitle=\bfseries\large]
+\renewcommand{\arraystretch}{1.4}\medio
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{5.6cm}@{}}
+$(x{:}A)\,B$ & «para todo $x$ de $A$, $B$»: el producto dependiente\\
+$[x{:}A]\,t$ & «lambda $x$ de $A$, $t$»\\
+$\Ind(X{:}A)\{\dots\}$ & «el inductivo $X$ de aridad $A$ con constructores\ldots»\\
+$\Constr(i,I)$ & «el constructor $i$ de $I$»\\
+$\Elim(c,Q)\{f_i\}$ & «eliminar $c$ hacia $Q$ con los manejadores $f_i$»\\
+$C_i\{I,Q\}$ & «el tipo del manejador del caso $i$»\\
+$\ired$ & «se reduce por iota»\\
+\lean{motive} & «el motivo»: lo que se prueba o se calcula\\
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}
+
+\vfill
+\begin{center}
+{\large\bfseries\color{gris!80!black}\faHistory\ Quién hizo qué: di el nombre y el año sin dudar}\\[5pt]
+\begin{tikzpicture}[font=\small, >={Stealth[length=2.6mm]},
+  hito/.style={draw=#1, fill=#1!10, line width=1pt, rounded corners=4pt, align=center,
+    text width=3.75cm, minimum height=1.55cm, inner sep=3pt}]
+  \node[hito=e1] (a) {\textbf{1988}\\ Coquand y Huet\\ el CoC};
+  \node[hito=e2, right=3.5mm of a] (b) {\textbf{1990}\\ Coquand y Paulin\\ tipos inductivos};
+  \node[hito=e5, right=3.5mm of b] (c) {\textbf{1993}\\ Paulin-Mohring\\ las reglas que sigo};
+  \node[hito=e6, right=3.5mm of c] (d) {\textbf{1994}\\ Werner\\ metateoría del CIC};
+  \node[hito=e8, right=3.5mm of d] (e) {\textbf{2019}\\ Carneiro\\ la teoría de Lean};
+  \node[hito=e8, right=3.5mm of e] (f) {\textbf{2021}\\ de Moura y Ullrich\\ Lean 4};
+  \foreach \u/\v in {a/b,b/c,c/d,d/e,e/f} \draw[->, line width=1.1pt, black!55] (\u) -- (\v);
+\end{tikzpicture}
+\end{center}
+\navegacion{preguntas3}{Preguntas 3}{reglas}{Hoja de reglas}
+
+\newpage
+%=====================================================================
+% HOJA DE REGLAS
+%=====================================================================
+\pagina{reglas}{gris}{\faScroll}{Hoja de reglas}{todas las reglas del CIC en una página. No hay que
+memorizarlas: hay que saber leer cada una. Son de Paulin-Mohring (1993).}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\begin{tcolorbox}[colback=e5!5, colframe=e5, boxrule=1.1pt, arc=5pt,
+  title={Formación (Ind)\hfill\chip{5}}, colbacktitle=e5, fonttitle=\bfseries]
+\[\frac{\Gamma,X:A\vdash C_i:s}{\Gamma\vdash\Ind(X:A)\{C_1\mid\dots\mid C_n\}:A}\]
+{\small\centering $\mathrm{arity}(A,s)$,\ \ $\mathrm{constructor}(C_i,X)$,\ \ para todo $i$\par}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e5!5, colframe=e5, boxrule=1.1pt, arc=5pt,
+  title={Introducción (Constr)\hfill\chip{5}}, colbacktitle=e5, fonttitle=\bfseries]
+\[\frac{\Gamma\vdash I:A}{\Gamma\vdash\Constr(i,I):C_i[X:=I]}\]
+{\small\centering $I=\Ind(X:A)\{C_1\mid\dots\mid C_n\}$,\ \ $1\le i\le n$\par}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e6!5, colframe=e6, boxrule=1.1pt, arc=5pt,
+  title={Eliminación no dependiente (Nodep)\hfill\chip{6}}, colbacktitle=e6, fonttitle=\bfseries]
+\small\[\frac{\Gamma\vdash c:(I\,\vec a)\quad\Gamma\vdash Q:(\vec x{:}\vec A)\,s'\quad\Gamma\vdash f_i:C_i\{I,Q\}}
+{\Gamma\vdash\Elim(c,Q)\{f_1\mid\dots\mid f_n\}:(Q\,\vec a)}\]
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e6!5, colframe=e6, boxrule=1.1pt, arc=5pt,
+  title={Eliminación dependiente (Dep)\hfill\chip{6}}, colbacktitle=e6, fonttitle=\bfseries]
+\footnotesize\[\frac{\Gamma\vdash c:(I\,\vec a)\quad\Gamma\vdash Q:(\vec x{:}\vec A)(I\,\vec x)\to s'\quad
+\Gamma\vdash f_i:C_i\{I,Q,\Constr(i,I)\}}
+{\Gamma\vdash\Elim(c,Q)\{f_1\mid\dots\mid f_n\}:(Q\,\vec a\,c)}\]
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e7!5, colframe=e7, boxrule=1.1pt, arc=5pt,
+  title={Reducción $\iota$\hfill\chip{7}}, colbacktitle=e7, fonttitle=\bfseries]
+\small\[\Elim((\Constr(i,I)\ \vec m),Q)\{\vec f\}\ \ired\
+\bigl(C_i[I,\ \mathrm{Fun\_Elim}(I,Q,\vec f),\ f_i]\ \vec m\bigr)\]
+\[\mathrm{Fun\_Elim}(I,Q,\vec f)\ \equiv\ [\vec x{:}\vec A]\,[c{:}(I\,\vec x)]\ \Elim(c,Q)\{\vec f\}\]
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e2!5, colframe=e2, boxrule=1.1pt, arc=5pt,
+  title={Todo, para $\N$\hfill\chip{2}}, colbacktitle=e2, fonttitle=\bfseries]
+\medio\raggedright $\texttt{nat}\equiv\Ind(X:\Set)\{X\mid X\to X\}$\hfill $0:\N$\quad $S:\N\to\N$\\[3pt]
+$\Elim(0,Q)\{f_0\mid f_S\}\ired f_0$\\[2pt]
+$\Elim(S\,n,Q)\{f_0\mid f_S\}\ired f_S\ n\ (\Elim(n,Q)\{f_0\mid f_S\})$\\[3pt]
+{\small Manejadores: $Q$ y $\N\to Q\to Q$;\ \ dependientes: $Q\,0$ y $(n{:}\N)\to Q\,n\to Q\,(S\,n)$}
+\end{tcolorbox}
+\end{tcbraster}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=e3!6, colframe=e3, boxrule=1.1pt, arc=5pt,
+  title={Sorts y notación\hfill\chip{3}}, colbacktitle=e3, fonttitle=\bfseries]
+\medio\raggedright $t ::= s\mid x\mid (x{:}t)\,t\mid [x{:}t]\,t\mid (t\,t)$\hfill $Ar ::= s\mid(x{:}M)\,Ar$\\[3pt]
+CoC:\ \ $\mathcal S=\{\Set,\Type_S\}$\quad $\mathcal A=\{\Set:\Type_S\}$\quad $\mathcal R=\mathcal S\times\mathcal S$\\[3pt]
+$\Pi x{:}A.\,B\leftrightarrow(x{:}A)\,B$\quad $\lambda x{:}A.\,t\leftrightarrow[x{:}A]\,t$\quad $*\leftrightarrow\Set$\quad $\square\leftrightarrow\Type_S$
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e6!6, colframe=e6, boxrule=1.1pt, arc=5pt,
+  title={El principio de inducción es un tipo\hfill\chip{6}}, colbacktitle=e6, fonttitle=\bfseries]
+\medio\centering $\forall P:\N\to\Prop,\ \ P\,0\ \to\ (\forall u,\ P\,u\to P\,(S\,u))\ \to\ \forall n,\ P\,n$\\[3pt]
+{\small Restricción: de \lean{Prop} solo hacia \lean{Prop}, salvo vacío y unitario (Nota 10.5)}
+\end{tcolorbox}
+\end{tcbraster}
+\navegacion{trampas}{Trampas}{indice}{Índice}
+
+\newpage
+%=====================================================================
+% ÍNDICE Y LISTA FINAL
+%=====================================================================
+\pagina{indice}{gris}{\faFont}{Índice A–Z y lista final}{cada término lleva a su estación.
+Si dudas con una palabra, haz clic en su número.}
+
+\newcommand{\idx}[2]{#1\dotfill #2\par}
+\begin{minipage}[t]{0.61\textwidth}\vspace{0pt}
+\setlength{\columnsep}{14pt}
+\begin{multicols}{3}
+\raggedright\normalsize\setlength{\parskip}{2.5pt}
+\idx{Aridad}{\chip{4}}
+\idx{Axiomas de Lean}{\chip{8}}
+\idx{\lean{cases}}{\chip{8}}
+\idx{Church, numerales}{\chip{1}}
+\idx{CoC}{\chip{1}}
+\idx{Cocientes, \lean{Quot}}{\chip{8}}
+\idx{Codificación impredicativa}{\chip{1}}
+\idx{Cómputo}{\chip{7}}
+\idx{Constr}{\chip{5}}
+\idx{Constructor}{\chip{2}\,\chip{4}}
+\idx{Eliminación dependiente}{\chip{6}}
+\idx{Eliminación singleton}{\chip{6}}
+\idx{Eliminador}{\chip{6}}
+\idx{Familia inductiva}{\chip{4}}
+\idx{\lean{Formula}}{\chip{9}}
+\idx{Formación}{\chip{2}\,\chip{5}}
+\idx{GTS, PTS}{\chip{3}}
+\idx{Igualdad por definición}{\chip{7}}
+\idx{Impredicatividad}{\chip{3}}
+\idx{Ind}{\chip{5}}
+\idx{Índice y parámetro}{\chip{4}}
+\idx{\lean{induction}}{\chip{8}}
+\idx{Inducción}{\chip{6}}
+\idx{Introducción}{\chip{2}\,\chip{5}}
+\idx{$\iota$-reducción}{\chip{7}}
+\idx{Irrelevancia de pruebas}{\chip{3}\,\chip{8}}
+\idx{Iteración}{\chip{1}}
+\idx{Leibniz, igualdad}{\chip{1}}
+\idx{Manejador}{\chip{6}}
+\idx{Metaprograma}{\chip{8}}
+\idx{Motivo}{\chip{6}}
+\idx{\lean{ND}}{\chip{9}}
+\idx{Positividad estricta}{\chip{4}}
+\idx{Predecesor}{\chip{1}}
+\idx{\lean{Prop}}{\chip{3}}
+\idx{Pseudo-término}{\chip{5}}
+\idx{Recursión estructural}{\chip{9}}
+\idx{Recursor, \lean{.rec}}{\chip{6}}
+\idx{\lean{rfl}}{\chip{7}}
+\idx{Sort}{\chip{3}}
+\idx{Táctica}{\chip{8}}
+\idx{\lean{termination\_by}}{\chip{9}}
+\idx{Torniquete $\vdash$}{\chip{5}}
+\idx{\lean{Type u}}{\chip{3}}
+\idx{Universos}{\chip{8}}
+\end{multicols}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.37\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=verde!6, colframe=verde, boxrule=1.2pt, arc=6pt,
+  title={\faClipboardCheck\ Estoy listo si puedo\ldots}, colbacktitle=verde, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\medio\newcommand{\si}{{\Large$\square$}\ }
+\si decir el guion de 1 minuto sin leer\\[3pt]
+\si explicar qué le falta al CoC\\[3pt]
+\si nombrar los cuatro tiempos\\[3pt]
+\si escribir \lean{Nat} y el tipo de \lean{Nat.rec}\\[3pt]
+\si escribir las dos reglas $\iota$ de $\N$\\[3pt]
+\si explicar la positividad estricta\\[3pt]
+\si distinguir \lean{Prop} de \lean{Type}\\[3pt]
+\si decir las tres diferencias de Lean\\[3pt]
+\si señalar el CIC en \lean{Formula} y \lean{ND}\\[3pt]
+\si contestar las 12 preguntas con \faStar
+\end{tcolorbox}
+\end{minipage}
+
+\vfill
+\begin{tcolorbox}[colback=tldr, colframe=e9, boxrule=1.2pt, arc=6pt, left=10pt, right=10pt,
+  top=5pt, bottom=5pt, title={\faStar\ Si solo recuerdas cinco frases},
+  colbacktitle=e9, fonttitle=\bfseries\large]
+\large
+\chip{1}\ \ \textbf{El problema:} codificar datos con funciones da iteración, no inducción.\\[2pt]
+\chip{2}\ \ \textbf{La solución:} declarar el tipo por sus constructores.\\[2pt]
+\chip{6}\ \ \textbf{El recursor:} una sola pieza; con datos es recursión, con pruebas es inducción.\\[2pt]
+\chip{7}\ \ \textbf{$\iota$:} el recursor frente a un constructor se reduce al manejador de ese constructor.\\[2pt]
+\chip{9}\ \ \textbf{Mi tesis:} \lean{Formula} y \lean{ND} son inductivos; mis inducciones son sus recursores.
+\hfill\ir[rojo]{preguntas}{\faQuestionCircle\ Repasar las preguntas}
+\end{tcolorbox}
+\navegacion{reglas}{Hoja de reglas}{portada}{Portada}
+
+\end{document}
