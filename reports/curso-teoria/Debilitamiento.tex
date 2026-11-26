@@ -1,0 +1,597 @@
+% Lema 11.9 (debilitamiento) explicado por dentro: del enunciado en papel al
+% término que guarda Lean. Formato visual, amigable para TDAH e interactivo (PDF
+% con enlaces): el enunciado como tipo, qué hace `induction d`, un caso línea a
+% línea, los siete casos, el término almacenado, qué comprueba el núcleo, la
+% tabla papel-Lean y preguntas de defensa.
+% Compilar dos veces:  lualatex Debilitamiento.tex
+\documentclass[12pt]{article}
+\usepackage[a4paper,landscape,margin=11mm,bottom=17mm]{geometry}
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands]{babel}
+\setmainfont{TeX Gyre Heros}
+\setmonofont{DejaVu Sans Mono}[Scale=0.86]
+\setmathfont{TeX Gyre DejaVu Math}
+\usepackage[table]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+\usepackage{fontawesome5}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{bussproofs}
+\usepackage{lastpage}
+\usepackage[hidelinks]{hyperref}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.06}
+
+% ---------- Un color por estación ----------
+\definecolor{e1}{HTML}{B8901A}   % por qué no basta el CoC
+\definecolor{e2}{HTML}{D9822B}   % los cuatro tiempos
+\definecolor{e3}{HTML}{8C5FB8}   % Prop y Type
+\definecolor{e4}{HTML}{A8456B}   % qué se puede declarar
+\definecolor{e5}{HTML}{3F6FA8}   % formación e introducción
+\definecolor{e6}{HTML}{2A8C8C}   % eliminación
+\definecolor{e7}{HTML}{3E9A5A}   % cómputo iota
+\definecolor{e8}{HTML}{2F5D8C}   % el CIC de Lean
+\definecolor{e9}{HTML}{5E4A96}   % el CIC en la tesis
+\definecolor{gris}{HTML}{5B6B82}
+\definecolor{tldr}{HTML}{FFF4C2}
+\definecolor{verde}{HTML}{3E9A5A}
+\definecolor{ambar}{HTML}{E0A320}
+\definecolor{rojo}{HTML}{C8463D}
+\definecolor{pizarra}{HTML}{24443A}
+
+\AtBeginDocument{\providecommand\square{\mdlgwhtsquare}}
+\newcommand{\bred}{\to_\beta}
+\newcommand{\bmred}{\twoheadrightarrow_\beta}
+\newcommand{\beq}{=_\beta}
+\newcommand{\aeq}{=_\alpha}
+\newcommand{\lw}{\lambda\underline{\omega}}
+\newcommand{\FV}{\mathrm{FV}}
+\EnableBpAbbreviations
+
+% ---------- Botones y navegación ----------
+\newcommand{\boton}[2][gris]{\tikz[baseline=(b.base)]\node[draw=#1, fill=#1!10,
+  line width=1pt, rounded corners=5pt, inner xsep=8pt, inner ysep=4pt,
+  font=\bfseries\normalsize, text=#1!80!black](b){#2};}
+\newcommand{\ir}[3][gris]{\hyperlink{#2}{\boton[#1]{#3}}}
+\newcommand{\chip}[1]{\hyperlink{paso#1}{\tikz[baseline=(c.base)]\node[fill=e#1,
+  text=white, rounded corners=3pt, inner sep=2.5pt, font=\bfseries\footnotesize](c){#1};}}
+
+% #1 destino anterior, #2 texto, #3 destino siguiente, #4 texto
+\makeatletter\newcommand\pdim[1]{\strip@pt\dimexpr#1\relax}\makeatother
+\newcommand{\navegacion}[4]{\AddToHookNext{shipout/foreground}{%
+  \put(\pdim{0.5\paperwidth},\pdim{-\paperheight+4mm}){\makebox(0,0)[b]{%
+  \ir{#1}{\faArrowLeft\ #2}\hspace{5mm}\ir{inicio}{\faHome\ Inicio}%
+  \hspace{5mm}\ir{enlace}{\faLink\ Papel y Lean}%
+  \hspace{5mm}\ir{preguntas}{\faQuestionCircle\ Preguntas}\hspace{5mm}\ir{#3}{#4\ \faArrowRight}}}}}
+
+% ---------- Encabezado de estación ----------
+% [#1 destino] #2 número, #3 icono, #4 título, #5 para qué sirve
+\NewDocumentCommand{\estacion}{O{paso#2} m m m m}{%
+  \begin{tcolorbox}[colback=e#2, colframe=e#2, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=5pt, bottom=5pt, after skip=4pt]
+    \hypertarget{#1}{}\color{white}\LARGE #3\quad\bfseries #4\hfill
+    \normalfont\large\faMapSigns\ paso #2 de 6
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=e#2, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=6pt]
+    \large\faBullseye\ \textbf{Para qué sirve:}\ #5
+  \end{tcolorbox}}
+
+% Encabezado de página general: #1 destino, #2 color, #3 icono, #4 título, #5 franja
+\newcommand{\pagina}[5]{%
+  \begin{tcolorbox}[colback=#2, colframe=#2, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=5pt, bottom=5pt, after skip=4pt]
+    \hypertarget{#1}{}\color{white}\LARGE #3\quad\bfseries #4\hfill
+    \normalfont\large página \thepage\ de \pageref{LastPage}
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=#2, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=6pt]
+    \large\faBolt\ \textbf{En 10 segundos:}\ #5
+  \end{tcolorbox}}
+
+% ---------- Tarjeta ----------
+% #1 color, #2 título, #3 cuerpo
+\NewDocumentCommand{\tarj}{m m +m}{\begin{tcolorbox}[colback=#1!6, colframe=#1,
+  boxrule=1pt, arc=4pt, left=6pt, right=6pt, top=4pt, bottom=4pt, leftrule=5pt,
+  before upper=\raggedright]
+  {\large\bfseries\color{#1!80!black}#2}\par\vspace{2pt}\tarjsize #3\end{tcolorbox}}
+\newcommand{\tarjsize}{\normalsize}
+\newcommand{\medio}{\fontsize{13}{16.2}\selectfont}
+\newcommand{\grande}{\renewcommand{\tarjsize}{\large}}
+\newcommand{\normal}{\renewcommand{\tarjsize}{\normalsize}}
+\newcommand{\tesis}[1]{{\small\color{black!60}\faMapMarker*\ #1}}
+\newcommand{\clave}[2]{\begin{tcolorbox}[colback=tldr, colframe=#1, boxrule=0.8pt,
+  arc=4pt, left=8pt, right=8pt, top=3pt, bottom=3pt]\faKey\ \textbf{Clave:}\ #2\end{tcolorbox}}
+
+% ---------- Pregunta de defensa ----------
+% * = imprescindible; #2 color, #3 número, #4 pregunta, #5 respuesta, #6 dónde
+\NewDocumentCommand{\preg}{s m m m +m m}{%
+  \begin{tcolorbox}[colback=white, colframe=#2, boxrule=1.1pt, arc=5pt,
+    left=7pt, right=7pt, top=3pt, bottom=3pt, colbacktitle=#2,
+    fonttitle=\bfseries\large, before upper=\raggedright,
+    title={\IfBooleanT{#1}{\faStar\ }#3.\ #4}]
+    \medio\faCommentDots\ #5\par\vspace{2pt}\tesis{#6}
+  \end{tcolorbox}}
+
+% ---------- Pruébate (respuestas al revés) ----------
+\newcommand{\pruebate}[3]{%
+  \begin{tcolorbox}[colback=white, colframe=#1, boxrule=1.1pt, arc=5pt,
+    left=8pt, right=8pt, top=4pt, bottom=4pt, sidebyside, lefthand width=0.56\linewidth,
+    sidebyside gap=10pt, segmentation style={solid, #1!40}]
+    {\large\bfseries\color{#1!80!black}\faBrain\ Pruébate} \ {\small(dilo en voz alta)}
+    \begin{enumerate}[leftmargin=6mm, itemsep=1pt, topsep=2pt]#2\end{enumerate}
+    \tcblower
+    \centering{\footnotesize\color{black!50}\faSync*\ respuestas: gira la página}\par\vspace{2pt}
+    \rotatebox{180}{\parbox{0.92\linewidth}{\small\raggedright #3}}
+  \end{tcolorbox}}
+
+\tikzset{
+  num/.style={circle, fill=#1, text=white, font=\bfseries\Large,
+    minimum size=9mm, inner sep=0pt},
+  caja/.style={draw=#1, fill=#1!8, line width=1.1pt, rounded corners=5pt,
+    align=center, inner sep=5pt},
+}
+
+% ---------- Código Lean ----------
+% #1 color, #2 título, #3 líneas
+\NewDocumentCommand{\codigo}{m m +m}{\begin{tcolorbox}[colback=black!3, colframe=#1,
+  boxrule=1pt, arc=4pt, left=6pt, right=6pt, top=3pt, bottom=3pt, title={#2},
+  colbacktitle=#1, fonttitle=\bfseries]\ttfamily\codesize\raggedright #3\end{tcolorbox}}
+\newcommand{\codesize}{\normalsize}
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\ired}{\to_\iota}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Ind}{\mathrm{Ind}}
+\newcommand{\Constr}{\mathrm{Constr}}
+\newcommand{\Elim}{\mathrm{Elim}}
+\newcommand{\Prop}{\mathrm{Prop}}
+\newcommand{\Set}{\mathrm{Set}}
+\newcommand{\Type}{\mathrm{Type}}
+
+\begin{document}
+
+%=====================================================================
+% INICIO
+%=====================================================================
+\hypertarget{inicio}{}
+\begin{tcolorbox}[colback=e9, colframe=e9, arc=8pt, boxrule=0pt, halign=center,
+  top=8pt, bottom=8pt]
+\color{white}{\fontsize{27}{32}\selectfont\bfseries \faExpand*\ \ Lema 11.9: debilitamiento, por dentro}\\[5pt]
+{\large Del enunciado en papel al término que guarda Lean · 6 pasos · la tabla papel–Lean · 6 preguntas con respuesta}
+\end{tcolorbox}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=white, colframe=gris, boxrule=1.3pt, arc=6pt, halign=center,
+  title={\faPencil*\ En papel (Capítulo 11, §11.4)}, colbacktitle=gris, fonttitle=\bfseries\large]
+{\Large Si\ \ $\Gamma\vdash\varphi$\ \ y\ \ $\Gamma\subseteq\Delta$,\ \ entonces\ \ $\Delta\vdash\varphi$.}\\[4pt]
+{\normalsize Tener más hipótesis no estropea una derivación.}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black!3, colframe=gris, boxrule=1.3pt, arc=6pt, halign=center,
+  title={\faLaptopCode\ En Lean (\texttt{Thesis/Prop/NaturalDeduction.lean})}, colbacktitle=gris, fonttitle=\bfseries\large]
+{\ttfamily\large theorem debilitamiento \{Γ φ\} (d : ND Γ φ) :\\ ∀ \{Δ\}, Γ ⊆ Δ → ND Δ φ}
+\end{tcolorbox}
+\end{tcbraster}
+
+\begin{tcolorbox}[colback=tldr, colframe=e9, boxrule=1pt, arc=6pt, left=8pt, right=8pt, top=4pt, bottom=4pt]
+{\large\bfseries\color{e9!80!black}\faLightbulb\ La idea en un dibujo: el mismo árbol, con un contexto más grande}\par\vspace{4pt}
+\begin{minipage}[c]{0.36\linewidth}\centering\large
+{\normalsize con $\Gamma=\{q\}$}\\[3pt]
+\AXC{$q\in\{q\}\cup\{p\}$}\RL{\small hyp}\UIC{$\{q\},\,p\ \vdash\ q$}\RL{\small $\to$I}\UIC{$\{q\}\ \vdash\ p\to q$}\DP
+\end{minipage}\hfill
+\begin{minipage}[c]{0.20\linewidth}\centering
+\tikz\draw[->, line width=2.2pt, e9, >={Stealth[length=5mm]}] (0,0) -- (3.4,0)
+  node[midway, above, font=\bfseries\normalsize, text=e9!80!black]{debilitamiento}
+  node[midway, below, font=\small, text=black]{$\{q\}\subseteq\{q,r\}$};
+\end{minipage}\hfill
+\begin{minipage}[c]{0.40\linewidth}\centering\large
+{\normalsize con $\Delta=\{q,r\}$}\\[3pt]
+\AXC{$q\in\{q,r\}\cup\{p\}$}\RL{\small hyp}\UIC{$\{q,r\},\,p\ \vdash\ q$}\RL{\small $\to$I}\UIC{$\{q,r\}\ \vdash\ p\to q$}\DP
+\end{minipage}\par\vspace{3pt}
+Las reglas son las mismas y están en el mismo orden. Solo cambia el contexto, y solo las \textbf{hojas}
+(la regla de hipótesis) tienen que comprobar algo: que la fórmula sigue estando en el contexto.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=gris, boxrule=1pt, arc=5pt, left=8pt, right=8pt, top=4pt, bottom=4pt,
+  before upper=\raggedright]
+\large\faBullseye\ \textbf{Para qué sirve:} para llevar una derivación a un contexto mayor. Lo usan el
+Lema 11.10 (doble negación), el Lema 11.11 (análisis por casos derivado) y el Lema 11.15 (Kalmár).
+\end{tcolorbox}
+
+\newcommand{\parada}[3]{\begin{tcolorbox}[colback=e#1!8, colframe=e#1, boxrule=1.2pt,
+  arc=6pt, halign=center, left=2pt, right=2pt, top=3pt, bottom=3pt, hyperlink=paso#1]
+  \tikz\node[num=e#1]{#1};\\[2pt]{\normalsize\bfseries\color{e#1!80!black}#2}\\[1pt]
+  {\small #3}\end{tcolorbox}}
+\vfill
+\begin{tcbraster}[raster columns=8, raster column skip=5pt, raster equal height]
+\parada{1}{El enunciado es un tipo}{cada símbolo, una pieza}
+\parada{2}{\texttt{induction d}}{motivo, casos e hipótesis}
+\parada{3}{El caso \texttt{impI}}{línea a línea}
+\parada{4}{Los siete casos}{tres patrones}
+\parada{5}{Lo que Lean guarda}{un término con \texttt{ND.rec}}
+\parada{6}{El núcleo y los axiomas}{qué se comprueba}
+\begin{tcolorbox}[colback=gris!10, colframe=gris, boxrule=1.2pt, arc=6pt, halign=center,
+  left=2pt, right=2pt, top=3pt, bottom=3pt, hyperlink=enlace]
+  \tikz\node[num=gris]{\faLink};\\[2pt]{\normalsize\bfseries\color{gris!80!black}Papel y Lean}\\[1pt]
+  {\small frase por frase}\end{tcolorbox}
+\begin{tcolorbox}[colback=rojo!8, colframe=rojo, boxrule=1.2pt, arc=6pt, halign=center,
+  left=2pt, right=2pt, top=3pt, bottom=3pt, hyperlink=preguntas]
+  \tikz\node[num=rojo]{\faQuestion};\\[2pt]{\normalsize\bfseries\color{rojo!80!black}Preguntas}\\[1pt]
+  {\small 6, con respuesta}\end{tcolorbox}
+\end{tcbraster}
+\navegacion{inicio}{Inicio}{paso1}{Paso 1}
+
+\newpage
+%=====================================================================
+% PASO 1: EL ENUNCIADO ES UN TIPO
+%=====================================================================
+\grande
+\estacion{1}{\faTag}{El enunciado es un tipo}{hay que saber leer la primera línea. Por Curry–Howard, el lema es el tipo de una función.}
+
+\begin{tcolorbox}[colback=white, colframe=e1, boxrule=1.5pt, arc=6pt, halign=center, top=4pt, bottom=4pt]
+{\ttfamily\Large
+\underline{\{Γ φ\}}\ \ \underline{(d : ND Γ φ)}\ \ :\ \ \underline{∀ \{Δ\},}\ \ \underline{Γ ⊆ Δ}\ \ →\ \ \underline{ND Δ φ}}\\[4pt]
+{\normalsize Tipo completo, tal como lo imprime Lean:\ \ \lean{∀ \{Γ\} \{φ\}, ND Γ φ → ∀ \{Δ\}, Γ ⊆ Δ → ND Δ φ}}
+\end{tcolorbox}
+
+\begin{minipage}[t]{0.50\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=e1!5, colframe=e1, boxrule=1.1pt, arc=5pt, left=5pt, right=5pt,
+  title={\faPuzzlePiece\ Pieza por pieza}, colbacktitle=e1, fonttitle=\bfseries\large]
+\renewcommand{\arraystretch}{1.15}\medio
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{6.3cm}>{\raggedright\arraybackslash}p{3.2cm}@{}}
+\textbf{Pieza} & \textbf{Qué es en Lean} & \textbf{En papel}\\\hline
+\lean{\{Γ φ\}} & argumentos implícitos: Lean los deduce & «sean $\Gamma$ y $\varphi$»\\
+\lean{d : ND Γ φ} & un término del tipo inductivo \lean{ND}: un árbol de derivación & $\Gamma\vdash\varphi$\\
+\lean{∀ \{Δ\}} & un tipo $\Pi$ & «para todo $\Delta$»\\
+\lean{Γ ⊆ Δ} & por definición, \lean{∀ a, a ∈ Γ → a ∈ Δ} & $\Gamma\subseteq\Delta$\\
+\lean{ND Δ φ} & el tipo del que hay que construir un habitante & $\Delta\vdash\varphi$
+\end{tabular}
+\end{tcolorbox}
+\tesis{Lema 11.9 · \texttt{NaturalDeduction.lean}, línea 51}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}\vspace{0pt}
+\tarj{e1}{\faPlay\ $\subseteq$ es una función}{
+\lean{Γ ⊆ Δ} se despliega en \lean{∀ a, a ∈ Γ → a ∈ Δ}: Lean acepta esa igualdad por \lean{rfl}.\par\vspace{2pt}
+Por eso una prueba \lean{hsub} de la inclusión \textbf{se aplica}:\par
+\centerline{\lean{hsub hmem}\ \ convierte\ \ \lean{φ ∈ Γ}\ \ en\ \ \lean{φ ∈ Δ}.}}
+\tarj{rojo}{\faExclamationTriangle\ $\Delta$ va \textbf{después} de los dos puntos, a propósito}{
+Así $\Delta$ queda cuantificado \textbf{dentro} de la meta, y la hipótesis inductiva vale para
+\textbf{cualquier} contexto. El papel lo dice así: «con la premisa $\Gamma\subseteq\Delta$ conservada
+en el predicado».}
+\end{minipage}
+
+\vfill
+\pruebate{e1}{
+\item ¿Qué es \lean{d}? ¿Y qué es \lean{ND Δ φ}?
+\item ¿Por qué se puede escribir \lean{hsub hmem}?
+\item ¿Qué se perdería si $\Delta$ fuera un argumento antes de los dos puntos?
+}{\textbf{1.} Una derivación, un árbol; y el tipo de las derivaciones de $\varphi$ desde $\Delta$.\quad
+\textbf{2.} Porque $\subseteq$ es, por definición, una función de pertenencias.\quad
+\textbf{3.} La hipótesis inductiva solo valdría para ese $\Delta$ fijo.}
+\navegacion{inicio}{Inicio}{paso2}{Paso 2}
+
+\newpage
+%=====================================================================
+% PASO 2: INDUCTION D
+%=====================================================================
+\grande
+\estacion{2}{\faStream}{Qué hace \texttt{induction d}}{es la línea que el papel escribe como «por
+inducción sobre la derivación». Dentro de Lean son tres operaciones.}
+
+\begin{minipage}[t]{0.40\textwidth}\vspace{0pt}
+\codigo{e2}{\faDesktop\ El estado antes de \texttt{induction d}}{
+Γ : Set Formula\\
+φ : Formula\\
+d : ND Γ φ\\
+⊢ ∀ \{Δ : Set Formula\}, Γ ⊆ Δ → ND Δ φ}
+\tarj{e4}{\faSlidersH\ Por qué aparecen $\Gamma$ y $\varphi$ nuevos}{
+$\Gamma$ y $\varphi$ son \textbf{índices} de \lean{ND}: cada regla concluye sobre un contexto y una
+fórmula distintos. Por eso el motivo los recibe como argumentos, y en cada caso Lean introduce un
+$\Gamma$ y un $\varphi$ propios. Los antiguos quedan ocultos, marcados con una cruz.}
+\tesis{El recursor: curso de CIC, estación 6}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.58\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=e2, boxrule=1.3pt, arc=6pt, left=6pt, right=6pt,
+  title={\faListOl\ Las tres operaciones}, colbacktitle=e2, fonttitle=\bfseries\large, before upper=\raggedright]
+\large\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}c>{\raggedright\arraybackslash}p{13.4cm}@{}}
+\tikz[baseline=-4pt]\node[num=e2, minimum size=7mm, font=\bfseries\large]{1}; &
+\textbf{Elige el recursor.} \lean{d} tiene tipo \lean{ND Γ φ}, así que usa \lean{ND.rec}.\\
+\tikz[baseline=-4pt]\node[num=e2, minimum size=7mm, font=\bfseries\large]{2}; &
+\textbf{Construye el motivo} abstrayendo la meta sobre los índices de \lean{ND}:\par
+{\ttfamily\normalsize fun Γ φ d => ∀ \{Δ\}, Γ ⊆ Δ → ND Δ φ}\par
+Es el predicado del papel:\ \ $\forall\Delta,\ \Gamma\subseteq\Delta\Rightarrow\Delta\vdash\varphi$.\\
+\tikz[baseline=-4pt]\node[num=e2, minimum size=7mm, font=\bfseries\large]{3}; &
+\textbf{Abre siete metas}, una por constructor. En cada una entrega los argumentos del constructor y
+\textbf{una hipótesis inductiva por cada argumento que es una derivación}.
+\end{tabular}
+\end{tcolorbox}
+\clave{e2}{La hipótesis inductiva de una premisa es el \textbf{motivo aplicado al contexto y a la
+fórmula de esa premisa}. Si la premisa vive en $\Gamma\cup\{\varphi\}$, la hipótesis habla de $\Gamma\cup\{\varphi\}$.}
+\end{minipage}
+
+\vfill
+\pruebate{e2}{
+\item ¿Qué recursor usa \lean{induction d} y por qué ese?
+\item ¿Cuál es el motivo? Dilo como predicado.
+\item ¿Cuántas hipótesis inductivas da un caso?
+}{\textbf{1.} \lean{ND.rec}, porque \lean{d} es un habitante de \lean{ND}.\quad
+\textbf{2.} Para todo $\Delta$, si $\Gamma\subseteq\Delta$ entonces $\Delta\vdash\varphi$.\quad
+\textbf{3.} Una por cada premisa de la regla que sea una derivación: cero, una o dos.}
+\navegacion{paso1}{Paso 1}{paso3}{Paso 3}
+
+\newpage
+%=====================================================================
+% PASO 3: EL CASO IMPI
+%=====================================================================
+\grande
+\estacion{3}{\faSearchPlus}{Un caso línea a línea: \texttt{impI}}{es el caso que muestra por qué
+$\Delta$ tenía que quedar cuantificado. Si explicas este, los otros seis salen solos.}
+
+\begin{minipage}[t]{0.42\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=e3, boxrule=1.3pt, arc=6pt, halign=center, top=3pt, bottom=3pt]
+{\large $\dfrac{\Gamma,\varphi\ \vdash\ \psi}{\Gamma\ \vdash\ \varphi\to\psi}\ \ {\to}\mathrm{I}$}\\[4pt]
+{\ttfamily\small ND.impI : ND (insert φ Γ) ψ → ND Γ (φ $\longrightarrow$ ψ)}\\[2pt]
+{\small \lean{insert φ Γ} es $\Gamma\cup\{\varphi\}$}
+\end{tcolorbox}
+\renewcommand{\codesize}{\small}
+\codigo{e3}{\faDesktop\ El estado al abrir el caso}{
+dprem\ \ : ND (insert φ Γ) ψ\\
+hipInd : ∀ \{Δ\}, insert φ Γ ⊆ Δ → ND Δ ψ\\
+⊢ ∀ \{Δ\}, Γ ⊆ Δ → ND Δ (φ $\longrightarrow$ ψ)}
+\codigo{e3}{\faDesktop\ El estado antes de la última línea}{
+hsub\ \ \ \ \ \ : Γ ⊆ Δ\\
+hAmpliado : insert φ Γ ⊆ insert φ Δ\\
+dCuerpo\ \ \ : ND (insert φ Δ) ψ\\
+⊢ ND Δ (φ $\longrightarrow$ ψ)}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.56\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=e3!5, colframe=e3, boxrule=1.2pt, arc=5pt, left=5pt, right=5pt,
+  title={\faShoePrints\ Cuatro líneas, cuatro pasos}, colbacktitle=e3, fonttitle=\bfseries\large]
+\renewcommand{\arraystretch}{1.4}\normalsize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{4.5cm}>{\raggedright\arraybackslash}p{4.1cm}@{}}
+\textbf{Línea} & \textbf{Qué construye Lean} & \textbf{Paso del papel}\\\hline
+\lean{intro Δ hsub} & una $\lambda$; la meta pasa a ser \lean{ND Δ (φ $\longrightarrow$ ψ)} & «sea $\Delta$ arbitrario; se supone $\Gamma\subseteq\Delta$»\\
+\lean{have hAmpliado :=} {\small\lean{Set.insert\_subset\_insert hsub}} & un lema de Mathlib aplicado a \lean{hsub} & Subprueba 1\\
+\lean{have dCuerpo := hipInd hAmpliado} & la hipótesis inductiva aplicada; Lean deduce su $\Delta$ implícito: \lean{insert φ Δ} & «instanciada en $\Theta=\Delta\cup\{\alpha\}$»\\
+\lean{exact ND.impI dCuerpo} & el constructor aplicado: la regla $\to$I & «$\to$I descarga $[\alpha]$»
+\end{tabular}
+\end{tcolorbox}
+\normal\tarj{rojo}{\faExclamationTriangle\ Si $\Delta$ estuviera fijo, aquí se atasca}{
+\lean{hipInd} solo daría \lean{ND Δ ψ}. Pero la regla $\to$I necesita \lean{ND (insert φ Δ) ψ}: el
+contexto \textbf{crece} al pasar a la premisa.}
+\tarj{gris}{\faKeyboard\ Cómo se lee \lean{| @impI Γ φ ψ \_ hipInd =>}}{
+La \lean{@} permite nombrar los argumentos implícitos. El \lean{\_} descarta la derivación de la
+premisa: solo hace falta su hipótesis inductiva.}\grande
+\end{minipage}
+\navegacion{paso2}{Paso 2}{paso4}{Paso 4}
+
+\newpage
+%=====================================================================
+% PASO 4: LOS SIETE CASOS
+%=====================================================================
+\grande
+\estacion{4}{\faThList}{Los siete casos: tres patrones}{hay un caso por regla de \lean{ND}. No son
+siete ideas: son tres, y se distinguen mirando dónde viven las premisas.}
+
+\begin{tcolorbox}[colback=white, colframe=e4, boxrule=1.2pt, arc=5pt, left=5pt, right=5pt, top=3pt, bottom=3pt]
+\renewcommand{\arraystretch}{1.42}\normalsize
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{6.6cm}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{10.2cm}@{}}
+\textbf{Caso} & \textbf{Regla: premisas $\Longrightarrow$ conclusión} & \textbf{Hipótesis inductivas} & \textbf{Término que se construye}\\\hline
+\rowcolor{e7!12}\lean{hyp} & $\varphi\in\Gamma\ \Longrightarrow\ \Gamma\vdash\varphi$ & ninguna & \lean{ND.hyp (hsub hmem)}\\
+\rowcolor{e5!12}\lean{impE} & $\Gamma\vdash\varphi\to\psi,\ \ \Gamma\vdash\varphi\ \Longrightarrow\ \Gamma\vdash\psi$ & dos, en $\Gamma$ & \lean{ND.impE (hi₁ hsub) (hi₂ hsub)}\\
+\rowcolor{e5!12}\lean{negE} & $\Gamma\vdash\neg\varphi,\ \ \Gamma\vdash\varphi\ \Longrightarrow\ \Gamma\vdash\bot$ & dos, en $\Gamma$ & \lean{ND.negE (hi₁ hsub) (hi₂ hsub)}\\
+\rowcolor{e5!12}\lean{botE} & $\Gamma\vdash\bot\ \Longrightarrow\ \Gamma\vdash\varphi$ & una, en $\Gamma$ & \lean{ND.botE (hi hsub)}\\
+\rowcolor{e2!14}\lean{impI} & $\Gamma,\varphi\vdash\psi\ \Longrightarrow\ \Gamma\vdash\varphi\to\psi$ & una, en $\Gamma\cup\{\varphi\}$ & \lean{ND.impI (hi (insert\_subset\_insert hsub))}\\
+\rowcolor{e2!14}\lean{negI} & $\Gamma,\varphi\vdash\bot\ \Longrightarrow\ \Gamma\vdash\neg\varphi$ & una, en $\Gamma\cup\{\varphi\}$ & \lean{ND.negI (hi (insert\_subset\_insert hsub))}\\
+\rowcolor{e2!14}\lean{classical} & $\Gamma,\neg\varphi\vdash\bot\ \Longrightarrow\ \Gamma\vdash\varphi$\quad (RAA) & una, en $\Gamma\cup\{\neg\varphi\}$ & \lean{ND.classical (hi (insert\_subset\_insert hsub))}
+\end{tabular}\par\vspace{2pt}
+{\small\color{black!60}Términos sin los \lean{have} intermedios; \lean{hi} es la hipótesis inductiva. El orden del código es el de los constructores: hyp, impI, impE, negI, negE, botE, classical.}
+\end{tcolorbox}
+
+\normal\begin{tcbraster}[raster columns=3, raster column skip=7pt, raster equal height]
+\tarj{e7}{\faLeaf\ Patrón 1: la hoja}{
+\lean{hyp} no tiene hipótesis inductiva: su argumento \lean{hmem : φ ∈ Γ} es una pertenencia, no una
+derivación. Es el \textbf{único} sitio donde la inclusión se usa sobre una fórmula.}
+\tarj{e5}{\faEquals\ Patrón 2: mismo contexto}{
+Las premisas viven en $\Gamma$. Cada hipótesis inductiva se aplica a \lean{hsub} tal cual, y se
+vuelve a poner la misma regla.}
+\tarj{e2}{\faPlusSquare\ Patrón 3: con descarga}{
+La premisa vive en un contexto ampliado. Primero se amplía la inclusión con
+\lean{insert\_subset\_insert}; después, igual que el patrón 2.}
+\end{tcbraster}
+\clave{e4}{El caso \lean{classical} se trata igual que \lean{negI}. Aquí RAA es un \textbf{constructor}:
+un dato que hay que reconstruir. La prueba no razona por contradicción.}
+\grande
+\navegacion{paso3}{Paso 3}{paso5}{Paso 5}
+
+\newpage
+%=====================================================================
+% PASO 5: LO QUE LEAN GUARDA
+%=====================================================================
+\grande
+\estacion{5}{\faSave}{Lo que Lean guarda: un término}{las tácticas no se guardan. Lo que queda, y lo
+que comprueba el núcleo, es esto.}
+
+\begin{minipage}[t]{0.50\textwidth}\vspace{0pt}
+\renewcommand{\codesize}{\footnotesize}
+\codigo{e5}{\faLaptopCode\ Salida real de \texttt{\#print debilitamiento}}{
+fun \{Γ\} \{φ\} d =>\\
+\ \ @ND.rec (fun \{Γ\} \{φ\} d => ∀ \{Δ\}, Γ ⊆ Δ → ND Δ φ)\\
+\ \ \ \ (fun \{Γ\} \{φ\} hmem \{Δ\} hsub =>\\
+\ \ \ \ \ \ have hEnDelta := hsub hmem;\\
+\ \ \ \ \ \ ND.hyp hEnDelta)\\
+\ \ \ \ (fun \{Γ\} \{φ ψ\} a hipInd \{Δ\} hsub =>\\
+\ \ \ \ \ \ have hAmpliado := insert\_subset\_insert hsub;\\
+\ \ \ \ \ \ have dCuerpo := hipInd hAmpliado;\\
+\ \ \ \ \ \ ND.impI dCuerpo)\\
+\ \ \ \ (fun \{Γ\} \{φ ψ\} a a\_1 hipIndImp hipIndAntecedente \{Δ\} hsub =>\\
+\ \ \ \ \ \ have dImp := hipIndImp hsub;\\
+\ \ \ \ \ \ have dAntecedente := hipIndAntecedente hsub;\\
+\ \ \ \ \ \ ND.impE dImp dAntecedente)\\
+\ \ \ \ (fun \{Γ\} \{φ\} a hipInd \{Δ\} hsub =>\\
+\ \ \ \ \ \ have hAmpliado := insert\_subset\_insert hsub;\\
+\ \ \ \ \ \ have dFalsedad := hipInd hAmpliado;\\
+\ \ \ \ \ \ ND.negI dFalsedad)\\
+\ \ \ \ (fun \{Γ\} \{φ\} a a\_1 hipIndNeg hipIndPos \{Δ\} hsub =>\\
+\ \ \ \ \ \ have dNeg := hipIndNeg hsub;\\
+\ \ \ \ \ \ have dPos := hipIndPos hsub;\\
+\ \ \ \ \ \ ND.negE dNeg dPos)\\
+\ \ \ \ (fun \{Γ\} \{φ\} a hipInd \{Δ\} hsub =>\\
+\ \ \ \ \ \ have dFalsedad := hipInd hsub;\\
+\ \ \ \ \ \ ND.botE dFalsedad)\\
+\ \ \ \ (fun \{Γ\} \{φ\} a hipInd \{Δ\} hsub =>\\
+\ \ \ \ \ \ have hAmpliado := insert\_subset\_insert hsub;\\
+\ \ \ \ \ \ have dFalsedad := hipInd hAmpliado;\\
+\ \ \ \ \ \ ND.classical dFalsedad)\\
+\ \ \ \ Γ φ d}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=e5, boxrule=1.4pt, arc=6pt, halign=center, top=4pt, bottom=4pt]
+{\large \lean{@ND.rec}\ \ $\underbrace{\text{motivo}}_{\text{\small el predicado}}$\ \
+$\underbrace{c_1\ \ c_2\ \ \cdots\ \ c_7}_{\text{\small una función por regla}}$\ \
+$\underbrace{\Gamma\ \ \varphi\ \ d}_{\text{\small lo que se elimina}}$}
+\end{tcolorbox}
+\tarj{e5}{\faBookReader\ Cómo se lee}{
+Es \textbf{una sola} aplicación del recursor. Las siete funciones son los siete casos, en el orden
+de los constructores.\par\vspace{2pt}
+Cada función recibe los argumentos de su regla, sus hipótesis inductivas y, al final, $\Delta$ y \lean{hsub}.}
+\tarj{gris}{\faEquals\ \lean{have x := v; cuerpo}}{
+Es una definición local: da nombre a \lean{v} y sigue con \lean{cuerpo}. Los nombres son los que
+escribiste en las tácticas.}
+\normal\tarj{e7}{\faCheckDouble\ Comprobado a mano}{
+Escribí la prueba directamente como un término \lean{@ND.rec …}, sin tácticas, y Lean la acepta.
+«Por inducción sobre la derivación» es, literalmente, una aplicación de \lean{ND.rec}.}\grande
+\clave{e5}{\lean{intro} dejó las $\lambda$; \lean{have} y \lean{exact}, las aplicaciones;
+\lean{induction}, el \lean{ND.rec}.}
+\end{minipage}
+\navegacion{paso4}{Paso 4}{paso6}{Paso 6}
+
+\newpage
+%=====================================================================
+% PASO 6: EL NÚCLEO Y LOS AXIOMAS
+%=====================================================================
+\grande
+\estacion{6}{\faMicrochip}{Lo que comprueba el núcleo, y de dónde salen los axiomas}{el núcleo no
+ejecuta tácticas ni «entiende» la prueba: comprueba que el término tiene el tipo del enunciado.}
+
+\begin{minipage}[t]{0.50\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=e6, boxrule=1.3pt, arc=6pt, left=6pt, right=6pt,
+  title={\faClipboardCheck\ Tres comprobaciones de tipo}, colbacktitle=e6, fonttitle=\bfseries\large, before upper=\raggedright]
+\large\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}c>{\raggedright\arraybackslash}p{11.3cm}@{}}
+\tikz[baseline=-4pt]\node[num=e6, minimum size=7mm, font=\bfseries\large]{1}; &
+\textbf{El motivo} llega a \lean{Prop}. \lean{ND} vive en \lean{Prop}, así que \lean{ND.rec} solo
+elimina hacia \lean{Prop}; la meta es una proposición.\\
+\tikz[baseline=-4pt]\node[num=e6, minimum size=7mm, font=\bfseries\large]{2}; &
+\textbf{Cada función} tiene el tipo que \lean{ND.rec} exige para su constructor con ese motivo. Para
+\lean{impI} es el estado del \chip{3}.\\
+\tikz[baseline=-4pt]\node[num=e6, minimum size=7mm, font=\bfseries\large]{3}; &
+\textbf{El resultado} tiene tipo \lean{motivo Γ φ d}, que por $\beta$ se reduce al enunciado.
+\end{tabular}
+\end{tcolorbox}
+\normal\tarj{e7}{\faCogs\ No se computa nada}{
+No hace falta ninguna reducción $\iota$: el teorema es una prueba en \lean{Prop}. Se \textbf{usa}, no
+se ejecuta.}\grande
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}\vspace{0pt}
+\tarj{rojo}{\faBalanceScale\ ¿De dónde salen los tres axiomas?}{
+\lean{\#print axioms debilitamiento} lista \lean{propext}, \lean{Classical.choice} y \lean{Quot.sound}.\par\vspace{3pt}
+El lema de Mathlib \lean{Set.insert\_subset\_insert}, \textbf{él solo}, ya lista esos mismos tres.
+Lo demás son constructores de \lean{ND}, el recursor y aplicaciones.\par\vspace{3pt}
+Los axiomas entran por ese lema de biblioteca, \textbf{no por el argumento}: la Subprueba 1 del
+papel prueba la misma inclusión a mano, con un análisis de casos.}
+\normal\tarj{e9}{\faTree\ Qué «hace» el término}{
+Recorre el árbol de la derivación y lo reconstruye regla por regla con $\Delta$ en lugar de
+$\Gamma$. Solo las hojas necesitan la inclusión. Es el dibujo del \ir[e9]{inicio}{\faHome\ inicio}.}\grande
+\end{minipage}
+
+\vfill
+\pruebate{e6}{
+\item ¿Qué comprueba el núcleo de esta prueba?
+\item ¿Usa la prueba razonamiento clásico? ¿Por qué aparece \lean{Classical.choice}?
+\item ¿Por qué no hay ninguna reducción $\iota$?
+}{\textbf{1.} Que el término \lean{@ND.rec …} tiene el tipo del enunciado.\quad
+\textbf{2.} El argumento no; el axioma entra por \lean{Set.insert\_subset\_insert} de Mathlib.\quad
+\textbf{3.} Porque es una prueba en \lean{Prop}: no se ejecuta.}
+\navegacion{paso5}{Paso 5}{enlace}{Papel y Lean}
+
+\newpage
+%=====================================================================
+% PAPEL Y LEAN
+%=====================================================================
+\pagina{enlace}{gris}{\faLink}{Papel y Lean, frase por frase}{cada frase de la demostración escrita
+tiene una línea de Lean. Hay tres sitios donde no coinciden palabra por palabra.}
+
+\begin{tcolorbox}[colback=white, colframe=gris, boxrule=1.2pt, arc=5pt, left=5pt, right=5pt, top=3pt, bottom=3pt]
+\renewcommand{\arraystretch}{1.5}\medio
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{8.9cm}>{\raggedright\arraybackslash}p{8.3cm}>{\raggedright\arraybackslash}p{8.6cm}@{}}
+\textbf{Lo que dice el papel} & \textbf{La línea de Lean} & \textbf{Lo que queda en el término}\\\hline
+«Por inducción sobre la derivación de $\Gamma\vdash\varphi$» & \lean{induction d with} & \lean{@ND.rec … Γ φ d}\\
+«El predicado es $\forall\Delta,\ \Gamma\subseteq\Delta\Rightarrow\Delta\vdash\varphi$» & no se escribe: Lean lo calcula de la meta & el motivo, primer argumento de \lean{ND.rec}\\
+«Sea $\Delta$ arbitrario; se supone $\Gamma\subseteq\Delta$» & \lean{intro Δ hsub} & \lean{fun \{Δ\} hsub => …}\\
+«$\Gamma\subseteq\Delta$, instanciado en $\varphi$ y aplicado a $\varphi\in\Gamma$» & \lean{have hEnDelta : φ ∈ Δ := hsub hmem} & la aplicación \lean{hsub hmem}\\
+«La Subprueba 1 da $\Gamma\cup\{\alpha\}\subseteq\Delta\cup\{\alpha\}$» & \lean{Set.insert\_subset\_insert hsub} & una aplicación de ese lema\\
+«La hipótesis inductiva, instanciada en $\Theta$ y aplicada a esa inclusión» & \lean{hipInd hAmpliado} & una aplicación; $\Theta$ lo deduce Lean\\
+«$\to$I descarga $[\alpha]$» & \lean{exact ND.impI dCuerpo} & el constructor \lean{ND.impI}\\
+«Cierre: instanciado en el $\Delta$ del lema» & no hace falta & el tipo ya es \lean{∀ \{Δ\}, …}
+\end{tabular}
+\end{tcolorbox}
+
+\begin{tcbraster}[raster columns=3, raster column skip=7pt, raster equal height]
+\tarj{rojo}{\faNotEqual\ Diferencia 1: la Subprueba 1}{
+El papel la demuestra a mano, por casos sobre $\chi=\psi\lor\chi\in\Gamma$. Lean cita un lema de
+Mathlib con el mismo enunciado.}
+\tarj{rojo}{\faNotEqual\ Diferencia 2: la notación}{
+El papel escribe $\Gamma\cup\{\alpha\}$ o $\Gamma,\alpha$. Lean escribe \lean{insert φ Γ}. Es el
+mismo conjunto.}
+\tarj{rojo}{\faNotEqual\ Diferencia 3: el cierre}{
+El papel instancia el $\Delta$ al final. En Lean no hay paso: quien usa el lema da $\Delta$ y la
+inclusión, como en \lean{debilitamiento d hInclusion}.}
+\end{tcbraster}
+\navegacion{paso6}{Paso 6}{preguntas}{Preguntas}
+
+\newpage
+%=====================================================================
+% PREGUNTAS
+%=====================================================================
+\pagina{preguntas}{rojo}{\faQuestionCircle}{Seis preguntas sobre el debilitamiento}{tapa la
+respuesta, contesta en voz alta y compara. Las de \faStar\ son las que no pueden fallar.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\preg*{e1}{1}{Enuncie el lema. ¿Para qué lo usa?}{Si $\varphi$ se deriva de $\Gamma$ y
+$\Gamma\subseteq\Delta$, entonces se deriva de $\Delta$. Lleva una derivación a un contexto mayor.
+Lo uso en los Lemas 11.10 (doble negación), 11.11 (casos derivado) y 11.15 (Kalmár).}{\chip{1}}
+\preg*{e2}{2}{¿Qué es «inducción sobre la derivación»?}{Es aplicar el recursor \lean{ND.rec}. \lean{ND} tiene siete constructores, uno por regla:
+\lean{induction d} abre siete metas, con una hipótesis inductiva por cada premisa que es una derivación.}{\chip{2}}
+\preg*{e3}{3}{¿Por qué $\Delta$ está cuantificado dentro?}{Porque en las reglas con descarga el
+contexto crece. En $\to$I la premisa vive en $\Gamma\cup\{\varphi\}$ y necesito la hipótesis
+inductiva para $\Delta\cup\{\varphi\}$, no para $\Delta$. Con $\Delta$ fijo, ese caso no cierra.}{\chip{3}}
+\preg*{e6}{4}{¿La prueba usa lógica clásica?}{El argumento no. RAA es un constructor de \lean{ND}: un dato que se reconstruye. Los tres
+axiomas de la auditoría entran por \lean{Set.insert\_subset\_insert}, de Mathlib.}{\chip{4} y \chip{6}}
+\preg{e5}{5}{¿Qué guarda Lean? ¿Qué comprueba el núcleo?}{Guarda un término: \lean{ND.rec} aplicado
+al motivo, a siete funciones y a la derivación. Las tácticas no se guardan. El núcleo comprueba que
+ese término tiene el tipo del enunciado.}{\chip{5} y \chip{6}}
+\preg{gris}{6}{¿En qué difiere el papel de Lean?}{En tres detalles. La inclusión ampliada se prueba a
+mano en el papel y se cita de Mathlib en Lean. El papel escribe $\Gamma\cup\{\alpha\}$ y Lean
+\lean{insert}. Y el cierre del papel no existe en Lean.}{\ir[gris]{enlace}{\faLink\ Papel y Lean}}
+\end{tcbraster}
+
+\vfill
+\begin{tcolorbox}[colback=tldr, colframe=e9, boxrule=1.2pt, arc=6pt, left=10pt, right=10pt,
+  top=5pt, bottom=5pt, title={\faMicrophone\ Dilo en 30 segundos}, colbacktitle=e9, fonttitle=\bfseries\large]
+\medio «El debilitamiento dice que una derivación sigue valiendo si agrando el contexto. Lo pruebo por
+inducción sobre la derivación, que en Lean es aplicar el recursor de \lean{ND}: un caso por regla, y
+en cada uno reconstruyo la misma regla sobre el contexto mayor. Dejo $\Delta$ cuantificado para que
+la hipótesis inductiva sirva cuando una regla descarga un supuesto y el contexto crece.»
+\end{tcolorbox}
+\navegacion{enlace}{Papel y Lean}{inicio}{Inicio}
+
+\end{document}

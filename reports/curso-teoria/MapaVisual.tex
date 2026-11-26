@@ -1,0 +1,1116 @@
+% Mapa visual y glosario de la tesis: panorama matemático con diagramas,
+% glosario de terminología (desde lo básico), palabras con varios significados
+% y tabla de símbolos. Sin Lean.
+% Compilar dos veces:  lualatex MapaVisual.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.2cm,headheight=14pt]{geometry}
+\usepackage{amsmath,mathtools}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\setmainfont{TeX Gyre Pagella}
+\setmathfont{TeX Gyre Pagella Math}
+\setsansfont{DejaVu Sans}[Scale=MatchLowercase]
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{bussproofs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,trees,fit,calc,shapes.geometric,backgrounds}
+\usepackage{tikz-cd}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\AtBeginDocument{\providecommand\square{\mdlgwhtsquare}}
+
+\definecolor{c1}{HTML}{3F6FA8}
+\definecolor{c2}{HTML}{5E9A62}
+\definecolor{c3}{HTML}{D98A4E}
+\definecolor{c4}{HTML}{8C7DB8}
+\definecolor{c5}{HTML}{C9A227}
+\definecolor{fondonota}{HTML}{F1EEF8}
+\definecolor{fondoclave}{HTML}{FFF9E6}
+
+\newtcolorbox{nota}[1][Nota]{enhanced, breakable, colback=fondonota,
+  colframe=c4, boxrule=0.5pt, arc=3pt, colbacktitle=c4,
+  coltitle=white, fonttitle=\sffamily\bfseries\small, title={#1},
+  before skip=8pt, after skip=8pt}
+\newtcolorbox{clave}{enhanced, colback=fondoclave, colframe=c5,
+  boxrule=0.8pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  before skip=10pt, after skip=10pt}
+\newtcolorbox{figura}[1]{enhanced, colback=white, colframe=c1!50,
+  boxrule=0.5pt, arc=3pt, colbacktitle=c1!12, coltitle=black,
+  fonttitle=\sffamily\small\bfseries, title={#1}, halign=center,
+  before skip=8pt, after skip=10pt}
+
+\newcommand{\Provnd}{\vdash_{\mathrm{ND}}}
+\newcommand{\sem}[1]{[\![#1]\!]}
+\newcommand{\bred}{\rightarrow_\beta}
+\newcommand{\bmred}{\twoheadrightarrow_\beta}
+\newcommand{\concat}{\mathbin{+\!\!+}}
+\newcommand{\qs}{\operatorname{\mathsf{qsort}}}
+\newcommand{\termino}[1]{\textbf{#1}}
+
+\tikzset{
+  caja/.style={draw, rounded corners, align=center, inner sep=4pt, font=\small},
+  azul/.style={caja, fill=c1!10, draw=c1},
+  verde/.style={caja, fill=c2!12, draw=c2},
+  naranja/.style={caja, fill=c3!12, draw=c3},
+  morado/.style={caja, fill=c4!12, draw=c4},
+  amarillo/.style={caja, fill=c5!15, draw=c5},
+  flecha/.style={-{Stealth}, thick, gray!60!black},
+  dflecha/.style={{Stealth}-{Stealth}, thick, gray!60!black},
+  et/.style={font=\scriptsize, fill=white, inner sep=1pt},
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Mapa visual y glosario de la tesis}
+\fancyhead[R]{\small\sffamily\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlist{itemsep=2pt, topsep=4pt}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\EnableBpAbbreviations
+
+\title{\textbf{Mapa visual y glosario de la tesis}\\[4pt]
+  \large Panorama matemático en diagramas y la terminología\\ que hay que dominar, desde lo básico}
+\author{Material de apoyo para la defensa}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Este documento es para tener \emph{fluidez}: ver la tesis completa de un
+vistazo y poder usar cada término con precisión. La primera parte recorre las
+ideas matemáticas con diagramas, desde la sintaxis y la semántica hasta los
+dos teoremas principales. La segunda es un glosario alfabético que incluye
+también los términos básicos (relación, inducción, base, función…). La
+tercera aclara palabras que la tesis usa con más de un significado
+(«completo», «corrección», «base», «normal», «\(\vdash\)»…). Cierra una tabla de
+símbolos. No usa código.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{La tesis en una imagen}
+%=====================================================================
+
+\begin{figura}{El recorrido completo: de la teoría a los dos estudios de caso}
+\begin{tikzpicture}[node distance=6mm and 6mm]
+\node[azul, text width=34mm] (c7) {\textbf{Cap.\ 7}\\cálculo \(\lambda\)\\y tipos simples};
+\node[azul, text width=34mm, right=of c7] (c8) {\textbf{Cap.\ 8}\\cubo \(\lambda\)\\hasta el CoC};
+\node[verde, text width=34mm, right=of c8] (c9) {\textbf{Cap.\ 9}\\deducción natural,\\semántica, Curry--Howard};
+\node[azul, text width=34mm, below=12mm of c8] (c10) {\textbf{Cap.\ 10}\\CIC: tipos inductivos\\y eliminadores};
+\node[naranja, text width=42mm, below left=14mm and -8mm of c10] (c11) {\textbf{Cap.\ 11}\\\(\mathrm{Taut}(\varphi)\Rightarrow\varnothing\Provnd\varphi\)\\(completitud)};
+\node[naranja, text width=42mm, below right=14mm and -8mm of c10] (c12) {\textbf{Cap.\ 12}\\\(\qs(\ell)\sim\ell\ \wedge\ \mathrm{Ordenada}(\qs(\ell))\)\\(Quicksort)};
+\node[morado, text width=52mm, below=34mm of c10] (lean) {\textbf{Asistente de pruebas}\\el núcleo comprueba cada prueba;\\auditoría de axiomas};
+\draw[flecha] (c7) -- node[et,above]{tipos} (c8);
+\draw[flecha] (c8) -- node[et,above]{lógica} (c9);
+\draw[flecha] (c8) -- node[et,right]{+ inductivos} (c10);
+\draw[flecha] (c9) |- node[et,pos=0.25,right]{qué se formaliza} (c10);
+\draw[flecha] (c10) -- (c11);
+\draw[flecha] (c10) -- (c12);
+\draw[flecha] (c11) -- (lean);
+\draw[flecha] (c12) -- (lean);
+\end{tikzpicture}
+\end{figura}
+
+\subsection*{La tesis en diez frases}
+\begin{enumerate}
+  \item El \termino{cálculo \(\lambda\)} es un lenguaje mínimo de funciones:
+    variables, aplicación y abstracción. Calcular es \termino{reducir}.
+  \item Los \termino{tipos} impiden expresiones sin sentido (\(x\,x\)) y
+    garantizan que el cálculo termina.
+  \item El \termino{cubo \(\lambda\)} añade tres tipos de dependencia; en el
+    vértice más fuerte está el \termino{Cálculo de Construcciones} (CoC).
+  \item La \termino{correspondencia de Curry--Howard}: proposiciones son tipos
+    y demostraciones son programas.
+  \item El \termino{CIC} añade al CoC los \termino{tipos inductivos}; con ellos
+    vienen gratis la recursión y la inducción (eliminadores).
+  \item Un \termino{asistente de pruebas} implementa el CIC: si un término
+    tiene el tipo de un enunciado, ese término es una demostración comprobada.
+  \item La \termino{deducción natural} define qué es demostrar (\(\vdash\)); las
+    \termino{tablas de verdad} definen qué es verdadero (\(\models\)).
+  \item \termino{Completitud}: todo lo verdadero en todas las filas es
+    demostrable. Se prueba con el \termino{argumento de Kalmár}.
+  \item \termino{Quicksort} termina y devuelve una permutación ordenada de su
+    entrada; se prueba por inducción sobre la longitud.
+  \item La \termino{auditoría de axiomas} certifica que no hay huecos y que solo
+    se usan axiomas estándar.
+\end{enumerate}
+
+%=====================================================================
+\section{Sintaxis y semántica}
+%=====================================================================
+
+\begin{figura}{Los dos mundos y los teoremas que los unen}
+\begin{tikzpicture}
+\node[azul, text width=48mm, minimum height=30mm] (sin) at (0,0) {\textbf{Sintaxis}\\[3pt] símbolos y reglas\\[3pt]\(\Gamma\vdash\varphi\)\\«existe una derivación»\\[3pt]\footnotesize deducción natural, árboles, cajas};
+\node[verde, text width=48mm, minimum height=30mm] (sem) at (10.0,0) {\textbf{Semántica}\\[3pt] significado y verdad\\[3pt]\(\Gamma\models\varphi\)\\«toda valuación que hace verdadero \(\Gamma\) hace verdadera \(\varphi\)»\\[3pt]\footnotesize tablas de verdad};
+\draw[flecha, very thick] ([yshift=6mm]sin.east) -- node[et,above,align=center]{\textbf{corrección}\\(solidez)\ \(\vdash\Rightarrow\models\)} ([yshift=6mm]sem.west);
+\draw[flecha, very thick] ([yshift=-6mm]sem.west) -- node[et,below,align=center]{\textbf{completitud}\\\(\models\Rightarrow\vdash\)} ([yshift=-6mm]sin.east);
+\node[amarillo] at (5.2,-2.6) {\textbf{adecuación}: \(\ \vdash\ \Longleftrightarrow\ \models\)};
+\end{tikzpicture}
+\end{figura}
+
+\begin{itemize}
+  \item \termino{Corrección} dice que las reglas no se equivocan: lo
+    demostrable es verdadero. Es la dirección «fácil».
+  \item \termino{Completitud} dice que las reglas no se quedan cortas: lo
+    verdadero es demostrable. Es la dirección difícil y el Capítulo 11.
+  \item \termino{Consistencia} es un caso particular de la corrección: como
+    \(\bot\) nunca es verdadera, nunca es demostrable.
+\end{itemize}
+
+\begin{figura}{Clasificación de las fórmulas por su tabla de verdad}
+\begin{tikzpicture}
+\draw[thick, rounded corners, fill=gray!5] (0,0) rectangle (12,4.2);
+\node[anchor=north west, font=\small\bfseries] at (0.1,4.15) {todas las fórmulas};
+\draw[thick, rounded corners, fill=c2!10, draw=c2] (0.4,0.4) rectangle (8.2,3.6);
+\node[anchor=north west, font=\small] at (0.5,3.55) {\textbf{satisfacibles}: verdaderas en \emph{alguna} fila};
+\draw[thick, rounded corners, fill=c2!25, draw=c2] (0.8,0.7) rectangle (4.2,2.8);
+\node[align=center, font=\small] at (2.5,1.75) {\textbf{tautologías}\\verdaderas en\\\emph{todas} las filas\\\(p\vee\neg p\),\ \(p\to p\)};
+\node[align=center, font=\small] at (6.2,1.75) {contingentes\\\(p\wedge\neg q\)};
+\draw[thick, rounded corners, fill=c3!15, draw=c3] (8.6,0.4) rectangle (11.6,3.6);
+\node[align=center, font=\small] at (10.1,2) {\textbf{contradicciones}\\falsas en todas\\las filas\\\(p\wedge\neg p\),\ \(\bot\)};
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{Nivel objeto y nivel meta}
+%=====================================================================
+
+\begin{figura}{Se estudia un sistema (objeto) razonando en otro (meta)}
+\begin{tikzpicture}
+\draw[rounded corners, thick, draw=c4, fill=c4!6] (0,0) rectangle (13,5);
+\node[anchor=north west, font=\small\bfseries, text=c4] at (0.1,4.95) {METALENGUAJE: matemática ordinaria (en la tesis, la lógica del asistente)};
+\node[font=\small, align=left, anchor=west] at (0.4,4.1) {aquí viven los \emph{teoremas sobre} el cálculo: «si \(\Gamma\vdash\varphi\), entonces \dots», inducción, «por contradicción»};
+\draw[rounded corners, thick, draw=c1, fill=c1!8] (0.6,0.5) rectangle (12.4,3.4);
+\node[anchor=north west, font=\small\bfseries, text=c1] at (0.7,3.35) {LENGUAJE OBJETO: el cálculo \(\Provnd\)};
+\node[font=\small, align=left, anchor=west] at (1,2.45) {fórmulas \(p,\ \neg\varphi,\ \varphi\to\psi\) \quad reglas hip., \(\to\)I, \(\to\)E, \(\neg\)I, \(\neg\)E, \(\bot\)E, RAA};
+\node[font=\small, align=left, anchor=west] at (1,1.6) {\(\neg\) es un \emph{símbolo}; \(\bot:=\neg(p_0\to p_0)\) es una \emph{fórmula}};
+\node[font=\small, align=left, anchor=west] at (1,0.9) {RAA es una \emph{regla} del cálculo};
+\end{tikzpicture}
+\end{figura}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+{\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+& \textbf{Objeto} & \textbf{Meta}\\
+\midrule
+negación & \(\neg\varphi\) (una fórmula) & «no \(P\)» (una afirmación)\\
+falsedad & \(\bot\) (una fórmula) & «Falso» (una proposición)\\
+implicación & \(\varphi\to\psi\) & «si \dots\ entonces \dots» (\(\Rightarrow\))\\
+contradicción & regla RAA & razonar por contradicción\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+%=====================================================================
+\section{Objetos definidos por reglas}
+%=====================================================================
+
+Casi todo en la tesis se define \termino{inductivamente}: se dan unos
+\termino{constructores} y se toma el \emph{menor} conjunto cerrado bajo ellos.
+Cada objeto así definido es un \termino{árbol}.
+
+\begin{figura}{El árbol sintáctico de una fórmula y el de un término \(\lambda\)}
+\begin{tikzpicture}[level distance=11mm,
+  every node/.style={circle, draw=c1, fill=c1!10, minimum size=7mm, inner sep=1pt, font=\small},
+  level 1/.style={sibling distance=22mm}, level 2/.style={sibling distance=12mm}]
+\node {\(\to\)}
+  child {node {\(p\)}}
+  child {node {\(\to\)}
+    child {node {\(q\)}}
+    child {node {\(p\)}}};
+\node[draw=none, fill=none, font=\small] at (0,-3.6) {\(p\to(q\to p)\)};
+\begin{scope}[xshift=7cm, every node/.style={circle, draw=c2, fill=c2!12, minimum size=7mm, inner sep=1pt, font=\small}]
+\node {@}
+  child {node {\(\lambda x\)}
+    child {node {@}
+      child {node {\(x\)}}
+      child {node {\(y\)}}}}
+  child {node {\(z\)}};
+\node[draw=none, fill=none, font=\small] at (0,-3.6) {\((\lambda x.\,x\,y)\,z\)\quad(@ = aplicación)};
+\end{scope}
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Una definición inductiva sirve para dos cosas}
+\begin{tikzpicture}
+\node[amarillo, text width=40mm] (def) at (0,0) {\textbf{Definición inductiva}\\constructores +\\«nada más»};
+\node[azul, text width=50mm] (con) at (-4,-2.3) {\textbf{Construir}\\aplicar reglas finitas veces\\(una derivación, un término)};
+\node[verde, text width=50mm] (raz) at (4,-2.3) {\textbf{Razonar sobre todos}\\si una propiedad se conserva\\por cada regla, vale siempre\\(\textbf{inducción})};
+\draw[flecha] (def) -- (con);
+\draw[flecha] (def) -- (raz);
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{Las formas de inducción}
+%=====================================================================
+
+\begin{figura}{Cuatro inducciones, una misma idea}
+\begin{tikzpicture}
+\node[azul, text width=36mm, minimum height=24mm] (a) at (0,0) {\textbf{Sobre \(\mathbb N\)}\\\(P(0)\)\\\(P(n)\Rightarrow P(n{+}1)\)\\[2pt]\footnotesize dominó};
+\node[azul, text width=36mm, minimum height=24mm] (b) at (4.6,0) {\textbf{Estructural}\\un caso por constructor;\\hipótesis para los hijos\\[2pt]\footnotesize fórmulas, términos, listas};
+\node[verde, text width=36mm, minimum height=24mm] (c) at (0,-3) {\textbf{Sobre derivaciones}\\un caso por regla;\\hipótesis para las premisas\\[2pt]\footnotesize debilitamiento, corrección};
+\node[naranja, text width=36mm, minimum height=24mm] (d) at (4.6,-3) {\textbf{Bien fundada}\\suponer \(P(s)\) para todo\\\(s\) «más pequeño»\\[2pt]\footnotesize Quicksort (longitud)};
+\node[morado, text width=52mm] (e) at (10.6,-1.5) {Todas son el \textbf{eliminador} de un tipo inductivo (Cap.\ 10).\\[3pt]La bien fundada vale porque en \((\mathbb N,<)\) no hay cadenas descendentes infinitas.};
+\draw[flecha] (b) -- (e); \draw[flecha] (d) -- (e);
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Por qué la inducción bien fundada es válida}
+\begin{tikzpicture}
+\foreach \x/\n in {0/6,2/3,4/1,6/0} {\node[azul, minimum width=10mm] (n\n) at (\x,0) {\(\n\)};}
+\draw[flecha] (n6) -- node[et,above]{llamada} (n3);
+\draw[flecha] (n3) -- (n1);
+\draw[flecha] (n1) -- (n0);
+\node[font=\small, align=left, anchor=west] at (7.2,0) {toda cadena que baja en \(\mathbb N\)\\termina en finitos pasos};
+\node[naranja, font=\small] at (3,-1.3) {en \(\mathbb Z\) no: \(0>-1>-2>\cdots\) nunca para \(\Rightarrow\) \((\mathbb Z,<)\) no es bien fundado};
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Generalizar antes de inducir}
+\begin{tikzpicture}
+\node[naranja, text width=58mm] (mal) at (0,0) {\textbf{Mal}: fijar \(\Delta\) y luego inducir.\\En \(\to\)I la premisa tiene contexto \(\Gamma\cup\{\alpha\}\): la hipótesis inductiva habla de \(\Delta\), no de \(\Delta\cup\{\alpha\}\). Se atasca.};
+\node[verde, text width=58mm] (bien) at (7.5,0) {\textbf{Bien}: inducir sobre\\\(P(\Gamma,\varphi):=\forall\Delta\supseteq\Gamma,\ \Delta\vdash\varphi\).\\La hipótesis se usa con \(\Delta\cup\{\alpha\}\).};
+\draw[flecha] (mal) -- (bien);
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{Relaciones y órdenes}
+%=====================================================================
+
+\begin{figura}{Propiedades de una relación, en dibujos}
+\begin{tikzpicture}[pt/.style={circle, fill=c1, inner sep=1.8pt}]
+\begin{scope}
+\node[pt] (a) at (0,0) {}; \draw[flecha] (a) edge[loop above] (a);
+\node[font=\small] at (0,-0.8) {reflexiva: \(a\,R\,a\)};
+\end{scope}
+\begin{scope}[xshift=3.3cm]
+\node[pt] (a) at (0,0) {}; \node[pt] (b) at (1.2,0) {};
+\draw[flecha] (a) to[bend left] (b); \draw[flecha] (b) to[bend left] (a);
+\node[font=\small] at (0.6,-0.8) {simétrica};
+\end{scope}
+\begin{scope}[xshift=6.8cm]
+\node[pt] (a) at (0,0) {}; \node[pt] (b) at (0.7,0.9) {}; \node[pt] (c) at (1.4,0) {};
+\draw[flecha] (a) -- (b); \draw[flecha] (b) -- (c); \draw[flecha, dashed, c3] (a) -- (c);
+\node[font=\small] at (0.7,-0.8) {transitiva};
+\end{scope}
+\begin{scope}[xshift=10.3cm]
+\node[pt] (a) at (0,0) {}; \node[pt] (b) at (1.2,0) {};
+\draw[flecha] (a) -- (b);
+\node[font=\small, align=center] at (0.6,-0.9) {antisimétrica: ida y\\vuelta solo si \(a=b\)};
+\end{scope}
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{La familia de los órdenes y la de las equivalencias}
+\begin{tikzpicture}
+\node[azul, text width=40mm] (pre) at (0,0) {\textbf{preorden}\\reflexivo + transitivo};
+\node[azul, text width=40mm] (par) at (-3,-1.7) {\textbf{orden parcial}\\+ antisimétrico};
+\node[azul, text width=40mm] (tot) at (3,-1.7) {\textbf{preorden total}\\+ total (\(a\leq b\) o \(b\leq a\))};
+\node[amarillo, text width=46mm] (lin) at (0,-3.4) {\textbf{orden lineal (total)}\\las cuatro propiedades\\\footnotesize hipótesis de Quicksort};
+\node[verde, text width=44mm] (eq) at (8,-0.6) {\textbf{relación de equivalencia}\\reflexiva + simétrica + transitiva\\\footnotesize \(=_\alpha\),\ \(=_\beta\),\ \(\sim\) (permutación)};
+\draw[flecha] (pre) -- (par); \draw[flecha] (pre) -- (tot);
+\draw[flecha] (par) -- (lin); \draw[flecha] (tot) -- (lin);
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Clausuras: de un paso a muchos pasos}
+\begin{tikzpicture}
+\node[azul] (a) at (0,0) {\(\bred\)\\un paso};
+\node[azul] (b) at (4.2,0) {\(\bmred\)\\cero o más pasos\\\footnotesize clausura reflexiva y transitiva};
+\node[verde] (c) at (9.2,0) {\(=_\beta\)\\pasos en ambos sentidos\\\footnotesize menor equivalencia que contiene \(\bred\)};
+\draw[flecha] (a) -- (b); \draw[flecha] (b) -- (c);
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{Cálculo lambda}
+%=====================================================================
+
+\begin{figura}{Variables libres y ligadas en \(\lambda x.\,(x\,y)\)}
+\begin{tikzpicture}
+\node[font=\Large] (t) at (0,0) {\(\lambda\,\underset{\text{ligadora}}{x}\;.\;(\,\underset{\text{ligada}}{x}\;\;\underset{\text{libre}}{y}\,)\)};
+\draw[flecha, c2, thick] (-0.95,0.3) to[bend left=50] node[et,above]{enlaza} (0.35,0.3);
+\node[font=\small, align=center] at (0,-1.4) {\(\mathrm{FV}(\lambda x.\,x\,y)=\{y\}\). El nombre de \(x\) no importa: \(\lambda x.\,x\,y=_\alpha\lambda u.\,u\,y\).\\Renombrar \(x\) a \(y\) estaría prohibido: \textbf{capturaría} la \(y\) libre.};
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Un paso \(\beta\): sustituir el argumento en el cuerpo}
+\begin{tikzpicture}
+\node[azul] (r) at (0,0) {\((\lambda x.\,\underbrace{x\,(x\,y)}_{\text{cuerpo}})\ \underbrace{N}_{\text{argumento}}\)\\\footnotesize redex};
+\node[verde] (c) at (6.5,0) {\(N\,(N\,y)\)\\\footnotesize contractum \(=\) cuerpo\([x:=N]\)};
+\draw[flecha] (r) -- node[et,above]{\(\bred\)} (c);
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Confluencia (Church--Rosser) y su ejemplo de la tesis}
+\begin{tikzpicture}
+\node (m) at (0,0) {\(M\)};
+\node (n1) at (-1.8,-1.6) {\(N_1\)};
+\node (n2) at (1.8,-1.6) {\(N_2\)};
+\node (l) at (0,-3.2) {\(L\)};
+\draw[-{Stealth[length=2mm] Stealth[length=2mm]}] (m) -- (n1);
+\draw[-{Stealth[length=2mm] Stealth[length=2mm]}] (m) -- (n2);
+\draw[-{Stealth[length=2mm] Stealth[length=2mm]}, dashed] (n1) -- (l);
+\draw[-{Stealth[length=2mm] Stealth[length=2mm]}, dashed] (n2) -- (l);
+\node[font=\small, align=center] at (0,-4) {si se divergen, se vuelven a encontrar};
+\begin{scope}[xshift=8cm]
+\node (m) at (0,0) {\((\lambda x.(\lambda y.\,y\,x)\,z)\,v\)};
+\node (n1) at (-2.2,-1.6) {\((\lambda y.\,y\,v)\,z\)};
+\node (n2) at (2.2,-1.6) {\((\lambda x.\,z\,x)\,v\)};
+\node (l) at (0,-3.2) {\(z\,v\)};
+\draw[flecha] (m) -- node[et,left]{externo} (n1);
+\draw[flecha] (m) -- node[et,right]{interno} (n2);
+\draw[flecha] (n1) -- (l); \draw[flecha] (n2) -- (l);
+\end{scope}
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Terminación: tres comportamientos}
+\begin{tikzpicture}
+\node[verde, text width=36mm] (a) at (0,0) {\textbf{fuertemente normalizable}\\toda ruta termina\\\footnotesize todo término tipado};
+\node[amarillo, text width=36mm] (b) at (4.6,0) {\textbf{débilmente normalizable}\\alguna ruta termina\\\footnotesize \((\lambda y.\,z)\,\Omega\)};
+\node[naranja, text width=36mm] (c) at (9.2,0) {\textbf{no normalizable}\\ninguna ruta termina\\\footnotesize \(\Omega=(\lambda x.xx)(\lambda x.xx)\)\\\footnotesize \(\Omega\bred\Omega\bred\cdots\)};
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{Tipos}
+%=====================================================================
+
+\begin{figura}{Anatomía de un juicio de tipado}
+\begin{tikzpicture}
+\node[font=\Large] at (0,0) {\(\underbrace{x:\sigma,\ y:\tau}_{\text{contexto }\Gamma}\ \ \vdash\ \ \underbrace{\lambda z{:}\sigma.\,x}_{\text{término (sujeto)}}\ :\ \underbrace{\sigma\to\sigma}_{\text{tipo}}\)};
+\node[font=\small, text width=140mm, align=center] at (0,-1.5) {«con estas declaraciones, este término tiene este tipo». Bajo Curry--Howard: «con estas hipótesis, esta prueba demuestra esta proposición».};
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{La escalera de clasificación}
+\begin{tikzpicture}
+\node[verde] (t) at (0,0) {\(3\)\\\footnotesize término};
+\node[azul] (ty) at (3,0) {\(\mathsf{nat}\)\\\footnotesize tipo};
+\node[morado] (k) at (6,0) {\(*\)\\\footnotesize kind (tipo de los tipos)};
+\node[amarillo] (s) at (9.6,0) {\(\square\)\\\footnotesize sort superior};
+\draw[flecha] (t) -- node[et,above]{:} (ty);
+\draw[flecha] (ty) -- node[et,above]{:} (k);
+\draw[flecha] (k) -- node[et,above]{:} (s);
+\node[verde] (t2) at (0,-1.6) {\(\lambda\alpha{:}*.\,\alpha\to\alpha\)\\\footnotesize constructor};
+\node[morado] (k2) at (4.2,-1.6) {\(*\to*\)\\\footnotesize kind};
+\node[amarillo] (s2) at (7.6,-1.6) {\(\square\)};
+\draw[flecha] (t2) -- node[et,above]{:} (k2);
+\draw[flecha] (k2) -- node[et,above]{:} (s2);
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{El cubo \(\lambda\): tres ejes de dependencia}
+\begin{tikzpicture}[scale=1.25, v/.style={azul, font=\small, inner sep=2pt}]
+\coordinate (O) at (0,0); \coordinate (X) at (4,0); \coordinate (Y) at (0,3); \coordinate (Z) at (1.6,1.3);
+\node[v] (arr) at (O) {\(\lambda\!\to\)};
+\node[v] (P) at (X) {\(\lambda P\)};
+\node[v] (l2) at (Y) {\(\lambda 2\)};
+\node[v] (P2) at ($(X)+(Y)$) {\(\lambda P2\)};
+\node[v] (lw) at (Z) {\(\lambda\underline{\omega}\)};
+\node[v] (Pw) at ($(X)+(Z)$) {\(\lambda P\underline{\omega}\)};
+\node[v] (w) at ($(Y)+(Z)$) {\(\lambda\omega\)};
+\node[amarillo, font=\small, inner sep=2pt] (C) at ($(X)+(Y)+(Z)$) {\(\lambda C\) = CoC};
+\draw (arr)--(P) (arr)--(l2) (P)--(P2) (l2)--(P2) (l2)--(w) (P2)--(C) (w)--(C) (P)--(Pw) (Pw)--(C);
+\draw[dashed] (arr)--(lw) (lw)--(Pw) (lw)--(w);
+\node[font=\scriptsize, align=left, anchor=west] at (6.2,2.6) {\(\uparrow\) \textbf{términos que dependen de tipos}\\\quad \((\square,*)\): polimorfismo, \(\lambda 2\)};
+\node[font=\scriptsize, align=left, anchor=west] at (6.2,1.5) {\(\nearrow\) \textbf{tipos que dependen de tipos}\\\quad \((\square,\square)\): constructores, \(\lambda\underline{\omega}\)};
+\node[font=\scriptsize, align=left, anchor=west] at (6.2,0.4) {\(\rightarrow\) \textbf{tipos que dependen de términos}\\\quad \((*,\square)\): lógica de predicados, \(\lambda P\)};
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{Curry--Howard: pruebas como programas}
+%=====================================================================
+
+\begin{figura}{La misma estructura, leída dos veces (Ejemplo 9.24)}
+\begin{tikzpicture}
+\node at (0,0) {
+\AxiomC{\([B\wedge A]^z\)}\UnaryInfC{\(A\)}
+\AxiomC{\([B\wedge A]^z\)}\UnaryInfC{\(B\)}
+\BinaryInfC{\(A\wedge B\)}
+\RightLabel{\scriptsize\(\to\)I}
+\UnaryInfC{\((B\wedge A)\to(A\wedge B)\)}
+\DisplayProof};
+\node at (7.6,0) {
+\AxiomC{\([z:B\times A]\)}\UnaryInfC{\(\pi_2 z:A\)}
+\AxiomC{\([z:B\times A]\)}\UnaryInfC{\(\pi_1 z:B\)}
+\BinaryInfC{\(\langle\pi_2z,\pi_1z\rangle:A\times B\)}
+\RightLabel{\scriptsize\(\lambda\)}
+\UnaryInfC{\(\lambda z.\langle\pi_2z,\pi_1z\rangle\)}
+\DisplayProof};
+\node[font=\small\bfseries] at (0,-1.6) {prueba lógica};
+\node[font=\small\bfseries] at (7.6,-1.6) {programa (intercambia un par)};
+\draw[dflecha] (2.3,-0.2) -- node[et,above]{borrar / añadir términos} (4.9,-0.2);
+\end{tikzpicture}
+\end{figura}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+{\small
+\begin{tabular}{@{}ll@{\qquad}ll@{}}
+\toprule
+\textbf{Lógica} & \textbf{Cómputo} & \textbf{Lógica} & \textbf{Cómputo}\\
+\midrule
+proposición & tipo & \(A\to B\) & función \(A\to B\)\\
+prueba & término (programa) & \(A\wedge B\) & par \(A\times B\)\\
+hipótesis & variable & \(A\vee B\) & suma \(A+B\)\\
+\(\to\)I (descargar) & \(\lambda\) (ligar) & \(\forall x.\,P(x)\) & \(\Pi x.\,P\,x\)\\
+\(\to\)E (modus ponens) & aplicación & \(\bot\) & tipo vacío\\
+desvío en una prueba & redex & normalizar & evaluar\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+%=====================================================================
+\section{Tipos de lógica en la tesis}
+%=====================================================================
+
+La tesis nombra varias lógicas: clásica, intuicionista, mínima, de Heyting,
+proposicional, de predicados, de primer orden, de orden superior y «la lógica
+de Lean». No son una lista plana: responden a dos preguntas independientes.
+
+\begin{clave}
+\textbf{Pregunta 1: ¿qué cuenta como prueba?} Es decir, qué reglas se
+permiten. De menos a más reglas:
+\termino{mínima} \(\subset\) \termino{intuicionista} \(\subset\) \termino{clásica}.
+
+\smallskip
+\textbf{Pregunta 2: ¿de qué se puede hablar?} Es decir, sobre qué se
+cuantifica. De menos a más expresiva:
+\termino{proposicional} \(\subset\) \termino{de predicados (primer orden)}
+\(\subset\) \termino{de orden superior}.
+
+\smallskip
+Cada lógica concreta es una respuesta a las dos. El cálculo del Capítulo 11 es
+\emph{clásico y proposicional}; Lean es \emph{clásico (por un axioma) y de
+orden superior}.
+\end{clave}
+
+\subsection{Las dos preguntas en una tabla}
+
+\begin{figura}{Dónde cae cada sistema de la tesis}
+\begin{tikzpicture}[
+  celda/.style={caja, text width=3.45cm, minimum height=1.55cm, font=\footnotesize},
+  vacia/.style={celda, fill=gray!6, draw=gray!50, text=gray!70!black}]
+\node[font=\small\bfseries] at (4.4,1.05) {Mínima};
+\node[font=\small\bfseries] at (8.3,1.05) {Intuicionista};
+\node[font=\small\bfseries] at (12.2,1.05) {Clásica};
+\draw[flecha] (2.6,1.6) -- node[et, above]{más reglas \(\Rightarrow\) más teoremas} (14.1,1.6);
+\node[font=\small\bfseries, align=center] at (1.1,0) {Proposicional};
+\node[font=\small\bfseries, align=center] at (1.1,-1.8) {De predicados\\(primer orden)};
+\node[font=\small\bfseries, align=center] at (1.1,-3.6) {De orden\\superior};
+\draw[flecha] (-0.45,0.7) -- node[et, rotate=90, above]{más expresiva} (-0.45,-4.3);
+%
+\node[vacia] at (4.4,0) {Solo se menciona para aclarar que \(\{\neg,\to\}\) \emph{no} es lógica mínima (Cap.\ 9)};
+\node[verde, celda] at (8.3,0) {NJ, BHK, Curry--Howard\\\(\lambda_\to\) (Caps.\ 7 y 9)};
+\node[amarillo, celda] at (12.2,0) {\textbf{\(\Provnd\) del Cap.\ 11}\\tablas de verdad\\\(\star\) demostrada en Lean};
+\node[vacia] at (4.4,-1.8) {---};
+\node[verde, celda] at (8.3,-1.8) {\(\lambda P\): predicados\\como tipos (Cap.\ 8)};
+\node[naranja, celda] at (12.2,-1.8) {Completitud de Gödel (1929)\\\emph{fuera de la tesis}};
+\node[vacia] at (4.4,-3.6) {---};
+\node[verde, celda] at (8.3,-3.6) {CoC y CIC sin axiomas\\(Caps.\ 8 y 10)};
+\node[morado, celda] at (12.2,-3.6) {\textbf{Lógica de Lean}\\CIC + \texttt{Classical.choice}\\(nivel meta)};
+\end{tikzpicture}
+
+\smallskip
+{\footnotesize
+\tikz\node[amarillo, minimum width=4mm, minimum height=3mm, inner sep=0pt]{}; demostrado (nivel objeto)\qquad
+\tikz\node[morado, minimum width=4mm, minimum height=3mm, inner sep=0pt]{}; lógica en la que se demuestra (nivel meta)\\
+\tikz\node[verde, minimum width=4mm, minimum height=3mm, inner sep=0pt]{}; presentado\qquad
+\tikz\node[naranja, minimum width=4mm, minimum height=3mm, inner sep=0pt]{}; no demostrado}
+\end{figura}
+
+\subsection{Pregunta 1: mínima, intuicionista y clásica}
+
+\begin{figura}{Cada lógica añade una regla a la anterior}
+\begin{tikzpicture}
+\draw[thick, rounded corners, draw=c3, fill=c3!8] (0,0) rectangle (10.2,5);
+\node[anchor=north west, font=\small\bfseries, text=c3] at (0.15,4.95) {Clásica (NK) = intuicionista + RAA};
+\draw[thick, rounded corners, draw=c2, fill=c2!12] (0.35,0.35) rectangle (7.1,4.25);
+\node[anchor=north west, font=\small\bfseries, text=c2!70!black] at (0.5,4.2) {Intuicionista (NJ) = mínima + \(\bot\)E};
+\draw[thick, rounded corners, draw=c1, fill=c1!10] (0.7,0.7) rectangle (3.9,3.45);
+\node[align=center, font=\small] at (2.3,2.05) {\textbf{Mínima}\\\(\to\), \(\wedge\), \(\vee\)\\\(\neg\)I, \(\neg\)E\\\footnotesize sin ex falso};
+\node[align=center, font=\footnotesize] at (5.5,2.05) {\(\bot\to p\)\\[2pt]\((\neg p\vee q)\to(p\to q)\)\\[2pt]\emph{desde aquí}};
+\node[align=center, font=\footnotesize] at (8.65,2.05) {\(p\vee\neg p\)\\[2pt]\(\neg\neg p\to p\)\\[2pt]\(((p\to q)\to p)\to p\)\\[2pt]\emph{solo aquí}};
+\begin{scope}[xshift=12.75cm, yshift=2.6cm]
+\node[amarillo] (raa) at (90:1.3) {RAA};
+\node[amarillo] (lem) at (210:1.3) {LEM};
+\node[amarillo] (dne) at (330:1.3) {\(\neg\neg\)E};
+\draw[dflecha] (raa) -- (lem); \draw[dflecha] (lem) -- (dne); \draw[dflecha] (dne) -- (raa);
+\node[font=\scriptsize, align=center] at (0,-2.0) {cualquiera de las tres\\añadida a NJ da\\la lógica clásica};
+\end{scope}
+\end{tikzpicture}
+\end{figura}
+
+\paragraph{Lógica clásica.} Cada fórmula es verdadera o falsa, sin tercera
+opción (\termino{bivalencia}); su semántica son las tablas de verdad. La
+caracteriza cualquiera de tres principios equivalentes: el tercero excluido
+(LEM, \(\varphi\vee\neg\varphi\)), la eliminación de la doble negación
+(\(\neg\neg\varphi\Rightarrow\varphi\)) y la reducción al absurdo clásica (RAA).
+El cálculo \(\Provnd\) del Capítulo 11 es clásico; su única regla clásica es RAA,
+y dentro del cálculo solo se usa en el Lema 11.11.
+
+\paragraph{Lógica intuicionista} (también \termino{lógica de Heyting} o
+constructiva). Ser verdadero es \emph{tener una construcción}: no basta mostrar
+que algo no puede ser falso. La interpretación BHK (Cap.\ 9) dice qué es una
+prueba de cada conectivo; Curry--Howard la convierte en programas.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+{\small
+\begin{tabular}{@{}l >{\raggedright\arraybackslash}p{6.3cm} >{\raggedright\arraybackslash}p{4.6cm}@{}}
+\toprule
+\textbf{Fórmula} & \textbf{Una prueba es\dots{} (BHK)} & \textbf{En Curry--Howard / Lean}\\
+\midrule
+\(\varphi\wedge\psi\) & un par: una prueba de \(\varphi\) y una de \(\psi\) & par \(\langle a,b\rangle\)\\
+\(\varphi\vee\psi\) & una prueba de \emph{uno} de los dos, \emph{diciendo cuál} & \texttt{Or.inl a} o \texttt{Or.inr b}\\
+\(\varphi\to\psi\) & un método que convierte pruebas de \(\varphi\) en pruebas de \(\psi\) & función \(\lambda x.\,M\)\\
+\(\bot\) & no hay ninguna & tipo vacío \texttt{False}\\
+\(\neg\varphi\) (\(=\varphi\to\bot\)) & un método que convierte pruebas de \(\varphi\) en absurdo & función hacia \texttt{False}\\
+\(\forall x.\,P(x)\)\(^{*}\) & un método que a cada \(x\) le asigna una prueba de \(P(x)\) & función dependiente (\(\Pi\))\\
+\(\exists x.\,P(x)\)\(^{*}\) & un testigo \(a\) junto con una prueba de \(P(a)\) & par dependiente\\
+\bottomrule
+\end{tabular}}
+
+{\footnotesize \(^{*}\)Extensión estándar; la definición de la tesis cubre \(\wedge\), \(\vee\), \(\to\) y \(\bot\).}
+\end{center}
+
+\textbf{Por qué falla \(p\vee\neg p\).} BHK exige decir \emph{cuál} de los dos
+lados vale, y en general no se sabe. Ejemplo estándar (fuera de la tesis):
+existen irracionales \(a,b\) con \(a^b\) racional. Si \(\sqrt2^{\sqrt2}\) es
+racional, sirven \(a=b=\sqrt2\); si no, sirven \(a=\sqrt2^{\sqrt2}\) y
+\(b=\sqrt2\), porque \(a^b=\sqrt2^{\,2}=2\). La prueba es clásicamente
+correcta, pero no dice cuál de los dos pares funciona: no es constructiva.
+
+\textbf{Lo que se conserva.} El ex falso (\(\bot\)E) y la introducción de la
+negación: para probar \(\neg A\) se supone \(A\) y se llega a \(\bot\). Eso
+\emph{no} es RAA; es \(\to\)I, porque \(\neg A\) abrevia \(A\to\bot\).
+
+\begin{center}
+\begin{tabular}{c@{\qquad}c}
+\AxiomC{\(\Gamma,A\vdash\bot\)}\RightLabel{\scriptsize\(\neg\)I (intuicionista)}\UnaryInfC{\(\Gamma\vdash\neg A\)}\DisplayProof
+&
+\AxiomC{\(\Gamma,\neg A\vdash\bot\)}\RightLabel{\scriptsize RAA (clásica)}\UnaryInfC{\(\Gamma\vdash A\)}\DisplayProof
+\end{tabular}
+\end{center}
+
+\paragraph{Lógica mínima.} Es la intuicionista \emph{sin} ex falso: \(\bot\)
+es un átomo más, sin poderes especiales. La tesis la menciona una sola vez
+(Cap.\ 9), para aclarar que usar la base \(\{\neg,\to\}\) \emph{no} es lógica
+mínima: es lógica clásica escrita con menos conectivos primitivos.
+
+\newcommand{\lsi}{\textcolor{c2!80!black}{\textbf{sí}}}
+\newcommand{\lno}{\textcolor{c3}{no}}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+{\small
+\begin{tabular}{@{}l c c c >{\raggedright\arraybackslash}p{5.2cm}@{}}
+\toprule
+\textbf{Fórmula} & \textbf{Mín.} & \textbf{Intuic.} & \textbf{Clás.} & \textbf{Comentario}\\
+\midrule
+\(p\to\neg\neg p\) & \lsi & \lsi & \lsi & la doble negación se \emph{introduce} siempre\\
+\(\neg\neg\neg p\to\neg p\) & \lsi & \lsi & \lsi & tres negaciones se reducen a una\\
+\(\neg\neg(p\vee\neg p)\) & \lsi & \lsi & \lsi & LEM doblemente negado\\
+\((\neg p\vee\neg q)\to\neg(p\wedge q)\) & \lsi & \lsi & \lsi & De Morgan, dirección fácil\\
+\midrule
+\(\bot\to p\) & \lno & \lsi & \lsi & ex falso (\(\bot\)E)\\
+\((\neg p\vee q)\to(p\to q)\) & \lno & \lsi & \lsi & el caso \(\neg p\) necesita ex falso\\
+\midrule
+\(p\vee\neg p\) & \lno & \lno & \lsi & tercero excluido (LEM)\\
+\(\neg\neg p\to p\) & \lno & \lno & \lsi & eliminación de la doble negación\\
+\(((p\to q)\to p)\to p\) & \lno & \lno & \lsi & ley de Peirce\\
+\(\neg(p\wedge q)\to(\neg p\vee\neg q)\) & \lno & \lno & \lsi & De Morgan, dirección difícil\\
+\((p\to q)\to(\neg p\vee q)\) & \lno & \lno & \lsi & \(\to\) como disyunción\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+\begin{nota}[Resultado estándar, fuera de la tesis: teorema de Glivenko]
+Una fórmula proposicional \(\varphi\) es tautología clásica si y solo si
+\(\neg\neg\varphi\) es teorema intuicionista. La lógica intuicionista no
+pierde verdades clásicas: las conserva «bajo doble negación».
+\end{nota}
+
+\subsection{La semántica de la lógica intuicionista: modelos de Kripke}
+
+Las tablas de verdad no sirven para la lógica intuicionista: NJ no prueba
+\(p\vee\neg p\), que es tautología. Su semántica son los \termino{modelos de
+Kripke}: \emph{mundos} (estados de conocimiento) ordenados por «saber más».
+Lo que se sabe en un mundo se sigue sabiendo en los posteriores. La tesis los
+cita (Cap.\ 9, Sørensen--Urzyczyn) pero no los desarrolla; el anexo de Kripke
+está excluido de la versión compilada.
+
+\begin{figura}{El contramodelo más pequeño de \(p\vee\neg p\)}
+\begin{tikzpicture}
+\node[circle, draw=c1, fill=c1!10, minimum size=1.7cm, align=center] (w0) at (0,0) {\(w_0\)\\\footnotesize \(p\) aún\\\footnotesize no se sabe};
+\node[circle, draw=c2, fill=c2!14, minimum size=1.7cm, align=center] (w1) at (4.2,0) {\(w_1\)\\\footnotesize \(p\) verdadera};
+\draw[flecha] (w0) -- node[et, above]{se aprende más} (w1);
+\node[align=left, font=\small, anchor=west] at (6.2,0) {%
+\(w_0\nVdash p\)\\
+\(w_0\nVdash\neg p\), porque en \(w_1\) llega a valer \(p\)\\
+luego \(w_0\nVdash p\vee\neg p\)\\[3pt]
+además \(w_0\Vdash\neg\neg p\) pero \(w_0\nVdash p\):\\
+falla \(\neg\neg p\to p\)};
+\end{tikzpicture}
+\end{figura}
+
+\begin{center}
+{\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}l@{\qquad}l@{}}
+\toprule
+\textbf{Cuándo} & \textbf{significa}\\
+\midrule
+\(w\Vdash\varphi\wedge\psi\) & \(w\Vdash\varphi\) y \(w\Vdash\psi\)\\
+\(w\Vdash\varphi\vee\psi\) & \(w\Vdash\varphi\) o \(w\Vdash\psi\), \emph{ya} en \(w\)\\
+\(w\Vdash\varphi\to\psi\) & en todo \(w'\geq w\): si \(w'\Vdash\varphi\), entonces \(w'\Vdash\psi\)\\
+\(w\Vdash\neg\varphi\) & ningún \(w'\geq w\) cumple \(w'\Vdash\varphi\)\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+Se lee «\(w\) \termino{fuerza} \(\varphi\)». Con un solo mundo, las cláusulas
+coinciden con las tablas de verdad: la lógica clásica es el caso en que ya no
+se aprende nada nuevo.
+
+\subsection{Pregunta 2: proposicional, de predicados y de orden superior}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+{\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}p{3.9cm} >{\raggedright\arraybackslash}p{3.5cm}@{}}
+\toprule
+\textbf{Lógica} & \textbf{Qué añade} & \textbf{Ejemplo} & \textbf{En la tesis}\\
+\midrule
+proposicional & átomos \(p,q,\dots\) y conectivos; sin cuantificadores & \(p\to(q\to p)\) & Caps.\ 9 y 11; \(\lambda_\to\)\\
+de predicados (primer orden) & predicados sobre individuos y \(\forall x\), \(\exists x\) sobre individuos & \(\forall x\,(P(x)\to\exists y\,R(x,y))\) & \(\lambda P\) (Cap.\ 8); Frege; su completitud no se demuestra\\
+de orden superior & cuantificar sobre predicados y proposiciones & \(\forall P.\,(P\to P)\), con \(P\) una proposición & CoC y CIC (Caps.\ 8 y 10); Lean\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+El ejemplo más importante de orden superior es el \emph{principio de
+inducción}, que cuantifica sobre todos los predicados \(P\):
+\[
+\forall P.\;\bigl(P(0)\wedge\forall n\,(P(n)\to P(n+1))\bigr)\to\forall n\,P(n).
+\] Por eso en CIC la inducción es un único
+teorema (el eliminador) y no un esquema con una instancia por fórmula.
+
+\subsection{Las dos lógicas de la demostración del Capítulo 11}
+
+\begin{figura}{El cálculo estudiado vive dentro de la lógica que lo estudia}
+\begin{tikzpicture}
+\draw[thick, rounded corners, draw=c4, fill=c4!8] (0,0) rectangle (15,3.9);
+\node[anchor=north west, font=\small\bfseries, text=c4!80!black, align=left] at (0.15,3.85) {Nivel meta: la lógica de Lean = CIC + \texttt{propext} + \texttt{Classical.choice} + \texttt{Quot.sound}\\\footnotesize\mdseries clásica (por \texttt{Classical.choice}) y de orden superior};
+\draw[thick, rounded corners, draw=c5, fill=c5!15] (0.4,0.35) rectangle (7.4,2.55);
+\node[align=center, font=\small] at (3.9,1.45) {\textbf{Nivel objeto: el cálculo \(\Provnd\)}\\clásico, proposicional, base \(\{\neg,\to\}\)\\\footnotesize RAA es un \emph{constructor} del predicado inductivo};
+\node[align=left, font=\small, anchor=west] at (7.8,1.45) {Lean demuestra teoremas \emph{sobre} \(\Provnd\):\\\(\mathrm{Taut}(\varphi)\Rightarrow\varnothing\Provnd\varphi\).\\[2pt]\footnotesize El análisis por casos sobre si \(v(p)\) es verdadera\\\footnotesize usa \texttt{Classical.em}, derivado de \texttt{Classical.choice}.};
+\end{tikzpicture}
+\end{figura}
+
+\begin{nota}[Pregunta probable: «Si Curry--Howard es intuicionista, ¿cómo vive en Lean una prueba clásica?»]
+Hay que separar los dos niveles. \emph{En el objeto}, RAA es solo un
+constructor del predicado inductivo \(\Provnd\): construir una derivación que lo
+use no requiere nada clásico de Lean. \emph{En el meta}, la demostración
+razona por casos sobre el valor de verdad de los átomos; como las valuaciones
+viven en \texttt{Prop}, ese paso usa \texttt{Classical.choice}, y la auditoría
+de axiomas lo confirma. El núcleo de Lean (CIC) es intuicionista; el axioma lo
+vuelve clásico. Más detalle en la sección «Nivel objeto y nivel meta».
+\end{nota}
+
+\subsection{Dónde aparece cada lógica}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+{\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}p{5.6cm} >{\raggedright\arraybackslash}p{5.6cm}@{}}
+\toprule
+\textbf{Lógica} & \textbf{Dónde aparece} & \textbf{Qué se hace con ella}\\
+\midrule
+clásica proposicional & Cap.\ 9 (NK, tablas), Cap.\ 11, Ap.\ A & \textbf{demostrada en Lean}: completitud débil, corrección, adecuación\\
+intuicionista proposicional (NJ) & Cap.\ 9: reglas, BHK, Curry--Howard & presentada; no formalizada\\
+semántica de Kripke & Cap.\ 9 (nota); anexo excluido & citada (Sørensen--Urzyczyn)\\
+mínima & Cap.\ 9, una mención & solo para aclarar que \(\{\neg,\to\}\) no es lógica mínima\\
+de predicados / primer orden & contexto histórico (Frege), Cap.\ 8 (\(\lambda P\)), conclusiones & presentada como sistema de tipos; su completitud no se demuestra\\
+intuicionista de orden superior & Cap.\ 10 (Coquand--Huet) & la lógica para la que se diseñó el CoC\\
+lógica de Lean & glosario de la tesis, auditorías de axiomas & la lógica en la que se demuestra todo\\
+de Heyting & Cap.\ 10, diagrama & otro nombre de la intuicionista\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+\begin{nota}[No confundir]
+\begin{itemize}
+\item \emph{Lógica mínima} (sin ex falso) \(\neq\) \emph{base mínima de
+  conectivos} (\(\{\neg,\to\}\), que es lógica clásica completa).
+\item \(\neg\)I (suponer \(A\), llegar a \(\bot\), concluir \(\neg A\)) es
+  intuicionista; RAA (suponer \(\neg A\), llegar a \(\bot\), concluir \(A\)) es
+  clásica.
+\item «Intuicionista» no significa «intuitiva»: viene del intuicionismo de
+  Brouwer, que exige construcciones.
+\item «Lógica inclusiva» no es una lógica: la tesis dice «disyunción lógica
+  inclusiva» para el \(\vee\) que vale si vale uno de los lados o ambos.
+\end{itemize}
+\end{nota}
+
+%=====================================================================
+\section{Bases de conectivos y completitud funcional}
+%=====================================================================
+
+\begin{figura}{Una fórmula define una función de verdad}
+\begin{tikzpicture}
+\node[azul, text width=34mm] (in) at (0,0) {\(\{\mathsf V,\mathsf F\}^n\)\\filas de la tabla\\(\(2^n\) filas)};
+\node[verde, text width=30mm] (out) at (7,0) {\(\{\mathsf V,\mathsf F\}\)\\valor de la fórmula};
+\draw[flecha] (in) -- node[et,above]{función de verdad \(f\)} (out);
+\node[font=\small, align=center] at (3.5,-1.4) {hay \(2^{2^n}\) funciones de verdad de \(n\) argumentos.\\Una \textbf{base} es \textbf{funcionalmente completa} si con ella se escribe \emph{cualquiera} de ellas.};
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Cómo se ve que \(\{\neg,\to\}\) basta}
+\begin{tikzpicture}
+\node[azul, text width=40mm] (t) at (0,0) {\textbf{1.} Tabla cualquiera\\\(\Rightarrow\) forma normal disyuntiva:\\una conjunción de literales\\por cada fila verdadera};
+\node[verde, text width=40mm] (n) at (5.4,0) {\textbf{2.} \(\wedge,\vee\) se escriben con \(\neg,\to\):\\\(A\vee B\equiv\neg A\to B\)\\\(A\wedge B\equiv\neg(A\to\neg B)\)};
+\node[amarillo, text width=36mm] (r) at (10.4,0) {\textbf{3.} Toda función de verdad se escribe con \(\neg\) y \(\to\)};
+\draw[flecha] (t) -- (n); \draw[flecha] (n) -- (r);
+\end{tikzpicture}
+\end{figura}
+
+\begin{center}
+{\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Base} & \textbf{¿Completa?} & \textbf{Por qué}\\
+\midrule
+\(\{\neg,\to\}\), \(\{\neg,\wedge\}\), \(\{\neg,\vee\}\) & sí & expresan \(\wedge,\vee,\neg\)\\
+\(\{\mathsf{NAND}\}\), \(\{\mathsf{NOR}\}\) & sí & un solo conectivo basta\\
+\(\{\wedge,\vee\}\), \(\{\to\}\), \(\{\wedge,\vee,\to\}\) & no & con todo \(\mathsf V\) dan \(\mathsf V\): no expresan \(\neg p\)\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+\begin{nota}[No confundir dos «completitudes»]
+\textbf{Completitud funcional} habla de lo que se puede \emph{expresar} (una
+propiedad del lenguaje). \textbf{Completitud del cálculo} habla de lo que se
+puede \emph{demostrar} (una propiedad de las reglas). La tesis usa la primera
+para justificar la base \(\{\neg,\to\}\) y demuestra la segunda.
+\end{nota}
+
+%=====================================================================
+\section{El Cálculo de Construcciones Inductivas}
+%=====================================================================
+
+\begin{figura}{Anatomía de un tipo inductivo: cuatro piezas de una sola declaración}
+\begin{tikzpicture}
+\node[amarillo, text width=30mm] (f) at (0,0) {\textbf{Formación}\\\(\mathbb N\) es un tipo};
+\node[azul, text width=30mm] (i) at (3.9,0) {\textbf{Introducción}\\constructores \(0\), \(S\)\\(únicas formas de construir)};
+\node[verde, text width=30mm] (e) at (7.8,0) {\textbf{Eliminación}\\recursor / inducción\\(única forma de usar)};
+\node[morado, text width=30mm] (c) at (11.7,0) {\textbf{Cómputo}\\reducción \(\iota\):\\\(R(0)\to x\), \(R(Sn)\to f\,n\,R(n)\)};
+\draw[flecha] (f) -- (i); \draw[flecha] (i) -- (e); \draw[flecha] (e) -- (c);
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{Dos maneras de tener números naturales}
+\begin{tikzpicture}
+\node[naranja, text width=62mm] (coc) at (0,0) {\textbf{CoC: codificación de Church}\\\(n:=\lambda A\,x\,f.\,f^{\,n}x\)\\«\(n\) es aplicar \(f\) \(n\) veces»\\[2pt]\checkmark\ iteración\quad \(\times\) inducción derivable\\\(\times\) predecesor caro};
+\node[verde, text width=62mm] (cic) at (8,0) {\textbf{CIC: tipo inductivo}\\\(0:\mathbb N,\quad S:\mathbb N\to\mathbb N\)\\el eliminador \emph{es} la inducción\\[2pt]\checkmark\ recursión\quad \checkmark\ inducción\\\checkmark\ cómputo por \(\iota\)};
+\draw[flecha] (coc) -- node[et,above]{CIC} (cic);
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{Capítulo 11 en un diagrama}
+%=====================================================================
+
+\begin{figura}{De la tabla de verdad a una derivación sin hipótesis}
+\begin{tikzpicture}[font=\small]
+\node[azul, text width=34mm] (tab) at (0,0) {\textbf{Tabla de verdad}\\\(\varphi\) verdadera en\\las \(2^k\) filas};
+\node[azul, text width=38mm] (lit) at (4.8,0) {\textbf{Contexto de literales}\\fila \(v\): \(\Gamma_v=\{p\text{ ó }\neg p\}\)\\ej.\ \(\{\neg q,\,p\}\)};
+\node[verde, text width=36mm] (kal) at (9.6,0) {\textbf{Kalmár (11.15)}\\\(\Gamma_v\vdash\varphi\)\\en cada fila};
+\node[naranja, text width=40mm] (des) at (9.6,-2.6) {\textbf{Descarga (11.17)}\\juntar filas que difieren\\en un átomo (11.11)};
+\node[amarillo, text width=34mm] (fin) at (4.8,-2.6) {\(\varnothing\vdash\varphi\)};
+\draw[flecha] (tab) -- (lit); \draw[flecha] (lit) -- (kal); \draw[flecha] (kal) -- (des); \draw[flecha] (des) -- (fin);
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{El árbol de descarga con dos átomos}
+\begin{tikzpicture}[level distance=13mm, level 1/.style={sibling distance=60mm}, level 2/.style={sibling distance=30mm},
+  every node/.style={caja, fill=c1!8, draw=c1}, lab/.style={draw=none, fill=none, font=\scriptsize}]
+\node[fill=c5!20] {\(\varnothing\vdash\varphi\)}
+  child { node {\(\{p\}\vdash\varphi\)}
+    child { node[fill=c2!15] {\(\{q,p\}\vdash\varphi\)} edge from parent node[lab,left]{\(q\)} }
+    child { node[fill=c2!15] {\(\{\neg q,p\}\vdash\varphi\)} edge from parent node[lab,right]{\(\neg q\)} }
+    edge from parent node[lab,left]{\(p\)} }
+  child { node {\(\{\neg p\}\vdash\varphi\)}
+    child { node[fill=c2!15] {\(\{q,\neg p\}\vdash\varphi\)} edge from parent node[lab,left]{\(q\)} }
+    child { node[fill=c2!15] {\(\{\neg q,\neg p\}\vdash\varphi\)} edge from parent node[lab,right]{\(\neg q\)} }
+    edge from parent node[lab,right]{\(\neg p\)} };
+\end{tikzpicture}
+{\small hojas: Kalmár; cada nodo interno: análisis por casos (usa RAA).}
+\end{figura}
+
+%=====================================================================
+\section{Capítulo 12 en un diagrama}
+%=====================================================================
+
+\begin{figura}{Partición, recursión y ensamblaje}
+\begin{tikzpicture}[font=\small]
+\node[caja, fill=c1!10] (p) at (0,0) {\(p\)};
+\node[caja, fill=gray!10, right=1mm of p, minimum width=60mm] (r) {cola \(r\) sin ordenar};
+\node[verde] (L) at (1.5,-1.6) {\(L\): los \(\leq p\)};
+\node[naranja] (R) at (6.5,-1.6) {\(R\): los \(>p\)};
+\node[verde] (A) at (1.5,-3.2) {\(\qs(L)\) ordenada};
+\node[caja, fill=c1!10] (pp) at (4,-3.2) {\(p\)};
+\node[naranja] (B) at (6.5,-3.2) {\(\qs(R)\) ordenada};
+\draw[flecha] (r.south) -- ++(0,-0.3) -| (L.north);
+\draw[flecha] (r.south) -- ++(0,-0.3) -| (R.north);
+\draw[flecha] (L) -- node[et,left]{recursión} (A);
+\draw[flecha] (R) -- node[et,right]{recursión} (B);
+\node[draw, dashed, rounded corners, fit=(A)(pp)(B), inner sep=4pt, label=below:{\(\qs(p::r)=\qs(L)\concat(p::\qs(R))\)}] {};
+\node[font=\scriptsize, align=left, anchor=west] at (9,-1) {\textbf{terminación}: \(|L|,|R|<|p::r|\)\\\textbf{permutación}: \(L\concat R\sim r\)\\\textbf{orden}: \(\qs(L)\leq p\leq\qs(R)\)};
+\end{tikzpicture}
+\end{figura}
+
+\begin{figura}{La especificación: dos condiciones, ninguna basta sola}
+\begin{tikzpicture}
+\node[verde, text width=44mm] (o) at (0,0) {\textbf{Ordenada}\\\(f(\ell)=[\,]\) la cumple\\pero pierde elementos};
+\node[azul, text width=44mm] (p) at (6,0) {\textbf{Permutación}\\\(f(\ell)=\ell\) la cumple\\pero no ordena};
+\node[amarillo, text width=44mm] (c) at (3,-2.2) {\textbf{Correcta} = las dos a la vez};
+\draw[flecha] (o) -- (c); \draw[flecha] (p) -- (c);
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{¿Qué significa «verificado»?}
+%=====================================================================
+
+\begin{figura}{La cadena de confianza}
+\begin{tikzpicture}[font=\small]
+\node[azul, text width=28mm] (a) at (0,0) {enunciado\\matemático};
+\node[azul, text width=28mm] (b) at (3.7,0) {definición\\formal};
+\node[verde, text width=28mm] (c) at (7.4,0) {prueba\\(término)};
+\node[morado, text width=28mm] (d) at (11.1,0) {núcleo\\comprueba el tipo};
+\node[amarillo, text width=28mm] (e) at (11.1,-2.3) {auditoría:\\¿qué axiomas?};
+\draw[flecha] (a) -- node[et,above]{\(\star\)} (b); \draw[flecha] (b) -- (c); \draw[flecha] (c) -- (d); \draw[flecha] (d) -- (e);
+\node[naranja, text width=80mm, font=\small] at (3.7,-2.3) {\(\star\) El único paso que la máquina \emph{no} comprueba: que la definición formal dice lo que se quería decir. Por eso hay que defender las especificaciones.};
+\end{tikzpicture}
+\end{figura}
+
+%=====================================================================
+\section{Glosario}
+%=====================================================================
+
+Los términos van en orden alfabético. Entre corchetes, dónde aparecen.
+
+{\small
+\begin{longtable}{@{}p{0.27\textwidth}p{0.69\textwidth}@{}}
+\toprule
+\textbf{Término} & \textbf{Significado}\\
+\midrule
+\endhead
+abstracción & Construir una función: \(\lambda x.M\) es «la función que a \(x\) le asigna \(M\)». [Cap.\ 7]\\
+adecuación & Corrección + completitud: \(\mathrm{Taut}(\varphi)\iff\varnothing\vdash\varphi\). [Ap.\ A]\\
+\(\alpha\)-equivalencia & Igualdad salvo nombres de variables ligadas: \(\lambda x.x=_\alpha\lambda y.y\). [7.2.4]\\
+alcance & Parte del término donde una variable ligada está disponible; en las pruebas, la «caja» de una suposición.\\
+antecedente / consecuente & En \(\varphi\to\psi\), \(\varphi\) es el antecedente y \(\psi\) el consecuente.\\
+antisimétrica & \(a\leq b\) y \(b\leq a\) implican \(a=b\).\\
+aplicación & Usar una función: \(M\,N\) es «\(M\) aplicada a \(N\)». [Cap.\ 7]\\
+aridad & Número de argumentos de una función o conectivo; en el CIC, la forma de un tipo inductivo. [10.3.2]\\
+asistente de pruebas & Programa que comprueba demostraciones formales con un núcleo pequeño.\\
+átomo & Variable proposicional: \(p,q,r\). Fórmula sin conectivos.\\
+auditoría de axiomas & Lista de los axiomas de los que depende un teorema; detecta huecos (\texttt{sorry}). [11.6, 12.10]\\
+axioma & Enunciado que se acepta sin demostración. En el asistente: extensionalidad proposicional, elección y cocientes.\\
+\(\beta\)-reducción & Paso de cómputo: \((\lambda x.M)N\bred M[x:=N]\). [7.2.7]\\
+base (de conectivos) & Conjunto de conectivos primitivos del lenguaje. La tesis usa \(\{\neg,\to\}\). [11.2.2]\\
+BHK & Interpretación de Brouwer--Heyting--Kolmogorov: una prueba es una construcción. [9.4.1]\\
+bien fundada (relación) & Sin cadenas descendentes infinitas; permite la inducción bien fundada. [12.4]\\
+bivalencia & Toda proposición es verdadera o falsa. Hace válida la RAA en tablas de verdad.\\
+caja (de suposición) & Zona de una prueba donde vale una suposición; se cierra al descargarla. [Nota 9.5]\\
+captura & Error en el que una variable libre queda ligada al sustituir. [Def.\ 7.17]\\
+CIC & Cálculo de Construcciones Inductivas: CoC + tipos inductivos. Base del asistente. [Cap.\ 10]\\
+clausura reflexiva-transitiva & Menor relación reflexiva y transitiva que contiene a otra; \(\bmred\) es la de \(\bred\).\\
+CoC & Cálculo de Construcciones, el vértice \(\lambda C\) del cubo. [8.4]\\
+codificación de Church & Representar datos como funciones: \(n=\lambda A\,x\,f.\,f^nx\). [10.2]\\
+cobertura & Lista \(A\) con \(\mathrm{atomos}(\varphi)\subseteq A\). [11.5.2]\\
+completitud (del cálculo) & Lo verdadero es demostrable: \(\models\varphi\Rightarrow\vdash\varphi\). [Cap.\ 11]\\
+completitud funcional & Una base puede expresar toda función de verdad. [11.2.2]\\
+concatenación & Pegar dos listas: \([1,2]\concat[3]=[1,2,3]\).\\
+confluencia & Si un término se reduce a dos, ambos se reducen a uno común. [Teo.\ 7.37]\\
+congruencia & Relación compatible con los constructores: si \(M\,R\,N\), entonces \(\lambda x.M\,R\,\lambda x.N\), etc.\\
+conectivo & Símbolo que combina fórmulas: \(\neg,\wedge,\vee,\to\).\\
+consecuencia semántica & \(\Gamma\models\varphi\): toda valuación que satisface \(\Gamma\) hace verdadera \(\varphi\). [9.2]\\
+consistencia & No se deriva \(\bot\). [Cor.\ A.5]\\
+constructiva (prueba) & Prueba que exhibe lo que afirma: un testigo para \(\exists\), el lado concreto para \(\vee\). Es el criterio de la lógica intuicionista. [9.4]\\
+constructor & Regla que genera elementos de un tipo inductivo: \(0\), \(S\), \([\,]\), \(::\).\\
+contexto & Conjunto (o lista) de hipótesis o declaraciones: \(\Gamma\).\\
+contractum & Resultado de contraer un redex: \(M[x:=N]\).\\
+contradicción & Fórmula falsa en todas las filas; o, en una prueba, obtener \(\bot\).\\
+corrección (de un cálculo) & Lo demostrable es verdadero (solidez). [Teo.\ A.3]\\
+corrección (de un algoritmo) & El algoritmo cumple su especificación. [Cap.\ 12]\\
+Curry--Howard & Proposiciones = tipos; pruebas = programas. [9.5]\\
+debilitamiento & Añadir hipótesis no invalida una derivación. [Lema 11.9]\\
+decidible & Existe un algoritmo que siempre termina y responde sí o no.\\
+deducción natural & Sistema de pruebas con reglas de introducción y eliminación por conectivo. [Cap.\ 9]\\
+derivación & Árbol de reglas que termina en un juicio; una prueba formal.\\
+descarga & Cerrar una suposición al aplicar una regla (\(\to\)I, \(\neg\)I, RAA, \(\vee\)E).\\
+diamante (propiedad) & Si \(M\) va a \(N_1\) y a \(N_2\), existe \(L\) al que van ambos. [7.2.8]\\
+divide y vencerás & Partir el problema, resolver las partes recursivamente y combinar. [12.3]\\
+eliminador / recursor & Única forma de usar un tipo inductivo; da recursión e inducción. [10.3.4]\\
+especificación & Enunciado formal de lo que debe cumplir un programa.\\
+explosión (ex falso) & De \(\bot\) se deriva cualquier fórmula (\(\bot\)E).\\
+fórmula & Expresión bien formada del lenguaje lógico.\\
+forma normal (\(\beta\)) & Término sin redexes. [Def.\ 7.33]\\
+forma normal disyuntiva & Disyunción de conjunciones de literales; existe para toda tabla.\\
+función total / parcial & Total: definida en todo argumento. Parcial: puede no estarlo (no terminar).\\
+generalizar (la hipótesis) & Cuantificar una variable antes de inducir para que la hipótesis inductiva sirva en otros casos.\\
+Glivenko (teorema de) & \(\varphi\) es tautología clásica si y solo si \(\neg\neg\varphi\) es teorema intuicionista. Resultado estándar, fuera de la tesis.\\
+Heyting (lógica de) & Otro nombre de la lógica intuicionista. [Cap.\ 10]\\
+hipótesis inductiva & Lo que se supone para los casos menores en una inducción.\\
+impredicativo & Definición que cuantifica sobre una colección que incluye lo que se define. [10.2]\\
+inducción bien fundada & Suponer la propiedad para todo lo «más pequeño». [12.4]\\
+inducción estructural & Un caso por constructor. [Nota 7.5]\\
+inducción sobre derivaciones & Un caso por regla. [Lemas 7.57, 11.9]\\
+juicio & Afirmación del sistema formal: \(\Gamma\vdash M:\sigma\) o \(\Gamma\vdash\varphi\).\\
+Kalmár (lema de) & En cada fila, los literales derivan \(\varphi\) o \(\neg\varphi\). [Lema 11.15]\\
+kind & Tipo de los tipos: \(*\), \(*\to*\). [8.2]\\
+lenguaje objeto / metalenguaje & El sistema estudiado frente al lenguaje en que se razona sobre él.\\
+LEM & Tercero excluido: \(\varphi\vee\neg\varphi\).\\
+literal & Un átomo o su negación: \(p\) o \(\neg p\). [Def.\ 11.13]\\
+lógica clásica & Bivalente: incluye LEM, \(\neg\neg\)E o RAA (equivalentes). Su semántica son las tablas de verdad. [Caps.\ 9 y 11]\\
+lógica de Lean & CIC con \texttt{propext}, \texttt{Classical.choice} y \texttt{Quot.sound}. Es clásica porque \texttt{Classical.choice} implica LEM.\\
+lógica de orden superior & Permite cuantificar sobre predicados y proposiciones: \(\forall P.\,P\to P\). [Cap.\ 10]\\
+lógica de predicados (primer orden) & Añade predicados y cuantificadores sobre individuos. Su completitud (Gödel, 1929) no está en la tesis. [Cap.\ 8, \(\lambda P\)]\\
+lógica intuicionista & Una prueba es una construcción (BHK). Sin LEM, \(\neg\neg\)E ni RAA; con ex falso. Su cálculo es NJ. [9.4]\\
+lógica mínima & La intuicionista sin ex falso (\(\bot\)E). No es la base \(\{\neg,\to\}\). [Cap.\ 9]\\
+lógica proposicional & Solo átomos y conectivos, sin cuantificadores. [Caps.\ 9 y 11]\\
+medida & Función hacia \(\mathbb N\) que decrece en cada llamada recursiva: \(|\ell|\). [12.4]\\
+metateorema & Teorema \emph{sobre} un sistema formal (corrección, completitud).\\
+modelo de Kripke & Semántica de la lógica intuicionista: mundos ordenados por «saber más»; lo que vale en un mundo sigue valiendo en los posteriores. [Cap.\ 9, citado]\\
+modus ponens & De \(\varphi\) y \(\varphi\to\psi\), concluir \(\psi\) (\(\to\)E).\\
+multiplicidad & Número de veces que un elemento aparece en una lista. [12.2]\\
+NJ / NK & Deducción natural intuicionista / clásica; NK = NJ + RAA. [Cap.\ 9]\\
+normalización débil / fuerte & Alguna / toda ruta de reducción termina. [Def.\ 7.35]\\
+núcleo (kernel) & Parte mínima del asistente que comprueba los tipos.\\
+orden lineal & Reflexivo, antisimétrico, transitivo y total. [12.2]\\
+PAT & «Propositions as types»: la lectura de Curry--Howard. [Def.\ 7.61]\\
+Peirce (ley de) & \(((p\to q)\to p)\to p\): tautología clásica que no es teorema intuicionista.\\
+permutación & Misma lista salvo el orden (mismas multiplicidades). [Def.\ 12.3]\\
+pivote & Elemento que separa la lista en Quicksort.\\
+positividad estricta & La variable recursiva no aparece a la izquierda de \(\to\) en un constructor. [10.3.2]\\
+preorden & Relación reflexiva y transitiva.\\
+\(\Pi\) (producto dependiente) & Tipo de funciones cuyo resultado depende del argumento; codifica \(\forall\). [8.1.1]\\
+RAA & Reducción al absurdo clásica: de \(\Gamma,\neg\varphi\vdash\bot\), concluir \(\varphi\).\\
+redex & Subtérmino reducible \((\lambda x.M)N\).\\
+reducción \(\iota\) & El eliminador aplicado a un constructor se calcula con su caso. [10.3.5]\\
+regla derivada & Regla que se demuestra a partir de las primitivas (análisis por casos, Lema 11.11).\\
+satisfacible & Verdadera en al menos una fila.\\
+secuente & Expresión \(\Gamma\vdash\varphi\). [Def.\ 9.3]\\
+sort & \(*\) o \(\square\): las clasificaciones del nivel superior. [Cap.\ 8]\\
+subtérmino & Parte de un término: \(\mathrm{Sub}(M)\). [Def.\ 7.3]\\
+sustitución & \(M[x:=N]\): reemplazar las \(x\) libres por \(N\), evitando captura. [Def.\ 7.20]\\
+tautología & Verdadera en todas las filas. [Def.\ 11.5]\\
+teorema (del cálculo) & Fórmula derivable sin hipótesis: \(\vdash\varphi\). [Def.\ 9.4]\\
+terminación & Que toda ejecución acabe. [Prop.\ 12.6]\\
+tipo & Clasificación de un término; bajo PAT, una proposición.\\
+tipo inductivo & Tipo definido por constructores. [Cap.\ 10]\\
+universo & Tipo de tipos en una jerarquía (\(\mathrm{Type}_0:\mathrm{Type}_1:\cdots\)).\\
+valuación & Asignación de \(\mathsf V\) o \(\mathsf F\) a cada átomo; una fila de la tabla. [Def.\ 11.4]\\
+variable libre / ligada & Libre: no está bajo un \(\lambda\) que la enlace. Ligada: sí lo está.\\
+\bottomrule
+\end{longtable}
+}
+
+%=====================================================================
+\section{Palabras con varios significados}
+%=====================================================================
+
+Estas son las palabras que más confusiones producen en una defensa. Conviene
+decir siempre cuál de los sentidos se usa.
+
+{\small
+\begin{longtable}{@{}p{0.17\textwidth}p{0.79\textwidth}@{}}
+\toprule
+\textbf{Palabra} & \textbf{Sentidos distintos}\\
+\midrule
+\endhead
+completo / completitud & (1) \emph{funcional}: una base expresa toda tabla. (2) \emph{del cálculo}: lo verdadero es demostrable (Cap.\ 11). (3) \emph{de Gödel} (1929): la misma idea para lógica de primer orden, fuera de la tesis. (4) La \emph{incompletitud} de Gödel (1931) es otra cosa: habla de la aritmética, no de la lógica proposicional.\\
+corrección & (1) De un \emph{cálculo}: lo demostrable es verdadero (solidez, Ap.\ A). (2) De un \emph{algoritmo}: cumple su especificación (Cap.\ 12).\\
+base & (1) \emph{De conectivos}: los primitivos, \(\{\neg,\to\}\). (2) \emph{Caso base} de una inducción. (3) Base de la confianza: el núcleo y los axiomas.\\
+normal & (1) \emph{Forma normal \(\beta\)}: sin redexes. (2) \emph{Forma normal disyuntiva}: disyunción de conjunciones. (3) \emph{Normalización de pruebas}: eliminar desvíos.\\
+\(\vdash\) & (1) Derivabilidad: \(\Gamma\vdash\varphi\). (2) Tipado: \(\Gamma\vdash M:\sigma\). (3) En el asistente, la meta pendiente. La tesis lo advierte en §10.3.3.\\
+reducción & (1) \emph{\(\beta\)-reducción}: un paso de cómputo. (2) \emph{Reducción al absurdo}: \(\neg\)I (intuicionista) o RAA (clásica). (3) \(\iota\)-reducción.\\
+eliminación & (1) \emph{Regla de eliminación}: usar un conectivo (\(\to\)E). (2) \emph{Eliminador}: el recursor de un tipo inductivo.\\
+abstracción & (1) \(\lambda x.M\). (2) Regla de tipado que la introduce.\\
+tipo & (1) Clasificación de un término. (2) Bajo PAT, una proposición. (3) \emph{Tipo inductivo}: tipo definido por constructores.\\
+consistente & (1) Un cálculo: no deriva \(\bot\). (2) Un conjunto de fórmulas: no deriva \(\bot\) a partir de él (Lindenbaum).\\
+decidir & (1) Decidibilidad: hay un algoritmo. (2) \(\mathsf{decidir}(x\leq p)\): calcular el valor booleano de una comparación (Cap.\ 12).\\
+\(\Rightarrow\) & (1) Implicación del metalenguaje. (2) Reducción paralela en la prueba de Church--Rosser (Def.\ 7.39).\\
+\(\bot\) & (1) Fórmula falsa del cálculo. (2) A veces se usa para «Falso»; la tesis los distingue (Nota 11.1).\\
+mínima & (1) \emph{Lógica mínima}: intuicionista sin ex falso. (2) \emph{Base mínima} de conectivos \(\{\neg,\to\}\): sigue siendo lógica clásica completa. La tesis lo aclara en el Cap.\ 9.\\
+clásico / clásica & (1) \emph{Lógica clásica}: con LEM o RAA. (2) \emph{Resultado clásico}: conocido, de la literatura. (3) En Lean, \texttt{Classical}: el axioma de elección y sus consecuencias, como \texttt{Classical.em}.\\
+inducción & Sobre \(\mathbb N\), estructural, sobre derivaciones, bien fundada: misma idea, distinto conjunto.\\
+\bottomrule
+\end{longtable}
+}
+
+%=====================================================================
+\section{Tabla de símbolos}
+%=====================================================================
+
+{\small
+\begin{longtable}{@{}p{0.2\textwidth}p{0.76\textwidth}@{}}
+\toprule
+\textbf{Símbolo} & \textbf{Lectura}\\
+\midrule
+\endhead
+\(\Gamma\vdash\varphi\) & «\(\varphi\) se deriva de \(\Gamma\)»; \(\Provnd\) en el Cap.\ 11\\
+\(\Gamma\models\varphi\) & «\(\varphi\) es consecuencia semántica de \(\Gamma\)»\\
+\(\Gamma\vdash M:\sigma\) & «en \(\Gamma\), \(M\) tiene tipo \(\sigma\)»\\
+\(\sem{\varphi}_v\) & valor de verdad de \(\varphi\) bajo la valuación \(v\)\\
+\(v\models\Gamma\) & \(v\) hace verdaderas todas las fórmulas de \(\Gamma\)\\
+\(\mathrm{Taut}(\varphi)\) & \(\varphi\) es tautología\\
+\(\varphi\dashv\vdash\psi\) & demostrablemente equivalentes\\
+\(\equiv\) & identidad sintáctica (en la tesis, módulo \(\alpha\))\\
+\(=_\alpha,\ =_\beta\) & \(\alpha\)-equivalencia; \(\beta\)-conversión\\
+\(\bred,\ \bmred\) & un paso de \(\beta\); cero o más pasos\\
+\(M[x:=N]\) & sustitución de \(x\) por \(N\) en \(M\)\\
+\(\mathrm{FV}(M)\) & variables libres de \(M\)\\
+\(\lambda x.M\) & función de \(x\) con cuerpo \(M\)\\
+\(\Lambda\alpha{:}*.M\) & abstracción sobre un tipo (polimorfismo)\\
+\(\Pi x{:}A.B\) & producto dependiente (\(\forall\))\\
+\(*,\ \square\) & sorts: tipos y kinds\\
+\(\sigma\to\tau\) & tipo de funciones; implicación\\
+\(\neg,\to,\wedge,\vee,\bot\) & no, implica, y, o, falso\\
+\(\Gamma,\varphi\) & \(\Gamma\cup\{\varphi\}\)\\
+\(a::r\) & lista con cabeza \(a\) y cola \(r\)\\
+\(\ell_1\concat\ell_2\) & concatenación\\
+\(|\ell|\) & longitud de la lista\\
+\(\ell_1\sim\ell_2\) & \(\ell_1\) es permutación de \(\ell_2\)\\
+\(\Gamma_v(A)\) & contexto de literales de la fila \(v\)\\
+\(\Theta(\cdot)\) & orden de crecimiento (complejidad)\\
+\(::=\) & «se define por la gramática»\\
+\(:=\) & «se define como»\\
+\bottomrule
+\end{longtable}
+}
+
+\end{document}

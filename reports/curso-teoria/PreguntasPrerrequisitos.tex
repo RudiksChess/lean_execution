@@ -1,0 +1,875 @@
+% Banco de preguntas de prerrequisitos matemáticos para la defensa.
+% Preguntas con respuesta corta, por nivel, con referencia a la tesis.
+% Compilar dos veces:  lualatex PreguntasPrerrequisitos.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.3cm,headheight=14pt]{geometry}
+\usepackage{amsmath,mathtools}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\setmainfont{TeX Gyre Pagella}
+\setmathfont{TeX Gyre Pagella Math}
+\setsansfont{DejaVu Sans}[Scale=MatchLowercase]
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs,tabularx,array}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{needspace}
+\AtBeginDocument{\providecommand\square{\mdlgwhtsquare}}
+
+\definecolor{nb}{HTML}{5E9A62}
+\definecolor{ni}{HTML}{3F6FA8}
+\definecolor{na}{HTML}{B5523B}
+\definecolor{fondonota}{HTML}{F1EEF8}
+\definecolor{bordenota}{HTML}{8C7DB8}
+
+\newtcolorbox{nota}[1][Nota]{enhanced, breakable, colback=fondonota,
+  colframe=bordenota, boxrule=0.5pt, arc=3pt, colbacktitle=bordenota,
+  coltitle=white, fonttitle=\sffamily\bfseries\small, title={#1},
+  before skip=8pt, after skip=8pt}
+
+\newcounter{preg}
+\newcommand{\nivel}[1]{%
+  \ifx#1B\tcbox[on line, boxsep=0pt, left=3pt, right=3pt, top=1pt, bottom=1pt,
+    colback=nb!15, colframe=nb, boxrule=0.4pt, arc=2pt]{\sffamily\scriptsize básico}\fi
+  \ifx#1I\tcbox[on line, boxsep=0pt, left=3pt, right=3pt, top=1pt, bottom=1pt,
+    colback=ni!15, colframe=ni, boxrule=0.4pt, arc=2pt]{\sffamily\scriptsize intermedio}\fi
+  \ifx#1A\tcbox[on line, boxsep=0pt, left=3pt, right=3pt, top=1pt, bottom=1pt,
+    colback=na!15, colframe=na, boxrule=0.4pt, arc=2pt]{\sffamily\scriptsize avanzado}\fi}
+% \Q{nivel}{pregunta}{respuesta}{dónde en la tesis}
+\newcommand{\Q}[4]{\par\Needspace{4\baselineskip}\medskip\noindent
+  \refstepcounter{preg}\textbf{\thepreg.}\ \nivel{#1}\ \textbf{#2}\par
+  \nopagebreak\noindent #3%
+  \if\relax\detokenize{#4}\relax\else\ {\small\textcolor{gray}{[#4]}}\fi\par}
+
+\newcommand{\Provnd}{\vdash_{\mathrm{ND}}}
+\newcommand{\bred}{\rightarrow_\beta}
+\newcommand{\bmred}{\twoheadrightarrow_\beta}
+\newcommand{\concat}{\mathbin{+\!\!+}}
+\newcommand{\sem}[1]{[\![#1]\!]}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Preguntas de prerrequisitos matemáticos}
+\fancyhead[R]{\small\sffamily\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlist{itemsep=2pt, topsep=4pt}
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+
+\title{\textbf{Preguntas de prerrequisitos matemáticos}\\[4pt]
+  \large Lo que conviene saber «por si acaso» antes de la defensa}
+\author{Material de apoyo para la defensa}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Banco de preguntas con respuesta corta sobre las nociones matemáticas que la
+tesis da por sabidas o que un tribunal puede usar para comprobar el dominio
+del tema: conjuntos, relaciones, inducción, lógica, cálculo~\(\lambda\),
+tipos, fundamentos y algoritmos. Cada pregunta lleva un nivel
+(\nivel{B}, \nivel{I}, \nivel{A}) y, entre corchetes, dónde aparece la idea en
+la tesis. Algunas preguntas tratan temas \emph{cercanos} que la tesis no
+desarrolla (Gödel, compacidad, complejidad); están marcadas como tales.
+\end{abstract}
+
+\begin{nota}[Cómo usar este banco]
+\begin{enumerate}
+  \item Tapar las respuestas e intentar contestar en voz alta, en una o dos
+    frases.
+  \item Si falla alguna pregunta \nivel{B}, repasar esa sección antes de
+    seguir: el tribunal da por sabido ese nivel.
+  \item Las \nivel{I} son las que se esperan de quien escribió la tesis.
+  \item Las \nivel{A} sirven para no quedarse en blanco ante una pregunta
+    ambiciosa; basta una respuesta correcta y breve.
+\end{enumerate}
+\end{nota}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{Conjuntos, funciones y listas}
+%=====================================================================
+
+\Q{B}{¿Qué significan \(\Gamma\cup\{\varphi\}\), \(\Gamma\subseteq\Delta\) y \(\varnothing\)?}
+{Unión: los elementos de \(\Gamma\) más \(\varphi\). Inclusión: todo elemento de
+\(\Gamma\) está en \(\Delta\). \(\varnothing\): el conjunto vacío, sin
+elementos. En un secuente, \(\Gamma,\varphi\) abrevia \(\Gamma\cup\{\varphi\}\).}
+{§11.3.2}
+
+\Q{B}{¿Qué diferencia hay entre conjunto, lista y multiconjunto?}
+{Un \emph{conjunto} no tiene orden ni repeticiones. Una \emph{lista} tiene
+orden y puede repetir. Un \emph{multiconjunto} no tiene orden pero cuenta
+repeticiones. En la tesis: los contextos son conjuntos; los átomos de una
+fórmula, una lista; dos listas son permutación una de otra si tienen el mismo
+multiconjunto.}
+{Caps.\ 11 y 12}
+
+\Q{B}{¿Qué es una función? ¿Qué es una función total y una parcial?}
+{Una regla que asigna a cada elemento del dominio un único elemento del
+codominio. Total: definida en todo el dominio. Parcial: puede no estar
+definida en algunos puntos, por ejemplo porque un cálculo no termina.}
+{Prop.\ 12.6}
+
+\Q{B}{¿Qué son una función inyectiva, una sobreyectiva y una biyectiva?}
+{Inyectiva: elementos distintos van a imágenes distintas. Sobreyectiva: toda
+imagen posible se alcanza. Biyectiva: ambas cosas; tiene inversa. Un
+\emph{isomorfismo} es una biyección que respeta la estructura. Por eso
+«isomorfismo de Curry--Howard»: pruebas y términos se corresponden
+respetando las reglas.}
+{Teo.\ 9.22}
+
+\Q{B}{¿Qué significa que un conjunto sea numerable?}
+{Que se puede poner en biyección con \(\mathbb N\) (o es finito): sus elementos
+se pueden enumerar. El conjunto de variables proposicionales es numerable.}
+{§11.2.1}
+
+\Q{B}{¿Qué son la cabeza, la cola, la concatenación y la longitud de una lista?}
+{En \(a::r\), \(a\) es la cabeza y \(r\) la cola. \(\ell_1\concat\ell_2\) pega
+dos listas. \(|\ell|\) cuenta sus elementos, con repeticiones:
+\(|[1,1,2]|=3\).}
+{§12.2}
+
+\Q{B}{¿Qué es un predicado?}
+{Una propiedad de los elementos: una función que a cada \(x\) le asigna
+verdadero o falso. En Quicksort, «\(x\leq p\)» es un predicado y el filtro
+conserva los elementos que lo cumplen.}
+{Def.\ 12.4}
+
+\Q{I}{¿Qué diferencia hay entre un valor booleano y una proposición?}
+{Un booleano es un dato, \(\mathsf V\) o \(\mathsf F\), que se puede calcular.
+Una proposición es un enunciado que puede ser demostrable o no, y no siempre
+hay un algoritmo que decida cuál. \(\mathsf{decidir}(x\leq p)\) convierte una
+proposición decidible en un booleano.}
+{§12.2, Nota 11.7}
+
+\Q{I}{¿Qué significa «definido por recursión»?}
+{Definir una función dando su valor en los casos básicos y, en los casos
+compuestos, en términos de su valor en partes más pequeñas. Ejemplos:
+\(\mathrm{FV}\), la sustitución, \(\sem{\cdot}_v\), \(\mathrm{atomos}\) y el filtro.}
+{Caps.\ 7, 11 y 12}
+
+%=====================================================================
+\section{Relaciones y órdenes}
+%=====================================================================
+
+\Q{B}{¿Qué son las propiedades reflexiva, simétrica, transitiva, antisimétrica y total?}
+{Reflexiva: \(a\,R\,a\). Simétrica: \(a\,R\,b\Rightarrow b\,R\,a\). Transitiva:
+\(a\,R\,b\wedge b\,R\,c\Rightarrow a\,R\,c\). Antisimétrica:
+\(a\,R\,b\wedge b\,R\,a\Rightarrow a=b\). Total: \(a\,R\,b\vee b\,R\,a\).}
+{§12.2}
+
+\Q{B}{¿Qué es una relación de equivalencia? Dé tres ejemplos de la tesis.}
+{Una relación reflexiva, simétrica y transitiva. Ejemplos: \(=_\alpha\)
+(mismos términos salvo nombres ligados), \(=_\beta\) (convertibles) y
+\(\sim\) (permutación de listas).}
+{Def.\ 7.16, Lema 7.32, Def.\ 12.3}
+
+\Q{I}{¿Qué es una clase de equivalencia y qué es un cociente?}
+{La clase de \(a\) es el conjunto de todo lo equivalente a \(a\). El cociente
+es el conjunto de todas las clases. «Trabajar módulo \(\alpha\)» es
+trabajar en el cociente de los términos por \(=_\alpha\). En el asistente,
+los cocientes son primitivos, y uno de los tres axiomas de la auditoría
+(solidez de los cocientes) dice que elementos equivalentes dan la misma clase.}
+{§7.2.4, Nota 10.7}
+
+\Q{B}{¿Qué diferencia hay entre un orden parcial y un orden lineal?}
+{Parcial: reflexivo, antisimétrico y transitivo; puede haber elementos
+incomparables (\(\subseteq\) entre conjuntos). Lineal o total: además, dos
+elementos cualesquiera son comparables (\(\leq\) en \(\mathbb N\)). Quicksort
+pide un orden lineal.}
+{§12.2}
+
+\Q{B}{¿Cómo se relacionan \(\leq\) y \(<\)?}
+{\(a<b\iff a\leq b\wedge a\neq b\). En un orden lineal además
+\(\neg(b\leq a)\iff a<b\). Esta última ley garantiza que lo que no va a la
+izquierda en Quicksort es mayor que el pivote.}
+{(O) en §12.2}
+
+\Q{I}{¿Qué es un preorden? Dé un ejemplo.}
+{Una relación reflexiva y transitiva, no necesariamente antisimétrica.
+Ejemplo: comparar personas por su edad; dos personas distintas pueden tener
+la misma edad.}
+{}
+
+\Q{I}{¿Qué es la clausura reflexiva y transitiva de una relación?}
+{La menor relación reflexiva y transitiva que la contiene: «cero o más
+pasos». \(\bmred\) es la de \(\bred\).}
+{Def.\ 7.27}
+
+\Q{I}{¿Qué es una relación bien fundada? Un ejemplo y un contraejemplo.}
+{Una relación sin cadenas descendentes infinitas. \((\mathbb N,<)\) es bien
+fundada. \((\mathbb Z,<)\) no lo es (\(0>-1>-2>\cdots\)), y tampoco los
+racionales no negativos con \(<\) (\(1>\tfrac12>\tfrac14>\cdots\)).}
+{§12.4}
+
+\Q{I}{¿Qué significa que una relación sea compatible, o una congruencia?}
+{Que se conserva al construir términos más grandes: si \(M\,R\,N\), entonces
+\(M\,L\,R\,N\,L\), \(L\,M\,R\,L\,N\) y \(\lambda x.M\,R\,\lambda x.N\). La
+reducción \(\beta\) y la \(\alpha\)-equivalencia son compatibles.}
+{Defs.\ 7.16, 7.24}
+
+\Q{A}{¿Qué diferencia hay entre la propiedad del diamante, la confluencia y la confluencia local?}
+{Diamante: dos pasos que divergen se cierran en \emph{un} paso cada uno.
+Confluencia: dos reducciones de cualquier longitud se cierran. Local: dos
+pasos se cierran con reducciones de cualquier longitud. La local solo
+implica la confluencia si además hay terminación (lema de Newman).}
+{§7.2.8}
+
+%=====================================================================
+\section{Inducción y recursión}
+%=====================================================================
+
+\Q{B}{Enuncie el principio de inducción sobre \(\mathbb N\). ¿Por qué es válido?}
+{Si \(P(0)\) y \(P(n)\Rightarrow P(n+1)\) para todo \(n\), entonces
+\(P(n)\) para todo \(n\). Es válido porque \(\mathbb N\) es el menor conjunto
+que contiene \(0\) y es cerrado bajo sucesor; equivalentemente, todo
+subconjunto no vacío de \(\mathbb N\) tiene mínimo.}
+{Nota 10.1}
+
+\Q{B}{¿Qué es la inducción fuerte?}
+{Suponer \(P(k)\) para \emph{todo} \(k<n\) para probar \(P(n)\). Es
+equivalente a la inducción ordinaria. Es la forma que usa Quicksort, sobre la
+longitud.}
+{§12.4}
+
+\Q{B}{¿Qué son el caso base, el paso inductivo y la hipótesis inductiva?}
+{Caso base: los objetos más simples. Paso inductivo: pasar de objetos más
+pequeños a uno más grande. Hipótesis inductiva: lo que se supone sobre los
+más pequeños durante el paso.}
+{Nota 7.5}
+
+\Q{B}{¿Qué es la inducción estructural?}
+{Inducción siguiendo la definición de un tipo de objetos: un caso por cada
+forma de construirlos (por ejemplo átomo, \(\neg\) y \(\to\)), con hipótesis
+inductiva para las partes inmediatas.}
+{Nota 7.5, Lema 11.15}
+
+\Q{I}{¿Qué es la inducción sobre derivaciones y en qué se distingue de la estructural?}
+{Es la misma idea aplicada a las derivaciones: un caso por cada regla, con
+hipótesis inductiva para las premisas. Se usa para probar propiedades de todo
+lo \emph{derivable} (debilitamiento, corrección).}
+{Lemas 7.57, 11.9; Teo.\ A.3}
+
+\Q{I}{¿Qué es la inducción bien fundada y qué es una medida?}
+{Inducción sobre una relación bien fundada: se supone la propiedad para todo
+lo «más pequeño». Una medida es una función hacia \(\mathbb N\) que define
+«más pequeño». Quicksort usa la longitud de la lista.}
+{§12.4}
+
+\Q{I}{¿Qué quiere decir «generalizar la hipótesis» antes de inducir?}
+{Dejar cuantificada una variable que cambia de un caso a otro, para que la
+hipótesis inductiva pueda usarse con otro valor. En el debilitamiento se
+generaliza el contexto \(\Delta\); en la corrección, la valuación \(v\).}
+{Lema 11.9, Teo.\ A.3}
+
+\Q{I}{¿Qué quiere decir «reforzar el enunciado»?}
+{Demostrar algo más fuerte que lo que se quiere, porque el enunciado original
+no pasa la inducción. Ejemplo: el lema de Kalmár es bilateral (verdadero y
+falso) aunque la completitud solo use la parte verdadera.}
+{Lema 11.15}
+
+\Q{B}{¿Qué es una definición por recursión primitiva? Dé el factorial.}
+{Una función con \(g(0)=x\) y \(g(n+1)=f(n,g(n))\). Factorial:
+\(0!=1\), \((n+1)!=(n+1)\cdot n!\). El teorema de recursión garantiza que esa
+función existe y es única.}
+{Nota 10.1}
+
+\Q{I}{¿Qué diferencia hay entre recursión estructural y recursión bien fundada?}
+{Estructural: cada llamada es sobre una parte inmediata del argumento, como
+la cola; termina automáticamente. Bien fundada: las llamadas son sobre algo
+«más pequeño» según una medida; hay que probar que la medida decrece.
+Quicksort es del segundo tipo, porque \(L\) y \(R\) no son la cola.}
+{§12.4}
+
+\Q{A}{¿Por qué una «definición» recursiva que no termina es un problema en lógica?}
+{Porque sus ecuaciones pueden ser contradictorias. Si se admitiera
+\(g(n)=g(n)+1\), restando se obtendría \(0=1\). Por eso los asistentes exigen
+probar la terminación.}
+{Prop.\ 12.6}
+
+\Q{I}{¿Qué es un invariante?}
+{Una propiedad que se conserva en cada paso de un proceso. En Quicksort,
+«la partición no pierde ni duplica elementos» y «todo lo de la izquierda es
+\(\leq p\)» son invariantes del paso de partición.}
+{Conclusión del Cap.\ 12}
+
+%=====================================================================
+\section{Lógica proposicional: sintaxis y semántica}
+%=====================================================================
+
+\Q{B}{¿Qué son un átomo, un conectivo y una fórmula?}
+{Átomo: una variable proposicional (\(p\)). Conectivo: un símbolo que
+combina fórmulas (\(\neg,\to,\wedge,\vee\)). Fórmula: una expresión bien
+formada construida a partir de átomos con conectivos.}
+{Def.\ 11.3}
+
+\Q{B}{¿Cómo se lee \(\varphi::=p\mid\neg\varphi\mid(\varphi\to\psi)\)?}
+{Es una gramática (notación BNF): una fórmula es un átomo, \emph{o} la
+negación de una fórmula, \emph{o} la implicación entre dos fórmulas. Cada
+\(\mid\) separa una alternativa.}
+{Def.\ 11.3}
+
+\Q{B}{¿Qué es una valuación? ¿Cuántas filas tiene la tabla de una fórmula con \(n\) átomos?}
+{Una asignación de \(\mathsf V\) o \(\mathsf F\) a cada átomo; cada fila de la
+tabla es una valuación. Con \(n\) átomos hay \(2^n\) filas.}
+{Def.\ 11.4}
+
+\Q{B}{¿Por qué «falso implica cualquier cosa» es verdadero?}
+{En la implicación material, \(\varphi\to\psi\) solo es falsa cuando
+\(\varphi\) es verdadera y \(\psi\) falsa. Una promesa «si llueve, llevo
+paraguas» no se incumple si no llueve.}
+{§9.2}
+
+\Q{B}{¿Qué son una tautología, una contradicción y una fórmula satisfacible?}
+{Tautología: verdadera en todas las filas. Contradicción: falsa en todas.
+Satisfacible: verdadera en alguna. Toda tautología es satisfacible; una
+contradicción no.}
+{Def.\ 9.12}
+
+\Q{B}{¿Qué significa \(\Gamma\models\varphi\)? ¿Cómo se relaciona con las tautologías?}
+{Toda valuación que hace verdaderas las fórmulas de \(\Gamma\) hace
+verdadera \(\varphi\). Si \(\Gamma=\{\gamma_1,\dots,\gamma_n\}\), entonces
+\(\Gamma\models\varphi\) equivale a que
+\(\gamma_1\to(\cdots\to(\gamma_n\to\varphi))\) sea tautología.}
+{Def.\ 9.11, Teo.\ 9.14}
+
+\Q{B}{¿Qué es un literal?}
+{Un átomo o la negación de un átomo: \(p\) o \(\neg p\). En el argumento de
+Kalmár, el literal de \(p\) en una fila es lo que esa fila dice de \(p\).}
+{Def.\ 11.13}
+
+\Q{I}{¿Qué es una función de verdad? ¿Cuántas hay de \(n\) argumentos?}
+{Una función \(\{\mathsf V,\mathsf F\}^n\to\{\mathsf V,\mathsf F\}\), es decir,
+una tabla de verdad. Hay \(2^{2^n}\): \(2^n\) filas y dos valores posibles en
+cada una. Para \(n=2\), hay 16.}
+{§11.2.2}
+
+\Q{I}{¿Qué significa «base» de conectivos?}
+{El conjunto de conectivos que se toman como \emph{primitivos}; los demás se
+definen como abreviaturas. La tesis usa la base \(\{\neg,\to\}\).}
+{§11.2.2}
+
+\Q{I}{¿Qué significa que una base sea «funcionalmente completa»?}
+{Que toda función de verdad, de cualquier número de argumentos, puede
+escribirse como una fórmula que solo usa esos conectivos. Es una propiedad de
+\emph{expresividad}, no de demostrabilidad.}
+{§11.2.2}
+
+\Q{I}{¿Por qué \(\{\neg,\to\}\) es funcionalmente completa?}
+{Toda tabla se escribe en forma normal disyuntiva (una conjunción de
+literales por fila verdadera), que solo usa \(\neg,\wedge,\vee\). A su vez,
+\(A\vee B\equiv\neg A\to B\) y \(A\wedge B\equiv\neg(A\to\neg B)\).}
+{§11.2.2; Mendelson, cor.\ 1.6}
+
+\Q{I}{¿Por qué \(\{\wedge,\vee\}\) no es funcionalmente completa?}
+{Porque cualquier fórmula hecha solo con \(\wedge\) y \(\vee\) es verdadera
+cuando todos sus átomos lo son. Entonces no puede expresar \(\neg p\), que
+es falsa cuando \(p\) es verdadera. El mismo argumento vale para
+\(\{\to\}\) y para \(\{\wedge,\vee,\to\}\).}
+{}
+
+\Q{I}{¿Qué son la forma normal disyuntiva y la conjuntiva?}
+{Disyuntiva: una disyunción de conjunciones de literales. Conjuntiva: una
+conjunción de disyunciones de literales. Toda fórmula es equivalente a una
+de cada tipo.}
+{§11.2.2}
+
+\Q{A}{¿Existe un único conectivo funcionalmente completo?}
+{Sí: \(\mathsf{NAND}\) (no-y) y \(\mathsf{NOR}\) (no-o), llamados conectivos de
+Sheffer. Por ejemplo, \(\neg p\equiv p\ \mathsf{NAND}\ p\).}
+{}
+
+\Q{I}{¿Qué diferencia hay entre \(\equiv\) (equivalencia lógica), \(\dashv\vdash\) y la igualdad sintáctica?}
+{\(\varphi\equiv\psi\): mismo valor en todas las filas (semántica).
+\(\varphi\dashv\vdash\psi\): cada una se deriva de la otra (sintaxis). Igualdad
+sintáctica: son la misma expresión. Por adecuación, las dos primeras
+coinciden en lógica clásica.}
+{Def.\ 9.8, §11.2.2}
+
+\Q{I}{¿Por qué \(\neg(p_0\to p_0)\) sirve como \(\bot\)?}
+{\(p_0\to p_0\) es verdadera en todas las filas, así que su negación es falsa
+en todas, cualquiera que sea el valor de \(p_0\).}
+{Def.\ 11.8, Lema A.1}
+
+%=====================================================================
+\section{Sistemas de demostración}
+%=====================================================================
+
+\Q{B}{¿Qué es una regla de inferencia?}
+{Un esquema «de estas premisas se concluye esto», escrito como fracción:
+premisas arriba y conclusión abajo.}
+{§9.1}
+
+\Q{B}{¿Qué es una derivación, o prueba formal?}
+{Un árbol de aplicaciones de reglas cuya raíz es la conclusión y cuyas hojas
+son hipótesis o axiomas.}
+{§9.1, §11.3}
+
+\Q{B}{¿Qué es un secuente y qué es un teorema del cálculo?}
+{\(\Gamma\vdash\varphi\): «\(\varphi\) se deriva de las hipótesis \(\Gamma\)».
+Un teorema es una fórmula derivable sin hipótesis: \(\vdash\varphi\).}
+{Defs.\ 9.3, 9.4}
+
+\Q{B}{¿Qué diferencia hay entre reglas de introducción y de eliminación?}
+{Introducción: cómo \emph{probar} una fórmula con ese conectivo (\(\to\)I).
+Eliminación: cómo \emph{usarla} (\(\to\)E, el modus ponens).}
+{§9.1}
+
+\Q{B}{¿Qué es una suposición y qué significa descargarla?}
+{Una hipótesis temporal que se abre dentro de la prueba («supongamos
+\(\varphi\)»). Descargarla es cerrarla al aplicar una regla como \(\to\)I, que
+la incorpora a la conclusión (\(\varphi\to\psi\)). Después ya no está
+disponible.}
+{Nota 9.5}
+
+\Q{B}{¿Qué es el modus ponens?}
+{De \(\varphi\) y \(\varphi\to\psi\) se concluye \(\psi\). Es \(\to\)E.}
+{§9.1}
+
+\Q{I}{¿En qué se diferencian \(\neg\)I y RAA?}
+{\(\neg\)I: de \(\Gamma,A\vdash\bot\) se concluye \(\neg A\); es
+intuicionista. RAA: de \(\Gamma,\neg A\vdash\bot\) se concluye \(A\); es
+clásica. La forma es parecida; la diferencia es qué se supone y qué se
+concluye.}
+{Nota 7.60, §11.3.3}
+
+\Q{I}{¿Qué es el principio de explosión?}
+{De una contradicción se sigue cualquier cosa: \(\bot\vdash\varphi\). Es la
+regla \(\bot\)E.}
+{§9.1}
+
+\Q{I}{¿Qué diferencia hay entre una regla primitiva, una derivada y una admisible?}
+{Primitiva: forma parte del sistema. Derivada: abrevia una derivación hecha
+con las primitivas (el análisis por casos, Lema 11.11). Admisible: añadirla
+no cambia lo que se deriva; se prueba por inducción sobre las derivaciones
+(el debilitamiento, Lema 11.9).}
+{Caps.\ 9 y 11}
+
+\Q{I}{¿Qué diferencia hay entre un sistema de Hilbert y la deducción natural?}
+{Hilbert: muchos axiomas y una sola regla (modus ponens), sin suposiciones
+temporales. Deducción natural: pocas reglas por conectivo, con suposiciones
+que se abren y se descargan. Mendelson usa Hilbert; la tesis usa deducción
+natural.}
+{§11.1}
+
+\Q{I}{¿Qué dice el teorema de la deducción?}
+{\(\Gamma,\varphi\vdash\psi\) si y solo si \(\Gamma\vdash\varphi\to\psi\). En los
+sistemas de Hilbert es un teorema; en la deducción natural son directamente
+las reglas \(\to\)I y \(\to\)E.}
+{}
+
+\Q{I}{¿Qué son las reglas estructurales?}
+{Las que manipulan el contexto: debilitamiento (añadir hipótesis),
+intercambio (reordenarlas) y contracción (eliminar repeticiones). Con
+contextos como conjuntos, las dos últimas vienen gratis; el debilitamiento
+se demuestra.}
+{§11.3.2}
+
+\Q{A}{¿Qué es un desvío en una prueba y qué es normalizarla?}
+{Un desvío es introducir un conectivo e inmediatamente eliminarlo.
+Normalizar es eliminar desvíos. Bajo Curry--Howard es exactamente la
+reducción \(\beta\).}
+{§9.5.2}
+
+%=====================================================================
+\section{Metateoremas: corrección, completitud y compañía}
+%=====================================================================
+
+\Q{B}{¿Qué es un metateorema?}
+{Un teorema \emph{sobre} un sistema formal, no dentro de él. Ejemplos:
+corrección, completitud y debilitamiento.}
+{Nota 11.1}
+
+\Q{B}{¿Qué dicen la corrección, la completitud y la adecuación?}
+{Corrección: si \(\vdash\varphi\), entonces \(\models\varphi\). Completitud: si
+\(\models\varphi\), entonces \(\vdash\varphi\). Adecuación: las dos juntas.}
+{Teos.\ A.3, 11.18, A.6}
+
+\Q{B}{¿Qué es la consistencia y qué relación tiene con la corrección?}
+{Un cálculo es consistente si no deriva \(\bot\). Se sigue de la corrección:
+\(\bot\) no es verdadera en ninguna fila, luego no es derivable.}
+{Cor.\ A.5}
+
+\Q{I}{¿Es decidible la lógica proposicional?}
+{Sí: para saber si \(\varphi\) es tautología basta revisar sus \(2^n\) filas.
+No se conoce un método eficiente en general (decidir tautologías es
+coNP-completo); esto es contexto, no parte de la tesis.}
+{}
+
+\Q{I}{¿Qué diferencia hay entre completitud débil y fuerte?}
+{Débil: toda tautología es derivable (\(\Gamma=\varnothing\)); es la que
+demuestra la tesis. Fuerte: \(\Gamma\models\varphi\Rightarrow\Gamma\vdash\varphi\)
+para todo \(\Gamma\). Para \(\Gamma\) finito se obtiene de la débil con
+\(\to\)E; para \(\Gamma\) infinito hace falta la compacidad.}
+{Teo.\ 11.18}
+
+\Q{A}{¿Qué es la compacidad? (cercano a la tesis)}
+{Un conjunto de fórmulas es satisfacible si y solo si cada subconjunto
+finito lo es. No se usa en la tesis porque se trabaja con contextos finitos.}
+{}
+
+\Q{A}{¿Qué tiene que ver esto con los teoremas de Gödel?}
+{Hay que distinguir tres resultados. Post (1921): completitud de la lógica
+\emph{proposicional}, el tema de la tesis. Gödel (1929): completitud de la
+lógica de \emph{primer orden}. Gödel (1931): \emph{incompletitud} de la
+aritmética, que es otra cosa (ninguna teoría consistente, recursivamente
+axiomatizable y que contenga la aritmética demuestra todas las verdades
+aritméticas). La tesis no trata los dos últimos.}
+{§11.1}
+
+\Q{I}{¿Qué diferencia hay entre el método de Kalmár y el de Lindenbaum--Henkin?}
+{Kalmár recorre la tabla de verdad, que es finita, y construye una derivación
+por fila. Lindenbaum--Henkin extiende un conjunto consistente a uno maximal y
+construye un modelo con él; es el método para primer orden. La tesis usa
+Kalmár.}
+{§11.5}
+
+\Q{A}{¿Por qué la deducción natural intuicionista no es completa respecto de las tablas de verdad?}
+{Porque \(p\vee\neg p\) es tautología y no es derivable sin una regla
+clásica. Para la lógica intuicionista, la semántica adecuada es la de
+Kripke.}
+{Nota 9.18}
+
+%=====================================================================
+\section{Lógica clásica e intuicionista}
+%=====================================================================
+
+\Q{B}{¿Qué son LEM, la eliminación de la doble negación y RAA?}
+{LEM: \(\varphi\vee\neg\varphi\). Eliminación de la doble negación:
+\(\neg\neg\varphi\vdash\varphi\). RAA: de \(\neg\varphi\vdash\bot\), concluir
+\(\varphi\). Añadir cualquiera de las tres al núcleo intuicionista da la
+lógica clásica.}
+{Nota 9.7}
+
+\Q{B}{¿Qué es la interpretación BHK?}
+{Brouwer--Heyting--Kolmogorov: una prueba es una construcción. Una prueba de
+\(A\wedge B\) es un par de pruebas; de \(A\vee B\), una prueba de una de las
+dos indicando cuál; de \(A\to B\), un método que transforma pruebas de \(A\)
+en pruebas de \(B\); de \(\bot\), no hay ninguna.}
+{Def.\ 9.19}
+
+\Q{I}{¿Por qué \(p\vee\neg p\) no es válido intuicionistamente?}
+{Bajo BHK exigiría un método que, para cualquier \(p\), decida y dé una
+prueba de \(p\) o de \(\neg p\). Tal método no existe en general.}
+{Ej.\ 9.20}
+
+\Q{I}{¿Cuál de estas es intuicionista: \(p\to\neg\neg p\) o \(\neg\neg p\to p\)?}
+{La primera: dada una prueba de \(p\) y un método de \(p\to\bot\), se aplica
+el método. La segunda requiere lógica clásica.}
+{Ej.\ 9.20, Lema 11.10}
+
+\Q{I}{¿Qué significa que una prueba sea constructiva?}
+{Que, cuando demuestra que algo existe, da un testigo o un método para
+obtenerlo, y no usa LEM ni sus equivalentes.}
+{§9.4}
+
+\Q{I}{¿Es clásica la lógica del asistente usado en la tesis?}
+{Su núcleo es constructivo. El razonamiento clásico se obtiene del axioma de
+elección: junto con la extensionalidad, permite derivar el tercero excluido.
+Por eso la auditoría distingue entre los teoremas que usan elección (la
+completitud) y los que no (Quicksort).}
+{§11.6, §12.10}
+
+\Q{A}{¿Qué es la semántica de Kripke? (cercano a la tesis)}
+{Una semántica para la lógica intuicionista con «estados de conocimiento»
+que solo crecen. Una fórmula puede no ser verdadera todavía sin ser falsa;
+por eso \(p\vee\neg p\) puede fallar. La tesis la menciona pero no la
+formaliza.}
+{Nota 9.18}
+
+%=====================================================================
+\section{Cálculo lambda}
+%=====================================================================
+
+\Q{B}{¿Cuáles son los tres tipos de términos \(\lambda\)?}
+{Variables (\(x\)), aplicaciones (\(MN\): aplicar \(M\) a \(N\)) y abstracciones
+(\(\lambda x.M\): la función que a \(x\) le asigna \(M\)).}
+{Def.\ 7.1}
+
+\Q{B}{¿Qué son una variable libre y una ligada?}
+{Ligada: está bajo un \(\lambda\) que la nombra, como \(x\) en \(\lambda x.x\,y\).
+Libre: no lo está, como \(y\). \(\mathrm{FV}(\lambda x.x\,y)=\{y\}\).}
+{Def.\ 7.10}
+
+\Q{B}{¿Qué es la \(\alpha\)-equivalencia?}
+{Igualdad salvo el nombre de las variables ligadas:
+\(\lambda x.x=_\alpha\lambda y.y\). No se permite renombrar si se captura una
+variable libre.}
+{Defs.\ 7.15, 7.16}
+
+\Q{B}{¿Qué es la sustitución y qué es la captura?}
+{\(M[x:=N]\) reemplaza las \(x\) libres de \(M\) por \(N\). Hay captura si una
+variable libre de \(N\) queda ligada al entrar bajo un \(\lambda\). Se evita
+renombrando primero la variable ligada.}
+{Defs.\ 7.17, 7.20}
+
+\Q{B}{¿Qué es un paso \(\beta\), un redex y un contractum?}
+{\((\lambda x.M)N\bred M[x:=N]\). El redex es \((\lambda x.M)N\); el contractum,
+\(M[x:=N]\). Es «aplicar la función».}
+{Defs.\ 7.24, 7.25}
+
+\Q{B}{¿Qué es currificar?}
+{Representar una función de varios argumentos como una función que devuelve
+funciones: \(\lambda x\,y.M=\lambda x.\lambda y.M\). Por eso
+\(\alpha\to\beta\to\gamma\) se lee \(\alpha\to(\beta\to\gamma)\).}
+{Notas 7.9, 7.46}
+
+\Q{I}{¿Qué es una forma normal y qué es \(\Omega\)?}
+{Forma normal: un término sin redexes. \(\Omega=(\lambda x.xx)(\lambda x.xx)\)
+se reduce a sí mismo para siempre, así que no tiene forma normal.}
+{Def.\ 7.33, Ej.\ 7.36}
+
+\Q{I}{¿Qué diferencia hay entre normalización débil y fuerte?}
+{Débil: \emph{alguna} ruta de reducción termina. Fuerte: \emph{todas}
+terminan. \((\lambda y.z)\,\Omega\) es débilmente pero no fuertemente
+normalizable.}
+{Def.\ 7.35}
+
+\Q{I}{¿Qué dice Church--Rosser y qué consecuencia tiene?}
+{Si \(M\) se reduce a \(N_1\) y a \(N_2\), ambos se reducen a un \(L\) común.
+Consecuencia: la forma normal, si existe, es única. No dice que exista.}
+{Teo.\ 7.37, Cor.\ 7.44}
+
+\Q{I}{¿Qué es la convención de Barendregt?}
+{Escribir los términos de modo que las variables ligadas sean distintas
+entre sí y distintas de las libres. Así la sustitución no necesita
+renombrar.}
+{§7.2.6}
+
+\Q{I}{¿Qué es la regla \(\eta\)?}
+{\(\lambda x.M\,x\) equivale a \(M\) si \(x\) no está libre en \(M\): dos funciones
+que dan lo mismo en todo argumento son iguales. El Ejemplo 7.53 tipa la
+\(\eta\)-expansión \(\lambda z.y\,z\) de \(y\).}
+{Ej.\ 7.53}
+
+\Q{A}{¿Qué es un combinador de punto fijo?}
+{Un término \(Y\) con \(Y\,f=_\beta f\,(Y\,f)\), por ejemplo
+\(Y=\lambda f.(\lambda x.f(xx))(\lambda x.f(xx))\). Permite la recursión en el
+cálculo no tipado. No es tipable en \(\lambda\!\to\), porque allí todo término
+tipado termina.}
+{}
+
+\Q{A}{¿Qué potencia computacional tiene el cálculo \(\lambda\) no tipado?}
+{Es Turing-completo: calcula exactamente las funciones computables. Church
+lo usó en 1936 para mostrar que hay problemas indecidibles.}
+{§7.2.1}
+
+%=====================================================================
+\section{Tipos y Curry--Howard}
+%=====================================================================
+
+\Q{B}{¿Qué es un tipo simple?}
+{Una variable de tipo (\(\alpha\)) o un tipo flecha (\(\sigma\to\tau\), funciones
+de \(\sigma\) en \(\tau\)).}
+{Def.\ 7.45}
+
+\Q{B}{¿Qué es un juicio de tipado?}
+{\(\Gamma\vdash M:\sigma\): en el contexto \(\Gamma\) (declaraciones
+\(x:\sigma\)), el término \(M\) tiene tipo \(\sigma\).}
+{Def.\ 7.51}
+
+\Q{I}{¿Qué diferencia hay entre tipado à la Church y à la Curry?}
+{Church: los tipos se escriben en el término (\(\lambda x{:}\sigma.M\)).
+Curry: el término no lleva tipos y se le asignan después. La tesis usa
+principalmente el estilo de Church.}
+{§7.3.2}
+
+\Q{I}{¿Qué son los problemas de tipabilidad, chequeo y habitación?}
+{Tipabilidad: ¿tiene \(M\) algún tipo? Chequeo: ¿tiene \(M\) este tipo?
+Habitación: ¿hay algún \(M\) de este tipo? En \(\lambda\!\to\) los tres son
+decidibles; en \(\lambda P\) y \(\lambda C\) la habitación no lo es.}
+{§7.3.4, Teo.\ 7.59, §8.4.3}
+
+\Q{I}{¿Por qué \(x\,x\) no es tipable?}
+{\(x\) tendría que tener tipo \(\sigma\to\tau\) y tipo \(\sigma\) a la vez, así que
+\(\sigma=\sigma\to\tau\), lo cual es imposible por tamaño.}
+{Ej.\ 7.49}
+
+\Q{B}{¿Qué dice la correspondencia de Curry--Howard?}
+{Proposiciones son tipos y pruebas son programas. \(\to\) es el tipo función,
+\(\wedge\) el producto, \(\vee\) la suma. Probar es construir un término;
+simplificar una prueba es evaluar el programa.}
+{§9.5}
+
+\Q{I}{¿Qué significa «un tipo está habitado»?}
+{Que existe un término de ese tipo. Bajo Curry--Howard: que la proposición
+correspondiente es demostrable.}
+{Def.\ 7.61}
+
+\Q{I}{¿Qué son la preservación del tipo, la unicidad de tipos y la normalización fuerte?}
+{Preservación: si \(M:A\) y \(M\bred N\), entonces \(N:A\). Unicidad: un término
+tiene un solo tipo salvo \(=_\beta\). Normalización fuerte: todo término tipado
+termina. Valen en todo el cubo (citado).}
+{Teo.\ 8.27}
+
+\Q{I}{¿Qué es el polimorfismo y qué es \(\Pi\)?}
+{Polimorfismo: un término que funciona para todo tipo, como la identidad
+\(\Lambda\alpha.\lambda x{:}\alpha.x:\Pi\alpha{:}*.\alpha\to\alpha\). \(\Pi\) es el
+tipo de las funciones cuyo tipo de salida depende del argumento.}
+{§8.1}
+
+\Q{I}{¿Qué son un kind y un sort?}
+{Kind: el tipo de un tipo (\(\mathsf{nat}:*\), \(\mathsf{List}:*\to*\)). Sorts:
+las clasificaciones del nivel superior, \(*\) y \(\square\), con \(*:\square\).}
+{§8.2}
+
+\Q{I}{¿Qué es un tipo dependiente?}
+{Un tipo que depende de un término, como \(\mathsf{Vec}\ n\) (vectores de
+longitud \(n\)) o \(\mathsf{EsPar}\ n\). Permite expresar \(\forall\) como \(\Pi\).}
+{§8.3}
+
+\Q{A}{¿Cuáles son los tres ejes del cubo \(\lambda\)?}
+{Términos que dependen de tipos (\(\lambda2\), polimorfismo); tipos que dependen
+de tipos (\(\lambda\underline{\omega}\), constructores); tipos que dependen de
+términos (\(\lambda P\), lógica de predicados). \(\lambda C\) tiene los tres.}
+{Ej.\ 8.26}
+
+%=====================================================================
+\section{CIC y fundamentos}
+%=====================================================================
+
+\Q{I}{¿Qué añade el CIC al CoC?}
+{Tipos inductivos primitivos: se declaran con sus constructores, y el sistema
+genera su eliminador (recursión e inducción) y su regla de cómputo \(\iota\).}
+{§10.3}
+
+\Q{I}{¿Qué son un constructor, un eliminador y la reducción \(\iota\)?}
+{Constructor: la forma de construir un elemento (\(0\), \(S\)). Eliminador: la
+forma de usarlo, que da la recursión y la inducción. Reducción \(\iota\): el
+eliminador aplicado a un constructor se calcula con el caso de ese
+constructor.}
+{§10.3}
+
+\Q{I}{¿Qué es la codificación de Church y por qué no basta?}
+{Representar \(n\) como «aplicar \(f\) \(n\) veces». Da iteración, pero de ella no
+se deriva el principio de inducción (resultado de Geuvers, citado), y el
+predecesor es costoso.}
+{§10.2.3}
+
+\Q{A}{¿Qué significa «impredicativo»?}
+{Que una definición cuantifica sobre una colección que incluye a lo que se
+está definiendo. Por ejemplo, \(\forall A{:}\mathrm{Prop}.\,A\) es una
+proposición definida cuantificando sobre todas las proposiciones.}
+{§10.2}
+
+\Q{A}{¿Por qué hay una jerarquía de universos y no \(\mathrm{Type}:\mathrm{Type}\)?}
+{Porque \(\mathrm{Type}:\mathrm{Type}\) hace inconsistente el sistema (paradoja
+de Girard, análoga a la de Russell). Se usa
+\(\mathrm{Type}_0:\mathrm{Type}_1:\cdots\).}
+{§8.2.1}
+
+\Q{A}{¿Por qué se exige positividad estricta en los tipos inductivos?}
+{Porque un constructor como \(c:(X\to\bot)\to X\) permitiría construir un
+término diagonal de tipo \(\bot\) (como la paradoja de Russell), y la lógica
+sería inconsistente.}
+{§10.3.2}
+
+\Q{I}{¿Qué es la irrelevancia de pruebas?}
+{Dos pruebas de la misma proposición se consideran iguales: importa
+\emph{que} haya prueba, no \emph{cuál}.}
+{Nota 10.7}
+
+\Q{I}{¿Qué dicen los tres axiomas que reporta la auditoría?}
+{\emph{Extensionalidad proposicional}: dos proposiciones equivalentes son
+iguales. \emph{Elección}: de la existencia se puede obtener un testigo; da el
+razonamiento clásico. \emph{Solidez de los cocientes}: elementos equivalentes
+tienen la misma clase; de ella se deriva la extensionalidad de funciones.}
+{§11.6}
+
+\Q{I}{¿Qué son un asistente de pruebas y su núcleo?}
+{Un programa que comprueba demostraciones formales. El núcleo es la parte
+pequeña que verifica los tipos; solo hay que confiar en él y en los axiomas,
+no en la automatización que genera las pruebas (criterio de de Bruijn).}
+{Cap.\ 10}
+
+%=====================================================================
+\section{Algoritmos}
+%=====================================================================
+
+\Q{B}{¿Qué exige la especificación de un algoritmo de ordenamiento?}
+{Que la salida sea una permutación de la entrada y que esté en orden no
+decreciente. Ninguna de las dos condiciones basta sola.}
+{Def.\ 12.1}
+
+\Q{B}{¿Qué es una permutación y qué es la multiplicidad?}
+{Multiplicidad: cuántas veces aparece un elemento. Dos listas son
+permutación una de otra si cada elemento tiene la misma multiplicidad en
+ambas.}
+{Def.\ 12.3}
+
+\Q{B}{¿Cómo funciona Quicksort y qué es el pivote?}
+{Se toma el primer elemento como pivote, se separa el resto en los \(\leq\)
+pivote y los \(>\) pivote, se ordena cada parte recursivamente y se pegan con
+el pivote en medio. Es un ejemplo de divide y vencerás.}
+{Def.\ 12.4}
+
+\Q{I}{¿Qué diferencia hay entre corrección parcial y total?}
+{Parcial: \emph{si} el algoritmo termina, el resultado es correcto. Total:
+además termina siempre. La tesis prueba la total (terminación + permutación +
+orden).}
+{Cap.\ 12}
+
+\Q{I}{¿Cuál es la complejidad de Quicksort? (fuera del alcance)}
+{\(\Theta(n\log n)\) en promedio y \(\Theta(n^2)\) en el peor caso, por ejemplo con
+una lista ya ordenada y el primer elemento como pivote. La tesis no la
+analiza.}
+{§12.1}
+
+\Q{I}{¿Qué es una implementación in situ?}
+{Una que reordena dentro del mismo arreglo, con memoria auxiliar constante
+(la partición de Hoare). La versión de la tesis es funcional: construye
+listas nuevas.}
+{§12.1}
+
+\Q{I}{¿Qué es el árbol de recursión?}
+{Un árbol con un nodo por llamada y un hijo por cada llamada recursiva. En
+Quicksort, leerlo en orden simétrico da la salida ordenada.}
+{§12.3.2}
+
+\Q{A}{¿Es estable el Quicksort de la tesis? (observación, no está en la tesis)}
+{No necesariamente. Las copias del pivote que están en la cola quedan
+\emph{antes} que el pivote: si \(2_a\) y \(2_b\) son iguales,
+\([2_a,1,2_b]\mapsto[1,2_b,2_a]\). La especificación no pide estabilidad,
+así que el teorema no se ve afectado.}
+{}
+
+%=====================================================================
+\section{Verificación formal}
+%=====================================================================
+
+\Q{B}{¿Qué significa que un teorema esté verificado formalmente?}
+{Que su prueba fue comprobada paso a paso por el núcleo de un asistente, a
+partir de definiciones formales y de un conjunto explícito de axiomas.}
+{Caps.\ 11 y 12}
+
+\Q{I}{¿Qué comprueba una auditoría de axiomas?}
+{Lista todos los axiomas de los que depende un teorema, directa o
+indirectamente. Si aparece una prueba pendiente (un hueco), se ve. En la
+tesis solo aparecen axiomas estándar: tres en la completitud y dos en
+quicksort, que no usa \texttt{Classical.choice}.}
+{§11.6, §12.10}
+
+\Q{I}{¿Qué \emph{no} garantiza una verificación formal?}
+{Que la definición formal capture lo que se quería decir. Si la
+especificación está mal escrita, se demuestra con rigor algo equivocado. Por
+eso hay que defender las definiciones (\(\mathsf{ND}\), \(\mathsf{Ordenada}\), la
+permutación).}
+{}
+
+\Q{A}{¿Por qué confiar en el núcleo?}
+{Porque es pequeño, está muy probado y su lógica está descrita con
+precisión. La automatización puede tener errores, pero cualquier prueba que
+produzca pasa por el núcleo. Es el criterio de de Bruijn.}
+{Nota 10.7}
+
+\end{document}

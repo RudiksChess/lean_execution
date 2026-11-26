@@ -1,0 +1,1191 @@
+% Teoría de tipos y cálculo lambda: curso exprés visual, amigable para TDAH e
+% interactivo (PDF con enlaces). Sigue los Capítulos 7 a 10 de la tesis: diez
+% estaciones, las preguntas imprescindibles de la defensa con su respuesta,
+% qué se demuestra y qué se cita, trampas, hoja de reglas e índice.
+% Compilar dos veces:  lualatex TiposYLambda.tex
+\documentclass[12pt]{article}
+\usepackage[a4paper,landscape,margin=11mm,bottom=17mm]{geometry}
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands]{babel}
+\setmainfont{TeX Gyre Heros}
+\setmonofont{DejaVu Sans Mono}[Scale=0.86]
+\setmathfont{TeX Gyre DejaVu Math}
+\usepackage[table]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+\usepackage{fontawesome5}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{bussproofs}
+\usepackage{lastpage}
+\usepackage[hidelinks]{hyperref}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.06}
+
+% ---------- Un color por estación (por zonas) ----------
+\definecolor{e1}{HTML}{3F6FA8}   % términos
+\definecolor{e2}{HTML}{2F5D8C}   % sustitución y beta
+\definecolor{e3}{HTML}{2A7F9E}   % formas normales
+\definecolor{e4}{HTML}{2A8C8C}   % Church–Rosser
+\definecolor{e5}{HTML}{3E9A5A}   % lambda flecha
+\definecolor{e6}{HTML}{5B8F3A}   % problemas y PAT
+\definecolor{e7}{HTML}{8C5FB8}   % tres extensiones
+\definecolor{e8}{HTML}{5E4A96}   % cubo
+\definecolor{e9}{HTML}{B8901A}   % Curry–Howard
+\definecolor{e10}{HTML}{D9822B}  % CoC y CIC
+\definecolor{gris}{HTML}{5B6B82}
+\definecolor{tldr}{HTML}{FFF4C2}
+\definecolor{verde}{HTML}{3E9A5A}
+\definecolor{ambar}{HTML}{E0A320}
+\definecolor{rojo}{HTML}{C8463D}
+\definecolor{ax2}{HTML}{D9822B}   % eje: términos que dependen de tipos
+\definecolor{axw}{HTML}{3E9A5A}   % eje: tipos que dependen de tipos
+\definecolor{axp}{HTML}{8C5FB8}   % eje: tipos que dependen de términos
+
+\AtBeginDocument{\providecommand\square{\mdlgwhtsquare}}
+\newcommand{\bred}{\to_\beta}
+\newcommand{\bmred}{\twoheadrightarrow_\beta}
+\newcommand{\beq}{=_\beta}
+\newcommand{\aeq}{=_\alpha}
+\newcommand{\lw}{\lambda\underline{\omega}}
+\newcommand{\FV}{\mathrm{FV}}
+\EnableBpAbbreviations
+
+% ---------- Botones y navegación ----------
+\newcommand{\boton}[2][gris]{\tikz[baseline=(b.base)]\node[draw=#1, fill=#1!10,
+  line width=1pt, rounded corners=5pt, inner xsep=8pt, inner ysep=4pt,
+  font=\bfseries\normalsize, text=#1!80!black](b){#2};}
+\newcommand{\ir}[3][gris]{\hyperlink{#2}{\boton[#1]{#3}}}
+\newcommand{\chip}[1]{\hyperlink{est#1}{\tikz[baseline=(c.base)]\node[fill=e#1,
+  text=white, rounded corners=3pt, inner sep=2.5pt, font=\bfseries\footnotesize](c){#1};}}
+
+% #1 destino anterior, #2 texto, #3 destino siguiente, #4 texto
+\makeatletter\newcommand\pdim[1]{\strip@pt\dimexpr#1\relax}\makeatother
+\newcommand{\navegacion}[4]{\AddToHookNext{shipout/foreground}{%
+  \put(\pdim{0.5\paperwidth},\pdim{-\paperheight+4mm}){\makebox(0,0)[b]{%
+  \ir{#1}{\faArrowLeft\ #2}\hspace{5mm}\ir{mapa}{\faMap\ Mapa}%
+  \hspace{5mm}\ir{preguntas}{\faQuestionCircle\ Preguntas}%
+  \hspace{5mm}\ir{indice}{\faFont\ Índice}\hspace{5mm}\ir{#3}{#4\ \faArrowRight}}}}}
+
+% ---------- Encabezado de estación ----------
+% [#1 destino] #2 número, #3 icono, #4 título, #5 para qué sirve
+\NewDocumentCommand{\estacion}{O{est#2} m m m m}{%
+  \begin{tcolorbox}[colback=e#2, colframe=e#2, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=5pt, bottom=5pt, after skip=4pt]
+    \hypertarget{#1}{}\color{white}\LARGE #3\quad\bfseries #4\hfill
+    \normalfont\large\faMapSigns\ estación #2 de 10
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=e#2, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=6pt]
+    \large\faBullseye\ \textbf{Para qué sirve:}\ #5
+  \end{tcolorbox}}
+
+% Encabezado de página general: #1 destino, #2 color, #3 icono, #4 título, #5 franja
+\newcommand{\pagina}[5]{%
+  \begin{tcolorbox}[colback=#2, colframe=#2, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=5pt, bottom=5pt, after skip=4pt]
+    \hypertarget{#1}{}\color{white}\LARGE #3\quad\bfseries #4\hfill
+    \normalfont\large página \thepage\ de \pageref{LastPage}
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=#2, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=6pt]
+    \large\faBolt\ \textbf{En 10 segundos:}\ #5
+  \end{tcolorbox}}
+
+% ---------- Tarjeta ----------
+% #1 color, #2 título, #3 cuerpo
+\NewDocumentCommand{\tarj}{m m +m}{\begin{tcolorbox}[colback=#1!6, colframe=#1,
+  boxrule=1pt, arc=4pt, left=6pt, right=6pt, top=4pt, bottom=4pt, leftrule=5pt,
+  before upper=\raggedright]
+  {\large\bfseries\color{#1!80!black}#2}\par\vspace{2pt}\tarjsize #3\end{tcolorbox}}
+\newcommand{\tarjsize}{\normalsize}
+\newcommand{\medio}{\fontsize{13}{16.2}\selectfont}
+\newcommand{\grande}{\renewcommand{\tarjsize}{\large}}
+\newcommand{\normal}{\renewcommand{\tarjsize}{\normalsize}}
+\newcommand{\tesis}[1]{{\small\color{black!60}\faMapMarker*\ #1}}
+\newcommand{\clave}[2]{\begin{tcolorbox}[colback=tldr, colframe=#1, boxrule=0.8pt,
+  arc=4pt, left=8pt, right=8pt, top=3pt, bottom=3pt]\faKey\ \textbf{Clave:}\ #2\end{tcolorbox}}
+
+% ---------- Pregunta de defensa ----------
+% * = imprescindible; #2 color, #3 número, #4 pregunta, #5 respuesta, #6 dónde
+\NewDocumentCommand{\preg}{s m m m +m m}{%
+  \begin{tcolorbox}[colback=white, colframe=#2, boxrule=1.1pt, arc=5pt,
+    left=7pt, right=7pt, top=3pt, bottom=3pt, colbacktitle=#2,
+    fonttitle=\bfseries\large, before upper=\raggedright,
+    title={\IfBooleanT{#1}{\faStar\ }#3.\ #4}]
+    \medio\faCommentDots\ #5\par\vspace{2pt}\tesis{#6}
+  \end{tcolorbox}}
+
+% ---------- Pruébate (respuestas al revés) ----------
+\newcommand{\pruebate}[3]{%
+  \begin{tcolorbox}[colback=white, colframe=#1, boxrule=1.1pt, arc=5pt,
+    left=8pt, right=8pt, top=4pt, bottom=4pt, sidebyside, lefthand width=0.56\linewidth,
+    sidebyside gap=10pt, segmentation style={solid, #1!40}]
+    {\large\bfseries\color{#1!80!black}\faBrain\ Pruébate} \ {\small(dilo en voz alta)}
+    \begin{enumerate}[leftmargin=6mm, itemsep=1pt, topsep=2pt]#2\end{enumerate}
+    \tcblower
+    \centering{\footnotesize\color{black!50}\faSync*\ respuestas: gira la página}\par\vspace{2pt}
+    \rotatebox{180}{\parbox{0.92\linewidth}{\small\raggedright #3}}
+  \end{tcolorbox}}
+
+\tikzset{
+  num/.style={circle, fill=#1, text=white, font=\bfseries\Large,
+    minimum size=9mm, inner sep=0pt},
+  caja/.style={draw=#1, fill=#1!8, line width=1.1pt, rounded corners=5pt,
+    align=center, inner sep=5pt},
+}
+
+\begin{document}
+
+%=====================================================================
+% PORTADA
+%=====================================================================
+\hypertarget{portada}{}
+\begin{tcolorbox}[colback=e8, colframe=e8, arc=8pt, boxrule=0pt, halign=center,
+  top=14pt, bottom=14pt]
+\color{white}{\fontsize{32}{38}\selectfont\bfseries $\lambda$\ \ Teoría de tipos y cálculo lambda}\\[8pt]
+{\LARGE Curso exprés para la defensa}\\[4pt]
+{\large Capítulos 7 a 10 de la tesis · 10 estaciones · 18 preguntas con respuesta · todo es clicable}
+\end{tcolorbox}
+
+\vspace{8pt}
+\begin{minipage}[t]{0.50\textwidth}
+{\Large\bfseries Cómo se usa}\\[8pt]
+\begin{tikzpicture}[baseline=(current bounding box.north),
+    txt/.style={align=left, text width=11.2cm, anchor=west, font=\large}]
+  \node[num=gris] (a) at (0,0) {1};
+  \node[txt, right=4mm of a] {Abre \textbf{el mapa}: son 10 estaciones\\ en orden, de $\lambda x.x$ hasta Lean.};
+  \node[num=gris] (b) at (0,-1.55) {2};
+  \node[txt, right=4mm of b] {En cada estación: \textbf{para qué sirve} $\to$\\ \textbf{tarjetas} $\to$ \textbf{pruébate} (respuestas al revés).};
+  \node[num=gris] (c) at (0,-3.1) {3};
+  \node[txt, right=4mm of c] {Termina con las \textbf{18 preguntas}:\\ tapa la respuesta y contesta en voz alta.};
+  \node[num=gris] (d) at (0,-4.65) {4};
+  \node[txt, right=4mm of d] {Abajo siempre hay botones:\\ \faArrowLeft\ · \faMap\ mapa · \faQuestionCircle\ preguntas · \faArrowRight};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.46\textwidth}
+{\Large\bfseries Empieza por aquí (haz clic)}\\[10pt]
+\begin{tcolorbox}[colback=e1, colframe=e1, arc=6pt, halign=center, hyperlink=mapa]
+  \color{white}\Large\faMap\ \textbf{El mapa}\\ \normalsize las 10 estaciones y la ruta rápida\end{tcolorbox}
+\begin{tcolorbox}[colback=rojo, colframe=rojo, arc=6pt, halign=center, hyperlink=preguntas]
+  \color{white}\Large\faQuestionCircle\ \textbf{Las 18 preguntas}\\ \normalsize lo que te van a preguntar, con la respuesta\end{tcolorbox}
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster equal height]
+\begin{tcolorbox}[colback=ambar!85!black, colframe=ambar!85!black, arc=6pt, halign=center, hyperlink=estado]
+  \color{white}\large\faBalanceScale\ \textbf{Qué demuestro}\\ \small y qué solo cito\end{tcolorbox}
+\begin{tcolorbox}[colback=gris, colframe=gris, arc=6pt, halign=center, hyperlink=indice]
+  \color{white}\large\faFont\ \textbf{Índice A–Z}\\ \small cada término, un clic\end{tcolorbox}
+\end{tcbraster}
+\end{minipage}
+
+\vfill
+\begin{tcolorbox}[colback=tldr, colframe=gris, arc=4pt, boxrule=0.8pt, halign=center]
+\large\faLightbulb\ \textbf{La frase que lo une todo:} un enunciado es un \textbf{tipo}, una demostración es un
+\textbf{término}, y comprobar la demostración es \textbf{comprobar el tipo}.
+\end{tcolorbox}
+
+\newpage
+%=====================================================================
+% MAPA
+%=====================================================================
+\pagina{mapa}{gris}{\faMap}{El mapa: 10 estaciones}{se parte de un lenguaje mínimo
+de funciones, se le ponen tipos para domarlo, se enriquecen los tipos hasta que
+expresan lógica, y eso es lo que Lean comprueba.}
+
+\newcommand{\parada}[4]{\begin{tcolorbox}[colback=e#1!8, colframe=e#1, boxrule=1.2pt,
+  arc=6pt, halign=center, left=3pt, right=3pt, top=3pt, bottom=3pt, hyperlink=est#1]
+  \tikz\node[num=e#1]{#1};\\[2pt]{\large\bfseries\color{e#1!80!black}#2}\\[1pt]
+  {\small #3}\\[1pt]{\footnotesize\color{black!55}#4}\end{tcolorbox}}
+
+\begin{tcbraster}[raster columns=5, raster column skip=6pt, raster row skip=6pt,
+  raster equal height=rows]
+\parada{1}{$\lambda$-términos}{variable, aplicación, abstracción}{§7.2.1–7.2.6}
+\parada{2}{Sustitución y $\beta$}{computar es sustituir}{§7.2.4–7.2.7}
+\parada{3}{Formas normales}{terminar o no terminar}{§7.2.8}
+\parada{4}{Church–Rosser}{el resultado no depende del camino}{§7.2.8}
+\parada{5}{$\lambda{\to}$}{tipos simples y juicios}{§7.3.1–7.3.3}
+\parada{6}{Tres preguntas}{comprobar no es encontrar}{§7.3.4–7.3.6}
+\parada{7}{$\lambda2$, $\lw$, $\lambda P$}{tres dependencias nuevas}{§8.1–8.3}
+\parada{8}{El cubo}{ocho sistemas, un vértice: $\lambda C$}{§8.4}
+\parada{9}{Curry–Howard}{pruebas = programas}{§9.5}
+\parada{10}{CoC $\to$ CIC $\to$ Lean}{de dónde sale la inducción}{Cap.\ 10}
+\end{tcbraster}
+
+\vspace{4pt}
+\begin{center}
+\begin{tikzpicture}[font=\normalsize, >={Stealth[length=3mm]},
+  paso/.style={draw=#1, fill=#1!10, line width=1.1pt, rounded corners=5pt,
+    align=center, text width=3.6cm, minimum height=1.45cm, inner sep=4pt}]
+  \node[paso=e1] (a) {\textbf{$\lambda$ sin tipos}\\ \small computa todo,\\ pero puede no terminar};
+  \node[paso=e5, right=7mm of a] (b) {\textbf{$\lambda{\to}$}\\ \small los tipos excluyen\\ lo que no termina};
+  \node[paso=e8, right=7mm of b] (c) {\textbf{Cubo}\\ \small los tipos ya dicen\\ «para todo $x$, $P(x)$»};
+  \node[paso=e9, right=7mm of c] (d) {\textbf{Curry–Howard}\\ \small tipo = proposición,\\ término = prueba};
+  \node[paso=e10, right=7mm of d] (e) {\textbf{CIC}\\ \small tipos inductivos:\\ datos e inducción};
+  \node[paso=gris, right=7mm of e] (f) {\textbf{Lean}\\ \small el núcleo\\ comprueba tipos};
+  \foreach \u/\v in {a/b,b/c,c/d,d/e,e/f} \draw[->, line width=1.3pt, black!60] (\u) -- (\v);
+\end{tikzpicture}
+\end{center}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=tldr, colframe=black!50, arc=5pt, boxrule=0.8pt]
+\faRunning\ \textbf{Ruta rápida (20 minutos):}\ \chip{2} $\to$ \chip{4} $\to$ \chip{5} $\to$ \chip{8} $\to$
+\chip{9} $\to$ \chip{10} $\to$ \ir[rojo]{preguntas}{\faQuestionCircle\ Preguntas}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=tldr, colframe=black!50, arc=5pt, boxrule=0.8pt]
+\faExclamationTriangle\ \textbf{Recuerda:} estos capítulos son \textbf{exposición} (objetivo 1). No hay
+resultados nuevos; di siempre qué se demuestra y qué se cita.
+\end{tcolorbox}
+\end{tcbraster}
+\navegacion{portada}{Portada}{est1}{Estación 1}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 1: TÉRMINOS
+%=====================================================================
+\grande
+\estacion{1}{\faCubes}{$\lambda$-términos: todo con tres reglas}{es el lenguaje de base.
+Un término de Lean es, en el fondo, un $\lambda$-término con tipos.}
+
+\begin{minipage}[t]{0.55\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=e1, boxrule=1.4pt, arc=6pt, halign=center,
+  top=5pt, bottom=5pt]
+{\LARGE $\Lambda \;=\; V \;\mid\; (\Lambda\,\Lambda) \;\mid\; (\lambda V.\,\Lambda)$}
+\end{tcolorbox}
+\normal\begin{tcbraster}[raster columns=3, raster column skip=5pt, raster equal height]
+\tarj{e1}{\faFont\ Variable}{$x,\ y,\ z$\\ los átomos.}
+\tarj{e1}{\faPlay\ Aplicación}{$M\,N$\\ \textbf{usar} la función $M$ con el argumento $N$.}
+\tarj{e1}{\faMagic\ Abstracción}{$\lambda x.\,M$\\ \textbf{crear} la función «dado $x$, devuelve $M$».}
+\end{tcbraster}\grande
+\tarj{gris}{\faRulerCombined\ Convenciones de escritura}{
+La aplicación asocia a la \textbf{izquierda}: $M\,N\,P = (M\,N)\,P$.\quad
+$\lambda xy.M$ abrevia $\lambda x.\lambda y.M$.\\
+$\equiv$ es la identidad sintáctica: «se escriben igual».}
+\clave{e1}{$\Lambda$ es un conjunto definido por reglas. Por eso se demuestra por
+\textbf{inducción estructural}: un caso por cada regla (así es el Lema 7.6).}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.43\textwidth}\vspace{0pt}
+\tarj{e2}{\faLink\ Libre o ligada}{
+En $\lambda x.\,x\,y$: $x$ está \textbf{ligada} (por el $\lambda$); $y$ está \textbf{libre}.\\
+$\FV(\lambda x.\,x\,y)=\{y\}$.\ \ Sin libres: \textbf{cerrado} ($\Lambda^0$).}
+\tarj{e2}{\faExchange*\ $\alpha$-equivalencia}{
+El nombre de una variable ligada no importa:\par\vspace{2pt}
+\centerline{\large $\lambda x.\,x \;\aeq\; \lambda y.\,y$}\par\vspace{2pt}
+\textbf{Captura} (prohibido): renombrar $x$ por $y$ en $\lambda x.\,y$ daría
+$\lambda y.\,y$, y la $y$ libre quedaría ligada.}
+\tarj{e2}{\faHandshake\ Convención de Barendregt}{
+Se eligen las ligadas \textbf{distintas entre sí y de las libres}: así nunca hay captura.}
+\tesis{Def.\ de $\Lambda$ y $\FV$: §7.2.1–7.2.3 · $\alpha$: §7.2.4 · Barendregt: §7.2.6}
+\end{minipage}
+
+\vfill
+\pruebate{e1}{
+\item ¿Cuáles son las tres formas de un $\lambda$-término?
+\item ¿Cuáles son las variables libres de $\lambda x.\,x\,y$?
+\item ¿$\lambda x.\,x$ y $\lambda y.\,y$ son el mismo término?
+}{\textbf{1.} Variable, aplicación $M\,N$ y abstracción $\lambda x.M$.\quad
+\textbf{2.} Solo $y$.\quad \textbf{3.} Sí, módulo $\alpha$: solo cambia el nombre de la ligada.}
+\navegacion{mapa}{Mapa}{est2}{Estación 2}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 2: SUSTITUCIÓN Y BETA
+%=====================================================================
+\grande
+\estacion{2}{\faCogs}{Sustitución y $\beta$: computar es sustituir}{es la única regla
+de cómputo. Cuando Lean «evalúa» o «simplifica por definición», hace esto.}
+
+\begin{tcolorbox}[colback=white, colframe=e2, boxrule=1.6pt, arc=6pt, halign=center,
+  top=5pt, bottom=5pt]
+{\LARGE $\underbrace{(\lambda x.\,M)\,N}_{\text{\normalsize\textbf{redex}: función aplicada}}
+\quad\bred\quad
+\underbrace{M[x:=N]}_{\text{\normalsize\textbf{contráctum}: el cuerpo con $N$ en lugar de $x$}}$}
+\end{tcolorbox}
+
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e2}{\faSyringe\ Sustitución $M[x:=N]$}{
+Reemplaza las ocurrencias \textbf{libres} de $x$ en $M$ por $N$.\\[2pt]
+\begin{tabular}{@{}ll@{}}
+$x[x:=N]\equiv N$ & $y[x:=N]\equiv y$\\
+\multicolumn{2}{@{}l@{}}{$(P\,Q)[x:=N]\equiv P[x:=N]\;Q[x:=N]$}\\
+\multicolumn{2}{@{}l@{}}{$(\lambda y.P)[x:=N]$: renombra $y$ si hace falta}
+\end{tabular}\\[2pt]
+\faExclamationTriangle\ $(\lambda y.\,x)[x:=y]\ \aeq\ \lambda u.\,y$, \textbf{no} $\lambda y.\,y$.}
+\tarj{e2}{\faBook\ Lema de sustitución (Lema 7.23)}{
+Si $x\not\equiv y$ y $x\notin\FV(L)$:\par\vspace{2pt}
+\centerline{$M[x:=N][y:=L]\ \equiv\ M[y:=L][x:=N[y:=L]]$}\par\vspace{2pt}
+Demostrado por inducción sobre $M$; vale \textbf{módulo $\alpha$}.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e3}{\faShoePrints\ Tres relaciones (no las confundas)}{
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}cl@{}}
+{\Large$\bred$} & \textbf{un paso}: se contrae un redex.\\
+{\Large$\bmred$} & \textbf{cero o más pasos} (Lema 7.31).\\
+{\Large$\beq$} & \textbf{conversión}: pasos hacia adelante o hacia atrás.\\
+ & Es de equivalencia (Lema 7.32).
+\end{tabular}}
+\tarj{e3}{\faCalculator\ Ejemplos de la tesis}{
+$(\lambda x.\,x\,(x\,y))\,N\ \bred\ N\,(N\,y)$\\[3pt]
+$(\lambda x.\,(\lambda y.\,y\,x)\,z)\,v$ tiene \textbf{dos} redexes; por cualquiera de los dos se llega a $z\,v$.}
+\tesis{Sustitución: §7.2.4 · Lema 7.23: §7.2.5 · $\beta$: §7.2.7}
+\end{minipage}
+
+\vfill
+\pruebate{e2}{
+\item ¿Qué es un redex?
+\item Reduce $(\lambda x.\,x\,x)\,z$.
+\item ¿Qué diferencia hay entre $\bmred$ y $\beq$?
+}{\textbf{1.} Un término de la forma $(\lambda x.M)\,N$: una función aplicada a un argumento.\quad
+\textbf{2.} $z\,z$.\quad \textbf{3.} $\bmred$ solo va hacia adelante; $\beq$ permite ir y volver, por eso es simétrica.}
+\navegacion{est1}{Estación 1}{est3}{Estación 3}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 3: FORMAS NORMALES
+%=====================================================================
+\grande
+\estacion{3}{\faFlagCheckered}{Formas normales: terminar o no terminar}{explica por
+qué hacen falta los tipos: sin ellos hay cómputos que nunca acaban.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\tarj{e3}{\faStopCircle\ Forma normal $\beta$}{
+Un término \textbf{sin ningún redex}: ya no hay nada que computar. Es el «resultado».\\[2pt]
+$M$ \textbf{tiene} forma normal si $M\beq N$ con $N$ en forma normal.}
+\tarj{rojo}{\faInfinity\ El término $\Omega$}{
+{\large$\Omega := (\lambda x.\,x\,x)\,(\lambda x.\,x\,x)\ \bred\ \Omega\ \bred\ \Omega\ \bred\ \cdots$}\\[2pt]
+Se reduce a sí mismo para siempre. \textbf{No tiene forma normal.}}
+\end{tcbraster}
+
+\vspace{2pt}
+{\Large\bfseries Tres comportamientos (Ejemplo de §7.2.8)}\\[4pt]
+\begin{tcbraster}[raster columns=3, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=verde!8, colframe=verde, boxrule=1.2pt, arc=6pt,
+  title={\faCheckCircle\ Fuertemente normalizable}, colbacktitle=verde, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\textbf{Todas} las rutas terminan.\\[4pt]
+$(\lambda x.\,(\lambda y.\,y\,x)\,z)\,v$\\[2pt]
+por cualquier camino llega a $z\,v$.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=ambar!10, colframe=ambar, boxrule=1.2pt, arc=6pt,
+  title={\faAdjust\ Solo débilmente}, colbacktitle=ambar!90!black, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\textbf{Alguna} ruta termina, otra no.\\[4pt]
+$(\lambda y.\,z)\,\Omega$\\[2pt]
+redex de fuera: $\bred z$ \ \faCheck\\
+redex de dentro ($\Omega$): bucle \ \faTimes
+\end{tcolorbox}
+\begin{tcolorbox}[colback=rojo!8, colframe=rojo, boxrule=1.2pt, arc=6pt,
+  title={\faTimesCircle\ No normalizable}, colbacktitle=rojo, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\textbf{Ninguna} ruta termina.\\[4pt]
+$\Omega$\\[2pt]
+su única ruta es un ciclo infinito.
+\end{tcolorbox}
+\end{tcbraster}
+
+\clave{e3}{un sistema donde las pruebas son programas no puede permitir programas que no
+terminan. Los \textbf{tipos} (estación \chip{5}) dejan fuera a $\Omega$: en los cálculos tipados del
+cubo, todo término bien tipado es fuertemente normalizable (\chip{8}).}
+\tesis{Formas normales, rutas y normalización débil y fuerte: §7.2.8}
+
+\vfill
+\pruebate{e3}{
+\item ¿Qué es una forma normal?
+\item ¿Débil o fuertemente normalizable: $(\lambda y.\,z)\,\Omega$?
+\item ¿Por qué $\Omega$ es un problema para la lógica?
+}{\textbf{1.} Un término sin redexes.\quad \textbf{2.} Solo débilmente: hay una ruta que termina en $z$ y
+otra infinita.\quad \textbf{3.} Porque un cómputo que no termina no entrega ningún resultado: no puede contar como prueba.}
+\navegacion{est2}{Estación 2}{est4}{Estación 4}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 4: CHURCH–ROSSER
+%=====================================================================
+\grande
+\estacion{4}{\faGem}{Church–Rosser: el resultado no depende del camino}{garantiza que
+«el valor de un término» tiene sentido: si hay resultado, es único.}
+
+\begin{minipage}[t]{0.33\textwidth}\vspace{0pt}
+\centering
+\begin{tikzpicture}[>={Stealth[length=3mm]}, font=\Large,
+    n/.style={circle, draw=e4, fill=e4!10, line width=1.2pt, minimum size=11mm, inner sep=0pt}]
+  \node[n] (M) at (0,0) {$M$};
+  \node[n] (A) at (-2.2,-2.2) {$N_1$};
+  \node[n] (B) at (2.2,-2.2) {$N_2$};
+  \node[n, draw=verde, fill=verde!12] (L) at (0,-4.4) {$L$};
+  \draw[->>, line width=1.3pt] (M) -- (A);
+  \draw[->>, line width=1.3pt] (M) -- (B);
+  \draw[->>, line width=1.3pt, dashed, verde!80!black] (A) -- (L);
+  \draw[->>, line width=1.3pt, dashed, verde!80!black] (B) -- (L);
+  \node[font=\small, align=center, text=verde!60!black] at (0,-5.75) {existe $L$\\ (el diamante)};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.65\textwidth}\vspace{0pt}
+\tarj{e4}{\faGem\ Teorema 7.37 (confluencia)}{
+Si $M\bmred N_1$ y $M\bmred N_2$, existe $L$ con $N_1\bmred L$ y $N_2\bmred L$.}
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster equal height]
+\tarj{verde}{\faCheck\ Lo que SÍ dice}{
+Dos caminos distintos siempre se pueden volver a juntar.\\
+$\Rightarrow$ la forma normal, \textbf{si existe}, es \textbf{única} (Cor.\ 7.44).}
+\tarj{rojo}{\faTimes\ Lo que NO dice}{
+\textbf{No} dice que la forma normal exista.\\ $\Omega$ es confluente y no termina nunca.}
+\end{tcbraster}
+\tarj{e2}{\faQuestion\ ¿Por qué hace falta la reducción paralela $\Rightarrow$?}{
+Porque $\bred$ en un paso \textbf{no} tiene el diamante: si un redex se duplica, un lado
+necesita dos pasos. $\Rightarrow$ contrae varios redexes a la vez y sí lo tiene (método de Tait y Martin-Löf).}
+\end{minipage}
+
+\vspace{3pt}
+{\large\bfseries La cadena que hay que poder recitar}\\[3pt]
+\begin{tikzpicture}[>={Stealth[length=3mm]}, font=\normalsize,
+  est/.style={draw=#1, fill=#1!10, line width=1.2pt, rounded corners=5pt, align=center,
+    text width=5.55cm, minimum height=1.45cm, inner sep=4pt}]
+  \node[est=rojo] (a) {\textbf{Lemas 7.40–7.41}\\ $\Rightarrow$ tiene el diamante\\ {\small\color{rojo!80!black}\faQuoteRight\ solo enunciados}};
+  \node[est=ambar, right=7mm of a] (b) {\textbf{Teorema 7.37}\\ $\bmred$ es confluente\\ {\small\color{ambar!60!black}\faPencil*\ esbozo; cita a Barendregt}};
+  \node[est=verde, right=7mm of b] (c) {\textbf{Corolario 7.43}\\ $M\beq N\Rightarrow$ reducto común\\ {\small\color{verde!70!black}\faCheck\ demostrado}};
+  \node[est=verde, right=7mm of c] (d) {\textbf{Corolario 7.44}\\ forma normal única\\ {\small\color{verde!70!black}\faCheck\ demostrado}};
+  \foreach \u/\v in {a/b,b/c,c/d} \draw[->, line width=1.3pt, black!60] (\u) -- (\v);
+\end{tikzpicture}
+
+\clave{e4}{$\lambda x.\lambda y.\,x$ y $\lambda x.\lambda y.\,y$ son formas normales distintas, así que
+\textbf{no} son $\beta$-iguales: la teoría no lo iguala todo (es consistente).}
+\tesis{§7.2.8 · Teorema 7.37 = Barendregt (1984), Teorema 3.2.8 · También vale en $\lambda{\to}$ (Teorema 7.63, citado)}
+\navegacion{est3}{Estación 3}{est5}{Estación 5}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 5: LAMBDA FLECHA
+%=====================================================================
+\normal
+\estacion{5}{\faTags}{$\lambda{\to}$: tipos simples y juicios}{aquí aparece la forma de
+todo lo que Lean comprueba: el \textbf{juicio} $\Gamma\vdash M:\sigma$.}
+
+\begin{minipage}[t]{0.47\textwidth}\vspace{0pt}
+\tarj{e5}{\faTag\ Tipos simples}{
+{\large$\mathbb{T} \;=\; \mathbb{V}\ \mid\ \mathbb{T}\to\mathbb{T}$}\quad variables de tipo y flechas.\\
+La flecha asocia a la \textbf{derecha}: $\alpha\to\beta\to\gamma=\alpha\to(\beta\to\gamma)$.}
+\begin{tcolorbox}[colback=white, colframe=e5, boxrule=1.4pt, arc=6pt, halign=center,
+  top=4pt, bottom=4pt]
+{\LARGE $\underbrace{\Gamma}_{\text{\small contexto}}\ \vdash\
+\underbrace{M}_{\text{\small término}}\ :\ \underbrace{\sigma}_{\text{\small tipo}}$}\\[2pt]
+{\normalsize un \textbf{juicio}. $\Gamma$ es la lista de declaraciones $x:\sigma$.}
+\end{tcolorbox}
+\tarj{rojo}{\faBan\ $x\,x$ no es tipable (Ejemplo 7.49)}{
+$x$ necesitaría a la vez los tipos $\sigma\to\tau$ (como función) y $\sigma$ (como argumento):
+$\sigma=\sigma\to\tau$ es imposible. \textbf{Por eso $\Omega$ queda fuera.}}
+\tarj{gris}{\faUserEdit\ Church o Curry}{
+\textbf{À la Church:} $\lambda x{:}\sigma.\,M$, tipos anotados, tipo único.\\
+\textbf{À la Curry:} $\lambda x.\,M$, sin anotar; el tipo se infiere.\\
+Las reglas de la tesis son à la Church.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.51\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=e5!6, colframe=e5, boxrule=1pt, arc=4pt, leftrule=5pt,
+  left=6pt, right=6pt, top=4pt, bottom=2pt]
+{\large\bfseries\color{e5!80!black}\faGavel\ Las tres reglas (una por forma de término)}
+\[
+\frac{x:\sigma\in\Gamma}{\Gamma\vdash x:\sigma}\ \text{(var)}
+\qquad
+\frac{\Gamma\vdash M:\sigma\to\tau\quad\Gamma\vdash N:\sigma}{\Gamma\vdash M\,N:\tau}\ \text{(apl)}
+\]
+\[
+\frac{\Gamma,\,x:\sigma\vdash M:\tau}{\Gamma\vdash\lambda x{:}\sigma.\,M:\sigma\to\tau}\ \text{(abs)}
+\]
+\end{tcolorbox}
+\begin{tcolorbox}[colback=white, colframe=e5, boxrule=1pt, arc=4pt, left=6pt, right=6pt,
+  top=4pt, bottom=4pt]
+{\large\bfseries\color{e5!80!black}\faTree\ Una derivación: la función constante}\\[-2pt]
+\begin{prooftree}
+\AXC{}\RightLabel{\small(var)}
+\UIC{$x:\sigma,\ y:\tau\ \vdash\ x:\sigma$}\RightLabel{\small(abs)}
+\UIC{$x:\sigma\ \vdash\ \lambda y{:}\tau.\,x\ :\ \tau\to\sigma$}\RightLabel{\small(abs)}
+\UIC{$\vdash\ \lambda x{:}\sigma.\,\lambda y{:}\tau.\,x\ :\ \sigma\to\tau\to\sigma$}
+\end{prooftree}
+{\small Se lee de abajo arriba: cada (abs) mete una variable al contexto.}
+\end{tcolorbox}
+\clave{e5}{una \textbf{derivación} es un árbol de reglas. «Inducción sobre la derivación» es
+inducción sobre ese árbol; es la técnica del Capítulo 11.}
+\end{minipage}
+
+\tesis{Tipos: §7.3 · Church y Curry: §7.3.2 · Reglas y derivaciones (Ejemplos 7.52–7.53): §7.3.3 · Lema 7.57: $\FV(L)\subseteq\mathrm{dom}(\Gamma)$}
+\vfill
+\pruebate{e5}{
+\item Lee en voz alta: $\Gamma\vdash M:\sigma$.
+\item ¿Qué regla tipa una aplicación $M\,N$? ¿Qué pide?
+\item ¿Por qué $x\,x$ no tiene tipo simple?
+}{\textbf{1.} «En el contexto gamma, $M$ tiene tipo sigma».\quad \textbf{2.} (apl): $M:\sigma\to\tau$ y
+$N:\sigma$; da $M\,N:\tau$.\quad \textbf{3.} Exigiría $\sigma=\sigma\to\tau$, imposible con tipos finitos.}
+\navegacion{est4}{Estación 4}{est6}{Estación 6}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 6: TRES PREGUNTAS
+%=====================================================================
+\estacion{6}{\faSearch}{Tres preguntas sobre un juicio}{distingue \textbf{comprobar} una
+prueba de \textbf{encontrarla}. Es la razón de ser de un asistente de pruebas.}
+
+\begin{tcbraster}[raster columns=3, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=e6!7, colframe=e6, boxrule=1.2pt, arc=6pt,
+  title={\faQuestion\ Tipabilidad}, colbacktitle=e6, fonttitle=\bfseries\large, halign=center]
+{\Large $?\ \vdash\ M\ :\ ?$}\\[4pt]
+¿Este término tiene \textbf{algún} tipo?\\[2pt]
+{\small Variante, asignación: $\Gamma\vdash M:\ ?$}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=verde!8, colframe=verde, boxrule=1.2pt, arc=6pt,
+  title={\faCheckDouble\ Chequeo de tipos}, colbacktitle=verde, fonttitle=\bfseries\large, halign=center]
+{\Large $\Gamma\ \overset{?}{\vdash}\ M\ :\ \sigma$}\\[4pt]
+¿Este término tiene \textbf{este} tipo?\\[2pt]
+{\small = \textbf{comprobar} una prueba dada}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=rojo!7, colframe=rojo, boxrule=1.2pt, arc=6pt,
+  title={\faLightbulb\ Habitación}, colbacktitle=rojo, fonttitle=\bfseries\large, halign=center]
+{\Large $\Gamma\ \vdash\ ?\ :\ \sigma$}\\[4pt]
+¿Existe \textbf{algún} término de este tipo?\\[2pt]
+{\small = \textbf{encontrar} una prueba}
+\end{tcolorbox}
+\end{tcbraster}
+
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=gris, boxrule=1pt, arc=5pt, left=6pt, right=6pt,
+  top=4pt, bottom=4pt]
+{\large\bfseries\color{gris!80!black}\faBalanceScale\ ¿Es decidible?}\\[3pt]
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}lcc@{}}
+ & \textbf{en $\lambda{\to}$} & \textbf{en $\lambda P$, $\lambda C$}\\\hline
+Chequeo & {\color{verde}\faCheckCircle} sí & {\color{verde}\faCheckCircle} sí\\
+Habitación & {\color{verde}\faCheckCircle} sí & {\color{rojo}\faTimesCircle} \textbf{no}\\
+\end{tabular}\\[3pt]
+{\small Teorema 7.59 (citado de Barendregt): en $\lambda{\to}$ todo es decidible.
+§8.4.3: en el cubo el chequeo sigue siendo decidible; la habitación no.}
+\end{tcolorbox}
+\clave{e6}{el \textbf{núcleo de Lean} hace chequeo: es mecánico. \textbf{Tú} (con tácticas)
+haces habitación: no hay algoritmo que la resuelva siempre.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\tarj{e9}{\faTheaterMasks\ PAT: la primera vez que un tipo es una proposición}{
+\emph{Propositions as types, proofs as terms.}\par\vspace{3pt}
+\centerline{\large $\lambda x{:}A.\,\lambda y{:}B.\,x\ :\ A\to(B\to A)$}\par\vspace{3pt}
+Como \textbf{programa}: recibe dos datos y devuelve el primero.\\
+Como \textbf{prueba}: de $A$ y $B$ se concluye $A$.\\[2pt]
+Habitado $\leftrightarrow$ demostrable. Se desarrolla en la estación \chip{9}.}
+\tarj{gris}{\faInfoCircle\ Una nota fina de la tesis}{
+$\neg$i (de $A\vdash\bot$ a $\neg A$) es intuicionista;\\ RAA (de $\neg A\vdash\bot$ a $A$) no lo es.}
+\end{minipage}
+
+\tesis{Tipos de problemas: §7.3.4 · Decidibilidad (Teorema 7.59): §7.3.5 · PAT: §7.3.6 · Cubo: §8.4.3}
+\vfill
+\pruebate{e6}{
+\item ¿Cuál de los tres problemas resuelve el núcleo de Lean?
+\item ¿Cuál deja de ser decidible en $\lambda P$ y $\lambda C$?
+\item ¿Qué proposición demuestra $\lambda x{:}A.\,\lambda y{:}B.\,x$?
+}{\textbf{1.} El chequeo de tipos.\quad \textbf{2.} La habitación: saber si existe un término de un tipo dado.\quad
+\textbf{3.} $A\to(B\to A)$.}
+\navegacion{est5}{Estación 5}{est7}{Estación 7}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 7: TRES EXTENSIONES
+%=====================================================================
+\estacion{7}{\faLayerGroup}{$\lambda2$, $\lw$ y $\lambda P$: tres dependencias nuevas}{cada
+una arregla una carencia de $\lambda{\to}$. Juntas dan el lenguaje en el que se escribe la lógica.}
+
+\begin{tcbraster}[raster columns=3, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=ax2!7, colframe=ax2, boxrule=1.3pt, arc=6pt,
+  title={\textbf{$\lambda2$} · polimorfismo}, colbacktitle=ax2,
+  fonttitle=\Large, before upper=\raggedright]
+\large Los \textbf{términos} dependen de \textbf{tipos}.\\[3pt]
+\textbf{Carencia:} una identidad por cada tipo.\\[3pt]
+$\mathrm{Id}\equiv\Lambda\alpha{:}*.\,\lambda x{:}\alpha.\,x$\\[2pt]
+$\mathrm{Id}\ :\ \Pi\alpha{:}*.\,\alpha\to\alpha$\\[2pt]
+$\mathrm{Id}\ \mathtt{nat}\ \bred\ \lambda x{:}\mathtt{nat}.\,x$\\[4pt]
+\textbf{Nuevo:} el tipo $\Pi$, que liga a $\alpha$.\\[3pt]
+\faCode\ En Lean: \texttt{\{α : Type\}}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=axw!7, colframe=axw, boxrule=1.3pt, arc=6pt,
+  title={\textbf{$\lw$} · constructores de tipos}, colbacktitle=axw,
+  fonttitle=\Large, before upper=\raggedright]
+\large Los \textbf{tipos} dependen de \textbf{tipos}.\\[3pt]
+\textbf{Carencia:} no hay \texttt{List} genérico.\\[3pt]
+$\mathtt{List}\ :\ *\to *$\\[2pt]
+$\lambda\alpha{:}*.\,\alpha\to\alpha\ :\ *\to *$\\[4pt]
+\textbf{Nuevo:} el \textbf{kind}, el «tipo» de un tipo.\\[2pt]
+{\large término : tipo : kind : $\square$}\\[2pt]
+$3:\mathtt{nat}:*:\square$\\[3pt]
+\faCode\ \texttt{List : Type → Type}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=axp!7, colframe=axp, boxrule=1.3pt, arc=6pt,
+  title={\textbf{$\lambda P$} · tipos dependientes}, colbacktitle=axp,
+  fonttitle=\Large, before upper=\raggedright]
+\large Los \textbf{tipos} dependen de \textbf{términos}.\\[3pt]
+\textbf{Carencia:} no se puede decir «$P(n)$».\\[3pt]
+$\mathtt{EsPar}\ :\ \mathtt{nat}\to *$\\[2pt]
+$\mathtt{EsPar}\ 2$ habitado;\ \ $\mathtt{EsPar}\ 3$ vacío.\\[4pt]
+\textbf{Nuevo:} predicado = familia de tipos.\\[2pt]
+{\large $\forall x{:}S.\,P\,x\ \ \leftrightarrow\ \ \Pi x{:}S.\,P\,x$}\\[3pt]
+$\forall$e = aplicación;\ \ $\forall$i = abstracción.\\[3pt]
+\faCode\ En Lean: \texttt{∀ n : Nat, P n}
+\end{tcolorbox}
+\end{tcbraster}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\clave{e7}{$\Pi x{:}A.\,B$ es \textbf{la función cuyo tipo de salida depende del argumento}. Si $B$ no
+menciona a $x$, es la flecha de siempre: $A\to B$.}
+\tarj{rojo}{\faExclamationTriangle\ No digas «$*$ es el tipo de todos los tipos»}{
+$*$ es un \textbf{sort}, y $*:\square$. La jerarquía evita paradojas como la de Girard.}
+\end{tcbraster}
+\tesis{$\lambda2$ = Sistema F (Girard, Reynolds): §8.1, Def.\ 8.4, Ejemplo 8.5 · $\lw$: §8.2 · $\lambda P$: §8.3 · en Lean \texttt{Type : Type 1} hace de $\square$}
+\vfill
+\pruebate{e7}{
+\item ¿Qué dependencia añade cada sistema?
+\item ¿Cuál es el tipo de la identidad polimórfica?
+\item ¿Cómo se escribe $\forall x{:}S.\,P(x)$ como tipo?
+}{\textbf{1.} $\lambda2$: términos de tipos. $\lw$: tipos de tipos. $\lambda P$: tipos de términos.\quad
+\textbf{2.} $\Pi\alpha{:}*.\,\alpha\to\alpha$.\quad \textbf{3.} $\Pi x{:}S.\,P\,x$.}
+\navegacion{est6}{Estación 6}{est8}{Estación 8}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 8: EL CUBO
+%=====================================================================
+\estacion{8}{\faCube}{El cubo-$\lambda$: ocho sistemas, un vértice}{sitúa a Lean: su
+teoría extiende el vértice más expresivo, $\lambda C$ (el Cálculo de Construcciones).}
+
+\begin{minipage}[t]{0.40\textwidth}\vspace{0pt}
+\centering
+\begin{tikzpicture}[scale=1.27, >={Stealth[length=3.2mm]}, font=\Large,
+    v/.style={fill=white, inner sep=2.5pt, rounded corners=2pt},
+    hot/.style={fill=e8, text=white, inner sep=4pt, rounded corners=3pt, font=\Large\bfseries}]
+  \coordinate (O)  at (0,0);      \coordinate (U)  at (0,3.2);
+  \coordinate (R)  at (4.2,0);    \coordinate (UR) at (4.2,3.2);
+  \coordinate (D)  at (1.9,1.35); \coordinate (UD) at (1.9,4.55);
+  \coordinate (RD) at (6.1,1.35); \coordinate (URD) at (6.1,4.55);
+  \draw[black!35, line width=0.8pt] (U)--(UR)--(R) (D)--(UD)--(URD)--(RD)--(D)
+     (U)--(UD) (UR)--(URD) (R)--(RD);
+  \draw[->, ax2, line width=2.2pt] (O) -- (U);
+  \draw[->, axp, line width=2.2pt] (O) -- (R);
+  \draw[->, axw, line width=2.2pt] (O) -- (D);
+  \node[v] at (O) {$\lambda{\to}$};  \node[v, text=ax2] at (U) {$\lambda2$};
+  \node[v, text=axp] at (R) {$\lambda P$}; \node[v] at (UR) {$\lambda P2$};
+  \node[v, text=axw] at (D) {$\lw$};  \node[v] at (UD) {$\lambda\omega$};
+  \node[v] at (RD) {$\lambda P\underline{\omega}$}; \node[hot] at (URD) {$\lambda C$};
+\end{tikzpicture}\\[2pt]
+{\small\color{ax2}\rule[1.5pt]{6mm}{2pt}\ términos de tipos}\quad
+{\small\color{axw}\rule[1.5pt]{6mm}{2pt}\ tipos de tipos}\quad
+{\small\color{axp}\rule[1.5pt]{6mm}{2pt}\ tipos de términos}\\[3pt]
+\begin{tcolorbox}[colback=e8!7, colframe=e8, boxrule=1pt, arc=4pt, left=5pt, right=5pt,
+  top=3pt, bottom=3pt, halign=left]
+\textbf{Cuidado:} $\lw$ (subrayada) es un \emph{eje}.\\ $\lambda\omega=\lambda2+\lw$ es una \emph{cara}.
+\end{tcolorbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.58\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=e8, boxrule=1.3pt, arc=6pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt]
+{\large\bfseries\color{e8!80!black}\faGavel\ Una sola regla lo decide todo (formación de $\Pi$)}
+\[
+\frac{\Gamma\vdash A:s_1\qquad\Gamma,\,x:A\vdash B:s_2}{\Gamma\vdash\Pi x{:}A.\,B\ :\ s_2}
+\qquad s_1,s_2\in\{*,\square\}
+\]
+{\small Cada sistema es un conjunto de pares $(s_1,s_2)$ permitidos.}
+\end{tcolorbox}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}>{\bfseries}c l l@{}}
+\rowcolor{black!8}par & significa & lo aporta\\
+$(*,*)$ & términos que dependen de términos & $\lambda{\to}$ (lo tienen todos)\\
+\textcolor{ax2}{$(\square,*)$} & términos que dependen de tipos & \textcolor{ax2}{$\lambda2$}: polimorfismo\\
+\textcolor{axw}{$(\square,\square)$} & tipos que dependen de tipos & \textcolor{axw}{$\lw$}: constructores\\
+\textcolor{axp}{$(*,\square)$} & tipos que dependen de términos & \textcolor{axp}{$\lambda P$}: predicados\\
+\end{tabular}\\[3pt]
+{\large\textbf{$\lambda C$ admite los cuatro pares.}}
+\vspace{3pt}
+\begin{tcolorbox}[colback=verde!7, colframe=verde, boxrule=1.1pt, arc=5pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt, before upper=\raggedright]
+{\large\bfseries\color{verde!70!black}\faShield*\ Teorema 8.27: cuatro garantías (citadas)}\\[2pt]
+\textbf{1.\ Confluencia.}\quad \textbf{2.\ Preservación del tipo:} si $M:A$ y $M\bred N$, entonces $N:A$.\\
+\textbf{3.\ Unicidad de tipos:} si $M:A$ y $M:B$, entonces $A\beq B$.\\
+\textbf{4.\ Normalización fuerte:} un término bien tipado no tiene reducciones infinitas.
+\end{tcolorbox}
+\end{minipage}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\clave{e8}{las cuatro garantías son de los \textbf{cálculos puros} del cubo, con términos \textbf{bien tipados}.
+No son una afirmación sobre «cualquier programa de Lean».}
+\tarj{gris}{\faArrowRight\ Lo que al cubo le falta}{El CoC puro \textbf{no} trae tipos inductivos: ni
+naturales ni listas con inducción. Eso lo añade el CIC (estación \chip{10}).}
+\end{tcbraster}
+\tesis{Cubo: §8.4.1 · Regla de formación y pares: §8.4.2 · Teorema 8.27 y decidibilidad: §8.4.3 · Fuentes: Barendregt (1991), Sørensen y Urzyczyn}
+\navegacion{est7}{Estación 7}{est9}{Estación 9}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 9: CURRY–HOWARD
+%=====================================================================
+\estacion{9}{\faHandshake}{Curry–Howard: una prueba es un programa}{es el puente de toda
+la tesis: por esto comprobar un teorema se reduce a comprobar un tipo.}
+
+\begin{minipage}[t]{0.47\textwidth}\vspace{0pt}
+\renewcommand{\arraystretch}{1.16}
+\begin{tabular}{@{}>{\raggedright}p{5.4cm} c >{\raggedright\arraybackslash}p{5.6cm}@{}}
+\rowcolor{e9}\color{white}\textbf{\ Lógica} & & \color{white}\textbf{Cómputo}\\
+proposición & $\leftrightarrow$ & tipo\\
+prueba & $\leftrightarrow$ & término (programa)\\
+\rowcolor{e9!10}$A\to B$ & $\leftrightarrow$ & tipo función $A\to B$\\
+\rowcolor{e9!10}$A\wedge B$ & $\leftrightarrow$ & producto $A\times B$ (par)\\
+\rowcolor{e9!10}$A\vee B$ & $\leftrightarrow$ & suma $A+B$ (\emph{case})\\
+\rowcolor{e9!10}$\bot$ & $\leftrightarrow$ & tipo vacío\\
+\rowcolor{e9!10}$\forall x{:}A.\,P\,x$ & $\leftrightarrow$ & $\Pi x{:}A.\,P\,x$\\
+suposición & $\leftrightarrow$ & variable\\
+descargar una suposición & $\leftrightarrow$ & ligar con $\lambda$\\
+$\to$i & $\leftrightarrow$ & abstracción\\
+$\to$e (modus ponens) & $\leftrightarrow$ & aplicación\\
+\rowcolor{verde!12}\textbf{simplificar la prueba} & $\leftrightarrow$ & \textbf{evaluar ($\beta$)}\\
+demostrable & $\leftrightarrow$ & habitado\\
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.51\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=e9, boxrule=1.2pt, arc=5pt, left=6pt, right=6pt,
+  top=4pt, bottom=4pt]
+{\large\bfseries\color{e9!80!black}\faExchange*\ El ejemplo de la tesis: \emph{swap} (Ejemplo 9.24)}\par\vspace{-9pt}
+\begin{prooftree}
+\AXC{$[z:B\times A]$}\RightLabel{\small$\times$e$_2$}
+\UIC{$\pi_2 z:A$}
+\AXC{$[z:B\times A]$}\RightLabel{\small$\times$e$_1$}
+\UIC{$\pi_1 z:B$}\RightLabel{\small$\times$i}
+\BIC{$\langle\pi_2 z,\pi_1 z\rangle:A\times B$}\RightLabel{\small$\to$i}
+\UIC{$\lambda z.\,\langle\pi_2 z,\pi_1 z\rangle\ :\ (B\times A)\to(A\times B)$}
+\end{prooftree}
+\par\vspace{-3pt}{\small Borra los términos y cambia $\times$ por $\wedge$: es la prueba de $(B\wedge A)\to(A\wedge B)$.}
+\end{tcolorbox}
+\tarj{verde}{\faSync*\ La parte dinámica (§9.5.2)}{
+Un \textbf{desvío} (introducir y eliminar enseguida) es un \textbf{redex}.
+Normalizar la prueba = evaluar el programa.}
+\tarj{rojo}{\faExclamationTriangle\ Es con la lógica \textbf{intuicionista}}{
+Teorema 9.22 (citado): derivaciones de IPC($\to$) $\leftrightarrow$ juicios de $\lambda{\to}$.
+Lo clásico (tercero excluido, RAA) en Lean entra por un axioma.}
+\end{minipage}
+
+\clave{e9}{en la tesis hay \textbf{dos lógicas}: la de Lean (aquí vale Curry–Howard; mis teoremas son términos)
+y el cálculo $\vdash$ que estudio, que es un \textbf{dato}: el tipo inductivo \texttt{ND}, con las reglas como constructores.
+\ \tesis{§9.5.1 estática · §9.5.2 dinámica · §9.5.3 resumen}}
+\vfill
+\pruebate{e9}{
+\item ¿A qué corresponden $\to$i y $\to$e?
+\item ¿Qué programa es la prueba de $(B\wedge A)\to(A\wedge B)$?
+\item ¿Con qué lógica es la correspondencia?
+}{\textbf{1.} A la abstracción $\lambda$ y a la aplicación.\quad \textbf{2.} \emph{swap}:
+$\lambda z.\langle\pi_2 z,\pi_1 z\rangle$.\quad \textbf{3.} Con la intuicionista.}
+\navegacion{est8}{Estación 8}{est10}{Estación 10}
+
+\newpage
+%=====================================================================
+% ESTACIÓN 10: CoC, CIC, LEAN
+%=====================================================================
+\estacion{10}{\faSeedling}{CoC $\to$ CIC $\to$ Lean: de dónde sale la inducción}{mis dos
+pruebas son inducciones. Aquí se ve de dónde saca Lean el derecho a hacerlas.}
+
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=ambar!8, colframe=ambar, boxrule=1.2pt, arc=6pt,
+  title={\faTools\ CoC puro: todo se codifica con funciones}, colbacktitle=ambar!90!black,
+  fonttitle=\bfseries\large, before upper=\raggedright]
+Solo hay $\lambda$ y $\Pi$. Los naturales son \textbf{numerales de Church}:\\[2pt]
+$\mathrm{Nat}:=\forall A,\ A\to(A\to A)\to A$\\[2pt]
+$2=\lambda A\,x\,f.\ f\,(f\,x)$\quad «aplicar $f$ dos veces»\\[4pt]
+{\color{verde!70!black}\faCheck} Da \textbf{iteración}.\\
+{\color{rojo}\faTimes} \textbf{No} da inducción dependiente (Geuvers, 2001).\\
+{\color{rojo}\faTimes} El predecesor cuesta $n$ pasos.
+\end{tcolorbox}
+\tarj{rojo}{\faBan\ Positividad estricta (§10.3.2)}{
+El tipo $X$ que se define \textbf{no puede aparecer a la izquierda de una flecha} en los
+argumentos de sus constructores.\\ Un constructor $c:(X\to\bot)\to X$ permitiría fabricar
+un habitante de $\bot$: la lógica sería inconsistente.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=verde!7, colframe=verde, boxrule=1.2pt, arc=6pt,
+  title={\faSeedling\ CIC: declaras constructores y recibes tres cosas},
+  colbacktitle=verde, fonttitle=\bfseries\large, before upper=\raggedright]
+\texttt{inductive Nat | zero | succ (n : Nat)}\\[4pt]
+\textbf{1.\ Constructores} = reglas de introducción.\\[2pt]
+\textbf{2.\ Eliminador (recursor).} Su tipo \textbf{es} la inducción:\\[1pt]
+{\small$\forall P,\ P\,0\to(\forall n,\ P\,n\to P\,(S\,n))\to\forall n,\ P\,n$}\\[3pt]
+\textbf{3.\ Reglas $\iota$} = cómputo del recursor:\\[1pt]
+$R(C,x,f,0)\ \to_\iota\ x$\\
+$R(C,x,f,S\,n)\ \to_\iota\ f\ n\ (R(C,x,f,n))$
+\end{tcolorbox}
+\tarj{e1}{\faMicrochip\ Lean no es exactamente el CIC (Nota de §10.3)}{
+\textbf{1.}\ Irrelevancia de pruebas \textbf{por definición}.\\
+\textbf{2.}\ Cocientes primitivos; solo \texttt{Quot.sound} es axioma.\\
+\textbf{3.}\ Universos \textbf{no acumulativos}.}
+\end{minipage}
+
+\begin{tcolorbox}[colback=tldr, colframe=e10, boxrule=1pt, arc=5pt, left=8pt, right=8pt,
+  top=4pt, bottom=4pt]
+\faLink\ \textbf{Dónde lo usa la tesis:}\ \texttt{Formula} y \texttt{ND} son tipos inductivos.
+«Inducción sobre la fórmula» es el eliminador de \texttt{Formula} (lema de Kalmár);
+«inducción sobre la derivación» es el de \texttt{ND} (debilitamiento, corrección).
+\end{tcolorbox}
+\par\vspace{-4pt}\tesis{CoC: §10.2 · Geuvers: §10.2.3 · Recursor: §10.3.1 · Reglas $\iota$: §10.3.5 · Lean: Carneiro (2019); de Moura y Ullrich (2021)}
+\vfill
+\pruebate{e10}{
+\item ¿Qué le falta al CoC puro?
+\item ¿Qué tres cosas genera una declaración inductiva?
+\item ¿Qué prohíbe la positividad estricta?
+}{\textbf{1.} La inducción dependiente: los numerales de Church solo dan iteración.\quad
+\textbf{2.} Constructores, eliminador y reglas $\iota$.\quad \textbf{3.} Que el tipo definido aparezca a la
+izquierda de una flecha en sus constructores.}
+\navegacion{est9}{Estación 9}{estado}{Qué demuestro}
+
+\newpage
+%=====================================================================
+% QUÉ SE DEMUESTRA Y QUÉ SE CITA
+%=====================================================================
+\pagina{estado}{ambar!85!black}{\faBalanceScale}{Qué demuestro y qué solo cito}{es lo
+primero que comprueba un examinador. Di el color sin dudar.}
+
+\begin{tcbraster}[raster columns=3, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=verde!7, colframe=verde, boxrule=1.3pt, arc=6pt,
+  title={\faCheckCircle\ Demostrado en la tesis}, colbacktitle=verde, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\textbf{Lema 7.6}\quad $M\in\mathrm{Sub}(M)$ y transitividad\\[2pt]
+\textbf{Lema 7.23}\quad lema de sustitución\\[2pt]
+\textbf{Lemas 7.31, 7.32}\quad $\bmred$ y $\beq$\\[2pt]
+\textbf{Corolario 7.43}\quad Church–Rosser para $\beq$\\[2pt]
+\textbf{Corolario 7.44}\quad forma normal única\\[2pt]
+\textbf{Ejemplo 7.49}\quad $x\,x$ no es tipable\\[2pt]
+\textbf{Lema 7.57}\quad $\FV(L)\subseteq\mathrm{dom}(\Gamma)$\\[2pt]
+\textbf{Derivaciones}\quad 7.52–7.53, 8.5, 8.13, 8.15, 8.20, 8.22, §8.3.3\\[2pt]
+\textbf{Ejemplo 9.24}\quad \emph{swap}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=ambar!10, colframe=ambar, boxrule=1.3pt, arc=6pt,
+  title={\faPencil*\ Esbozado o solo enunciado}, colbacktitle=ambar!90!black, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\textbf{Teorema 7.37}\quad Church–Rosser\\
+{\small esbozo por reducción paralela (Tait y Martin-Löf); la prueba completa es
+Barendregt (1984), Teorema 3.2.8.}\\[5pt]
+\textbf{Lemas 7.40, 7.41}\quad sustitución y diamante para $\Rightarrow$\\
+{\small enunciados sin demostración, dentro del esbozo.}\\[5pt]
+\textbf{Teoremas 9.13, 9.14}\quad solidez y completitud\\
+{\small esbozos (Huth y Ryan). La completitud se \textbf{formaliza} después, en el Capítulo 11.}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=rojo!6, colframe=rojo, boxrule=1.3pt, arc=6pt,
+  title={\faQuoteRight\ Citado (no lo demuestro)}, colbacktitle=rojo, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\textbf{Teorema 7.59}\quad decidibilidad en $\lambda{\to}$\\ {\small Barendregt (2013)}\\[3pt]
+\textbf{Teorema 7.63}\quad Church–Rosser en $\lambda{\to}$\\ {\small Barendregt (1992)}\\[3pt]
+\textbf{Teorema 8.27}\quad propiedades del cubo\\ {\small Barendregt (1991); Sørensen y Urzyczyn}\\[3pt]
+\textbf{Teorema 9.22}\quad Curry–Howard\\ {\small Sørensen y Urzyczyn}\\[3pt]
+\textbf{§10.2.3}\quad la inducción no se deriva de la codificación de Church\\ {\small Geuvers (2001)}
+\end{tcolorbox}
+\end{tcbraster}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster equal height]
+\begin{tcolorbox}[colback=e1!7, colframe=e1, boxrule=1.1pt, arc=5pt, before upper=\raggedright]
+{\large\bfseries\color{e1!80!black}\faLaptopCode\ Extra: está en el repositorio, no en el texto de la tesis}\\[2pt]
+La carpeta \texttt{Thesis/Teoria} comprueba en Lean parte de los Capítulos 7 a 9: los Lemas 7.6,
+7.23, 7.31, 7.32 y 7.57, y varias derivaciones de $\lambda{\to}$, $\lambda2$ y $\lw$.\\
+Los Corolarios 7.43 y 7.44 están comprobados \textbf{tomando la confluencia como hipótesis}:
+Church–Rosser en sí no está formalizado.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=tldr, colframe=black!50, boxrule=0.8pt, arc=5pt, before upper=\raggedright]
+{\large\bfseries\faCommentDots\ La frase segura}\\[2pt]
+«Los Capítulos 7 a 10 son el marco teórico. Demuestro los lemas elementales,
+esbozo Church–Rosser y cito la metateoría profunda: normalización fuerte, decidibilidad y
+Curry–Howard. Mi aporte está en los Capítulos 11 y 12.»
+\end{tcolorbox}
+\end{tcbraster}
+\navegacion{est10}{Estación 10}{preguntas}{Preguntas}
+
+\newpage
+%=====================================================================
+% PREGUNTAS 1
+%=====================================================================
+\pagina{preguntas}{rojo}{\faQuestionCircle}{Preguntas imprescindibles (1 de 3): cálculo $\lambda$}{tapa
+la respuesta, contesta en voz alta y compara. Las de \faStar\ son las que no pueden fallar.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\preg*{e1}{1}{¿Qué es el cálculo $\lambda$ y por qué está en la tesis?}{Es un lenguaje mínimo de
+funciones: variables, aplicación y abstracción, con una sola regla de cómputo, la $\beta$. Está en la
+tesis porque los términos de Lean son $\lambda$-términos tipados: una demostración es un término y
+comprobarla es comprobar su tipo.}{estaciones \chip{1} y \chip{9}}
+\preg{e1}{2}{¿Qué es la $\alpha$-equivalencia y por qué importa?}{Dos términos que solo difieren en
+el nombre de sus variables ligadas son el mismo término. Importa porque la sustitución tiene que
+renombrar para no capturar variables libres; por eso el Lema 7.23 se enuncia módulo $\alpha$.}{estaciones \chip{1} y \chip{2}}
+\preg*{e2}{3}{¿Qué es la reducción $\beta$?}{$(\lambda x.M)\,N\bred M[x:=N]$: aplicar una función es
+sustituir el argumento en el cuerpo. $\bred$ es un paso, $\bmred$ es cero o más pasos y $\beq$
+es la equivalencia que generan.}{estación \chip{2}}
+\preg*{e4}{4}{¿Qué dice Church–Rosser y qué no dice?}{Si un término se reduce de dos maneras, los dos
+resultados se pueden reducir a un término común. De ahí sale que la forma normal, si existe,
+es única. No dice que exista: $\Omega$ no tiene forma normal.}{estación \chip{4} · Teorema 7.37, Corolario 7.44}
+\preg*{e4}{5}{¿Demostró usted Church–Rosser?}{No completo. La tesis da el esbozo por reducción
+paralela, el método de Tait y Martin-Löf, y remite a Barendregt para los detalles; los dos lemas
+auxiliares solo se enuncian. Lo que sí demuestro son sus dos corolarios, 7.43 y 7.44.}{página \ir[ambar!85!black]{estado}{Qué demuestro}}
+\preg{e3}{6}{¿Normalización débil o fuerte?}{Débil: \emph{alguna} ruta de
+reducción termina. Fuerte: \emph{todas} terminan. $(\lambda y.z)\,\Omega$ es débil pero no
+fuertemente normalizable: termina si reduzco el redex de fuera y no termina si insisto en $\Omega$.}{estación \chip{3}}
+\end{tcbraster}
+\navegacion{estado}{Qué demuestro}{preguntas2}{Preguntas 2}
+
+\newpage
+%=====================================================================
+% PREGUNTAS 2
+%=====================================================================
+\pagina{preguntas2}{rojo}{\faQuestionCircle}{Preguntas imprescindibles (2 de 3): tipos y cubo}{la
+palabra que más se repite aquí es «depende». Di siempre \emph{qué} depende de \emph{qué}.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\preg*{e5}{7}{¿Para qué sirven los tipos?}{Para descartar términos sin sentido antes de ejecutarlos.
+En $\lambda{\to}$ la autoaplicación $x\,x$ no es tipable, así que $\Omega$ queda fuera, y todo término
+bien tipado es fuertemente normalizable. Ese último resultado lo cito, no lo demuestro.}{estaciones \chip{3} y \chip{5}}
+\preg{e5}{8}{¿Tipado à la Church o à la Curry?}{À la Church las variables
+ligadas llevan su tipo anotado, $\lambda x{:}\sigma.M$, y el tipo de un término es único. À la Curry no
+se anota y el tipo se infiere. La tesis presenta las reglas à la Church.}{estación \chip{5} · §7.3.2}
+\preg*{e6}{9}{¿Comprobar una prueba es encontrarla?}{No. Comprobar es chequeo de tipos:
+decidible en los sistemas del cubo. Encontrar es habitación: indecidible en $\lambda P$ y
+$\lambda C$. Por eso el asistente comprueba de forma mecánica, pero la prueba la propone una persona.}{estación \chip{6} · §8.4.3}
+\preg*{e8}{10}{¿Qué es el cubo-$\lambda$?}{Ocho sistemas que salen de $\lambda{\to}$ al añadir tres
+dependencias: términos de tipos ($\lambda2$, polimorfismo), tipos de tipos ($\lw$, constructores)
+y tipos de términos ($\lambda P$, predicados). El vértice opuesto, $\lambda C$, las tiene todas.
+Formalmente: qué pares $(s_1,s_2)$ admite la regla de formación de $\Pi$.}{estaciones \chip{7} y \chip{8}}
+\preg*{e7}{11}{¿Qué es un tipo dependiente, un tipo $\Pi$?}{$\Pi x{:}A.\,B$ es el tipo de las funciones
+cuyo tipo de salida depende del argumento. Si $B$ no menciona a $x$, es la flecha $A\to B$. Leído
+como lógica es el cuantificador universal: una prueba de $\forall x.\,P(x)$ es una función que a
+cada $a$ le asocia una prueba de $P(a)$.}{estación \chip{7} · §8.3}
+\preg{e8}{12}{¿Qué propiedades tiene el cubo? ¿Las demostró?}{Cuatro: confluencia,
+preservación del tipo, unicidad de tipos y normalización fuerte (Teorema 8.27). Las cito de
+Barendregt y de Sørensen y Urzyczyn. Valen para los cálculos puros con términos bien tipados.}{estación \chip{8}}
+\end{tcbraster}
+\navegacion{preguntas}{Preguntas 1}{preguntas3}{Preguntas 3}
+
+\newpage
+%=====================================================================
+% PREGUNTAS 3
+%=====================================================================
+\pagina{preguntas3}{rojo}{\faQuestionCircle}{Preguntas imprescindibles (3 de 3): Curry–Howard y CIC}{aquí
+se conecta la teoría con lo que hiciste. Termina cada respuesta volviendo a tu tesis.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\preg*{e9}{13}{Enuncie la correspondencia de Curry–Howard.}{Las proposiciones son tipos y las pruebas
+son términos. La introducción de la implicación es la abstracción, el modus ponens es la
+aplicación y simplificar una prueba es evaluar el programa. El Teorema 9.22, que cito, lo
+enuncia para la implicación intuicionista y $\lambda{\to}$.}{estación \chip{9}}
+\preg*{e9}{14}{¿La correspondencia es con la lógica clásica?}{No, con la intuicionista. En mi tesis
+hay dos niveles: el cálculo que estudio es clásico porque tiene RAA, pero ahí RAA es un
+constructor del tipo inductivo \texttt{ND}, un dato. Aparte, según la auditoría, la prueba
+de completitud usa el axioma \texttt{Classical.choice} de Lean.}{estación \chip{9}}
+\preg*{e10}{15}{¿Por qué no basta el CoC y hace falta el CIC?}{En el CoC los datos se codifican como
+funciones, los numerales de Church. Eso da iteración, pero la inducción dependiente no es derivable
+(Geuvers). El CIC añade tipos inductivos: al declararlos se generan constructores, eliminador
+y reglas $\iota$, y el tipo del eliminador es el principio de inducción.}{estación \chip{10}}
+\preg{e10}{16}{¿Qué es la positividad estricta?}{El tipo que se define no puede
+aparecer a la izquierda de una flecha en los argumentos de sus constructores. Sin esa
+restricción se puede construir un habitante de $\bot$ y la lógica sería inconsistente.}{estación \chip{10} · §10.3.2}
+\preg{e1}{17}{¿Lean implementa exactamente el CIC?}{No, una variante. La tesis señala tres
+diferencias: la irrelevancia de pruebas vale por definición, los cocientes son primitivos
+(solo \texttt{Quot.sound} es axioma) y los universos no son acumulativos.}{estación \chip{10} · Nota de §10.3}
+\preg*{gris}{18}{¿Dónde usa su tesis toda esta teoría?}{En tres sitios. \texttt{Formula} y \texttt{ND} son
+tipos inductivos, y mis inducciones son sus eliminadores. Cada teorema es un término cuyo tipo
+es el enunciado. Y la confianza descansa en que el núcleo solo comprueba tipos: una tarea mecánica.}{estaciones \chip{6}, \chip{9} y \chip{10}}
+\end{tcbraster}
+\navegacion{preguntas2}{Preguntas 2}{trampas}{Trampas}
+
+\newpage
+%=====================================================================
+% TRAMPAS Y CÓMO DECIRLO
+%=====================================================================
+\pagina{trampas}{e2}{\faBomb}{Diez trampas y cómo leer los símbolos}{frases que suenan
+bien y son falsas. Si te oyes decir una, corrígete en el momento.}
+
+\newcommand{\trampa}[3]{\begin{tcolorbox}[colback=white, colframe=black!35, boxrule=0.8pt, arc=4pt,
+  left=6pt, right=6pt, top=2pt, bottom=2pt, before upper=\raggedright]
+  \medio\chip{#3}\ {\color{rojo}\faTimes}\ {\color{rojo!80!black}«#1»}\\
+  {\color{verde!70!black}\faCheck}\ #2\end{tcolorbox}}
+
+\begin{minipage}[t]{0.62\textwidth}\vspace{0pt}
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster row skip=4pt,
+  raster equal height=rows]
+\trampa{Church–Rosser garantiza que todo termina.}{Garantiza unicidad, no existencia.}{4}
+\trampa{$\alpha$ y $\beta$ son dos formas de reducir.}{$\alpha$ renombra; solo $\beta$ computa.}{2}
+\trampa{$*$ es el tipo de todos los tipos.}{$*$ es un sort, y $*:\square$.}{7}
+\trampa{$\lw$ y $\lambda\omega$ son lo mismo.}{$\lambda\omega=\lambda2+\lw$.}{8}
+\trampa{Tipo dependiente es lo mismo que polimorfismo.}{Polimorfismo: depende de un tipo. Dependiente: de un término.}{7}
+\trampa{Curry–Howard vale para la lógica clásica.}{Es con la intuicionista.}{9}
+\trampa{El CoC ya tiene inducción.}{Solo iteración; la inducción llega con el CIC.}{10}
+\trampa{Comprobar y encontrar pruebas es igual de fácil.}{Chequeo decidible; habitación no.}{6}
+\trampa{Demostré la normalización fuerte.}{Es el Teorema 8.27, citado.}{8}
+\trampa{Todo programa de Lean termina por el Teorema 8.27.}{El teorema es de los cálculos puros del cubo.}{8}
+\end{tcbraster}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.36\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=e2!6, colframe=e2, boxrule=1.1pt, arc=5pt, left=6pt, right=6pt,
+  top=4pt, bottom=4pt, title={\faVolumeUp\ Cómo se lee en voz alta}, colbacktitle=e2,
+  fonttitle=\bfseries\large]
+\renewcommand{\arraystretch}{1.45}\medio
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{5.9cm}@{}}
+$\lambda x.\,M$ & «lambda $x$ punto $M$»: la función que a $x$ le asocia $M$\\
+$M[x:=N]$ & «$M$ con $N$ en lugar de $x$»\\
+$M\bred N$ & «$M$ se reduce en un paso a $N$»\\
+$M\bmred N$ & «$M$ se reduce a $N$»\\
+$M\beq N$ & «$M$ y $N$ son beta-iguales»\\
+$\Gamma\vdash M:\sigma$ & «en gamma, $M$ tiene tipo sigma»\\
+$\Pi x{:}A.\,B$ & «el producto de $B$ sobre $x$ en $A$»: para todo $x$ de $A$, un $B$\\
+$*:\square$ & «estrella vive en caja»\\
+$\to_\iota$ & «reducción iota»: el recursor sobre un constructor\\
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}
+\navegacion{preguntas3}{Preguntas 3}{reglas}{Hoja de reglas}
+
+\newpage
+%=====================================================================
+% HOJA DE REGLAS
+%=====================================================================
+\pagina{reglas}{gris}{\faScroll}{Hoja de reglas}{todas las reglas en una página. No hay que
+memorizarlas: hay que saber leer cada una.}
+
+\begin{tcbraster}[raster columns=2, raster column skip=8pt, raster row skip=5pt,
+  raster equal height=rows]
+\begin{tcolorbox}[colback=e2!5, colframe=e2, boxrule=1.1pt, arc=5pt,
+  title={Cálculo $\lambda$ sin tipos\hfill\chip{1}\ \chip{2}}, colbacktitle=e2, fonttitle=\bfseries]
+\medio\raggedright $\Lambda=V\mid(\Lambda\,\Lambda)\mid(\lambda V.\Lambda)$\hfill $\lambda x.M\aeq\lambda y.M^{x\to y}$\ \ ($y$ fresca)\\[3pt]
+$(\lambda x.M)\,N\bred M[x:=N]$\\[3pt]
+Compatibilidad: si $M\bred N$, entonces $M\,L\bred N\,L$,\ \ $L\,M\bred L\,N$\ \ y\ \ $\lambda x.M\bred\lambda x.N$.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e5!5, colframe=e5, boxrule=1.1pt, arc=5pt,
+  title={$\lambda{\to}$\hfill\chip{5}}, colbacktitle=e5, fonttitle=\bfseries]
+\small\[\frac{x:\sigma\in\Gamma}{\Gamma\vdash x:\sigma}\quad
+\frac{\Gamma\vdash M:\sigma\to\tau\quad\Gamma\vdash N:\sigma}{\Gamma\vdash M\,N:\tau}\quad
+\frac{\Gamma,x:\sigma\vdash M:\tau}{\Gamma\vdash\lambda x{:}\sigma.M:\sigma\to\tau}\]
+\end{tcolorbox}
+\begin{tcolorbox}[colback=ax2!5, colframe=ax2, boxrule=1.1pt, arc=5pt,
+  title={$\lambda2$ (Definición 8.4)\hfill\chip{7}}, colbacktitle=ax2, fonttitle=\bfseries]
+\[\frac{\Gamma,\alpha:*\vdash M:A}{\Gamma\vdash\Lambda\alpha{:}*.M:\Pi\alpha{:}*.A}\qquad
+\frac{\Gamma\vdash M:\Pi\alpha{:}*.A\quad\Gamma\vdash B:*}{\Gamma\vdash M\,B:A[\alpha:=B]}\]
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e8!5, colframe=e8, boxrule=1.1pt, arc=5pt,
+  title={Cubo: formación de $\Pi$ y conversión\hfill\chip{8}}, colbacktitle=e8, fonttitle=\bfseries]
+\small\[\frac{\Gamma\vdash A:s_1\quad\Gamma,x:A\vdash B:s_2}{\Gamma\vdash\Pi x{:}A.B:s_2}\quad
+\frac{\Gamma\vdash A:B\quad\Gamma\vdash B':s}{\Gamma\vdash A:B'}\ \text{\footnotesize si $B\beq B'$}\]
+\end{tcolorbox}
+\begin{tcolorbox}[colback=axw!5, colframe=axw, boxrule=1.1pt, arc=5pt,
+  title={$\lw$: sort, variable y debilitamiento (§8.2)\hfill\chip{7}}, colbacktitle=axw, fonttitle=\bfseries]
+\medio \[\varnothing\vdash *:\square\qquad
+\frac{\Gamma\vdash A:s}{\Gamma,x:A\vdash x:A}\qquad
+\frac{\Gamma\vdash A:B\quad\Gamma\vdash C:s}{\Gamma,x:C\vdash A:B}\]
+\end{tcolorbox}
+\begin{tcolorbox}[colback=e10!5, colframe=e10, boxrule=1.1pt, arc=5pt,
+  title={CIC: recursor de $\mathbb{N}$ y reducción $\iota$\hfill\chip{10}}, colbacktitle=e10, fonttitle=\bfseries]
+\medio\raggedright $0:\mathbb{N}$\qquad $S:\mathbb{N}\to\mathbb{N}$\\[2pt]
+$R(C,x,f,0)\to_\iota x$\\[2pt]
+$R(C,x,f,S\,n)\to_\iota f\ n\ (R(C,x,f,n))$\\[3pt]
+{\small Inducción: $\forall P,\ P\,0\to(\forall n,\ P\,n\to P\,(S\,n))\to\forall n,\ P\,n$}
+\end{tcolorbox}
+\end{tcbraster}
+
+\begin{tcolorbox}[colback=e9!6, colframe=e9, boxrule=1.1pt, arc=5pt,
+  title={Curry–Howard: la misma regla, dos lecturas\hfill\chip{9}}, colbacktitle=e9, fonttitle=\bfseries]
+\large \[\underbrace{\frac{[A]\ \cdots\ B}{A\to B}\ \to\text{i}}_{\text{lógica}}
+\ \leftrightarrow\
+\underbrace{\frac{\Gamma,x:A\vdash M:B}{\Gamma\vdash\lambda x{:}A.M:A\to B}\ \text{(abs)}}_{\text{cómputo}}
+\qquad\qquad
+\underbrace{\frac{A\to B\quad A}{B}\ \to\text{e}}_{\text{lógica}}
+\ \leftrightarrow\
+\underbrace{\frac{\Gamma\vdash M:A\to B\quad\Gamma\vdash N:A}{\Gamma\vdash M\,N:B}\ \text{(apl)}}_{\text{cómputo}}\]
+\end{tcolorbox}
+\navegacion{trampas}{Trampas}{indice}{Índice}
+
+\newpage
+%=====================================================================
+% ÍNDICE Y LISTA FINAL
+%=====================================================================
+\pagina{indice}{gris}{\faFont}{Índice A–Z y lista final}{cada término lleva a su estación.
+Si dudas con una palabra, haz clic en su número.}
+
+\newcommand{\idx}[2]{#1\dotfill #2\par}
+\begin{minipage}[t]{0.61\textwidth}\vspace{0pt}
+\setlength{\columnsep}{14pt}
+\begin{multicols}{3}
+\raggedright\normalsize\setlength{\parskip}{2.5pt}
+\idx{$\alpha$-equivalencia}{\chip{1}}
+\idx{Abstracción}{\chip{1}}
+\idx{Aplicación}{\chip{1}}
+\idx{Barendregt, convención}{\chip{1}}
+\idx{$\beta$-reducción}{\chip{2}}
+\idx{Captura de variables}{\chip{1}}
+\idx{Chequeo de tipos}{\chip{6}}
+\idx{Church o Curry}{\chip{5}}
+\idx{Church–Rosser}{\chip{4}}
+\idx{CIC}{\chip{10}}
+\idx{CoC, $\lambda C$}{\chip{8}\,\chip{10}}
+\idx{Confluencia}{\chip{4}}
+\idx{Constructor de tipos}{\chip{7}}
+\idx{Constructor inductivo}{\chip{10}}
+\idx{Contexto}{\chip{5}}
+\idx{Contráctum}{\chip{2}}
+\idx{Conversión $\beq$}{\chip{2}}
+\idx{Cubo-$\lambda$}{\chip{8}}
+\idx{Curry–Howard}{\chip{9}}
+\idx{Decidibilidad}{\chip{6}}
+\idx{Derivación}{\chip{5}}
+\idx{Eliminador, recursor}{\chip{10}}
+\idx{Forma normal}{\chip{3}}
+\idx{Habitación}{\chip{6}}
+\idx{$\iota$-reducción}{\chip{10}}
+\idx{Juicio}{\chip{5}}
+\idx{Kind}{\chip{7}}
+\idx{$\lambda2$, $\lw$, $\lambda P$}{\chip{7}}
+\idx{Libre y ligada}{\chip{1}}
+\idx{Normalización}{\chip{3}}
+\idx{Numerales de Church}{\chip{10}}
+\idx{$\Omega$}{\chip{3}}
+\idx{PAT}{\chip{6}}
+\idx{$\Pi$, tipo dependiente}{\chip{7}}
+\idx{Polimorfismo}{\chip{7}}
+\idx{Positividad estricta}{\chip{10}}
+\idx{Preservación del tipo}{\chip{8}}
+\idx{Redex}{\chip{2}}
+\idx{Reducción paralela}{\chip{4}}
+\idx{Sort ($*$, $\square$)}{\chip{7}}
+\idx{Sustitución}{\chip{2}}
+\idx{Tipabilidad}{\chip{6}}
+\idx{Tipos simples}{\chip{5}}
+\idx{Unicidad de tipos}{\chip{8}}
+\end{multicols}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.37\textwidth}\vspace{0pt}
+\begin{tcolorbox}[colback=verde!6, colframe=verde, boxrule=1.2pt, arc=6pt,
+  title={\faClipboardCheck\ Estoy listo si puedo\ldots}, colbacktitle=verde, fonttitle=\bfseries\large,
+  before upper=\raggedright]
+\medio\newcommand{\si}{{\Large$\square$}\ }
+\si reducir un término paso a paso\\[3pt]
+\si decir qué afirma Church–Rosser\\[3pt]
+\si escribir las tres reglas de $\lambda{\to}$\\[3pt]
+\si explicar por qué $x\,x$ no tiene tipo\\[3pt]
+\si distinguir chequeo de habitación\\[3pt]
+\si dibujar el cubo y sus tres ejes\\[3pt]
+\si recitar la tabla de Curry–Howard\\[3pt]
+\si explicar qué añade el CIC al CoC\\[3pt]
+\si decir qué demuestro y qué cito\\[3pt]
+\si contestar las 12 preguntas con \faStar
+\end{tcolorbox}
+\end{minipage}
+
+\vfill
+\begin{tcolorbox}[colback=tldr, colframe=e8, boxrule=1.2pt, arc=6pt, left=10pt, right=10pt,
+  top=5pt, bottom=5pt, title={\faStar\ Si solo recuerdas cinco frases},
+  colbacktitle=e8, fonttitle=\bfseries\large]
+\large
+\chip{2}\ \ \textbf{$\beta$:} aplicar una función es sustituir el argumento en el cuerpo.\\[2pt]
+\chip{4}\ \ \textbf{Church–Rosser:} si hay resultado, es único. No promete que lo haya.\\[2pt]
+\chip{5}\ \ \textbf{Tipos:} dejan fuera lo que no termina, como $\Omega$.\\[2pt]
+\chip{9}\ \ \textbf{Curry–Howard:} proposición = tipo, prueba = término, comprobar = chequear el tipo.\\[2pt]
+\chip{10}\ \textbf{CIC:} declarar un tipo inductivo entrega su principio de inducción.
+\hfill\ir[rojo]{preguntas}{\faQuestionCircle\ Repasar las preguntas}
+\end{tcolorbox}
+\navegacion{reglas}{Hoja de reglas}{portada}{Portada}
+
+\end{document}

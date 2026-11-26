@@ -1,0 +1,1101 @@
+% Curso intensivo del Capítulo 11 de la tesis (completitud de la deducción
+% natural proposicional) y del Apéndice A (corrección, consistencia, adecuación).
+% Escrito en matemática de papel, sin Lean. Fuente:
+%   tesis-mate/documento/capitulos/4_practica.tex
+%   tesis-mate/documento/capitulos/apendice_correccion.tex
+% Compilar dos veces:  lualatex CursoCompletitud.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.3cm,headheight=14pt]{geometry}
+\usepackage{amsmath,mathtools}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\setmainfont{TeX Gyre Pagella}
+\setmathfont{TeX Gyre Pagella Math}
+\setsansfont{DejaVu Sans}[Scale=MatchLowercase]
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{bussproofs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,trees}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\definecolor{fondores}{HTML}{F4F7FB}
+\definecolor{borderes}{HTML}{3F6FA8}
+\definecolor{fondoesquema}{HTML}{EEF5EE}
+\definecolor{bordeesquema}{HTML}{5E9A62}
+\definecolor{fondonota}{HTML}{F1EEF8}
+\definecolor{bordenota}{HTML}{8C7DB8}
+\definecolor{fondoejemplo}{HTML}{F7F8FA}
+\definecolor{bordeejemplo}{HTML}{B8C2CF}
+\definecolor{fondotrampa}{HTML}{FFF4EC}
+\definecolor{bordetrampa}{HTML}{D98A4E}
+\definecolor{fondoclave}{HTML}{FFF9E6}
+\definecolor{bordeclave}{HTML}{C9A227}
+
+\newtcolorbox{resultado}[1]{enhanced, breakable, colback=fondores,
+  colframe=borderes, boxrule=0.6pt, arc=3pt, colbacktitle=borderes,
+  coltitle=white, fonttitle=\sffamily\bfseries, title={#1},
+  before skip=10pt, after skip=10pt}
+\newtcolorbox{esquema}[1]{enhanced, breakable, colback=fondoesquema,
+  colframe=bordeesquema, boxrule=0.6pt, arc=3pt,
+  colbacktitle=bordeesquema, coltitle=white, fonttitle=\sffamily\bfseries,
+  title={#1}, before skip=10pt, after skip=10pt}
+\newtcolorbox{ejemplo}[1]{enhanced, breakable, colback=fondoejemplo,
+  colframe=bordeejemplo, boxrule=0.5pt, arc=2pt, colbacktitle=bordeejemplo!40,
+  coltitle=black, fonttitle=\sffamily\small\bfseries, title={#1},
+  before skip=6pt, after skip=8pt}
+\newtcolorbox{nota}[1][Nota]{enhanced, breakable, colback=fondonota,
+  colframe=bordenota, boxrule=0.5pt, arc=3pt, colbacktitle=bordenota,
+  coltitle=white, fonttitle=\sffamily\bfseries\small, title={#1},
+  before skip=8pt, after skip=8pt}
+\newtcolorbox{trampa}[1][Lo que pueden preguntar]{enhanced, breakable,
+  colback=fondotrampa, colframe=bordetrampa, boxrule=0.5pt, arc=3pt,
+  colbacktitle=bordetrampa, coltitle=white, fonttitle=\sffamily\bfseries\small,
+  title={#1}, before skip=8pt, after skip=8pt}
+\newtcolorbox{clave}{enhanced, colback=fondoclave, colframe=bordeclave,
+  boxrule=0.8pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  before skip=10pt, after skip=10pt}
+
+\newcommand{\campo}[1]{\par\smallskip\noindent\textbf{#1}\enspace}
+\newcommand{\enunciado}{\campo{Enunciado.}}
+\newcommand{\palabras}{\campo{En palabras.}}
+\newcommand{\sirve}{\campo{Para qué sirve.}}
+\newcommand{\idea}{\campo{Idea.}}
+\newcommand{\prueba}{\campo{Demostración.}}
+
+% Notación de la tesis
+\newcommand{\Provnd}{\vdash_{\mathrm{ND}}}
+\newcommand{\Imp}{\rightarrow}
+\newcommand{\Not}{\neg}
+\newcommand{\sem}[1]{[\![#1]\!]}
+\newcommand{\Taut}{\operatorname{Taut}}
+\newcommand{\atomos}{\operatorname{atomos}}
+\newcommand{\lit}{\operatorname{literal}}
+\newcommand{\Nodup}{\operatorname{Nodup}}
+\newcommand{\dedup}{\operatorname{dedup}}
+\newcommand{\V}{\mathsf{V}}
+\newcommand{\F}{\mathsf{F}}
+\newcommand{\lean}[1]{{\footnotesize\texttt{#1}}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Capítulo 11: el teorema de completitud}
+\fancyhead[R]{\small\sffamily\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist{itemsep=2pt, topsep=4pt}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\EnableBpAbbreviations
+
+\title{\textbf{Curso intensivo del Capítulo 11}\\[4pt]
+  \Large El teorema de completitud de la deducción natural\\[2pt]
+  \large Qué se demuestra, cómo se demuestra y cómo explicarlo}
+\author{Material de apoyo para la defensa}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Este documento explica el Capítulo 11 de la tesis y su complemento, el
+Apéndice A, en matemática de papel. No usa código. Cada resultado aparece en una
+ficha con la misma estructura: enunciado, qué dice en palabras, para qué sirve,
+la idea en una frase y la demostración paso a paso. Al final hay un ejemplo
+resuelto de principio a fin, un análisis de dónde interviene la lógica clásica y
+las preguntas más probables del tribunal con sus respuestas. La numeración
+(Lema 11.15, Teorema A.3, etc.) es la de la versión compilada de la tesis.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{El capítulo en una página}
+%=====================================================================
+
+\begin{clave}
+\centering
+\textbf{Teorema principal (Teorema 11.18).}\quad
+Toda tautología es derivable sin hipótesis:
+\[
+\Taut(\varphi)\quad\Longrightarrow\quad\varnothing\Provnd\varphi .
+\]
+\end{clave}
+
+\textbf{Qué significa.} «\(\varphi\) es verdadera en todas las filas de su
+tabla de verdad» (un hecho \emph{semántico}) implica «existe una demostración
+formal de \(\varphi\) en deducción natural» (un hecho \emph{sintáctico}). Es
+decir, las reglas de la deducción natural bastan para demostrar todo lo que es
+lógicamente verdadero. La dirección contraria, \(\varnothing\Provnd\varphi
+\Rightarrow\Taut(\varphi)\), es la \emph{corrección} y está en el Apéndice A.
+Las dos juntas forman la \emph{adecuación} (Teorema A.6).
+
+\textbf{Cómo se demuestra.} Con el argumento de Kalmár, en dos etapas:
+
+\begin{enumerate}
+  \item \textbf{Una derivación por fila (Lema 11.15).} Se fija una fila de la
+    tabla de verdad, es decir, una valuación \(v\). Se toman como hipótesis
+    los \emph{literales} de esa fila: \(p\) si \(v(p)=\V\) y \(\Not p\) si
+    \(v(p)=\F\). Con esas hipótesis se deriva \(\varphi\) si es verdadera en la
+    fila, o \(\Not\varphi\) si es falsa.
+  \item \textbf{Juntar las filas (Lema 11.17).} Si \(\varphi\) es tautología,
+    hay una derivación de \(\varphi\) en \emph{cada} fila. Se eliminan las
+    hipótesis átomo por átomo: de «\(\varphi\) se deriva suponiendo \(p\)» y
+    «\(\varphi\) se deriva suponiendo \(\Not p\)» se obtiene «\(\varphi\) se
+    deriva sin suponer nada sobre \(p\)» (Lema 11.11). Al acabar con todos los
+    átomos no queda ninguna hipótesis.
+\end{enumerate}
+
+\subsection*{Mapa de dependencias}
+
+Cada flecha va de un resultado al que lo usa. Las cajas punteadas son las del
+Apéndice A (rama de la corrección).
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,
+  res/.style={draw, rounded corners, fill=blue!6, align=center, inner sep=3pt, text width=26mm},
+  ap/.style={draw, dashed, rounded corners, fill=gray!5, align=center, inner sep=3pt, text width=26mm},
+  dep/.style={-{Stealth}, thick, gray!60!black}]
+\node[res] (weak)    at (0,0)      {Lema 11.9\\debilitamiento};
+\node[res] (litmem)  at (3.3,0)    {Lema 11.14\\pertenencia del literal};
+\node[res] (congr)   at (6.6,0)    {Lema 11.16\\congruencia};
+\node[res] (dni)     at (0,-1.7)   {Lema 11.10\\doble negación};
+\node[res] (bycases) at (6.6,-1.7) {Lema 11.11\\análisis por casos};
+\node[res] (kalmar)  at (1.65,-3.4){Lema 11.15\\Kalmár};
+\node[res] (disch)   at (6.6,-3.4) {Lema 11.17\\descarga};
+\node[res, fill=yellow!20] (compl) at (4.1,-5.1) {\textbf{Teorema 11.18}\\completitud};
+\node[ap] (sound)    at (10.2,-1.7) {Teorema A.3\\corrección};
+\node[ap] (taut)     at (10.2,-3.4) {Corolario A.4\\teoremas = tautologías};
+\node[ap] (cons)     at (12.0,-5.1) {Corolario A.5\\consistencia};
+\node[ap] (adeq)     at (8.3,-5.1)  {Teorema A.6\\adecuación};
+\draw[dep] (weak) -- (dni);
+\draw[dep] (weak) -- (bycases);
+\draw[dep] (weak) -- (kalmar);
+\draw[dep] (litmem) -- (kalmar);
+\draw[dep] (dni) -- (kalmar);
+\draw[dep] (bycases) -- (disch);
+\draw[dep] (congr.east) to[bend left=35] (disch.east);
+\draw[dep] (kalmar) -- (compl);
+\draw[dep] (disch) -- (compl);
+\draw[dep] (sound) -- (taut);
+\draw[dep] (taut) -- (cons);
+\draw[dep] (taut) -- (adeq);
+\draw[dep] (compl) -- (adeq);
+\end{tikzpicture}
+\end{center}
+
+
+\subsection*{Todos los resultados de un vistazo}
+
+{\small
+\begin{longtable}{@{}p{0.14\textwidth}p{0.47\textwidth}p{0.33\textwidth}@{}}
+\toprule
+\textbf{Resultado} & \textbf{Enunciado} & \textbf{Técnica}\\
+\midrule
+\endhead
+Lema 11.9 & \(\Gamma\Provnd\varphi\) y \(\Gamma\subseteq\Delta\) \(\Rightarrow\) \(\Delta\Provnd\varphi\) & inducción sobre la derivación, con \(\Delta\) generalizado\\
+Lema 11.10 & \(\Gamma\Provnd\varphi\Rightarrow\Gamma\Provnd\Not\Not\varphi\) & construir una derivación\\
+Lema 11.11 & \(\Gamma,\varphi\Provnd\chi\) y \(\Gamma,\Not\varphi\Provnd\chi\) \(\Rightarrow\) \(\Gamma\Provnd\chi\) & construir una derivación con RAA\\
+Lema 11.14 & \(p\in A\Rightarrow\lit_v(p)\in\Gamma_v(A)\) & inducción sobre la lista\\
+Lema 11.15 & Kalmár: cada fila deriva \(\varphi\) o \(\Not\varphi\) & inducción sobre \(\varphi\), enunciado bilateral\\
+Lema 11.16 & valuaciones iguales en \(A\) dan \(\Gamma_v(A)=\Gamma_w(A)\) & casos e inducción sobre la lista\\
+Lema 11.17 & \(\forall v,\ \Gamma_v(A)\Provnd\varphi\) \(\Rightarrow\) \(\varnothing\Provnd\varphi\) & inducción sobre la lista, modificando \(v\)\\
+Teorema 11.18 & \(\Taut(\varphi)\Rightarrow\varnothing\Provnd\varphi\) & composición: Kalmár + descarga\\
+\midrule
+Lema A.1 & \(\sem{\bot}_v\) es falsa & cálculo directo\\
+Lema A.2 & \(\sem\chi_v\) y \(v\models\Gamma\) \(\Rightarrow\) \(v\models\Gamma\cup\{\chi\}\) & casos sobre la pertenencia\\
+Teorema A.3 & corrección: \(\Gamma\Provnd\varphi\Rightarrow(v\models\Gamma\Rightarrow\sem\varphi_v)\) & inducción sobre la derivación, con \(v\) generalizada\\
+Corolario A.4 & \(\varnothing\Provnd\varphi\Rightarrow\Taut(\varphi)\) & caso \(\Gamma=\varnothing\)\\
+Corolario A.5 & \(\varnothing\not\Provnd\bot\) & contradicción con A.1\\
+Teorema A.6 & \(\Taut(\varphi)\iff\varnothing\Provnd\varphi\) & 11.18 y A.4\\
+\bottomrule
+\end{longtable}
+}
+
+%=====================================================================
+\section{El escenario: definiciones}
+%=====================================================================
+
+\subsection{Fórmulas y verdad}
+
+\begin{itemize}
+  \item \textbf{Fórmulas (Def.~11.3).} Solo hay tres formas:
+    \[\varphi::=p\ \mid\ \Not\varphi\ \mid\ (\varphi\Imp\psi),\]
+    con \(p\) un átomo (una variable proposicional). Los demás conectivos se
+    escriben como abreviaturas (Sección~\ref{sec:base}).
+  \item \textbf{Valuación y evaluación (Def.~11.4).} Una valuación \(v\)
+    asigna \(\V\) o \(\F\) a cada átomo. El valor de una fórmula se calcula por
+    recursión:
+    \[
+    \sem{p}_v=v(p),\qquad
+    \sem{\Not\varphi}_v=\text{no }\sem{\varphi}_v,\qquad
+    \sem{\varphi\Imp\psi}_v=\big(\sem{\varphi}_v\Rightarrow\sem{\psi}_v\big).
+    \]
+  \item \textbf{Tautología (Def.~11.5).} \(\Taut(\varphi)\) significa que
+    \(\sem\varphi_v\) es verdadera para \emph{toda} \(v\).
+  \item \textbf{Satisfacción de un contexto (Def.~11.6).} \(v\models\Gamma\)
+    significa que \(v\) hace verdaderas todas las fórmulas de \(\Gamma\).
+  \item \textbf{La fórmula falsa (Def.~11.8).} No hay \(\bot\) primitivo. Se
+    fija un átomo \(p_0\) y se define
+    \[\bot:=\Not(p_0\Imp p_0),\]
+    que es falsa en toda valuación, cualquiera que sea \(v(p_0)\) (Lema A.1).
+\end{itemize}
+
+\subsection{\texorpdfstring{El cálculo \(\Provnd\): siete reglas}{El cálculo ND: siete reglas}}
+
+El juicio \(\Gamma\Provnd\varphi\) («\(\varphi\) se deriva de las hipótesis
+\(\Gamma\)») es lo que generan estas siete reglas, y nada más:
+
+\begin{center}
+\AxiomC{\(\varphi\in\Gamma\)}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma\Provnd\varphi\)}\DisplayProof
+\qquad
+\AxiomC{\(\Gamma,\varphi\Provnd\psi\)}\RightLabel{\scriptsize\(\Imp\)I}\UnaryInfC{\(\Gamma\Provnd\varphi\Imp\psi\)}\DisplayProof
+\qquad
+\AxiomC{\(\Gamma\Provnd\varphi\Imp\psi\)}\AxiomC{\(\Gamma\Provnd\varphi\)}\RightLabel{\scriptsize\(\Imp\)E}\BinaryInfC{\(\Gamma\Provnd\psi\)}\DisplayProof
+\\[10pt]
+\AxiomC{\(\Gamma,\varphi\Provnd\bot\)}\RightLabel{\scriptsize\(\Not\)I}\UnaryInfC{\(\Gamma\Provnd\Not\varphi\)}\DisplayProof
+\qquad
+\AxiomC{\(\Gamma\Provnd\Not\varphi\)}\AxiomC{\(\Gamma\Provnd\varphi\)}\RightLabel{\scriptsize\(\Not\)E}\BinaryInfC{\(\Gamma\Provnd\bot\)}\DisplayProof
+\qquad
+\AxiomC{\(\Gamma\Provnd\bot\)}\RightLabel{\scriptsize\(\bot\)E}\UnaryInfC{\(\Gamma\Provnd\varphi\)}\DisplayProof
+\qquad
+\AxiomC{\(\Gamma,\Not\varphi\Provnd\bot\)}\RightLabel{\scriptsize RAA}\UnaryInfC{\(\Gamma\Provnd\varphi\)}\DisplayProof
+\end{center}
+
+Las seis primeras forman el núcleo intuicionista. \textbf{RAA} (reducción al
+absurdo clásica) es la única regla clásica, y es exactamente la que hace
+falta para la completitud respecto de las tablas de verdad.
+
+\subsection{Dos convenios que conviene saber explicar}
+
+\begin{enumerate}
+  \item \textbf{Los contextos son conjuntos} (§11.3.2). \(\Gamma,\varphi\)
+    significa \(\Gamma\cup\{\varphi\}\). Por eso el orden y las repeticiones
+    de hipótesis no importan (intercambio y contracción vienen gratis), pero
+    \emph{añadir} hipótesis no viene gratis: el debilitamiento es un teorema
+    sobre derivaciones (Lema 11.9).
+  \item \textbf{La negación es primitiva y \(\bot\) es la abreviatura}
+    (§11.3.2). Es al revés de lo habitual (\(\Not\varphi:=\varphi\to\bot\)).
+    Por eso \(\Not\)I y \(\Not\)E son reglas propias y no casos de \(\Imp\)I e
+    \(\Imp\)E.
+\end{enumerate}
+
+\subsection{Los objetos del argumento de Kalmár}
+
+\begin{itemize}
+  \item \textbf{Átomos de una fórmula (Def.~11.12):} la lista, con
+    repeticiones, de los átomos que aparecen.
+    \(\atomos(p)=[p]\), \(\atomos(\Not\varphi)=\atomos(\varphi)\),
+    \(\atomos(\varphi\Imp\psi)=\atomos(\varphi)\mathbin{+\!\!+}\atomos(\psi)\).
+  \item \textbf{Literal (Def.~11.13):} \(\lit_v(p)=p\) si \(v(p)=\V\) y
+    \(\lit_v(p)=\Not p\) si \(v(p)=\F\). Es «lo que la fila dice de \(p\)».
+  \item \textbf{Contexto de literales (Def.~11.13):}
+    \(\Gamma_v(A)=\{\lit_v(p):p\in A\}\), con
+    \(\Gamma_v([\,])=\varnothing\) y
+    \(\Gamma_v(p::r)=\{\lit_v(p)\}\cup\Gamma_v(r)\).
+  \item \textbf{Cobertura:} \(A\) \emph{cubre} a \(\varphi\) si
+    \(\atomos(\varphi)\subseteq A\) (cada átomo de \(\varphi\) está en \(A\)).
+  \item \textbf{Sin repeticiones y \(\dedup\) (§11.5.4--11.5.5):}
+    \(\Nodup(A)\) dice que ningún átomo aparece dos veces. \(\dedup\) borra
+    las apariciones repetidas, conservando la última:
+    \[\dedup([p,q,p])=[q,p].\]
+\end{itemize}
+
+\begin{ejemplo}{Un contexto de literales}
+Con \(A=[q,p]\) y la fila \(v(p)=\V\), \(v(q)=\F\):
+\[
+\Gamma_v([q,p])=\{\lit_v(q)\}\cup\{\lit_v(p)\}=\{\Not q,\ p\}.
+\]
+Hay una fila por valuación de los átomos de \(A\), es decir,
+\(2^{2}=4\) contextos: \(\{q,p\}\), \(\{\Not q,p\}\), \(\{q,\Not p\}\) y
+\(\{\Not q,\Not p\}\).
+\end{ejemplo}
+
+\subsection{\texorpdfstring{Por qué basta con \(\Not\) y \(\Imp\)}{Por qué basta con negación e implicación}}\label{sec:base}
+
+La tesis justifica la base \(\{\Not,\Imp\}\) en §11.2.2 con una traducción
+\(T\) del lenguaje completo (\(\wedge,\vee,\leftrightarrow,\top,\bot\)) al
+fragmento:
+\[
+T(\varphi\wedge\psi)=\Not(T\varphi\Imp\Not T\psi),\qquad
+T(\varphi\vee\psi)=\Not T\varphi\Imp T\psi,\qquad
+T(\top)=p_0\Imp p_0,\qquad T(\bot)=\Not(p_0\Imp p_0),
+\]
+y \(T\) deja igual átomos, \(\Not\) e \(\Imp\). Por inducción estructural,
+\(\sem{T(\theta)}_v=\sem{\theta}_v\) para toda \(v\), así que
+\[
+\models\theta\iff\models T(\theta)\iff\varnothing\Provnd T(\theta).
+\]
+La segunda equivalencia es la adecuación (Teorema A.6).
+
+\begin{nota}[Dos precisiones que la tesis hace]
+\begin{itemize}
+  \item La preservación de \(T\) se justifica matemáticamente en la tesis,
+    pero no está verificada en la formalización. Lo verificado es la
+    adecuación para fórmulas de \(\{\Not,\Imp\}\).
+  \item La traducción es correcta para la lógica \emph{clásica}, no para la
+    intuicionista: \(T(p\vee\Not p)=\Not p\Imp\Not p\) es demostrable incluso
+    sin RAA, mientras que \(p\vee\Not p\) no lo es intuicionistamente.
+\end{itemize}
+\end{nota}
+
+%=====================================================================
+\section{Cómo leer las demostraciones de la tesis}
+%=====================================================================
+
+\subsection{Dos niveles que no hay que mezclar}
+
+La Nota 11.1 de la tesis distingue:
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}p{0.2\linewidth}XX@{}}
+\toprule
+& \textbf{Nivel objeto} & \textbf{Nivel meta}\\
+\midrule
+Qué es & el cálculo \(\Provnd\) que se estudia & el razonamiento \emph{sobre} el cálculo\\
+Negación & \(\Not\) (un símbolo de fórmula) & «no» (una afirmación)\\
+Falsedad & \(\bot:=\Not(p_0\Imp p_0)\), una fórmula & «Falso», una proposición\\
+Absurdo clásico & regla RAA del cálculo & razonar por contradicción\\
+Ejemplo & \(\Gamma,\Not\varphi\Provnd\bot\Rightarrow\Gamma\Provnd\varphi\) & «si \(\sem\varphi_v\) fuera falsa, \dots; luego es verdadera»\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Una frase como «por RAA» puede referirse a cualquiera de los dos niveles. Al
+explicar una prueba conviene decir siempre en cuál se está.
+
+\subsection{Las reglas R1--R17}
+
+La tesis escribe cada paso del razonamiento meta citando una regla de la
+Nota~11.2. Este curso usa las frases habituales; la equivalencia es:
+\begin{center}
+{\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Regla} & \textbf{Nombre} & \textbf{Frase habitual}\\
+\midrule
+R1, R2 & \(\Rightarrow\)-intro / elim & «supongamos \(P\) \dots\ luego \(P\Rightarrow Q\)»; «como \(P\Rightarrow Q\) y \(P\), \(Q\)»\\
+R3, R4 & \(\wedge\)-intro / elim & «se tienen ambas»; «en particular»\\
+R5, R6 & \(\vee\)-intro / casos & «o bien \dots\ o bien \dots; en ambos casos»\\
+R7, R8 & \(\iff\)-intro / elim & «se prueban las dos direcciones»\\
+R9 & reducción al absurdo (\(\neg\)-intro) & «supongamos \(P\); contradicción; luego no \(P\)»\\
+R10, R11 & contradicción / explosión & «absurdo»; «de lo falso se sigue cualquier cosa»\\
+R12--R14 & principios clásicos & «por contradicción, \(P\)»; «\(P\) o no \(P\)»; «no no \(P\), luego \(P\)»\\
+R15, R16 & \(\forall\)-intro / elim & «sea \(x\) arbitrario»; «en particular para \(t\)»\\
+R17 & sustitución de iguales & «como \(a=b\), reemplazando»\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+\subsection{«Con la premisa conservada en el predicado»}
+
+Esta expresión de la tesis (convenio 5 de la Nota 11.2) es la técnica de
+\textbf{generalizar antes de inducir}. Si una hipótesis cambia entre el caso
+grande y el caso pequeño, no se fija: se mete dentro de la propiedad que se
+prueba por inducción. Así la hipótesis inductiva puede usarse con otra
+instancia de esa hipótesis. Aparece en casi todos los lemas del capítulo:
+\begin{center}
+{\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Lema} & \textbf{Lo que se generaliza} & \textbf{Por qué}\\
+\midrule
+11.9 debilitamiento & el contexto mayor \(\Delta\) & las reglas con descarga piden \(\Delta\cup\{\alpha\}\)\\
+11.15 Kalmár & la cobertura \(\atomos(\theta)\subseteq A\) & cada subfórmula tiene su propia cobertura\\
+11.17 descarga & «\(\forall v\)» y \(\Nodup\) & la cola se usa con valuaciones modificadas\\
+A.3 corrección & la valuación \(v\) y \(v\models\Gamma\) & la premisa de \(\Imp\)I tiene contexto \(\Gamma\cup\{\alpha\}\)\\
+\bottomrule
+\end{tabular}}
+\end{center}
+
+%=====================================================================
+\section{Los resultados, uno por uno}
+%=====================================================================
+
+\subsection{Reglas estructurales y derivadas}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 11.9 · Debilitamiento}
+\enunciado Si \(\Gamma\Provnd\varphi\) y \(\Gamma\subseteq\Delta\), entonces
+\(\Delta\Provnd\varphi\).
+
+\palabras Añadir hipótesis nunca impide una derivación.
+
+\sirve Para «trasladar» una derivación ya hecha a un contexto con más
+hipótesis. Es el paso marcado \emph{debil.} en todos los árboles del capítulo:
+en los Lemas 11.10, 11.11 y 11.15.
+
+\idea Se rehace la misma derivación, regla por regla, con \(\Delta\) en lugar
+de \(\Gamma\).
+
+\prueba Por inducción sobre la derivación de \(\Gamma\Provnd\varphi\). Lo que
+se demuestra es la propiedad
+\[
+P(\Gamma,\varphi):\qquad \text{para todo }\Delta\supseteq\Gamma,\quad \Delta\Provnd\varphi .
+\]
+Un hecho auxiliar: si \(\Gamma\subseteq\Delta\), entonces
+\(\Gamma\cup\{\alpha\}\subseteq\Delta\cup\{\alpha\}\).
+
+\begin{center}
+{\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Última regla} & \textbf{Hipótesis inductiva usada en} & \textbf{Se concluye con}\\
+\midrule
+hip.\ (\(\varphi\in\Gamma\)) & --- & \(\varphi\in\Gamma\subseteq\Delta\), regla hip.\\
+\(\Imp\)E, \(\Not\)E, \(\bot\)E & el mismo \(\Delta\) & la misma regla\\
+\(\Imp\)I, \(\Not\)I (premisa \(\Gamma,\alpha\Provnd\cdot\)) & \(\Delta\cup\{\alpha\}\) & la misma regla\\
+RAA (premisa \(\Gamma,\Not\alpha\Provnd\bot\)) & \(\Delta\cup\{\Not\alpha\}\) & RAA\\
+\bottomrule
+\end{tabular}}
+\end{center}
+En los tres casos con descarga, el hecho auxiliar da
+\(\Gamma\cup\{\alpha\}\subseteq\Delta\cup\{\alpha\}\), y la hipótesis
+inductiva se aplica a ese contexto mayor.
+\end{resultado}
+
+\begin{trampa}
+\begin{itemize}
+  \item \emph{¿Por qué hay que probarlo si los contextos son conjuntos?}
+    Porque los conjuntos solo hacen gratuitos el orden y las repeticiones.
+    Que una derivación siga valiendo con más hipótesis es un hecho sobre las
+    \emph{derivaciones}, y se demuestra recorriéndolas.
+  \item \emph{¿Por qué \(\Delta\) tiene que estar cuantificado?} En el caso
+    \(\Imp\)I la premisa es \(\Gamma\cup\{\alpha\}\Provnd\beta\), y hay que
+    aplicarle la hipótesis inductiva con \(\Delta\cup\{\alpha\}\), no con
+    \(\Delta\). Si \(\Delta\) estuviera fijo, la hipótesis inductiva no
+    serviría.
+\end{itemize}
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 11.10 · Introducción de doble negación}
+\enunciado Si \(\Gamma\Provnd\varphi\), entonces \(\Gamma\Provnd\Not\Not\varphi\).
+
+\palabras Lo que se demuestra también se demuestra doblemente negado.
+
+\sirve En el lema de Kalmár, caso \(\Not p\) con fila falsa: hay que
+derivar \(\Not(\Not p)\) a partir de \(p\).
+
+\idea Se supone \(\Not\varphi\); junto con \(\varphi\) da \(\bot\); se
+descarga.
+
+\prueba
+\begin{center}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma,\Not\varphi\Provnd\Not\varphi\)}
+\AxiomC{\(\Gamma\Provnd\varphi\)}\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,\Not\varphi\Provnd\varphi\)}
+\RightLabel{\scriptsize\(\Not\)E}\BinaryInfC{\(\Gamma,\Not\varphi\Provnd\bot\)}
+\RightLabel{\scriptsize\(\Not\)I}\UnaryInfC{\(\Gamma\Provnd\Not\Not\varphi\)}
+\DisplayProof
+\end{center}
+Se usan las reglas hip., \(\Not\)E y \(\Not\)I, más el debilitamiento con
+\(\Gamma\subseteq\Gamma\cup\{\Not\varphi\}\).
+\end{resultado}
+
+\begin{trampa}
+Usa \(\Not\)I y no RAA, así que es intuicionista. La dirección contraria,
+\(\Not\Not\varphi\Rightarrow\varphi\), sí necesita RAA.
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 11.11 · Análisis por casos derivado}
+\enunciado Si \(\Gamma,\varphi\Provnd\chi\) y \(\Gamma,\Not\varphi\Provnd\chi\),
+entonces \(\Gamma\Provnd\chi\).
+
+\palabras Si \(\chi\) se sigue tanto suponiendo \(\varphi\) como suponiendo
+\(\Not\varphi\), entonces se sigue sin suponer nada sobre \(\varphi\). Es el
+tercero excluido, pero escrito sin el conectivo \(\vee\).
+
+\sirve Es el motor de la descarga (Lema 11.17): elimina un literal del
+contexto.
+
+\idea Por RAA: se supone \(\Not\chi\) y se demuestra que tanto \(\varphi\)
+como \(\Not\varphi\) llevan a contradicción.
+
+\prueba Sea \(\Delta:=\Gamma\cup\{\Not\chi\}\) (se abre \(\Not\chi\) para RAA).
+\begin{enumerate}
+  \item \(\Delta\Provnd\Not\varphi\): se supone \(\varphi\). En
+    \(\Delta,\varphi\) se tiene \(\Not\chi\) (hip.) y \(\chi\) (primera premisa,
+    debilitada); \(\Not\)E da \(\bot\) y \(\Not\)I descarga \(\varphi\).
+  \item \(\Delta\Provnd\Not\Not\varphi\): igual, suponiendo \(\Not\varphi\) y
+    usando la segunda premisa.
+  \item \(\Not\)E con 1 y 2 da \(\Delta\Provnd\bot\), es decir,
+    \(\Gamma,\Not\chi\Provnd\bot\).
+  \item RAA descarga \(\Not\chi\) y da \(\Gamma\Provnd\chi\).
+\end{enumerate}
+\begin{center}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Delta,\varphi\Provnd\Not\chi\)}
+\AxiomC{\(\Gamma,\varphi\Provnd\chi\)}\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Delta,\varphi\Provnd\chi\)}
+\RightLabel{\scriptsize\(\Not\)E}\BinaryInfC{\(\Delta,\varphi\Provnd\bot\)}
+\RightLabel{\scriptsize\(\Not\)I}\UnaryInfC{\(\Delta\Provnd\Not\varphi\)}
+\DisplayProof
+\end{center}
+(El árbol de \(\Delta\Provnd\Not\Not\varphi\) es idéntico, cambiando
+\(\varphi\) por \(\Not\varphi\).)
+\end{resultado}
+
+\begin{trampa}
+Es el \textbf{único lugar} en que la prueba de completitud usa la regla
+clásica RAA \emph{dentro del cálculo}. Las derivaciones del lema de Kalmár, el
+debilitamiento y la doble negación usan solo reglas intuicionistas. Esta
+observación se lee directamente en las pruebas de la tesis. Explica por qué la
+completitud falla sin RAA: sin este lema no se pueden juntar las filas.
+\end{trampa}
+
+\subsection{El lema de Kalmár y sus auxiliares}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 11.14 · Pertenencia del literal}
+\enunciado Si \(p\in A\), entonces \(\lit_v(p)\in\Gamma_v(A)\).
+
+\palabras Si el átomo está en la lista, su literal está en el contexto.
+
+\sirve En el caso atómico de Kalmár, para cerrar con la regla de hipótesis.
+
+\prueba Por inducción sobre la lista \(A\) (con la premisa \(p\in A\) dentro
+de la propiedad).
+\begin{itemize}
+  \item \(A=[\,]\): \(p\in[\,]\) es imposible; el caso es vacío.
+  \item \(A=a::r\): o bien \(p=a\), y entonces \(\lit_v(p)=\lit_v(a)\) es el
+    elemento que se añadió; o bien \(p\in r\), y por hipótesis inductiva
+    \(\lit_v(p)\in\Gamma_v(r)\subseteq\Gamma_v(a::r)\).
+\end{itemize}
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 11.15 · Lema de Kalmár}
+\enunciado Sea \(A\) una lista que cubre a \(\varphi\). Para toda valuación
+\(v\),
+\[
+\sem\varphi_v\ \Rightarrow\ \Gamma_v(A)\Provnd\varphi
+\qquad\text{y}\qquad
+\text{no }\sem\varphi_v\ \Rightarrow\ \Gamma_v(A)\Provnd\Not\varphi .
+\]
+
+\palabras En cada fila de la tabla, los literales de esa fila demuestran la
+fórmula si es verdadera, y demuestran su negación si es falsa.
+
+\sirve Es la primera etapa de la completitud: da una derivación por fila.
+
+\idea Inducción sobre \(\varphi\). En cada caso se mira qué dice la tabla de
+verdad del conectivo y se construye la derivación correspondiente.
+
+\prueba Sea \(\Gamma:=\Gamma_v(A)\). Se prueba por inducción estructural la
+propiedad
+\[
+K(\theta):\quad \atomos(\theta)\subseteq A\ \Rightarrow\
+\big(\sem\theta_v\Rightarrow\Gamma\Provnd\theta\big)\ \wedge\
+\big(\text{no }\sem\theta_v\Rightarrow\Gamma\Provnd\Not\theta\big).
+\]
+La cobertura pasa a las subfórmulas, porque sus átomos son parte de los de
+\(\theta\).
+\end{resultado}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.45}
+{\small
+\begin{tabularx}{\linewidth}{@{}p{0.13\linewidth}p{0.17\linewidth}X@{}}
+\toprule
+\textbf{Caso} & \textbf{Fila} & \textbf{Derivación que se construye}\\
+\midrule
+\(\theta=s\) & \(v(s)=\V\) & \(\lit_v(s)=s\in\Gamma\) (Lema 11.14); regla hip.\\
+& \(v(s)=\F\) & \(\lit_v(s)=\Not s\in\Gamma\); regla hip.\\
+\midrule
+\(\theta=\Not p\) & \(\sem{\Not p}_v\) verdadera & entonces \(p\) es falsa; la hipótesis inductiva negativa da \(\Gamma\Provnd\Not p\).\\
+& \(\sem{\Not p}_v\) falsa & entonces \(p\) es verdadera (doble negación meta); la hipótesis inductiva positiva da \(\Gamma\Provnd p\), y el Lema 11.10 da \(\Gamma\Provnd\Not\Not p\).\\
+\midrule
+\(\theta=p\Imp q\) & \(p\) verdadera, \(q\) verdadera & \(\Gamma\Provnd q\); se debilita a \(\Gamma,p\Provnd q\); \(\Imp\)I.\\
+& \(p\) falsa & \(\Gamma\Provnd\Not p\); en \(\Gamma,p\): \(\Not p\) y \(p\) dan \(\bot\), \(\bot\)E da \(q\); \(\Imp\)I.\\
+& \(p\) verdadera, \(q\) falsa & \(\Gamma\Provnd p\) y \(\Gamma\Provnd\Not q\); en \(\Gamma,(p\Imp q)\): \(\Imp\)E da \(q\), con \(\Not q\) da \(\bot\); \(\Not\)I da \(\Gamma\Provnd\Not(p\Imp q)\).\\
+\bottomrule
+\end{tabularx}}
+\end{center}
+
+Las tres derivaciones del caso implicación, tal como aparecen en la tesis:
+\begin{center}
+\AxiomC{\(\Gamma\Provnd q\)}\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,p\Provnd q\)}
+\RightLabel{\scriptsize\(\Imp\)I}\UnaryInfC{\(\Gamma\Provnd p\Imp q\)}\DisplayProof
+\qquad
+\AxiomC{\(\Gamma\Provnd\Not p\)}\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,p\Provnd\Not p\)}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma,p\Provnd p\)}
+\RightLabel{\scriptsize\(\Not\)E}\BinaryInfC{\(\Gamma,p\Provnd\bot\)}
+\RightLabel{\scriptsize\(\bot\)E}\UnaryInfC{\(\Gamma,p\Provnd q\)}
+\RightLabel{\scriptsize\(\Imp\)I}\UnaryInfC{\(\Gamma\Provnd p\Imp q\)}\DisplayProof
+\end{center}
+\begin{center}
+\AxiomC{\(\Gamma\Provnd\Not q\)}\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,(p\Imp q)\Provnd\Not q\)}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma,(p\Imp q)\Provnd p\Imp q\)}
+\AxiomC{\(\Gamma\Provnd p\)}\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,(p\Imp q)\Provnd p\)}
+\RightLabel{\scriptsize\(\Imp\)E}\BinaryInfC{\(\Gamma,(p\Imp q)\Provnd q\)}
+\RightLabel{\scriptsize\(\Not\)E}\BinaryInfC{\(\Gamma,(p\Imp q)\Provnd\bot\)}
+\RightLabel{\scriptsize\(\Not\)I}\UnaryInfC{\(\Gamma\Provnd\Not(p\Imp q)\)}\DisplayProof
+\end{center}
+
+\begin{trampa}
+\begin{itemize}
+  \item \emph{¿Por qué el enunciado es bilateral?} Porque en los casos
+    \(\Not\) e \(\Imp\) la verdad de la fórmula depende de que una subfórmula
+    sea \emph{falsa}. Para derivar \(\Not p\) cuando \(p\) es falsa, o
+    \(p\Imp q\) cuando \(p\) es falsa, hace falta que la hipótesis inductiva
+    diga algo también de las fórmulas falsas. Un enunciado unilateral no
+    pasaría la inducción.
+  \item \emph{¿Por qué «\(A\) cubre a \(\varphi\)» y no «\(A=\atomos(\varphi)\)»?}
+    Porque las subfórmulas tienen menos átomos. Con cobertura, la misma lista
+    \(A\) sirve en toda la inducción. Los literales sobrantes quedan en el
+    contexto sin usarse: la regla hip.\ solo exige pertenencia.
+  \item \emph{¿Es lógica clásica?} Las derivaciones que se construyen son
+    intuicionistas (no usan RAA). Lo clásico está en el razonamiento
+    \emph{sobre} las filas: «\(p\) es verdadera o falsa», «no no \(p\), luego
+    \(p\)», y obtener «\(p\) verdadera y \(q\) falsa» de «no
+    (\(p\Rightarrow q\))».
+\end{itemize}
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 11.16 · Congruencia de literales y contextos}
+\enunciado Si \(v(x)\iff w(x)\), entonces \(\lit_v(x)=\lit_w(x)\). Por tanto,
+si \(v\) y \(w\) coinciden en todos los átomos de \(A\), entonces
+\(\Gamma_v(A)=\Gamma_w(A)\).
+
+\palabras El contexto de literales solo depende de los valores de los átomos
+de la lista.
+
+\sirve En la descarga, al cambiar el valor de un solo átomo \(p\), garantiza
+que el resto del contexto no cambia.
+
+\prueba Para los literales, por casos sobre \(v(x)\): si es verdadero, también
+lo es \(w(x)\), y ambos literales son \(x\); si es falso, \(w(x)\) también lo
+es, y ambos son \(\Not x\). Para los contextos, por inducción sobre \(A\),
+usando lo anterior en la cabeza y la hipótesis inductiva en la cola.
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 11.17 · Descarga de los átomos}
+\enunciado Sea \(A\) una lista sin repeticiones. Si
+\(\Gamma_v(A)\Provnd\varphi\) para \emph{toda} valuación \(v\), entonces
+\(\varnothing\Provnd\varphi\).
+
+\palabras Si la fórmula se deriva en todas las filas, se deriva sin
+hipótesis.
+
+\sirve Es la segunda etapa de la completitud.
+
+\idea Se eliminan los átomos de la lista uno a uno, empezando por la cabeza.
+Para eliminar \(p\) se juntan, con el Lema 11.11, las dos filas que solo
+difieren en \(p\).
+
+\prueba Por inducción sobre \(A\), demostrando
+\[
+D(s):\quad \Nodup(s)\ \Rightarrow\ \big(\forall v,\ \Gamma_v(s)\Provnd\varphi\big)\ \Rightarrow\ \varnothing\Provnd\varphi .
+\]
+\begin{itemize}
+  \item \textbf{\(A=[\,]\).} \(\Gamma_v([\,])=\varnothing\) para cualquier
+    \(v\). Basta tomar una valuación cualquiera (la tesis usa la que hace
+    todo verdadero).
+  \item \textbf{\(A=p::r\).} Por \(\Nodup(p::r)\) se tiene \(p\notin r\) y
+    \(\Nodup(r)\). Para aplicar la hipótesis inductiva hay que probar
+    \(\forall v,\ \Gamma_v(r)\Provnd\varphi\). Sea \(v\) cualquiera y sean
+    \[
+    u:=v\text{ con }p\mapsto\V,\qquad w:=v\text{ con }p\mapsto\F .
+    \]
+    \begin{enumerate}
+      \item Como \(p\notin r\), \(u\), \(v\) y \(w\) coinciden en los átomos
+        de \(r\); por el Lema 11.16,
+        \(\Gamma_u(r)=\Gamma_v(r)=\Gamma_w(r)=:\Delta\).
+      \item Entonces \(\Gamma_u(p::r)=\Delta\cup\{p\}\) y
+        \(\Gamma_w(p::r)=\Delta\cup\{\Not p\}\).
+      \item La hipótesis «para toda valuación», aplicada a \(u\) y a \(w\),
+        da \(\Delta,p\Provnd\varphi\) y \(\Delta,\Not p\Provnd\varphi\).
+      \item El Lema 11.11 da \(\Delta\Provnd\varphi\), es decir,
+        \(\Gamma_v(r)\Provnd\varphi\).
+    \end{enumerate}
+    Como \(v\) era arbitraria, se tiene \(\forall v,\ \Gamma_v(r)\Provnd\varphi\),
+    y la hipótesis inductiva da \(\varnothing\Provnd\varphi\).
+\end{itemize}
+\end{resultado}
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize, level distance=15mm,
+  level 1/.style={sibling distance=60mm}, level 2/.style={sibling distance=30mm},
+  every node/.style={draw, rounded corners, fill=blue!6, inner sep=3pt},
+  lab/.style={draw=none, fill=none, font=\scriptsize}]
+\node[fill=yellow!20] {$\varnothing\Provnd\varphi$}
+  child { node {$\{p\}\Provnd\varphi$}
+    child { node[fill=green!12] {$\{q,p\}\Provnd\varphi$} edge from parent node[lab,left] {$q$} }
+    child { node[fill=green!12] {$\{\Not q,p\}\Provnd\varphi$} edge from parent node[lab,right] {$\Not q$} }
+    edge from parent node[lab,left] {$p$} }
+  child { node {$\{\Not p\}\Provnd\varphi$}
+    child { node[fill=green!12] {$\{q,\Not p\}\Provnd\varphi$} edge from parent node[lab,left] {$q$} }
+    child { node[fill=green!12] {$\{\Not q,\Not p\}\Provnd\varphi$} edge from parent node[lab,right] {$\Not q$} }
+    edge from parent node[lab,right] {$\Not p$} };
+\end{tikzpicture}
+\end{center}
+{\small Descarga con \(A=[q,p]\). Las hojas (verdes) son las cuatro
+instancias del lema de Kalmár. Cada nodo interno es una aplicación del
+Lema 11.11. Primero se descarga la cabeza \(q\) (nivel inferior) y después
+\(p\). Con \(k\) átomos hay \(2^k\) hojas y \(2^k-1\) aplicaciones del
+análisis por casos.}
+
+\begin{trampa}
+\begin{itemize}
+  \item \emph{¿Para qué la hipótesis «para toda \(v\)»?} Porque para eliminar
+    \(p\) se necesitan las dos filas \(u\) y \(w\), que no son la fila \(v\) de
+    partida. Por eso «\(\forall v\)» va dentro de la propiedad que se prueba
+    por inducción.
+  \item \emph{¿Para qué \(\Nodup\)?} Garantiza que cambiar el valor de \(p\) no
+    altera los literales de la cola (paso 1), de modo que los contextos
+    coinciden \emph{exactamente} y las premisas encajan con el Lema 11.11.
+    Observación propia, no de la tesis: con repeticiones se podría argumentar
+    con inclusiones y debilitamiento, pero la prueba sería menos directa.
+    Esta es la razón práctica de \(\dedup\) en el Teorema 11.18.
+  \item \emph{¿Por qué no se usan conjuntos maximales (Lindenbaum--Henkin)?}
+    Porque una fórmula tiene un número finito de átomos: basta recorrer la
+    tabla de verdad, que es finita. El método de Kalmár es constructivo en el
+    sentido de que produce la derivación fila por fila.
+\end{itemize}
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Teorema 11.18 · Completitud}
+\enunciado \(\Taut(\varphi)\Rightarrow\varnothing\Provnd\varphi\).
+
+\prueba Supóngase \(\Taut(\varphi)\) y sea \(A:=\dedup(\atomos(\varphi))\).
+\begin{enumerate}
+  \item \(A\) no tiene repeticiones y contiene los mismos átomos que
+    \(\atomos(\varphi)\); en particular, cubre a \(\varphi\).
+  \item Sea \(v\) cualquiera. Como \(\varphi\) es tautología,
+    \(\sem\varphi_v\) es verdadera, y la parte positiva del lema de Kalmár da
+    \(\Gamma_v(A)\Provnd\varphi\).
+  \item Así, \(\forall v,\ \Gamma_v(A)\Provnd\varphi\). La descarga
+    (Lema 11.17) da \(\varnothing\Provnd\varphi\).
+\end{enumerate}
+\end{resultado}
+
+\begin{nota}[Por qué solo se usa la parte positiva de Kalmár]
+En el teorema final todas las filas son verdaderas, así que solo se usa la
+mitad positiva. La mitad negativa es imprescindible \emph{dentro} de la
+inducción del lema (casos \(\Not\) e \(\Imp\)), no fuera de ella.
+\end{nota}
+
+\subsection{Apéndice A: corrección, consistencia y adecuación}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema A.1 · \(\bot\) es falsa en toda valuación}
+\enunciado \(\sem{\bot}_v\iff\text{Falso}\).
+
+\prueba \(\sem\bot_v=\text{no}\,(v(p_0)\Rightarrow v(p_0))\), y
+\(v(p_0)\Rightarrow v(p_0)\) es siempre verdadera. Luego \(\sem\bot_v\) es
+falsa. La otra dirección es la explosión: de Falso se sigue cualquier cosa.
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema A.2 · Satisfacción de un contexto extendido}
+\enunciado Si \(\sem\chi_v\) y \(v\models\Gamma\), entonces
+\(v\models\Gamma\cup\{\chi\}\).
+
+\prueba Toda \(\psi\in\Gamma\cup\{\chi\}\) es \(\chi\) (verdadera por
+hipótesis) o está en \(\Gamma\) (verdadera porque \(v\models\Gamma\)).
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Teorema A.3 · Corrección}
+\enunciado Si \(\Gamma\Provnd\varphi\), entonces para toda \(v\) con
+\(v\models\Gamma\) se cumple \(\sem\varphi_v\).
+
+\palabras Las reglas solo producen conclusiones verdaderas a partir de
+hipótesis verdaderas.
+
+\idea Cada regla preserva la verdad.
+
+\prueba Por inducción sobre la derivación, con la valuación cuantificada
+dentro de la propiedad. Sea \(v\models\Gamma\).
+\begin{center}
+{\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}p{0.13\linewidth}X@{}}
+\toprule
+\textbf{Regla} & \textbf{Por qué la conclusión es verdadera}\\
+\midrule
+hip. & \(\varphi\in\Gamma\) y \(v\models\Gamma\).\\
+\(\Imp\)I & Si \(\sem\alpha_v\), entonces \(v\models\Gamma\cup\{\alpha\}\) (A.2) y la hipótesis inductiva da \(\sem\beta_v\). Luego \(\sem{\alpha\Imp\beta}_v\).\\
+\(\Imp\)E & Las hipótesis inductivas dan \(\sem\alpha_v\Rightarrow\sem\beta_v\) y \(\sem\alpha_v\).\\
+\(\Not\)I & Si \(\sem\alpha_v\), la hipótesis inductiva daría \(\sem\bot_v\), imposible (A.1). Luego no \(\sem\alpha_v\).\\
+\(\Not\)E & Darían \(\sem\alpha_v\) y no \(\sem\alpha_v\): contradicción, de la que se sigue \(\sem\bot_v\).\\
+\(\bot\)E & La hipótesis inductiva da \(\sem\bot_v\), imposible; de lo falso se sigue \(\sem\alpha_v\).\\
+RAA & Si \(\sem\alpha_v\) fuera falsa, \(v\models\Gamma\cup\{\Not\alpha\}\) y se tendría \(\sem\bot_v\), imposible. \textbf{Luego} \(\sem\alpha_v\) es verdadera.\\
+\bottomrule
+\end{tabularx}}
+\end{center}
+\end{resultado}
+
+\begin{trampa}
+El caso RAA es el único que razona por contradicción en el nivel meta: pasa de
+«no puede ser falsa» a «es verdadera». Eso es la \emph{bivalencia} de la
+semántica de tablas. Es la razón exacta por la que RAA es sólida para las
+tablas de verdad y no para semánticas no bivalentes (Kripke).
+\end{trampa}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Corolarios A.4 y A.5 · Teoremas son tautologías; consistencia}
+\enunciado (A.4) \(\varnothing\Provnd\varphi\Rightarrow\Taut(\varphi)\).
+(A.5) \(\varnothing\not\Provnd\bot\).
+
+\prueba (A.4) Toda \(v\) satisface \(\varnothing\) (no hay nada que
+comprobar), así que la corrección da \(\sem\varphi_v\) para toda \(v\).
+(A.5) Si \(\varnothing\Provnd\bot\), por A.4 \(\bot\) sería tautología;
+pero es falsa en la valuación que hace todo verdadero (A.1). Contradicción.
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Teorema A.6 · Adecuación}
+\enunciado \(\Taut(\varphi)\iff\varnothing\Provnd\varphi\).
+
+\prueba La dirección \((\Rightarrow)\) es la completitud (11.18); la
+\((\Leftarrow)\), el Corolario A.4.
+\end{resultado}
+
+%=====================================================================
+\section{Ejemplo resuelto de principio a fin}
+%=====================================================================
+
+Se sigue la prueba completa con
+\[
+\varphi\ :=\ p\Imp(q\Imp p).
+\]
+
+\textbf{Paso 0: es tautología.} Si \(p\) es verdadera, \(q\Imp p\) también lo
+es. Si \(p\) es falsa, la implicación externa es verdadera. Por tanto, las cuatro
+filas dan \(\V\).
+
+\textbf{Paso 1: la lista de átomos.} \(\atomos(\varphi)=[p]\mathbin{+\!\!+}([q]\mathbin{+\!\!+}[p])=[p,q,p]\).
+Tiene una repetición; \(\dedup([p,q,p])=[q,p]=:A\). Así, \(A\) no tiene
+repeticiones y cubre a \(\varphi\).
+
+\textbf{Paso 2: Kalmár, fila por fila.} \(\Gamma_v(A)=\{\lit_v(q),\lit_v(p)\}\).
+La prueba del lema mira primero \(p\) (antecedente de la implicación externa).
+
+\begin{ejemplo}{Filas con \(v(p)=\V\): se deriva \(q\Imp p\) y se aplica \(\Imp\)I}
+\emph{Fila \(p=\V,q=\V\)}, \(\Gamma=\{q,p\}\). Kalmár sobre \(q\Imp p\) con
+\(q\) verdadera: \(\Gamma\Provnd p\) por hipótesis.
+\begin{center}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma\Provnd p\)}
+\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,q\Provnd p\)}
+\RightLabel{\scriptsize\(\Imp\)I}\UnaryInfC{\(\Gamma\Provnd q\Imp p\)}
+\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,p\Provnd q\Imp p\)}
+\RightLabel{\scriptsize\(\Imp\)I}\UnaryInfC{\(\Gamma\Provnd p\Imp(q\Imp p)\)}
+\DisplayProof
+\end{center}
+(Como los contextos son conjuntos, \(\Gamma,q=\Gamma\) y \(\Gamma,p=\Gamma\):
+el debilitamiento aquí no añade nada, pero la prueba es uniforme.)
+
+\emph{Fila \(p=\V,q=\F\)}, \(\Gamma=\{\Not q,p\}\). Kalmár sobre \(q\Imp p\)
+con \(q\) falsa usa la rama «antecedente falso»:
+\begin{center}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma\Provnd\Not q\)}
+\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,q\Provnd\Not q\)}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma,q\Provnd q\)}
+\RightLabel{\scriptsize\(\Not\)E}\BinaryInfC{\(\Gamma,q\Provnd\bot\)}
+\RightLabel{\scriptsize\(\bot\)E}\UnaryInfC{\(\Gamma,q\Provnd p\)}
+\RightLabel{\scriptsize\(\Imp\)I}\UnaryInfC{\(\Gamma\Provnd q\Imp p\)}
+\DisplayProof
+\end{center}
+y después debil.\ y \(\Imp\)I, como arriba.
+\end{ejemplo}
+
+\begin{ejemplo}{Filas con \(v(p)=\F\): antecedente falso}
+\(\Gamma=\{\lit_v(q),\Not p\}\), con cualquier valor de \(q\).
+\begin{center}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma\Provnd\Not p\)}
+\RightLabel{\scriptsize debil.}\UnaryInfC{\(\Gamma,p\Provnd\Not p\)}
+\AxiomC{}\RightLabel{\scriptsize hip.}\UnaryInfC{\(\Gamma,p\Provnd p\)}
+\RightLabel{\scriptsize\(\Not\)E}\BinaryInfC{\(\Gamma,p\Provnd\bot\)}
+\RightLabel{\scriptsize\(\bot\)E}\UnaryInfC{\(\Gamma,p\Provnd q\Imp p\)}
+\RightLabel{\scriptsize\(\Imp\)I}\UnaryInfC{\(\Gamma\Provnd p\Imp(q\Imp p)\)}
+\DisplayProof
+\end{center}
+\end{ejemplo}
+
+\textbf{Paso 3: descarga.} Con \(A=[q,p]\) se descarga primero \(q\):
+\[
+\frac{\{q,p\}\Provnd\varphi\quad\{\Not q,p\}\Provnd\varphi}{\{p\}\Provnd\varphi}\ \text{(11.11)}
+\qquad
+\frac{\{q,\Not p\}\Provnd\varphi\quad\{\Not q,\Not p\}\Provnd\varphi}{\{\Not p\}\Provnd\varphi}\ \text{(11.11)}
+\]
+y después \(p\):
+\[
+\frac{\{p\}\Provnd\varphi\qquad\{\Not p\}\Provnd\varphi}{\varnothing\Provnd p\Imp(q\Imp p)}\ \text{(11.11)}.
+\]
+Es exactamente el árbol dibujado tras el Lema 11.17: cuatro hojas y tres
+aplicaciones del análisis por casos. Cada aplicación usa una vez RAA.
+
+\begin{nota}[Qué muestra el ejemplo]
+La derivación final no es la más corta (la directa usa dos \(\Imp\)I y una
+hipótesis). El método de Kalmár es \emph{uniforme}: no busca la mejor prueba,
+sino que garantiza que \emph{alguna} existe, con un procedimiento que funciona
+para cualquier tautología.
+\end{nota}
+
+%=====================================================================
+\section{Dónde interviene la lógica clásica}
+%=====================================================================
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+{\small
+\begin{tabularx}{\linewidth}{@{}p{0.27\linewidth}XX@{}}
+\toprule
+\textbf{Resultado} & \textbf{Dentro del cálculo \(\Provnd\)} & \textbf{En el razonamiento sobre el cálculo}\\
+\midrule
+11.9, 11.10, 11.14, 11.16 & sin RAA & ---\\
+11.11 análisis por casos & \textbf{RAA} (única regla clásica usada) & ---\\
+11.15 Kalmár & sin RAA & \(p\) verdadera o falsa; doble negación; de «no \((P\Rightarrow Q)\)» a \(P\)\\
+11.17 descarga & RAA, a través de 11.11 & ---\\
+Definición de literal & --- & decidir si \(v(p)\) es verdadera\\
+A.3 corrección & --- & caso RAA: «no es falsa, luego es verdadera»\\
+\bottomrule
+\end{tabularx}}
+\end{center}
+
+Para resumirlo en la defensa: \emph{en el cálculo}, lo clásico entra una sola
+vez, al juntar filas (Lema 11.11). \emph{En el metanivel}, entra porque la
+semántica es de tablas de verdad, es decir, bivalente.
+
+\subsection*{Qué garantiza la auditoría de axiomas (§11.6)}
+
+La herramienta lista los axiomas lógicos de los que depende el teorema. El
+resultado son tres axiomas estándar de la matemática clásica en el sistema
+(extensionalidad proposicional, elección y solidez de los cocientes), sin
+ninguna demostración pendiente ni una «regla de completitud» postulada.
+\begin{itemize}
+  \item \textbf{Lo que sí garantiza:} no hay huecos admitidos y no se postuló
+    el resultado.
+  \item \textbf{Lo que no garantiza por sí sola:} que no se haya usado un
+    teorema de completitud de una biblioteca. Esa independencia se justifica
+    por la estructura de los archivos y por las pruebas (§11.6).
+\end{itemize}
+Lo mismo vale para la corrección y la adecuación (§A.3).
+
+%=====================================================================
+\section{Preguntas probables del tribunal}
+%=====================================================================
+
+\begin{description}[style=nextline, leftmargin=0pt, itemsep=6pt]
+\item[¿Qué demuestra exactamente el capítulo?]
+Que toda tautología del fragmento \(\{\Not,\Imp\}\) es derivable sin
+hipótesis. Con el Apéndice A, que ser tautología y ser derivable sin
+hipótesis son equivalentes.
+
+\item[¿Por qué solo para el contexto vacío?]
+Porque es el caso que se formaliza. Para un \(\Gamma=\{\gamma_1,\dots,\gamma_n\}\)
+finito con \(\Gamma\models\psi\), la fórmula
+\(\gamma_1\Imp(\cdots\Imp(\gamma_n\Imp\psi))\) es tautología; por completitud
+es derivable sin hipótesis; con debilitamiento y \(n\) aplicaciones de
+\(\Imp\)E se obtiene \(\Gamma\Provnd\psi\). La tesis describe este paso en el
+esbozo del Capítulo 9; no está formalizado.
+
+\item[¿Por qué la base \(\{\Not,\Imp\}\)?]
+Es funcionalmente completa: toda tabla de verdad se expresa con ella. Además
+reduce la inducción a tres casos. La traducción \(T\) preserva la verdad
+(§\ref{sec:base}).
+
+\item[¿Por qué \(\bot\) es una abreviatura y \(\Not\) es primitiva?]
+Porque el lenguaje no tiene \(\bot\). Se define \(\bot:=\Not(p_0\Imp p_0)\),
+falsa en toda valuación. Mendelson y Stansifer usan la misma base
+\(\{\Not,\Imp\}\); la falsedad se codifica dentro del fragmento.
+
+\item[¿Por qué hay que demostrar el debilitamiento?]
+Los conjuntos dan gratis el orden y las repeticiones, pero no que una
+derivación siga valiendo con más hipótesis. Eso es un hecho sobre las
+derivaciones.
+
+\item[¿Por qué el lema de Kalmár es bilateral?]
+Los casos \(\Not\) e \(\Imp\) dependen de subfórmulas falsas. Sin la parte
+negativa la inducción no pasa.
+
+\item[¿Qué es una cobertura y por qué no basta \(A=\atomos(\varphi)\)?]
+Las subfórmulas tienen menos átomos. Con «\(A\) contiene los átomos» se usa
+la misma lista en toda la inducción; los literales sobrantes no estorban.
+
+\item[¿Para qué sirven \(\Nodup\) y \(\dedup\)?]
+Para que cambiar el valor de un átomo no altere los literales de la cola, y
+los contextos coincidan exactamente al aplicar el análisis por casos.
+
+\item[¿Dónde se usa la lógica clásica?]
+En el cálculo, solo en el Lema 11.11 (RAA al juntar filas). En el
+razonamiento meta, por la bivalencia de las tablas de verdad.
+
+\item[¿Por qué no Lindenbaum--Henkin?]
+No hace falta: una fórmula tiene finitos átomos y la tabla de verdad es
+finita. Kalmár recorre esa tabla.
+
+\item[¿La prueba construye la derivación?]
+Matemáticamente sí: el argumento es un procedimiento. En la formalización la
+derivación no se exporta como dato, porque la elección del literal decide una
+proposición arbitraria (§11.1).
+
+\item[¿Cuántos pasos de análisis por casos hacen falta?]
+Con \(k\) átomos distintos, \(2^k\) filas y \(2^k-1\) aplicaciones del
+Lema 11.11.
+
+\item[¿Por qué en la corrección la valuación va cuantificada dentro de la inducción?]
+Por la misma razón que \(\Delta\) en el debilitamiento: la premisa de
+\(\Imp\)I tiene contexto \(\Gamma\cup\{\alpha\}\), y la hipótesis inductiva
+debe poder usarse con la satisfacción de ese contexto.
+
+\item[¿Qué relación hay con el Capítulo 9?]
+El Teorema 9.14 dio el esbozo; aquí está la prueba completa. El Ejemplo 9.17
+(\(p\Imp p\)) es el caso de un átomo del mismo procedimiento.
+\end{description}
+
+%=====================================================================
+\appendix
+\section{Hoja de referencia}
+%=====================================================================
+
+\begin{clave}
+\textbf{La cadena completa en una línea:}
+\[
+\Taut(\varphi)
+\ \xrightarrow{\ \text{Kalmár (11.15) en cada fila}\ }\
+\forall v,\ \Gamma_v(A)\Provnd\varphi
+\ \xrightarrow{\ \text{descarga (11.17), usando 11.11}\ }\
+\varnothing\Provnd\varphi .
+\]
+\textbf{Y de vuelta:}\quad
+\(\varnothing\Provnd\varphi\xrightarrow{\ \text{corrección (A.3)}\ }\Taut(\varphi)\).
+\end{clave}
+
+\textbf{Las siete reglas:} hip., \(\Imp\)I, \(\Imp\)E, \(\Not\)I, \(\Not\)E,
+\(\bot\)E (núcleo intuicionista) y RAA (clásica).
+
+\textbf{Tres técnicas del capítulo:}
+\begin{enumerate}
+  \item \emph{Inducción sobre derivaciones, generalizando lo que cambia}
+    (11.9, A.3).
+  \item \emph{Inducción estructural con un enunciado reforzado} (11.15).
+  \item \emph{Inducción sobre una lista, modificando la valuación en la
+    cabeza} (11.17).
+\end{enumerate}
+
+\textbf{Los tres datos que más se preguntan:}
+\begin{itemize}
+  \item Kalmár es bilateral porque \(\Not\) e \(\Imp\) dependen de
+    subfórmulas falsas.
+  \item El único uso de RAA en el cálculo está en el análisis por casos
+    (11.11).
+  \item La completitud es para \(\Gamma=\varnothing\); la corrección, para
+    cualquier \(\Gamma\).
+\end{itemize}
+
+\end{document}

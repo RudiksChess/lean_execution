@@ -1,0 +1,844 @@
+% Curso intensivo del Capítulo 12 de la tesis (corrección del algoritmo
+% Quicksort) y del Apéndice B.2 (conservación mediante conteos).
+% Escrito en matemática de papel, sin Lean. Fuente:
+%   tesis-mate/documento/capitulos/5_practica.tex
+%   tesis-mate/documento/capitulos/apendice_aristotle.tex
+% Compilar dos veces:  lualatex CursoQuicksort.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.3cm,headheight=14pt]{geometry}
+\usepackage{amsmath,mathtools}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\setmainfont{TeX Gyre Pagella}
+\setmathfont{TeX Gyre Pagella Math}
+\setsansfont{DejaVu Sans}[Scale=MatchLowercase]
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,trees,fit}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\definecolor{fondores}{HTML}{F4F7FB}
+\definecolor{borderes}{HTML}{3F6FA8}
+\definecolor{fondonota}{HTML}{F1EEF8}
+\definecolor{bordenota}{HTML}{8C7DB8}
+\definecolor{fondoejemplo}{HTML}{F7F8FA}
+\definecolor{bordeejemplo}{HTML}{B8C2CF}
+\definecolor{fondotrampa}{HTML}{FFF4EC}
+\definecolor{bordetrampa}{HTML}{D98A4E}
+\definecolor{fondoclave}{HTML}{FFF9E6}
+\definecolor{bordeclave}{HTML}{C9A227}
+\definecolor{fondoesquema}{HTML}{EEF5EE}
+\definecolor{bordeesquema}{HTML}{5E9A62}
+
+\newtcolorbox{resultado}[1]{enhanced, breakable, colback=fondores,
+  colframe=borderes, boxrule=0.6pt, arc=3pt, colbacktitle=borderes,
+  coltitle=white, fonttitle=\sffamily\bfseries, title={#1},
+  before skip=10pt, after skip=10pt}
+\newtcolorbox{esquema}[1]{enhanced, breakable, colback=fondoesquema,
+  colframe=bordeesquema, boxrule=0.6pt, arc=3pt,
+  colbacktitle=bordeesquema, coltitle=white, fonttitle=\sffamily\bfseries,
+  title={#1}, before skip=10pt, after skip=10pt}
+\newtcolorbox{ejemplo}[1]{enhanced, breakable, colback=fondoejemplo,
+  colframe=bordeejemplo, boxrule=0.5pt, arc=2pt, colbacktitle=bordeejemplo!40,
+  coltitle=black, fonttitle=\sffamily\small\bfseries, title={#1},
+  before skip=6pt, after skip=8pt}
+\newtcolorbox{nota}[1][Nota]{enhanced, breakable, colback=fondonota,
+  colframe=bordenota, boxrule=0.5pt, arc=3pt, colbacktitle=bordenota,
+  coltitle=white, fonttitle=\sffamily\bfseries\small, title={#1},
+  before skip=8pt, after skip=8pt}
+\newtcolorbox{trampa}[1][Lo que pueden preguntar]{enhanced, breakable,
+  colback=fondotrampa, colframe=bordetrampa, boxrule=0.5pt, arc=3pt,
+  colbacktitle=bordetrampa, coltitle=white, fonttitle=\sffamily\bfseries\small,
+  title={#1}, before skip=8pt, after skip=8pt}
+\newtcolorbox{clave}{enhanced, colback=fondoclave, colframe=bordeclave,
+  boxrule=0.8pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  before skip=10pt, after skip=10pt}
+
+\newcommand{\campo}[1]{\par\smallskip\noindent\textbf{#1}\enspace}
+\newcommand{\enunciado}{\campo{Enunciado.}}
+\newcommand{\palabras}{\campo{En palabras.}}
+\newcommand{\sirve}{\campo{Para qué sirve.}}
+\newcommand{\idea}{\campo{Idea.}}
+\newcommand{\prueba}{\campo{Demostración.}}
+
+% Notación de la tesis (Capítulo 12)
+\newcommand{\Perm}{\sim}
+\newcommand{\concat}{\mathbin{+\!\!+}}
+\newcommand{\qs}{\operatorname{\mathsf{qsort}}}
+\newcommand{\filt}{\operatorname{\mathsf{filtrar}}}
+\newcommand{\len}[1]{\lvert #1\rvert}
+\newcommand{\Sorted}{\operatorname{\mathsf{Ordenada}}}
+\newcommand{\Pairwise}{\operatorname{\mathsf{PorPares}}}
+\newcommand{\cuenta}{\operatorname{\mathsf{cuenta}}}
+\newcommand{\decidir}{\operatorname{\mathsf{decidir}}}
+\newcommand{\V}{\mathsf{V}}
+\newcommand{\F}{\mathsf{F}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Capítulo 12: corrección de Quicksort}
+\fancyhead[R]{\small\sffamily\nouppercase{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist{itemsep=2pt, topsep=4pt}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+
+\title{\textbf{Curso intensivo del Capítulo 12}\\[4pt]
+  \Large Corrección del algoritmo Quicksort\\[2pt]
+  \large Qué se demuestra, cómo se demuestra y cómo explicarlo}
+\author{Material de apoyo para la defensa}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Este documento explica el Capítulo 12 de la tesis y la variante del
+Apéndice B.2, en matemática de papel. No usa código. Cada resultado aparece en
+una ficha con la misma estructura: enunciado, qué dice en palabras, para qué
+sirve, la idea en una frase y la demostración paso a paso. Incluye ejemplos
+trazados a mano, qué propiedades del orden se usan y dónde, y las preguntas
+más probables del tribunal con sus respuestas. La numeración (Lema 12.5,
+Teorema 12.11, etc.) es la de la versión compilada de la tesis.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{El capítulo en una página}
+%=====================================================================
+
+\begin{clave}
+\centering
+\textbf{Teorema principal (Teorema 12.12).}\quad
+Para toda lista \(\ell\) sobre un tipo linealmente ordenado,
+\[
+\qs(\ell)\Perm\ell\qquad\text{y}\qquad\Sorted(\qs(\ell)).
+\]
+Quicksort devuelve una \emph{permutación ordenada} de su entrada.
+\end{clave}
+
+\textbf{El algoritmo.} Para ordenar \(p::r\) (pivote \(p\), cola \(r\)) se
+separa la cola en \(L\), los elementos \(\leq p\), y \(R\), los elementos
+\(>p\). Se ordenan \(L\) y \(R\) recursivamente y se pegan con el pivote en
+medio:
+\[
+\qs([\,])=[\,],\qquad
+\qs(p::r)=\qs(L)\concat\big(p::\qs(R)\big).
+\]
+Ejemplo: \([3,2,5,1,4]\ \to\ ([2,1],\,3,\,[5,4])\ \to\ [1,2]\concat(3::[4,5])=[1,2,3,4,5]\).
+
+\textbf{Qué hay que demostrar: tres cosas.}
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Obligación} & \textbf{Por qué hace falta} & \textbf{Resultado}\\
+\midrule
+\emph{Terminación} & sin ella \(\qs\) no es una función & Proposición 12.6\\
+\emph{Contenido}: \(\qs(\ell)\Perm\ell\) & no se pierden ni se inventan elementos & Teorema 12.8\\
+\emph{Orden}: \(\Sorted(\qs(\ell))\) & la salida queda en orden no decreciente & Teorema 12.11\\
+\bottomrule
+\end{tabular}
+\end{center}
+Las tres se demuestran con la misma estrategia: inducción sobre la
+\emph{longitud} de la lista, porque las llamadas recursivas reciben \(L\) y
+\(R\), que son más cortas que \(p::r\) pero no son su cola.
+
+\subsection*{Mapa de dependencias}
+
+\begin{center}
+\begin{tikzpicture}[font=\footnotesize,
+  res/.style={draw, rounded corners, fill=blue!6, align=center, inner sep=3pt, text width=27mm},
+  dep/.style={-{Stealth}, thick, gray!60!black}]
+\node[res] (fle)   at (0,0)     {Lema 12.5\\filtrar no alarga};
+\node[res] (fperm) at (4.2,0)   {Lema 12.7\\partición \(\Perm\) lista};
+\node[res] (pw)    at (8.6,0)   {Lema 12.10\\\(\Pairwise\) sobre \(\concat\)};
+\node[res] (term)  at (0,-1.8)  {Proposición 12.6\\terminación};
+\node[res] (perm)  at (4.2,-1.8){Teorema 12.8\\permutación};
+\node[res] (mem)   at (4.2,-3.6){Corolario 12.9\\pertenencia};
+\node[res] (sorted)at (8.6,-3.6){Teorema 12.11\\ordenamiento};
+\node[res, fill=yellow!20] (corr) at (6.4,-5.4) {\textbf{Teorema 12.12}\\corrección};
+\draw[dep] (fle) -- (term);
+\draw[dep] (fle) -- (perm);
+\draw[dep] (fperm) -- (perm);
+\draw[dep] (perm) -- (mem);
+\draw[dep] (mem) -- (sorted);
+\draw[dep] (pw) -- (sorted);
+\draw[dep] (fle.south) .. controls (1.2,-4.2) and (5.5,-3.9) .. (sorted.west);
+\draw[dep] (perm.south west) .. controls (2.6,-3.6) and (3.2,-5.4) .. (corr.west);
+\draw[dep] (sorted) -- (corr);
+\end{tikzpicture}
+\end{center}
+
+\subsection*{Todos los resultados de un vistazo}
+
+{\small
+\begin{longtable}{@{}p{0.15\textwidth}p{0.47\textwidth}p{0.32\textwidth}@{}}
+\toprule
+\textbf{Resultado} & \textbf{Enunciado} & \textbf{Técnica}\\
+\midrule
+\endhead
+Lema 12.5 & \(\len{\filt(q)(\ell)}\leq\len\ell\) & inducción sobre la lista\\
+Proposición 12.6 & \(\qs\) termina (es total) & inducción bien fundada sobre \(\len\ell\)\\
+Lema 12.7 & \(\filt(q)(\ell)\concat\filt(q^c)(\ell)\Perm\ell\) & inducción sobre la lista\\
+Teorema 12.8 & \(\qs(\ell)\Perm\ell\) & inducción bien fundada + cadena de permutaciones\\
+Corolario 12.9 & \(a\in\qs(\ell)\iff a\in\ell\) & consecuencia de 12.8\\
+Lema 12.10 & \(\Pairwise\) de una concatenación & inducción sobre la primera lista\\
+Teorema 12.11 & \(\Sorted(\qs(\ell))\) & inducción bien fundada + 12.10\\
+Teorema 12.12 & permutación y orden & conjunción de 12.8 y 12.11\\
+Apéndice B.2 & otra prueba de 12.8 contando apariciones & inducción + aritmética\\
+\bottomrule
+\end{longtable}
+}
+
+%=====================================================================
+\section{El escenario: definiciones}
+%=====================================================================
+
+\subsection{El orden}
+
+\(\alpha\) es un tipo con un orden lineal \(\leq\): reflexivo
+(\(a\leq a\)), antisimétrico, transitivo y total
+(\(a\leq b\) o \(b\leq a\)). El orden estricto cumple
+\[
+a<b\iff(a\leq b\wedge a\neq b),\qquad a<b\Rightarrow a\leq b,\qquad
+\neg(b\leq a)\iff a<b .\tag{O}
+\]
+La última ley, consecuencia del orden lineal, dice que lo que \emph{no}
+es \(\leq p\) es \(>p\). Es lo que hace que la partición no deje nada fuera.
+
+\subsection{Listas y operaciones}
+
+\begin{itemize}
+  \item \(a::r\) es la lista con cabeza \(a\) y cola \(r\); \([\,]\) es la
+    vacía; \(\concat\) es la concatenación; \(\len\ell\) es la longitud.
+  \item Pertenencia: \(x\in a::r\iff x=a\vee x\in r\), y
+    \(x\in\ell_1\concat\ell_2\iff x\in\ell_1\vee x\in\ell_2\).
+  \item \(\cuenta(a,\ell)\): número de apariciones de \(a\) en \(\ell\).
+  \item \textbf{Filtro (F).} \(\filt(q)\) conserva, en su orden, los elementos
+    con \(q(x)=\V\):
+    \[
+    \filt(q)([\,])=[\,],\qquad
+    \filt(q)(a::r)=\begin{cases}a::\filt(q)(r)&\text{si }q(a)=\V,\\ \filt(q)(r)&\text{si }q(a)=\F.\end{cases}
+    \]
+    En consecuencia, \(x\in\filt(q)(\ell)\iff x\in\ell\wedge q(x)=\V\).
+  \item \(q^c\) es el complemento booleano de \(q\): vale \(\V\) donde \(q\)
+    vale \(\F\), y viceversa.
+\end{itemize}
+
+\subsection{Las dos mitades de la especificación}
+
+\begin{itemize}
+  \item \textbf{Ordenada (Def.~12.2).} \(\Sorted(\ell):=\Pairwise(\leq)(\ell)\),
+    donde
+    \[
+    \Pairwise\,R\,[\,]\ \text{siempre},\qquad
+    \Pairwise\,R\,(a::r)\iff(\forall x\in r,\ R\,a\,x)\wedge\Pairwise\,R\,r .\tag{P}
+    \]
+    En palabras: cada elemento está relacionado con \emph{todos} los que van
+    detrás de él. Equivale a la caracterización por índices
+    \(\forall\,i<j,\ a_i\leq a_j\).
+  \item \textbf{Permutación (Def.~12.3).} \(\ell_1\Perm\ell_2\) significa
+    que difieren solo en el orden:
+    \(\forall a,\ \cuenta(a,\ell_1)=\cuenta(a,\ell_2)\). Se usan estas
+    reglas:
+    \begin{center}
+    {\small
+    \begin{tabular}{@{}ll@{}}
+    \toprule
+    reflexiva, simétrica, transitiva & \(\Perm\) es de equivalencia\\
+    congruencia de \(\concat\) & \(\ell_1\Perm\ell_1'\wedge\ell_2\Perm\ell_2'\Rightarrow\ell_1\concat\ell_2\Perm\ell_1'\concat\ell_2'\)\\
+    congruencia de \(::\) & \(\ell_1\Perm\ell_2\Rightarrow a::\ell_1\Perm a::\ell_2\)\\
+    elemento intermedio & \(L\concat(a::R)\Perm a::(L\concat R)\)\\
+    invariancia de pertenencia & \(\ell_1\Perm\ell_2\Rightarrow(a\in\ell_1\iff a\in\ell_2)\)\\
+    \bottomrule
+    \end{tabular}}
+    \end{center}
+\end{itemize}
+
+\begin{ejemplo}{Por qué la especificación pide las dos cosas (§12.2.1)}
+\begin{itemize}
+  \item \(f_0(\ell):=[\,]\) siempre da una lista ordenada, pero
+    \(f_0([1])=[\,]\not\Perm[1]\): pierde elementos.
+  \item \(f_{\mathrm{id}}(\ell):=\ell\) siempre da una permutación, pero
+    \(f_{\mathrm{id}}([2,1])=[2,1]\) no está ordenada.
+\end{itemize}
+Ninguna de las dos condiciones basta sola.
+\end{ejemplo}
+
+\begin{ejemplo}{Por qué la permutación se mide con multiplicidades}
+\([1,1]\) y \([1]\) tienen los mismos elementos, pero no son permutación una
+de otra: \(\cuenta(1,[1,1])=2\neq1\). Por eso el Corolario 12.9 (misma
+pertenencia) es \emph{más débil} que el Teorema 12.8 (permutación). Una
+función que borrara duplicados cumpliría 12.9 pero no 12.8.
+\end{ejemplo}
+
+\subsection{El algoritmo (Def.~12.4)}
+
+Con los predicados \(q_{\leq p}(x):=\decidir(x\leq p)\) y
+\(q_{>p}:=q_{\leq p}^c\),
+\[
+L:=\filt(q_{\leq p})(r),\qquad R:=\filt(q_{>p})(r),\qquad
+\qs(p::r)=\qs(L)\concat(p::\qs(R)).
+\]
+Por el filtro y la ley (O):
+\[
+x\in L\iff x\in r\wedge x\leq p,\qquad
+x\in R\iff x\in r\wedge p<x .
+\]
+
+%=====================================================================
+\section{El algoritmo en acción}
+%=====================================================================
+
+\begin{ejemplo}{Traza de \(\qs([3,1,2,5,4,9])\)}
+\begin{center}
+\begin{tikzpicture}[font=\small,level distance=12mm,
+  level 1/.style={sibling distance=46mm},
+  level 2/.style={sibling distance=23mm},
+  every node/.style={draw,circle,inner sep=1.4pt,minimum size=7mm,fill=blue!8},
+  tam/.style={draw=none,fill=none,font=\scriptsize,text=black!70},
+  et/.style={draw=none,fill=none}]
+  \node[label={[tam]right:$n=6$}] {3}
+    child { node[label={[tam]left:$n=2$}] {1}
+      child { node[fill=green!12] {} edge from parent node[et,left]{$\leq$} }
+      child { node[label={[tam]right:$n=1$}] {2}
+        child { node[fill=green!12] {} edge from parent node[et,left]{$\leq$}}
+        child { node[fill=green!12] {} edge from parent node[et,right]{$>$}}
+        edge from parent node[et,right]{$>$} }
+    }
+    child { node[label={[tam]right:$n=3$}] {5}
+      child { node[label={[tam]right:$n=1$}] {4}
+        child { node[fill=green!12] {} edge from parent node[et,left]{$\leq$}}
+        child { node[fill=green!12] {} edge from parent node[et,right]{$>$}}
+        edge from parent node[et,left]{$\leq$} }
+      child { node[label={[tam]right:$n=1$}] {9}
+        child { node[fill=green!12] {} edge from parent node[et,left]{$\leq$}}
+        child { node[fill=green!12] {} edge from parent node[et,right]{$>$}}
+        edge from parent node[et,right]{$>$} }
+    };
+\end{tikzpicture}
+\end{center}
+\begin{center}
+{\footnotesize
+\renewcommand{\arraystretch}{1.25}\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Llamada} & \textbf{Pivote} & \(L\) (\(\leq p\)) & \(R\) (\(>p\)) & \textbf{Resultado}\\
+\midrule
+\(\qs([3,1,2,5,4,9])\) & 3 & \([1,2]\) & \([5,4,9]\) & \([1,2]\concat(3::[4,5,9])\)\\
+\(\qs([1,2])\) & 1 & \([\,]\) & \([2]\) & \([\,]\concat(1::[2])=[1,2]\)\\
+\(\qs([5,4,9])\) & 5 & \([4]\) & \([9]\) & \([4]\concat(5::[9])=[4,5,9]\)\\
+\(\qs([2])\), \(\qs([4])\), \(\qs([9])\) & --- & \([\,]\) & \([\,]\) & la propia lista\\
+\bottomrule
+\end{tabular}}
+\end{center}
+La primera fila da \([1,2]\concat(3::[4,5,9])=[1,2,3,4,5,9]\).
+Las longitudes \(n\) muestran la terminación: cada hijo es estrictamente más
+corto que su padre (\(6\to2,3\); \(2\to0,1\); \(3\to1,1\)). Leer el árbol de
+izquierda a derecha (recorrido simétrico) da la salida ordenada.
+\end{ejemplo}
+
+\begin{ejemplo}{Elementos repetidos: \(\qs([2,1,2,1])\)}
+Pivote \(2\), cola \([1,2,1]\): \(L=[1,2,1]\) (todos \(\leq2\)) y \(R=[\,]\).
+\[
+\qs([1,2,1]):\ \text{pivote }1,\ L=[1],\ R=[2]\ \Rightarrow\ [1]\concat(1::[2])=[1,1,2].
+\]
+\[
+\qs([2,1,2,1])=[1,1,2]\concat(2::[\,])=[1,1,2,2].
+\]
+Las copias del pivote van a la izquierda, porque el criterio es \(\leq\). Las
+multiplicidades se conservan: \(\cuenta(1)=2\) y \(\cuenta(2)=2\) antes y
+después.
+\end{ejemplo}
+
+%=====================================================================
+\section{Las tres técnicas del capítulo}
+%=====================================================================
+
+\begin{esquema}{Técnica 1 · Inducción estructural sobre listas}
+Para probar \(\forall\ell.\ P(\ell)\): se prueba \(P([\,])\) y, suponiendo
+\(P(r)\) (hipótesis inductiva sobre la cola), se prueba \(P(a::r)\). Casi
+siempre el caso \(a::r\) se divide según el valor de \(q(a)\), porque así
+está definido el filtro.
+
+\textbf{Dónde:} Lemas 12.5, 12.7 y 12.10.
+\end{esquema}
+
+\begin{esquema}{Técnica 2 · Inducción bien fundada sobre la longitud}
+Para probar \(\forall\ell.\ P(\ell)\) se puede suponer \(P(s)\) para
+\emph{toda} lista \(s\) con \(\len s<\len\ell\), y no solo para la cola.
+
+\textbf{Por qué hace falta.} Las llamadas recursivas de \(\qs(p::r)\) son
+sobre \(L\) y \(R\), no sobre \(r\). La inducción estructural solo daría la
+hipótesis para \(r\). Como \(\len L,\len R\leq\len r<\len{p::r}\), la
+inducción por longitud da la hipótesis justo donde hace falta.
+
+\textbf{Por qué es válida.} \((\mathbb N,<)\) no tiene cadenas descendentes
+infinitas; es la inducción fuerte sobre los naturales.
+
+\textbf{Plantilla.} «Caso \([\,]\): directo. Caso \(p::r\): por el
+Lema 12.5, \(\len L<\len{p::r}\) y \(\len R<\len{p::r}\); por hipótesis
+inductiva, \(P(L)\) y \(P(R)\); entonces \dots»
+
+\textbf{Dónde:} Proposición 12.6 y Teoremas 12.8 y 12.11. Las tres pruebas
+empiezan igual.
+\end{esquema}
+
+\begin{esquema}{Técnica 3 · Cadenas de permutaciones y de equivalencias}
+Una permutación entre dos listas lejanas se prueba con una cadena
+\(\ell_0=\ell_1\Perm\ell_2\Perm\cdots\Perm\ell_n\), con una regla de la
+Definición 12.3 en cada eslabón; la transitividad cierra la cadena. Del mismo
+modo, la equivalencia del Lema 12.10 se prueba con una cadena de \(\iff\).
+
+\textbf{Dónde:} Lema 12.7, Teorema 12.8 y Lema 12.10.
+\end{esquema}
+
+%=====================================================================
+\section{Los resultados, uno por uno}
+%=====================================================================
+
+\subsection{Terminación}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 12.5 · Filtrar no alarga la lista}
+\enunciado Para todo predicado \(q\) y toda lista \(\ell\),
+\(\len{\filt(q)(\ell)}\leq\len\ell\).
+
+\palabras Quitar elementos no puede hacer una lista más larga.
+
+\sirve Da las cotas \(\len L,\len R\leq\len r\) que se usan en las tres
+inducciones por longitud.
+
+\prueba Por inducción sobre \(\ell\).
+\begin{itemize}
+  \item \(\ell=[\,]\): \(0\leq0\).
+  \item \(\ell=a::r\), con hipótesis \(\len{\filt(q)(r)}\leq\len r\):
+    \begin{itemize}
+      \item si \(q(a)=\V\):
+        \(\len{\filt(q)(a::r)}=1+\len{\filt(q)(r)}\leq1+\len r=\len{a::r}\);
+      \item si \(q(a)=\F\):
+        \(\len{\filt(q)(a::r)}=\len{\filt(q)(r)}\leq\len r<\len{a::r}\).
+    \end{itemize}
+\end{itemize}
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Proposición 12.6 · Terminación}
+\enunciado Cada llamada recursiva de \(\qs(p::r)\) recibe una lista
+estrictamente más corta; por tanto \(\qs\) es una función total.
+
+\idea La longitud baja en cada llamada, y una sucesión de naturales no puede
+bajar para siempre.
+
+\prueba Por inducción bien fundada sobre \(\len\ell\).
+\begin{itemize}
+  \item \(\ell=[\,]\): \(\qs([\,])=[\,]\), sin llamadas.
+  \item \(\ell=p::r\): por el Lema 12.5,
+    \(\len L\leq\len r<\len r+1=\len{p::r}\), y lo mismo para \(R\). Por
+    hipótesis inductiva \(\qs(L)\) y \(\qs(R)\) están definidas; \(\filt\) y
+    \(\concat\) son totales, así que la ecuación define \(\qs(p::r)\).
+\end{itemize}
+\end{resultado}
+
+\begin{trampa}
+\begin{itemize}
+  \item \emph{¿Por qué hay que probar la terminación?} En un sistema lógico,
+    una «definición» por ecuaciones que no termine puede ser contradictoria.
+    Por ejemplo, \(g(n)=g(n)+1\) obligaría a \(0=1\). Probar que la medida
+    \(\len\ell\) decrece es lo que garantiza que existe una única función
+    total con esas ecuaciones.
+  \item \emph{¿Por qué no basta la recursión estructural?} Porque \(L\) y
+    \(R\) no son la cola \(r\), sino listas filtradas a partir de ella.
+  \item \emph{¿Qué medida se usa?} \(\mu(\ell)=\len\ell\), con valores en
+    \((\mathbb N,<)\), que es bien fundado. Thompson usa un argumento
+    equivalente con un parámetro \(n\geq\len\ell\) explícito.
+\end{itemize}
+\end{trampa}
+
+\subsection{Corrección, parte I: la salida es una permutación}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 12.7 · La partición por filtro es una permutación}
+\enunciado Para todo predicado \(q\) y toda lista \(\ell\),
+\[
+\filt(q)(\ell)\concat\filt(q^c)(\ell)\ \Perm\ \ell .
+\]
+
+\palabras Separar una lista en «los que cumplen \(q\)» y «los que no» y pegar
+las dos partes da los mismos elementos, quizá en otro orden.
+
+\sirve Es el hecho combinatorio del paso de partición (con \(q=q_{\leq p}\)):
+\(L\concat R\Perm r\).
+
+\idea Cada elemento va exactamente a una de las dos partes, porque \(q\) y
+\(q^c\) nunca valen \(\V\) a la vez.
+
+\prueba Por inducción sobre \(\ell\). Sea \(L:=\filt(q)(r)\) y
+\(R:=\filt(q^c)(r)\); la hipótesis inductiva es \(L\concat R\Perm r\), y por
+congruencia de \(::\), \(a::(L\concat R)\Perm a::r\).
+\begin{itemize}
+  \item \(\ell=[\,]\): \([\,]\concat[\,]=[\,]\Perm[\,]\).
+  \item \(\ell=a::r\) con \(q(a)=\V\) (luego \(q^c(a)=\F\)):
+    \[
+    (a::L)\concat R=a::(L\concat R)\Perm a::r .
+    \]
+  \item \(\ell=a::r\) con \(q(a)=\F\) (luego \(q^c(a)=\V\)):
+    \[
+    L\concat(a::R)\ \Perm\ a::(L\concat R)\ \Perm\ a::r ,
+    \]
+    por la regla del elemento intermedio y la congruencia de \(::\).
+\end{itemize}
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Teorema 12.8 · La salida es una permutación de la entrada}
+\enunciado Para toda lista \(\ell\), \(\qs(\ell)\Perm\ell\).
+
+\idea Por inducción, cada mitad ordenada es permutación de su mitad; la
+partición es permutación de la cola; se recolocan las piezas.
+
+\prueba Por inducción bien fundada sobre \(\len\ell\).
+\begin{itemize}
+  \item \(\ell=[\,]\): \(\qs([\,])=[\,]\Perm[\,]\).
+  \item \(\ell=p::r\): por la Técnica 2, la hipótesis inductiva da
+    \(\qs(L)\Perm L\) y \(\qs(R)\Perm R\). El Lema 12.7 (con
+    \(q=q_{\leq p}\), cuyo complemento es \(q_{>p}\)) da \(L\concat R\Perm r\).
+    Entonces
+    \[
+    \begin{aligned}
+    \qs(p::r)&=\qs(L)\concat(p::\qs(R)) &&\text{definición}\\
+    &\Perm L\concat(p::R) &&\text{congruencias de }\concat\text{ y }::\\
+    &\Perm p::(L\concat R) &&\text{elemento intermedio}\\
+    &\Perm p::r &&\text{congruencia de }::\text{ y Lema 12.7.}
+    \end{aligned}
+    \]
+\end{itemize}
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Corolario 12.9 · Se preserva la pertenencia}
+\enunciado \(a\in\qs(\ell)\iff a\in\ell\).
+
+\prueba El Teorema 12.8 y la invariancia de pertenencia de \(\Perm\).
+
+\sirve En el Teorema 12.11, para saber qué elementos hay en \(\qs(L)\) y en
+\(\qs(R)\), y así obtener sus cotas respecto del pivote.
+\end{resultado}
+
+\begin{nota}[Una prueba alternativa: Apéndice B.2]
+En lugar de manipular permutaciones, se puede contar. Con
+\(c_x(\ell):=\cuenta(x,\ell)\) y \(\delta_{x,p}=1\) si \(x=p\) y \(0\) si no:
+\[
+\begin{aligned}
+c_x(\qs(p::r))&=c_x(\qs(L))+\delta_{x,p}+c_x(\qs(R)) &&\text{(a)}\\
+&=c_x(L)+\delta_{x,p}+c_x(R) &&\text{(b)}\\
+&=\delta_{x,p}+c_x(r)=c_x(p::r) &&\text{(c)}
+\end{aligned}
+\]
+(a) el conteo es aditivo sobre \(\concat\) y \(::\); (b) hipótesis
+inductiva; (c) cada aparición de la cola está en una sola mitad.
+La igualdad \(c_x(L)+c_x(R)=c_x(r)\) es la versión numérica del Lema 12.7.
+Ambas pruebas son la misma idea: la partición no pierde ni duplica.
+\end{nota}
+
+\subsection{Corrección, parte II: la salida está ordenada}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Lema 12.10 · \(\Pairwise\) sobre una concatenación}
+\enunciado Para una relación \(R\) y listas \(\ell_1,\ell_2\),
+\[
+\Pairwise\,R\,(\ell_1\concat\ell_2)\iff
+\Pairwise\,R\,\ell_1\ \wedge\ \Pairwise\,R\,\ell_2\ \wedge\
+\big(\forall a\in\ell_1,\ \forall b\in\ell_2,\ R\,a\,b\big),
+\]
+y además \(\Pairwise\,R\,(a::\ell)\iff(\forall b\in\ell,\ R\,a\,b)\wedge\Pairwise\,R\,\ell\).
+
+\palabras Una concatenación está «ordenada por pares» si y solo si cada
+trozo lo está y todo elemento del primer trozo está relacionado con todo
+elemento del segundo.
+
+\sirve Reduce \(\Sorted(A\concat(p::B))\) a tres comprobaciones sencillas.
+
+\prueba
+\textbf{Parte 1 (\(::\)).} Es la definición (P) leída en los dos sentidos.
+Si \(\Pairwise\,R\,(a::\ell)\) se obtuvo, fue por la regla de la lista no
+vacía, cuyas premisas son las dos condiciones. La regla de la lista vacía no
+aplica porque \(a::\ell\neq[\,]\).
+
+\textbf{Parte 2 (\(\concat\)), por inducción sobre \(\ell_1\).} Se escribe
+\(C(s,t):=\forall x\in s,\ \forall y\in t,\ R\,x\,y\) y
+\(H(s):=\forall z\in s,\ R\,a\,z\).
+\begin{itemize}
+  \item \(\ell_1=[\,]\): \([\,]\concat\ell_2=\ell_2\), \(\Pairwise\,R\,[\,]\)
+    siempre vale y \(C([\,],\ell_2)\) vale por vacuidad.
+  \item \(\ell_1=a::r\). Primero dos equivalencias auxiliares (\(\ast\)),
+    que solo usan la pertenencia en \(\concat\) y en \(::\):
+    \[
+    H(r\concat\ell_2)\iff H(r)\wedge H(\ell_2),\qquad
+    C(a::r,\ell_2)\iff H(\ell_2)\wedge C(r,\ell_2).
+    \]
+    Luego la cadena:
+    \[
+    \begin{aligned}
+    \Pairwise\,R\,((a::r)\concat\ell_2)
+    &\iff \Pairwise\,R\,(a::(r\concat\ell_2)) &&(1)\\
+    &\iff H(r\concat\ell_2)\wedge\Pairwise\,R\,(r\concat\ell_2) &&(2)\\
+    &\iff H(r)\wedge H(\ell_2)\wedge\Pairwise\,R\,r &&(3)\\
+    &\qquad\quad\wedge\Pairwise\,R\,\ell_2\wedge C(r,\ell_2)\\
+    &\iff \big(H(r)\wedge\Pairwise\,R\,r\big)\wedge\Pairwise\,R\,\ell_2 &&(4)\\
+    &\qquad\quad\wedge\big(H(\ell_2)\wedge C(r,\ell_2)\big)\\
+    &\iff \Pairwise\,R\,(a::r)\wedge\Pairwise\,R\,\ell_2\wedge C(a::r,\ell_2) &&(5)
+    \end{aligned}
+    \]
+    (1) \((a::r)\concat\ell_2=a::(r\concat\ell_2)\); (2) Parte 1;
+    (3) la primera equivalencia (\(\ast\)) y la hipótesis inductiva;
+    (4) reagrupar conjunciones; (5) Parte 1 y la segunda equivalencia
+    (\(\ast\)).
+\end{itemize}
+\end{resultado}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Teorema 12.11 · La salida está ordenada}
+\enunciado Para toda lista \(\ell\), \(\Sorted(\qs(\ell))\).
+
+\idea Las dos mitades están ordenadas por inducción. Todo lo de la izquierda
+es \(\leq p\) y todo lo de la derecha es \(\geq p\); por transitividad, todo
+lo de la izquierda es \(\leq\) todo lo de la derecha.
+
+\prueba Por inducción bien fundada sobre \(\len\ell\). El caso \([\,]\) es
+inmediato. Para \(\ell=p::r\), sean \(A:=\qs(L)\) y \(B:=\qs(R)\), de modo que
+\(\qs(p::r)=A\concat(p::B)\).
+\begin{enumerate}
+  \item \textbf{Mitades ordenadas.} Por la hipótesis inductiva (Técnica 2),
+    \(\Sorted(A)\) y \(\Sorted(B)\).
+  \item \textbf{Cotas.} Por el Corolario 12.9, \(a\in A\iff a\in L\), y
+    \(a\in L\) implica \(a\leq p\). Del mismo modo, \(b\in B\) implica
+    \(p<b\), luego \(p\leq b\):
+    \[
+    (\forall a\in A,\ a\leq p)\ \wedge\ (\forall b\in B,\ p\leq b).
+    \]
+  \item \textbf{El bloque derecho.} Por la Parte 1 del Lema 12.10, con la
+    cota derecha y \(\Sorted(B)\), se tiene \(\Sorted(p::B)\).
+  \item \textbf{El cruce.} Sean \(a\in A\) y \(c\in p::B\). Si \(c=p\),
+    entonces \(a\leq p=c\). Si \(c\in B\), entonces \(a\leq p\leq c\), y por
+    transitividad \(a\leq c\).
+  \item \textbf{Cierre.} El Lema 12.10, con 1, 3 y 4, da
+    \(\Sorted(A\concat(p::B))=\Sorted(\qs(p::r))\).
+\end{enumerate}
+\end{resultado}
+
+\begin{center}
+\begin{tikzpicture}[font=\small]
+  \node[draw, rounded corners, fill=green!12, minimum width=3.6cm, minimum height=8mm] (A) {$A=\qs(L)$ (ordenada)};
+  \node[draw, rounded corners, fill=blue!10, minimum width=1cm, minimum height=8mm, right=2mm of A] (p) {$p$};
+  \node[draw, rounded corners, fill=red!10, minimum width=3.6cm, minimum height=8mm, right=2mm of p] (B) {$B=\qs(R)$ (ordenada)};
+  \draw[{Stealth}-{Stealth}, thick] ([yshift=6mm]A.north) -- node[above]{\footnotesize todo $a\in A$ $\leq p$} ([yshift=6mm]p.north);
+  \draw[{Stealth}-{Stealth}, thick] ([yshift=6mm]p.north) -- node[above]{\footnotesize $p\leq$ todo $b\in B$} ([yshift=6mm]B.north);
+  \draw[{Stealth}-{Stealth}, thick, dashed] ([yshift=13mm]A.north) to[bend left=15] node[above]{\footnotesize todo $a\in A$ $\leq$ todo $b\in B$ (transitividad)} ([yshift=13mm]B.north);
+\end{tikzpicture}
+\end{center}
+
+%---------------------------------------------------------------------
+\begin{resultado}{Teorema 12.12 · Corrección de Quicksort}
+\enunciado Para toda lista \(\ell\), \(\qs(\ell)\Perm\ell\) y
+\(\Sorted(\qs(\ell))\).
+
+\prueba Es la conjunción de los Teoremas 12.8 y 12.11.
+\end{resultado}
+
+%=====================================================================
+\section{El ejemplo, comprobado con los lemas}
+%=====================================================================
+
+En la raíz del árbol de \([3,1,2,5,4,9]\): \(p=3\), \(r=[1,2,5,4,9]\),
+\(L=[1,2]\) y \(R=[5,4,9]\).
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+{\small
+\begin{tabularx}{\linewidth}{@{}p{0.3\linewidth}X@{}}
+\toprule
+\textbf{Lo que afirma la prueba} & \textbf{En el ejemplo}\\
+\midrule
+Lema 12.5: \(\len L,\len R\leq\len r\) & \(2,3\leq5<6\)\\
+Lema 12.7: \(L\concat R\Perm r\) & \([1,2,5,4,9]\Perm[1,2,5,4,9]\) (aquí incluso son iguales)\\
+Hipótesis inductiva & \(A=\qs(L)=[1,2]\), \(B=\qs(R)=[4,5,9]\), ambas ordenadas\\
+Cotas & \(1,2\leq3\) y \(3<4,5,9\)\\
+Cruce & todo \(\{1,2\}\leq\) todo \(\{3,4,5,9\}\)\\
+Lema 12.10 & \([1,2]\concat(3::[4,5,9])=[1,2,3,4,5,9]\) está ordenada\\
+Permutación (Teorema 12.8) & cada número aparece una vez en la entrada y una vez en la salida\\
+\bottomrule
+\end{tabularx}}
+\end{center}
+
+\begin{nota}[El Lema 12.7 no siempre es una igualdad]
+En la raíz, \(L\concat R\) coincidió con \(r\) por casualidad. En
+\(\qs([5,4,9])\) con pivote \(5\): \(r=[4,9]\), \(L=[4]\) y \(R=[9]\), y de
+nuevo coinciden. Pero con \(r=[9,4]\) y pivote \(5\) se obtiene
+\(L\concat R=[4]\concat[9]=[4,9]\neq[9,4]\), que es solo una permutación.
+\end{nota}
+
+%=====================================================================
+\section{Qué propiedades del orden se usan, y dónde}
+%=====================================================================
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+{\small
+\begin{tabularx}{\linewidth}{@{}p{0.27\linewidth}X@{}}
+\toprule
+\textbf{Propiedad} & \textbf{Dónde interviene}\\
+\midrule
+Totalidad & \(\neg(x\leq p)\Rightarrow p<x\): lo que no va a la izquierda es mayor que el pivote. Da la cota derecha del Teorema 12.11.\\
+Transitividad & El cruce \(a\leq p\leq c\Rightarrow a\leq c\) del Teorema 12.11.\\
+\(p<b\Rightarrow p\leq b\) & Para usar la cota derecha con la relación \(\leq\) de \(\Sorted\).\\
+Decidibilidad de \(\leq\) & Para \emph{calcular} los filtros: \(\decidir(x\leq p)\).\\
+Igualdad decidible & Para \emph{contar} apariciones, que es como se define \(\Perm\).\\
+\bottomrule
+\end{tabularx}}
+\end{center}
+
+\begin{nota}[Observación propia, no de la tesis]
+La antisimetría no interviene en el argumento: el razonamiento funciona igual
+para un \emph{preorden total} (por ejemplo, ordenar personas por edad, donde
+dos personas distintas pueden tener la misma edad). La formalización trabaja
+con orden lineal, que es la hipótesis de la tesis.
+\end{nota}
+
+%=====================================================================
+\section{Auditoría y alcance}
+%=====================================================================
+
+\textbf{Auditoría (§12.10).} La herramienta que lista los axiomas lógicos de
+los que depende un resultado reporta, para el teorema de corrección, solo
+\emph{extensionalidad proposicional} y \emph{solidez de los cocientes}, sin
+ninguna demostración pendiente. A diferencia del Capítulo 11, no aparece el
+axioma de elección: la prueba formalizada de la corrección no usa
+razonamiento clásico. La definición del algoritmo depende solo de la extensionalidad
+proposicional, y \(\qs\) sigue siendo ejecutable: las pruebas se borran al
+compilar.
+
+\textbf{Lo que el capítulo no cubre (§12.1).}
+\begin{itemize}
+  \item Versiones \emph{in situ}, que reordenan dentro del mismo arreglo
+    (partición de Hoare), ni el uso de memoria.
+  \item La complejidad temporal: \(\Theta(n\log n)\) en promedio y
+    \(\Theta(n^2)\) en el peor caso. Se demuestra \emph{qué} calcula el
+    algoritmo, no \emph{cuánto} tarda.
+\end{itemize}
+
+%=====================================================================
+\section{Preguntas probables del tribunal}
+%=====================================================================
+
+\begin{description}[style=nextline, leftmargin=0pt, itemsep=6pt]
+\item[¿Qué demuestra exactamente el capítulo?]
+Que para todo tipo linealmente ordenado y toda lista, Quicksort termina y
+devuelve una permutación ordenada de la entrada.
+
+\item[¿Por qué la especificación tiene dos partes?]
+Porque cada una sola admite funciones absurdas: \(f(\ell)=[\,]\) siempre
+ordena, y \(f(\ell)=\ell\) siempre permuta.
+
+\item[¿Por qué la permutación se define contando y no por pertenencia?]
+Porque con pertenencia \([1,1]\) y \([1]\) serían «iguales». Una función que
+borrara duplicados pasaría el test. El Corolario 12.9 (pertenencia) es más
+débil que el Teorema 12.8.
+
+\item[¿Por qué inducción sobre la longitud y no sobre la lista?]
+Porque las llamadas recursivas son sobre \(L\) y \(R\), no sobre la cola. La
+inducción estructural solo da hipótesis para la cola.
+
+\item[¿Por qué hay que demostrar la terminación?]
+Porque una definición recursiva que no termina puede ser inconsistente
+(\(g(n)=g(n)+1\) implicaría \(0=1\)). La prueba garantiza que \(\qs\) es una
+función total bien definida.
+
+\item[¿Qué pasa con los elementos repetidos?]
+Las copias del pivote van a la izquierda (\(\leq p\)) y se conservan. El
+ejemplo \([2,1,2,1]\mapsto[1,1,2,2]\) lo muestra; el Teorema 12.8 lo
+garantiza en general.
+
+\item[¿Por qué \(\leq p\) a un lado y el complemento al otro?]
+Porque así cada elemento va a exactamente una mitad (Lema 12.7). Si se
+usaran \(\leq p\) y \(\geq p\), las copias de \(p\) se duplicarían.
+
+\item[¿Por qué \(\Pairwise\) y no «cada elemento \(\leq\) el siguiente»?]
+Son equivalentes por transitividad (Thompson usa la segunda). \(\Pairwise\)
+se descompone limpiamente sobre la concatenación (Lema 12.10), que es justo
+lo que necesita el paso \(A\concat(p::B)\).
+
+\item[¿Dónde se usa la transitividad?]
+En el cruce: todo \(a\in A\) es \(\leq\) todo \(c\in p::B\) porque
+\(a\leq p\leq c\).
+
+\item[¿Para qué sirve el Corolario 12.9 si ya está el Teorema 12.8?]
+Para obtener las cotas: saber que los elementos de \(\qs(L)\) son los de
+\(L\), y por tanto \(\leq p\). Es la forma en que la permutación alimenta el
+orden.
+
+\item[¿Hay otra prueba de la permutación?]
+Sí, la del Apéndice B.2: contar apariciones y usar
+\(c_x(L)+c_x(R)=c_x(r)\).
+
+\item[¿Se demuestra la eficiencia?]
+No. El alcance es la corrección funcional, no la complejidad ni la memoria.
+
+\item[¿Usa lógica clásica?]
+La prueba formalizada no la usa: la auditoría no reporta el axioma de
+elección, del que depende el razonamiento clásico en el sistema. Es una
+diferencia con la completitud del Capítulo 11.
+\end{description}
+
+%=====================================================================
+\appendix
+\section{Hoja de referencia}
+%=====================================================================
+
+\begin{clave}
+\textbf{La prueba completa en tres líneas.} En el caso \(p::r\), con
+\(L\) los \(\leq p\) y \(R\) los \(>p\) de \(r\):
+\begin{enumerate}
+  \item \(\len L,\len R<\len{p::r}\) (Lema 12.5), así que la hipótesis
+    inductiva vale para \(L\) y \(R\).
+  \item \textbf{Permutación:}
+    \(\qs(L)\concat(p::\qs(R))\Perm L\concat(p::R)\Perm p::(L\concat R)\Perm p::r\).
+  \item \textbf{Orden:} \(A,B\) ordenadas; \(A\leq p\leq B\); el Lema 12.10
+    pega las tres piezas.
+\end{enumerate}
+\end{clave}
+
+\textbf{Definiciones clave.}
+\[
+\qs(p::r)=\qs(L)\concat(p::\qs(R)),
+\]
+\[
+\Pairwise\,R\,(a::r)\iff(\forall x\in r,\ R\,a\,x)\wedge\Pairwise\,R\,r,
+\]
+\[
+\ell_1\Perm\ell_2\iff\forall a,\ \cuenta(a,\ell_1)=\cuenta(a,\ell_2).
+\]
+
+\textbf{Los tres datos que más se preguntan:}
+\begin{itemize}
+  \item La inducción es sobre la \emph{longitud}, porque \(L\) y \(R\) no son
+    la cola.
+  \item La permutación cuenta multiplicidades; la pertenencia sola no basta.
+  \item El orden de la salida sale de las cotas respecto del pivote más la
+    transitividad.
+\end{itemize}
+
+\end{document}
