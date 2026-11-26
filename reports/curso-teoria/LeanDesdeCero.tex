@@ -1,0 +1,1712 @@
+% Lean desde cero: de #check a los teoremas de la tesis. Formato visual,
+% amigable para TDAH e interactivo (PDF con enlaces). 19 niveles en 4 mundos.
+% El código es el de Thesis/Prop y Thesis/Sort; los estados de prueba son los
+% que muestra Lean (exportados en artifacts/explorer o comprobados aparte).
+% Los bloques lean/estado se colorean solos con un filtro Lua.
+% Compilar dos veces:  lualatex LeanDesdeCero.tex
+\documentclass[12pt]{article}
+\usepackage[a4paper,landscape,margin=11mm,bottom=17mm]{geometry}
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage[spanish,es-noshorthands]{babel}
+\directlua{
+  luaotfload.add_fallback("leanfallback", {
+    "STIX Two Math:mode=harf;",
+    "DejaVu Sans:mode=harf;",
+    "Apple Symbols:mode=harf;",
+  })
+}
+\setmainfont{TeX Gyre Heros}[RawFeature={fallback=leanfallback}]
+\setsansfont{TeX Gyre Heros}[RawFeature={fallback=leanfallback}]
+\setmathfont{TeX Gyre DejaVu Math}
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase, RawFeature={fallback=leanfallback}]
+\usepackage[table]{xcolor}
+\usepackage{fvextra}
+\usepackage{luacode}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,trees}
+\usepackage{fontawesome5}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{bussproofs}
+\usepackage{lastpage}
+\usepackage[hidelinks]{hyperref}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.06}
+
+% ---------- Colores: uno por mundo ----------
+\definecolor{m1}{HTML}{3F6FA8}   % Mundo 1: leer Lean
+\definecolor{m2}{HTML}{8C5FB8}   % Mundo 2: probar
+\definecolor{m3}{HTML}{2A8C8C}   % Mundo 3: inducción y recursión
+\definecolor{m4a}{HTML}{3E9A5A}  % Mundo 4: completitud
+\definecolor{m4b}{HTML}{D9822B}  % Mundo 4: quicksort
+\definecolor{m4c}{HTML}{C8463D}  % Mundo 4: auditoría
+\definecolor{gris}{HTML}{5B6B82}
+\definecolor{tldr}{HTML}{FFF4C2}
+\definecolor{verde}{HTML}{3E9A5A}
+\definecolor{ambar}{HTML}{E0A320}
+\definecolor{rojo}{HTML}{C8463D}
+\definecolor{kw}{HTML}{1F4E9C}
+\definecolor{tac}{HTML}{8A2B8F}
+\definecolor{com}{HTML}{5F6F5F}
+\definecolor{fondocodigo}{HTML}{F6F7FA}
+\definecolor{bordecodigo}{HTML}{9AA7B8}
+\definecolor{fondoestado}{HTML}{FFF8E6}
+\definecolor{bordeestado}{HTML}{D9B45A}
+\foreach \i in {1,...,5}{\xglobal\colorlet{n\i}{m1}}
+\foreach \i in {6,...,10}{\xglobal\colorlet{n\i}{m2}}
+\foreach \i in {11,...,14}{\xglobal\colorlet{n\i}{m3}}
+\foreach \i in {15,16}{\xglobal\colorlet{n\i}{m4a}}
+\foreach \i in {17,18}{\xglobal\colorlet{n\i}{m4b}}
+\colorlet{n19}{m4c}
+
+% ---------- Coloreado de código Lean (filtro Lua sobre las líneas) ----------
+\newcommand{\LK}[1]{\textcolor{kw}{\bfseries #1}}
+\newcommand{\LT}[1]{\textcolor{tac}{\bfseries #1}}
+\newcommand{\LC}[1]{\textcolor{com}{#1}}
+\newcommand{\LG}[1]{\textcolor{rojo!85!black}{\bfseries #1}}
+\newcommand{\LH}[1]{\colorbox{tldr}{#1}}
+\newcommand{\LB}[1]{\tikz[baseline=(n.base)]\node[circle, fill=black!78, text=white,
+  inner sep=0.8pt, minimum size=3.6mm, font=\sffamily\bfseries\scriptsize](n){#1};}
+\newcommand{\LN}[1]{{\normalfont\sffamily\footnotesize\color{gris}\ \faArrowLeft\ #1}}
+\newcommand{\bola}[1]{\LB{#1}}
+\begin{luacode*}
+local envs = { leanL = "code", lean = "code", leanS = "code", leanXS = "code",
+               estadoL = "state", estado = "state", estadoS = "state" }
+local mode, cur = nil, nil
+local KW = {}
+for w in ([[theorem lemma def abbrev inductive structure where by with fun match
+  from at in if then else termination_by decreasing_by namespace open variable
+  end deriving notation infixr infixl infix prefix noncomputable import section
+  example omit attribute instance]]):gmatch("%S+") do KW[w] = "LK" end
+for w in ([[intro intros exact apply refine constructor cases rcases obtain rintro
+  induction rw simp simpa change subst by_cases by_contra rfl have let show calc
+  sorry]]):gmatch("%S+") do KW[w] = "LT" end
+local function esc(s)
+  return (s:gsub("[\\{}]", { ["\\"] = "\\textbackslash{}", ["{"] = "\\{", ["}"] = "\\}" }))
+end
+local function hlcode(s)
+  local out = s:gsub("()([%a_][%w_']*)", function(pos, w)
+    if pos > 1 and s:sub(pos - 1, pos - 1) == "." then return nil end
+    local k = KW[w]
+    if k then return "\1" .. k .. "\2" .. w .. "\3" end
+  end)
+  out = out:gsub("#(%a+)", "\1LK\2#%1\3")
+  out = esc(out)
+  out = out:gsub("\1", "\\"):gsub("\2", "{"):gsub("\3", "}")
+  return out
+end
+local function codeline(body)
+  if body:match("^%s*/%-") then return "\\LC{" .. esc(body) .. "}" end
+  local i = body:find("--", 1, true)
+  if i then
+    return hlcode(body:sub(1, i - 1)) .. "\\LC{" .. esc(body:sub(i)) .. "}"
+  end
+  return hlcode(body)
+end
+local function stateline(body)
+  local e = esc(body)
+  if body:match("^%s*⊢") then return "\\LG{" .. e .. "}" end
+  if body:match("^case ") then return "\\LC{" .. e .. "}" end
+  return e
+end
+local function filter(line)
+  if mode then
+    if line:match("^%s*\\end{" .. cur .. "}") then mode = nil; return line end
+    local note, ball, hi = "", "", false
+    local b, n = line:match("^(.-)%s*@@%s*(.*)$")
+    if b then line = b; note = "\\LN{" .. esc(n) .. "}" end
+    b, n = line:match("^(.-)@(%d+)%s*$")
+    if b then line = b; ball = "\\LB{" .. n .. "}" end
+    b = line:match("^(.-)%s*@!%s*$")
+    if b then line = b; hi = true end
+    local out = (mode == "code") and codeline(line) or stateline(line)
+    if hi then out = "\\LH{" .. out .. "}" end
+    return out .. ball .. note
+  else
+    local name = line:match("^%s*\\begin{(%a+)}")
+    if name and envs[name] then mode = envs[name]; cur = name end
+    return line
+  end
+end
+luatexbase.add_to_callback("process_input_buffer", filter, "leanhl")
+\end{luacode*}
+
+\tcbset{
+  leanbox/.style={enhanced, colback=fondocodigo, colframe=bordecodigo, boxrule=0.9pt,
+    arc=4pt, left=5pt, right=3pt, top=-2pt, bottom=-2pt, before skip=3pt, after skip=4pt,
+    fonttitle=\ttfamily\footnotesize, coltitle=black!75, colbacktitle=bordecodigo!30,
+    toptitle=1pt, bottomtitle=1pt},
+  estadobox/.style={enhanced, colback=fondoestado, colframe=bordeestado, boxrule=0.9pt,
+    arc=4pt, left=5pt, right=3pt, top=-2pt, bottom=-2pt, before skip=3pt, after skip=4pt,
+    fonttitle=\sffamily\bfseries\footnotesize, coltitle=black!80,
+    colbacktitle=bordeestado!45, toptitle=1pt, bottomtitle=1pt},
+}
+\newcommand{\defleanenv}[3]{%
+  \newenvironment{#1}[1][]{\VerbatimEnvironment
+    \begin{tcolorbox}[#3,##1]\begin{Verbatim}[commandchars=\\\{\},fontsize=#2]}
+   {\end{Verbatim}\end{tcolorbox}}}
+\defleanenv{leanL}{\fontsize{11.5}{14.2}\selectfont}{leanbox}
+\defleanenv{lean}{\fontsize{10.5}{13}\selectfont}{leanbox}
+\defleanenv{leanS}{\fontsize{9.6}{11.9}\selectfont}{leanbox}
+\defleanenv{leanXS}{\fontsize{8.8}{10.9}\selectfont}{leanbox}
+\defleanenv{estadoL}{\fontsize{11}{13.6}\selectfont}{estadobox}
+\defleanenv{estado}{\fontsize{10}{12.4}\selectfont}{estadobox}
+\defleanenv{estadoS}{\fontsize{9.4}{11.6}\selectfont}{estadobox}
+
+\newcommand{\cod}[1]{\texttt{\detokenize{#1}}}
+\AtBeginDocument{\providecommand\square{\mdlgwhtsquare}}
+
+% ---------- Botones y navegación ----------
+\newcommand{\boton}[2][gris]{\tikz[baseline=(b.base)]\node[draw=#1, fill=#1!10,
+  line width=1pt, rounded corners=5pt, inner xsep=8pt, inner ysep=4pt,
+  font=\bfseries\normalsize, text=#1!80!black](b){#2};}
+\newcommand{\ir}[3][gris]{\hyperlink{#2}{\boton[#1]{#3}}}
+\newcommand{\chip}[1]{\hyperlink{nivel#1}{\tikz[baseline=(c.base)]\node[fill=n#1,
+  text=white, rounded corners=3pt, inner sep=2.5pt, font=\bfseries\footnotesize](c){#1};}}
+\makeatletter\newcommand\pdim[1]{\strip@pt\dimexpr#1\relax}\makeatother
+\newcommand{\navegacion}[4]{\AddToHookNext{shipout/foreground}{%
+  \put(\pdim{0.5\paperwidth},\pdim{-\paperheight+4mm}){\makebox(0,0)[b]{%
+  \ir{#1}{\faArrowLeft\ #2}\hspace{5mm}\ir{mapa}{\faMapSigns\ Mapa}%
+  \hspace{5mm}\ir{simbolos}{\faKeyboard\ Símbolos}\hspace{5mm}\ir{diccionario}{\faCommentDots\ Cómo decirlo}%
+  \hspace{5mm}\ir{indice}{\faFont\ Índice}\hspace{5mm}\ir{#3}{#4\ \faArrowRight}}}}}
+
+% ---------- Encabezados ----------
+% #1 número, #2 mundo, #3 icono, #4 título, #5 para qué sirve
+\newcommand{\nivel}[5]{%
+  \begin{tcolorbox}[colback=n#1, colframe=n#1, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=3pt]
+    \hypertarget{nivel#1}{}\color{white}\LARGE #3\quad\bfseries #1.\ #4\hfill
+    \normalfont\large\faGamepad\ nivel #1 de 19 · mundo #2
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=n#1, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=3pt, bottom=3pt, after skip=5pt]
+    \large\faBullseye\ \textbf{Para qué sirve:}\ #5
+  \end{tcolorbox}}
+\newcommand{\pagina}[5]{%
+  \begin{tcolorbox}[colback=#2, colframe=#2, arc=5pt, boxrule=0pt,
+      left=10pt, right=10pt, top=4pt, bottom=4pt, after skip=3pt]
+    \hypertarget{#1}{}\color{white}\LARGE #3\quad\bfseries #4\hfill
+    \normalfont\large página \thepage\ de \pageref{LastPage}
+  \end{tcolorbox}
+  \begin{tcolorbox}[colback=tldr, colframe=#2, boxrule=0.8pt, arc=4pt,
+      left=10pt, right=10pt, top=3pt, bottom=3pt, after skip=5pt]
+    \large\faBolt\ \textbf{En 10 segundos:}\ #5
+  \end{tcolorbox}}
+
+% ---------- Piezas de contenido ----------
+% Explicación numerada: \ex{n}{texto}
+\newcommand{\ex}[2]{\par\noindent\hangindent=7mm\hangafter=1\makebox[7mm][l]{\bola{#1}}#2\par\vspace{2.5pt}}
+% Tarjeta: \tarj{color}{título}{texto}
+\newcommand{\tarj}[3]{\begin{tcolorbox}[colback=#1!6, colframe=#1, boxrule=1pt,
+  arc=4pt, left=5pt, right=5pt, top=3pt, bottom=3pt, leftrule=5pt,
+  before upper=\raggedright, before skip=3pt, after skip=4pt]
+  {\bfseries\color{#1!80!black}#2}\par\vspace{1pt}#3\end{tcolorbox}}
+% Idea clave
+\newcommand{\clave}[2]{\begin{tcolorbox}[colback=tldr, colframe=#1, boxrule=1pt, arc=4pt,
+  left=6pt, right=6pt, top=3pt, bottom=3pt, before skip=3pt, after skip=4pt,
+  before upper=\raggedright]\faLightbulb\ #2\end{tcolorbox}}
+% Cómo se dice
+\newcommand{\dice}[1]{\begin{tcolorbox}[colback=white, colframe=gris, boxrule=1pt, arc=4pt,
+  left=6pt, right=6pt, top=3pt, bottom=3pt, before skip=3pt, after skip=4pt,
+  before upper=\raggedright]{\color{gris}\faCommentDots}\ \textbf{Se dice:} #1\end{tcolorbox}}
+% Pruébate
+\newcommand{\pruebate}[3]{%
+  \begin{tcolorbox}[colback=white, colframe=#1, boxrule=1.1pt, arc=5pt,
+    left=8pt, right=8pt, top=3pt, bottom=3pt, sidebyside, lefthand width=0.56\linewidth,
+    sidebyside gap=10pt, segmentation style={solid, #1!40}, before skip=4pt]
+    {\large\bfseries\color{#1!80!black}\faBrain\ Pruébate} \ {\small(dilo en voz alta)}
+    \begin{enumerate}[leftmargin=6mm, itemsep=1pt, topsep=2pt]#2\end{enumerate}
+    \tcblower
+    \centering{\footnotesize\color{black!50}\faSync*\ respuestas: gira la página}\par\vspace{2pt}
+    \rotatebox{180}{\parbox{0.92\linewidth}{\small\raggedright #3}}
+  \end{tcolorbox}}
+\tikzset{num/.style={circle, fill=#1, text=white, font=\bfseries\Large,
+    minimum size=9mm, inner sep=0pt}}
+
+\begin{document}
+
+%=====================================================================
+% PORTADA
+%=====================================================================
+\hypertarget{portada}{}
+\begin{tcolorbox}[colback=m1, colframe=m1, arc=8pt, boxrule=0pt, halign=center,
+  top=12pt, bottom=12pt]
+\color{white}{\fontsize{34}{40}\selectfont\bfseries\faCode\ Lean desde cero}\\[8pt]
+{\LARGE De \texttt{\#check} a los teoremas de la tesis}\\[4pt]
+{\large 19 niveles · 4 mundos · código real de la tesis · todo es clicable}
+\end{tcolorbox}
+
+\vspace{4pt}
+\begin{minipage}[t]{0.50\textwidth}
+{\Large\bfseries Cómo se usa}\\[6pt]
+\begin{tikzpicture}[baseline=(current bounding box.north),
+    txt/.style={align=left, text width=11.4cm, anchor=west, font=\large}]
+  \node[num=gris] (a) at (0,0) {1};
+  \node[txt, right=4mm of a] {Abre \textbf{el mapa} y juega los niveles en orden.\\ Cada nivel usa solo lo de los anteriores.};
+  \node[num=gris] (b) at (0,-1.5) {2};
+  \node[txt, right=4mm of b] {En cada nivel: \textbf{para qué sirve} $\to$ \textbf{código real}\\ $\to$ \textbf{estado de Lean} $\to$ \textbf{pruébate}.};
+  \node[num=gris] (c) at (0,-3.0) {3};
+  \node[txt, right=4mm of c] {Los números \bola{1} \bola{2} \bola{3} del código tienen su\\ explicación al lado, con el mismo número.};
+  \node[num=gris] (d) at (0,-4.5) {4};
+  \node[txt, right=4mm of d] {¿Poco tiempo? Sigue la \textbf{ruta rápida} del mapa.};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.46\textwidth}
+{\Large\bfseries Empieza por aquí (haz clic)}\\[8pt]
+\begin{tcolorbox}[colback=m1, colframe=m1, arc=6pt, halign=center, hyperlink=mapa]
+  \color{white}\Large\faMapSigns\ \textbf{El mapa de niveles}\\ \normalsize 19 niveles, de leer a demostrar\end{tcolorbox}
+\begin{tcbraster}[raster columns=3, raster column skip=6pt, raster equal height]
+\begin{tcolorbox}[colback=m2, colframe=m2, arc=6pt, halign=center, hyperlink=simbolos]
+  \color{white}\large\faKeyboard\ \textbf{Símbolos}\\ \small cómo se leen\end{tcolorbox}
+\begin{tcolorbox}[colback=m3, colframe=m3, arc=6pt, halign=center, hyperlink=diccionario]
+  \color{white}\large\faCommentDots\ \textbf{Cómo decirlo}\\ \small y 10 trampas\end{tcolorbox}
+\begin{tcolorbox}[colback=m4c, colframe=m4c, arc=6pt, halign=center, hyperlink=indice]
+  \color{white}\large\faFont\ \textbf{Índice}\\ \small táctica $\to$ nivel\end{tcolorbox}
+\end{tcbraster}
+
+\vspace{2pt}
+{\large\bfseries Las tres cajas que verás}\\[2pt]
+\begin{tcbraster}[raster columns=3, raster column skip=6pt, raster equal height]
+\begin{tcolorbox}[leanbox, top=3pt, bottom=3pt, halign=center]\small\textbf{gris}: código Lean\end{tcolorbox}
+\begin{tcolorbox}[estadobox, top=3pt, bottom=3pt, halign=center]\small\textbf{amarilla}: lo que responde Lean\end{tcolorbox}
+\begin{tcolorbox}[colback=white, colframe=gris, boxrule=1pt, arc=4pt, top=3pt, bottom=3pt, halign=center]\small{\color{gris}\faCommentDots}\ cómo se dice\end{tcolorbox}
+\end{tcbraster}
+\end{minipage}
+
+\vfill
+\begin{tcolorbox}[colback=tldr, colframe=gris, arc=4pt, boxrule=0.8pt, halign=center]
+\large\faStar\ \textbf{Regla de oro:} para explicar una prueba de Lean, describe el
+\textbf{estado} (qué tienes y qué falta), no la táctica.
+\end{tcolorbox}
+
+\newpage
+%=====================================================================
+% MAPA
+%=====================================================================
+\pagina{mapa}{gris}{\faMapSigns}{El mapa: 19 niveles en 4 mundos}{haz clic en un
+nivel. Primero aprendes a leer, luego a probar, luego la inducción, y al final lees los teoremas.}
+
+% #1 x, #2 y, #3 número, #4 icono, #5 título
+\newcommand{\nd}[5]{%
+  \node[fill=n#3, rounded corners=6pt, minimum width=4.85cm, minimum height=1.95cm,
+        inner sep=2pt] (L#3) at (#1,#2)
+   {\hyperlink{nivel#3}{\parbox[c][1.75cm][c]{4.65cm}{\centering\color{white}%
+      {\Large #4\ \ \bfseries #3}\\[2pt]{\large\bfseries #5}}}};}
+\begin{center}
+\begin{tikzpicture}
+  \node[anchor=west, font=\large\bfseries, text=m1] at (-2.4,1.35) {\faBookOpen\ MUNDO 1 · Leer Lean};
+  \nd{0}{0}{1}{\faLightbulb}{La idea: término : tipo}
+  \nd{5.45}{0}{2}{\faFile*}{Anatomía de un archivo}
+  \nd{10.9}{0}{3}{\faCubes}{Datos: inductive}
+  \nd{16.35}{0}{4}{\faCogs}{Funciones: def}
+  \nd{21.8}{0}{5}{\faQuoteRight}{Enunciar: theorem}
+  \node[anchor=west, font=\large\bfseries, text=m2] at (-2.4,-1.95) {\faHammer\ MUNDO 2 · Probar};
+  \nd{0}{-3.3}{6}{\faEye}{El estado de prueba}
+  \nd{5.45}{-3.3}{7}{\faHandPointRight}{Cinco tácticas}
+  \nd{10.9}{-3.3}{8}{\faTable}{La tabla maestra}
+  \nd{16.35}{-3.3}{9}{\faEquals}{Reescribir y calcular}
+  \nd{21.8}{-3.3}{10}{\faCodeBranch}{Casos y absurdo}
+  \node[anchor=west, font=\large\bfseries, text=m3] at (-2.4,-5.25) {\faRedo\ MUNDO 3 · Inducción y recursión};
+  \nd{0}{-6.6}{11}{\faListOl}{Inducción sobre datos}
+  \nd{5.45}{-6.6}{12}{\faProjectDiagram}{Inducción sobre reglas}
+  \nd{10.9}{-6.6}{13}{\faSync*}{Recursión bien fundada}
+  \nd{16.35}{-6.6}{14}{\faTree}{Construir derivaciones}
+  \node[anchor=west, font=\large\bfseries, text=m4a] at (-2.4,-8.55) {\faTrophy\ MUNDO 4 · Los teoremas de la tesis};
+  \nd{0}{-9.9}{15}{\faPuzzlePiece}{Completitud: las piezas}
+  \nd{5.45}{-9.9}{16}{\faCheckDouble}{Completitud: el teorema}
+  \nd{10.9}{-9.9}{17}{\faExchange*}{Quicksort: permutación}
+  \nd{16.35}{-9.9}{18}{\faSortAmountUp}{Quicksort: orden y final}
+  \nd{21.8}{-9.9}{19}{\faShield*}{Auditoría}
+  \foreach \a/\b in {1/2,2/3,3/4,4/5,6/7,7/8,8/9,9/10,11/12,12/13,13/14,15/16,16/17,17/18,18/19}
+    \draw[-{Stealth[length=3mm]}, line width=1.6pt, black!40] (L\a) -- (L\b);
+\end{tikzpicture}
+\end{center}
+
+\vspace{-2pt}
+\begin{tcolorbox}[colback=tldr, colframe=gris, arc=4pt, boxrule=0.8pt, halign=center]
+\large\faBolt\ \textbf{Ruta rápida (20 minutos):}\quad
+\chip{1} $\to$ \chip{5} $\to$ \chip{6} $\to$ \chip{8} $\to$ \chip{12} $\to$ \chip{16} $\to$ \chip{17} $\to$ \chip{19}
+\end{tcolorbox}
+
+\navegacion{portada}{Portada}{nivel1}{Nivel 1}
+
+\newpage
+%=====================================================================
+% NIVEL 1
+%=====================================================================
+\nivel{1}{1}{\faLightbulb}{La idea: todo es «término : tipo»}{es la única idea de Lean.
+Si entiendes \cod{a : A}, todo lo demás son variaciones.}
+
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=black!75, boxrule=1.4pt, arc=6pt, halign=center,
+  top=4pt, bottom=4pt]
+{\fontsize{30}{34}\selectfont\ttfamily a : A}\\[2pt]
+\large «\textbf{a} tiene tipo \textbf{A}»
+\end{tcolorbox}
+\begin{leanL}[title={Pregúntale a Lean con \#check y \#eval}]
+#check 2 + 2                  -- 2 + 2 : ℕ
+#check Nat                    -- Nat : Type
+#check 2 + 2 = 4              -- 2 + 2 = 4 : Prop
+#eval  2 + 2                  -- 4
+#check Formula.atom "P"       -- … : Formula
+#check P ⟶ P                  -- P ⟶ P : Formula
+#check EsTautologia (P ⟶ P)   -- … : Prop
+\end{leanL}
+\tarj{m1}{\texttt{\#check e}}{Lean responde el \textbf{tipo} de \cod{e}. No calcula nada.}
+\tarj{m1}{\texttt{\#eval e}}{Lean \textbf{calcula} el valor de \cod{e}.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.50\textwidth}
+\vspace{0pt}
+\begin{center}
+\begin{tikzpicture}[
+  c/.style={draw=#1, fill=#1!8, line width=1.2pt, rounded corners=5pt, align=center,
+     text width=5.6cm, minimum height=1.5cm, inner sep=4pt},
+  up/.style={-{Stealth[length=3mm]}, line width=1.5pt, black!55}]
+  \node[font=\Large\bfseries, text=m1] at (0,4.55) {DATOS};
+  \node[font=\Large\bfseries, text=m2] at (6.6,4.55) {PROPOSICIONES};
+  \node[c=m1] (T) at (0,3.3) {{\Large\ttfamily Type}\\ el tipo de los tipos de datos};
+  \node[c=m2] (P) at (6.6,3.3) {{\Large\ttfamily Prop}\\ el tipo de las proposiciones};
+  \node[c=m1] (t1) at (0,0.95) {\cod{Nat} \ \ \cod{Formula} \ \ \cod{List α}\\ tipos de datos};
+  \node[c=m2] (p1) at (6.6,0.95) {\cod{2 + 2 = 4} \ \ \cod{ND Γ φ}\\ enunciados};
+  \node[c=m1] (t0) at (0,-1.4) {\cod{4} \ \ \cod{P ⟶ P} \ \ \cod{[3, 1, 2]}\\ \textbf{datos}};
+  \node[c=m2] (p0) at (6.6,-1.4) {\cod{rfl} \ \ \cod{completitud_ND φ h}\\ \textbf{pruebas}};
+  \draw[up] (t1) -- node[right, font=\ttfamily\large]{:} (T);
+  \draw[up] (p1) -- node[right, font=\ttfamily\large]{:} (P);
+  \draw[up] (t0) -- node[right, font=\ttfamily\large]{:} (t1);
+  \draw[up] (p0) -- node[right, font=\ttfamily\large]{:} (p1);
+\end{tikzpicture}
+\end{center}
+\clave{m1}{\large\textbf{Una prueba es un término cuyo tipo es el enunciado.}
+Demostrar $=$ construir ese término. Lean solo comprueba que el tipo encaja.}
+\end{minipage}
+
+\pruebate{m1}{\item ¿Qué tipo tiene \cod{P ⟶ P}? ¿Y \cod{EsTautologia (P ⟶ P)}?
+\item ¿Qué diferencia hay entre \texttt{\#check} y \texttt{\#eval}?
+\item ¿Qué es «demostrar» para Lean?}
+{1.\ \cod{Formula} (es un dato); \cod{Prop} (es un enunciado).
+2.\ \texttt{\#check} da el tipo; \texttt{\#eval} calcula el valor.
+3.\ Dar un término cuyo tipo es el enunciado.}
+
+\navegacion{mapa}{Mapa}{nivel2}{Nivel 2}
+
+\newpage
+%=====================================================================
+% NIVEL 2
+%=====================================================================
+\nivel{2}{1}{\faFile*}{Anatomía de un archivo}{reconocer las partes de un archivo
+\texttt{.lean} para no perderte al abrir el código de la tesis.}
+
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+\begin{leanL}[title={Thesis/Prop/Syntax.lean (el archivo completo)}]
+namespace Thesis.Prop                           @1
+
+inductive Formula : Type                        @2
+| atom : String → Formula
+| neg  : Formula → Formula
+| impl : Formula → Formula → Formula
+deriving DecidableEq, Repr                      @3
+
+prefix:60 "~" => Formula.neg                    @4
+infixr:55 " ⟶ " => Formula.impl
+
+abbrev Valuacion : Type := String → Prop        @5
+
+def evaluar (v : Valuacion) : Formula → Prop    @6
+| .atom s   => v s
+| .neg p    => ¬ evaluar v p
+| .impl p q => evaluar v p → evaluar v q
+
+def EsTautologia (φ : Formula) : Prop :=        @7
+  ∀ v : Valuacion, evaluar v φ
+
+end Thesis.Prop
+\end{leanL}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.50\textwidth}
+\vspace{0pt}
+\ex{1}{\cod{namespace … end}: todo lo de dentro se llama \cod{Thesis.Prop.…}. Con \cod{open} se omite el prefijo.}
+\ex{2}{\cod{inductive}: un tipo de datos nuevo, con tres constructores \chip{3}.}
+\ex{3}{\cod{deriving}: Lean genera solo la igualdad decidible y cómo imprimirlo.}
+\ex{4}{\textbf{Notación}: \cod{~φ} y \cod{φ ⟶ ψ} abrevian \cod{Formula.neg} y \cod{Formula.impl}. El 60 y el 55 son la prioridad: \cod{~P ⟶ Q} es \cod{(~P) ⟶ Q}.}
+\ex{5}{\cod{abbrev}: un alias. Una valuación es una función de nombres de átomo en \cod{Prop}.}
+\ex{6}{\cod{def} con casos: una función recursiva \chip{4}.}
+\ex{7}{Una definición cuyo valor es una \textbf{proposición}.}
+\vspace{2pt}
+\tarj{m1}{Lo que no sale aquí}{\cod{import}: trae otro archivo (siempre arriba). \cod{-- texto}: comentario.
+\cod{/-- texto -/}: documentación. \cod{-- ANCHOR:}: marcas para citar el código en la tesis.}
+\begin{tcolorbox}[colback=m1!6, colframe=m1, boxrule=1pt, arc=4pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt, title={\faFolderOpen\ Los archivos de la tesis}, colbacktitle=m1,
+  fonttitle=\bfseries]
+\small
+\cod{Thesis/Prop/Syntax.lean} \hfill fórmulas y semántica\\
+\cod{Thesis/Prop/NaturalDeduction.lean} \hfill el cálculo \cod{ND} y la corrección\\
+\cod{Thesis/Prop/Completeness.lean} \hfill Kalmár, descarga, completitud\\
+\cod{Thesis/Prop/Main.lean} \hfill ejemplos \quad \cod{Thesis/Prop/Audit.lean} \hfill axiomas\\
+\cod{Thesis/Sort/Quicksort.lean} \hfill quicksort y sus teoremas
+\end{tcolorbox}
+\end{minipage}
+
+\navegacion{nivel1}{Nivel 1}{nivel3}{Nivel 3}
+
+\newpage
+%=====================================================================
+% NIVEL 3
+%=====================================================================
+\nivel{3}{1}{\faCubes}{Datos: \texttt{inductive}, listas y conjuntos}{saber cómo se
+escriben en Lean los objetos de la tesis: fórmulas, listas y contextos.}
+
+\begin{minipage}[t]{0.335\textwidth}
+\vspace{0pt}
+{\large\bfseries\color{m1}\faCubes\ Fórmulas}\\[2pt]
+\begin{lean}[]
+inductive Formula : Type
+| atom : String → Formula
+| neg  : Formula → Formula
+| impl : Formula → Formula → Formula
+\end{lean}
+Tres \textbf{constructores} $=$ las tres únicas formas de hacer una fórmula.\\[3pt]
+\begin{center}
+\begin{tikzpicture}[n/.style={draw=m1, fill=m1!8, rounded corners=4pt, font=\ttfamily\small, inner sep=4pt},
+  level distance=1.25cm, sibling distance=3.4cm, edge from parent/.style={draw=m1, line width=1.1pt}]
+  \node[n] {impl \ (⟶)}
+    child {node[n] {neg \ (\textasciitilde)} child {node[n] {atom "P"}}}
+    child {node[n] {atom "Q"}};
+\end{tikzpicture}
+\end{center}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}l@{\ \ }l@{}}
+papel: & $\neg P\to Q$\\
+Lean: & \cod{~P ⟶ Q}\\
+\end{tabular}\\[2pt]
+sin notación:\\ {\footnotesize\cod{.impl (.neg (.atom "P")) (.atom "Q")}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.30\textwidth}
+\vspace{0pt}
+{\large\bfseries\color{m4b}\faListOl\ Listas} \ (\cod{List α})\\[4pt]
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}l@{\quad}l@{}}
+\cod{[]} & la lista vacía\\
+\cod{p :: cola} & $p$ delante de \cod{cola}\\
+\cod{[3, 1, 2]} & \cod{3 :: 1 :: 2 :: []}\\
+\cod{l₁ ++ l₂} & pegar dos listas\\
+\cod{l.length} & longitud\\
+\cod{l.filter q} & los que cumplen \cod{q}\\
+\cod{a ∈ l} & $a$ aparece en \cod{l}\\
+\end{tabular}
+
+\vspace{4pt}
+\clave{m4b}{Una lista también es inductiva: sus constructores son \cod{[]} y \cod{::}.
+Por eso hay inducción con dos casos \chip{11}.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.335\textwidth}
+\vspace{0pt}
+{\large\bfseries\color{m4a}\faLayerGroup\ Contextos} \ (\cod{Set Formula})\\[4pt]
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}l@{\quad}l@{}}
+\textbf{papel} & \textbf{Lean}\\
+$\Gamma$ & \cod{Γ : Set Formula}\\
+$\varnothing$ & \cod{(∅ : Set Formula)}\\
+$\Gamma,\varphi$ & \cod{insert φ Γ}\\
+$\varphi\in\Gamma$ & \cod{φ ∈ Γ}\\
+$\Gamma\subseteq\Delta$ & \cod{Γ ⊆ Δ}\\
+$\bot$ & \cod{Falsedad}\\
+$\Gamma\vdash\varphi$ & \cod{ND Γ φ}\\
+\end{tabular}
+
+\vspace{4pt}
+\clave{m4a}{\textbf{¿Por qué \cod{Set} y no \cod{List}?} En un contexto no importan
+el orden ni las repeticiones.}
+\end{minipage}
+
+\pruebate{m1}{\item Escribe $\neg\neg P$ y $P\to(Q\to P)$ en Lean.
+\item ¿Qué significa \cod{insert φ Γ}?
+\item Escribe \cod{[1, 2]} solo con \cod{::} y \cod{[]}.}
+{1.\ \cod{~~P} y \cod{P ⟶ (Q ⟶ P)}.
+2.\ $\Gamma\cup\{\varphi\}$: el contexto $\Gamma$ con la hipótesis $\varphi$ añadida.
+3.\ \cod{1 :: 2 :: []}.}
+
+\navegacion{nivel2}{Nivel 2}{nivel4}{Nivel 4}
+
+\newpage
+%=====================================================================
+% NIVEL 4
+%=====================================================================
+\nivel{4}{1}{\faCogs}{Funciones: \texttt{def}}{leer cómo se definen las funciones
+de la tesis (evaluar, átomos, quicksort) y cómo se aplican.}
+
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+\begin{leanL}[title={Una función por casos: una línea por constructor}]
+def evaluar (v : Valuacion) : Formula → Prop
+| .atom s   => v s                       @1
+| .neg p    => ¬ evaluar v p             @2
+| .impl p q => evaluar v p → evaluar v q @3
+\end{leanL}
+\ex{1}{Un átomo vale lo que diga la valuación.}
+\ex{2}{\cod{¬} es el «no» \textbf{de Lean}. La función se llama a sí misma.}
+\ex{3}{\cod{→} es el «implica» \textbf{de Lean}.}
+\begin{leanL}[]
+def atomos : Formula → List String
+| .atom s   => [s]
+| .neg p    => atomos p
+| .impl p q => atomos p ++ atomos q
+\end{leanL}
+\begin{leanL}[title={Thesis/Sort/Quicksort.lean}]
+variable {α : Type _} [LinearOrder α]
+def Ordenada (l : List α) : Prop :=
+  l.Pairwise (· ≤ ·)
+\end{leanL}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.50\textwidth}
+\vspace{0pt}
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster row skip=0pt, raster equal height=rows]
+\tarj{m1}{Aplicar: sin paréntesis}{\cod{evaluar v φ} es $\mathrm{evaluar}(v,\varphi)$. Los paréntesis solo agrupan.}
+\tarj{m1}{\cod{fun x => …}}{Función sin nombre ($\lambda$). \cod{(fun x => x + 1) 4} vale 5.}
+\tarj{m1}{Notación punto}{\cod{l.length} es \cod{List.length l}. \cod{cola.filter q} es \cod{List.filter q cola}.}
+\tarj{m1}{\cod{(· ≤ ·)}}{Abrevia \cod{fun a b => a ≤ b}: cada punto es un hueco.}
+\tarj{m1}{\cod{_}}{«Dedúcelo tú»: Lean rellena lo que puede inferir.}
+\tarj{m1}{\cod{noncomputable}}{Definición que no se puede ejecutar; \cod{literal} lo es porque decide una \cod{Prop}.}
+\end{tcbraster}
+\begin{tcolorbox}[colback=white, colframe=m1, boxrule=1.1pt, arc=5pt,
+  title={\faSlidersH\ Tres clases de argumentos}, colbacktitle=m1, fonttitle=\bfseries,
+  left=6pt, right=6pt, top=3pt, bottom=3pt]
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}l@{\quad}l@{\quad}l@{}}
+\cod{(φ : Formula)} & \textbf{explícito} & lo escribes tú\\
+\cod{{Γ φ}} & \textbf{implícito} & Lean lo deduce del resto\\
+\cod{[LinearOrder α]} & \textbf{instancia} & Lean la busca sola\\
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}
+
+\pruebate{m1}{\item ¿Qué devuelve \cod{atomos (P ⟶ P)}?
+\item En \cod{evaluar}, ¿de quién son \cod{¬} y \cod{→}: de la fórmula o de Lean?
+\item ¿Qué quiere decir \cod{{Γ φ}} entre llaves?}
+{1.\ \cod{["P", "P"]}: con repetición (luego se usa \cod{dedup}).
+2.\ De Lean: la fórmula usa \cod{~} y \cod{⟶}.
+3.\ Argumentos implícitos: Lean los deduce.}
+
+\navegacion{nivel3}{Nivel 3}{nivel5}{Nivel 5}
+
+\newpage
+%=====================================================================
+% NIVEL 5
+%=====================================================================
+\nivel{5}{1}{\faQuoteRight}{Enunciar: \texttt{theorem}}{leer el enunciado de
+cualquier teorema de la tesis y decirlo en español.}
+
+\begin{center}
+\begin{tikzpicture}[
+  p/.style={draw=#1, fill=#1!10, line width=1.3pt, rounded corners=4pt, font=\ttfamily\normalsize,
+    inner xsep=5pt, inner ysep=6pt},
+  lab/.style={font=\normalsize, align=center, text width=#1}]
+  \node[p=kw] (a) at (0,0) {theorem};
+  \node[p=m1, right=1.5mm of a] (b) {completitud\_ND};
+  \node[p=m4b, right=1.5mm of b] (c) {(φ : Formula) (h : EsTautologia φ)};
+  \node[p=gris, right=1.5mm of c] (d) {:};
+  \node[p=m4a, right=1.5mm of d] (e) {ND (∅ : Set Formula) φ};
+  \node[p=tac, right=1.5mm of e] (f) {:= by};
+  \node[lab=2.6cm, text=kw] at ($(a.south)+(0,-0.85)$) {palabra\\ clave};
+  \node[lab=3.2cm, text=m1!80!black] at ($(b.south)+(0,-0.85)$) {nombre};
+  \node[lab=8.6cm, text=m4b!80!black] at ($(c.south)+(0,-0.85)$) {\textbf{hipótesis}: «para toda fórmula $\varphi$,\\ si $h$ prueba que $\varphi$ es tautología…»};
+  \node[lab=6.4cm, text=m4a!80!black] at ($(e.south)+(0,-0.85)$) {\textbf{enunciado}: «…entonces\\ $\varnothing\vdash\varphi$»};
+  \node[lab=3.0cm, text=tac] at ($(f.south)+(0,-0.85)$) {empieza\\ la prueba};
+\end{tikzpicture}
+\end{center}
+
+\begin{minipage}[t]{0.50\textwidth}
+\vspace{0pt}
+\begin{estado}[title={\#check @completitud\_ND}]
+completitud_ND : ∀ (φ : Formula), EsTautologia φ → ND ∅ φ
+\end{estado}
+\clave{m1}{Lo que va \textbf{antes de los dos puntos} se convierte en $\forall$ y $\to$.
+Un teorema es una \textbf{función}: recibe $\varphi$ y una prueba $h$, y devuelve una derivación.}
+\begin{lean}[title={Usar un teorema = aplicarlo (Thesis/Prop/Main.lean)}]
+theorem identidad_por_completitud :
+    ND (∅ : Set Formula) tautologiaIdentidad :=
+  completitud_ND tautologiaIdentidad identidad_es_tautologia
+\end{lean}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster row skip=0pt, raster equal height=rows]
+\tarj{m1}{Modo término}{\cod{:= expresión}. La prueba es una sola aplicación de lemas.}
+\tarj{tac}{Modo táctico}{\cod{:= by} y luego tácticas, paso a paso. Produce el mismo término.}
+\tarj{m1}{\cod{theorem} y \cod{lemma}}{Son lo mismo para Lean. \cod{example} es un teorema sin nombre.}
+\tarj{m1}{Nombres de la tesis}{\cod{h…}: un hecho. \cod{d…}: una derivación. \cod{hipInd}: hipótesis inductiva.}
+\end{tcbraster}
+\tarj{com}{Los comentarios de cada prueba}{\cod{-- A probar:} qué falta. \cod{-- Método:} cómo se hará. Léelos primero: son el resumen en español.}
+\end{minipage}
+
+\pruebate{m1}{\item Di en español: \cod{theorem debilitamiento {Γ φ} (d : ND Γ φ) : ∀ {Δ}, Γ ⊆ Δ → ND Δ φ}
+\item ¿Qué devuelve \cod{completitud_ND φ h}?
+\item ¿En qué se diferencian el modo término y el táctico?}
+{1.\ Si $d$ deriva $\varphi$ desde $\Gamma$, entonces para todo $\Delta\supseteq\Gamma$ se deriva $\varphi$ desde $\Delta$.
+2.\ Una derivación de $\varphi$ desde el contexto vacío.
+3.\ Solo en cómo se escribe; el resultado es el mismo término.}
+
+\navegacion{nivel4}{Nivel 4}{nivel6}{Nivel 6}
+
+\newpage
+%=====================================================================
+% NIVEL 6
+%=====================================================================
+\nivel{6}{2}{\faEye}{El estado de prueba}{es lo que Lean te muestra en cada
+paso. Leer el estado es leer la prueba.}
+
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+\begin{leanL}[title={Thesis/Prop/Main.lean}]
+theorem identidad_es_tautologia :
+    EsTautologia tautologiaIdentidad := by
+  intro v                              @1
+  change evaluar v P → evaluar v P     @2
+  intro hP                             @3
+  exact hP                             @4
+\end{leanL}
+\begin{estado}[title={Inicio: lo primero que muestra Lean}]
+⊢ EsTautologia tautologiaIdentidad
+\end{estado}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.57\textwidth}
+\vspace{0pt}
+\begin{estadoL}[title={Anatomía de un estado}]
+v : Valuacion        @@ arriba: lo que TIENES (hipótesis)
+hP : evaluar v P     @@ cada una es  nombre : tipo
+⊢ evaluar v P        @@ tras ⊢: lo que FALTA (la meta)
+\end{estadoL}
+\clave{m2}{Cada táctica \textbf{transforma el estado}. La prueba termina cuando no quedan metas.}
+\end{minipage}
+
+\vspace{2pt}
+\vspace{6pt}
+{\large\bfseries\color{m2}\faFilm\ La película: el estado después de cada paso}\\[1pt]
+\begin{tcbraster}[raster columns=4, raster column skip=5pt, raster equal height]
+\begin{estado}[title={Tras 1: intro v}]
+v : Valuacion
+⊢ evaluar v tautologiaIdentidad
+\end{estado}
+\begin{estado}[title={Tras 2: change …}]
+v : Valuacion
+⊢ evaluar v P → evaluar v P
+\end{estado}
+\begin{estado}[title={Tras 3: intro hP}]
+v : Valuacion
+hP : evaluar v P
+⊢ evaluar v P
+\end{estado}
+\begin{tcolorbox}[estadobox, title={Tras 4: exact hP}, top=3pt, valign=center, halign=center]
+{\color{verde}\Large\faCheckCircle}\ \ sin metas
+\end{tcolorbox}
+\end{tcbraster}
+\begin{tcbraster}[raster columns=4, raster column skip=5pt, raster equal height,
+  raster every box/.style={colback=m2!6, colframe=m2!50, boxrule=0.6pt, arc=3pt,
+    left=4pt, right=4pt, top=2pt, bottom=2pt, before upper=\raggedright\small}]
+\begin{tcolorbox}\bola{1} \cod{EsTautologia} es un $\forall v$: \cod{intro} toma una $v$ cualquiera.\end{tcolorbox}
+\begin{tcolorbox}\bola{2} La misma meta, desplegada por definición. Ya se ve el $\to$.\end{tcolorbox}
+\begin{tcolorbox}\bola{3} La meta es un $\to$: \cod{intro} supone el antecedente.\end{tcolorbox}
+\begin{tcolorbox}\bola{4} \cod{hP} es justo la meta: \cod{exact} la cierra.\end{tcolorbox}
+\end{tcbraster}
+
+\dice{«Sea $v$ una valuación. Por definición hay que probar que si $P$ vale en $v$, entonces $P$ vale en $v$. Supongámoslo: es justo lo que había que probar.»}
+
+\pruebate{m2}{\item En un estado, ¿qué hay arriba y qué hay tras \cod{⊢}?
+\item ¿Cuándo termina una prueba?
+\item ¿Por qué el primer \cod{intro} introduce una valuación?}
+{1.\ Arriba, las hipótesis disponibles; tras \cod{⊢}, la meta.
+2.\ Cuando no quedan metas.
+3.\ Porque \cod{EsTautologia φ} es por definición \cod{∀ v, evaluar v φ}.}
+
+\navegacion{nivel5}{Nivel 5}{nivel7}{Nivel 7}
+
+\newpage
+%=====================================================================
+% NIVEL 7
+%=====================================================================
+\nivel{7}{2}{\faHandPointRight}{Cinco tácticas que mueven todo}{con
+\texttt{intro}, \texttt{exact}, \texttt{apply}, \texttt{have} y \texttt{constructor} se
+escribe casi toda la tesis.}
+
+% #1 táctica, #2 qué hace, #3 se dice
+\newcommand{\tact}[3]{\begin{tcolorbox}[colback=m2!6, colframe=m2, boxrule=1pt, arc=4pt,
+  left=5pt, right=5pt, top=2pt, bottom=2pt, leftrule=5pt, before upper=\raggedright,
+  before skip=0pt, after skip=0pt, height=2.42cm, valign=center]
+  {\large\ttfamily\bfseries\color{tac}#1}\quad #2\\[1pt]
+  {\small\color{gris}\faCommentDots\ #3}\end{tcolorbox}}
+
+\begin{minipage}[t]{0.43\textwidth}\vspace{0pt}
+\tact{intro hA}{Saca el antecedente de la meta y lo pone arriba como hipótesis.}{«Supongamos $A$.» / «Sea $x$ cualquiera.»}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Antes}, height=2.42cm, before skip=0pt, after skip=0pt]
+⊢ A → B
+\end{estadoS}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Después}, height=2.42cm, before skip=0pt, after skip=0pt]
+hA : A
+⊢ B
+\end{estadoS}
+\end{minipage}
+
+\vspace{3pt}
+\begin{minipage}[t]{0.43\textwidth}\vspace{0pt}
+\tact{exact e}{Cierra la meta: \cod{e} tiene exactamente ese tipo.}{«…que es justo lo que había que probar.»}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Antes}, height=2.42cm, before skip=0pt, after skip=0pt]
+hA : A
+⊢ A
+\end{estadoS}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{tcolorbox}[estadobox, title={Después de \texttt{exact hA}}, height=2.42cm, before skip=0pt,
+  after skip=0pt, top=3pt, valign=center, halign=center]
+{\color{verde}\Large\faCheckCircle}\ \ sin metas
+\end{tcolorbox}
+\end{minipage}
+
+\vspace{3pt}
+\begin{minipage}[t]{0.43\textwidth}\vspace{0pt}
+\tact{apply h}{Razona hacia atrás: si \cod{h : A → B} y la meta es \cod{B}, ahora basta \cod{A}.}{«Por $h$, basta probar $A$.»}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Antes}, height=2.42cm, before skip=0pt, after skip=0pt]
+hAB : A → B
+⊢ B
+\end{estadoS}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Después de apply hAB}, height=2.42cm, before skip=0pt, after skip=0pt]
+hAB : A → B
+⊢ A
+\end{estadoS}
+\end{minipage}
+
+\vspace{3pt}
+\begin{minipage}[t]{0.43\textwidth}\vspace{0pt}
+\tact{have hB : B := e}{Razona hacia adelante: añade un hecho nuevo con nombre. La meta no cambia.}{«Primero observamos que $B$.»}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Antes}, height=2.42cm, before skip=0pt, after skip=0pt]
+hAB : A → B
+hA : A
+⊢ B
+\end{estadoS}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Tras have hB : B := hAB hA}, height=2.42cm, before skip=0pt, after skip=0pt]
+hAB : A → B
+hA : A
+hB : B
+⊢ B
+\end{estadoS}
+\end{minipage}
+
+\vspace{3pt}
+\begin{minipage}[t]{0.43\textwidth}\vspace{0pt}
+\tact{constructor}{Parte la meta en sus componentes. \cod{refine ⟨?_, ?_⟩} hace lo mismo: cada \cod{?_} es una meta nueva.}{«Probamos cada parte por separado.»}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Antes}, height=2.42cm, before skip=0pt, after skip=0pt]
+⊢ A ∧ B
+\end{estadoS}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.27\textwidth}\vspace{0pt}
+\begin{estadoS}[title={Después: dos metas}, height=2.42cm, before skip=0pt, after skip=0pt]
+case left
+⊢ A
+case right
+⊢ B
+\end{estadoS}
+\end{minipage}
+
+\vspace{5pt}
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster equal height]
+\clave{m2}{\textbf{El punto \cod{·}} enfoca una sola meta. Tras \cod{constructor} verás dos \cod{·}, uno por parte. {\small\color{gris}(Estados comprobados en Lean; se omite la línea \cod{A B : Prop}.)}}
+\clave{m2}{\textbf{Hacia atrás o hacia adelante:} \cod{apply} cambia la meta; \cod{have} añade hipótesis. La tesis usa casi siempre \cod{have}.}
+\end{tcbraster}
+\navegacion{nivel6}{Nivel 6}{nivel8}{Nivel 8}
+
+\newpage
+%=====================================================================
+% NIVEL 8
+%=====================================================================
+\nivel{8}{2}{\faTable}{La tabla maestra: probar y usar}{ante cualquier símbolo
+lógico, saber qué táctica toca. Mira si está en la \textbf{meta} o en una \textbf{hipótesis}.}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.34}
+\begin{tabular}{@{}>{\large}l@{\quad}>{\raggedright}p{7.3cm}@{\quad}>{\raggedright}p{8.0cm}@{\quad}>{\raggedright\arraybackslash\leavevmode\color{gris}}p{6.6cm}@{}}
+ & \cellcolor{m2!18}\textbf{\faBullseye\ Está en la meta: para \emph{probarlo}} & \cellcolor{m4b!18}\textbf{\faToolbox\ Es una hipótesis \texttt{h}: para \emph{usarlo}} & \textbf{\faCommentDots\ Se dice}\\
+\cod{A → B} & \cod{intro hA} & \cod{h hA} \ o \ \cod{apply h} & «supongamos $A$» / «por $h$»\\
+\cod{∀ x, P x} & \cod{intro x} & \cod{h a} & «sea $x$ cualquiera» / «en particular»\\
+\cod{A ∧ B} & \cod{constructor} \ o \ \cod{⟨hA, hB⟩} & \cod{obtain ⟨hA, hB⟩ := h} \ o \ \cod{h.left}, \cod{h.right} & «las dos partes»\\
+\cod{A ∨ B} & \cod{Or.inl hA} \ o \ \cod{Or.inr hB} & \cod{rcases h with hA | hB} & «por casos»\\
+\cod{A ↔ B} & \cod{constructor} & \cod{h.mp} (ida), \cod{h.mpr} (vuelta) & «ida y vuelta»\\
+\cod{¬ A} & \cod{intro hA} \ (queda probar \cod{False}) & \cod{h hA} \ (da \cod{False}) & «supongamos $A$: contradicción»\\
+\cod{∃ x, P x} & \cod{⟨a, ha⟩} & \cod{obtain ⟨x, hx⟩ := h} & «tomamos un testigo»\\
+\cod{False} & — & \cod{False.elim h} & «de lo falso sale cualquier cosa»\\
+\cod{a = b} & \cod{rfl} & \cod{rw [h]} \ o \ \cod{subst} \chip{9} & «reescribiendo»\\
+\end{tabular}
+\end{center}
+
+\begin{tcbraster}[raster columns=3, raster column skip=6pt, raster equal height]
+\clave{m2}{\textbf{\cod{¬ A} es por definición \cod{A → False}.} Por eso se prueba con \cod{intro} y se usa aplicándola.}
+\clave{m2}{\textbf{\cod{⟨ , ⟩}} es el constructor anónimo: arma un par (para \cod{∧}, \cod{∃}, \cod{↔}) sin decir su nombre.}
+\clave{m2}{Es Curry–Howard en acción: usar \cod{A → B} es \textbf{aplicar una función}; usar \cod{A ∧ B} es \textbf{abrir un par}.}
+\end{tcbraster}
+
+\pruebate{m2}{\item La meta es \cod{evaluar v φ → ND Γ φ}. ¿Qué táctica?
+\item Tienes \cod{h : A ↔ B} y \cod{hA : A}. ¿Cómo obtienes \cod{B}?
+\item Tienes \cod{hNeg : ¬ A} y \cod{hA : A}. ¿Qué es \cod{hNeg hA}?}
+{1.\ \cod{intro hev}.
+2.\ \cod{h.mp hA}.
+3.\ Una prueba de \cod{False}.}
+
+\navegacion{nivel7}{Nivel 7}{nivel9}{Nivel 9}
+
+\newpage
+%=====================================================================
+% NIVEL 9
+%=====================================================================
+\nivel{9}{2}{\faEquals}{Reescribir y calcular}{cambiar la forma de la meta sin
+cambiar lo que dice: desplegar definiciones, sustituir iguales, encadenar pasos.}
+
+\begin{minipage}[t]{0.42\textwidth}
+\vspace{0pt}
+\tarj{tac}{\cod{rw [h]}}{Si \cod{h : a = b}, cambia \cod{a} por \cod{b} en la meta. Con \cod{at h2}, en la hipótesis \cod{h2}. También despliega definiciones.}
+\tarj{tac}{\cod{simp only [lemas]} \ y \ \cod{simpa … using h}}{Reescribe con esa lista de lemas hasta que no puede más. \cod{simpa} además cierra la meta con \cod{h}.}
+\tarj{tac}{\cod{change P}}{Cambia la meta por \cod{P}, que es \textbf{la misma por definición}. No prueba nada: la muestra desplegada.}
+\tarj{tac}{\cod{subst x} \ y \ \cod{rfl}}{\cod{subst}: si \cod{x = a}, sustituye \cod{x} en todas partes. \cod{rfl}: los dos lados son iguales al calcular.}
+\tarj{tac}{\cod{calc}}{Cadena de pasos unidos por transitividad. Cada \cod{_} es «lo anterior».}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.55\textwidth}
+\vspace{0pt}
+\begin{tcbraster}[raster columns=2, raster column skip=5pt, raster equal height]
+\begin{estado}[title={Antes de rw [h1]}]
+h1 : a = b
+h2 : b = c
+⊢ a = c
+\end{estado}
+\begin{estado}[title={Después}]
+h1 : a = b
+h2 : b = c
+⊢ b = c
+\end{estado}
+\end{tcbraster}
+\begin{lean}[title={Reescribir en una hipótesis (kalmar, caso atómico)}]
+rw [literal, if_pos hvs] at hmem   -- despliega literal
+\end{lean}
+\begin{estado}[title={longitud\_filtro\_le: la meta antes y después de simp only […]}]
+⊢ (filter q (a :: cola)).length ≤ (a :: cola).length
+⊢ (filter q cola).length + 1 ≤ cola.length + 1
+\end{estado}
+\begin{lean}[title={calc: la cadena de quicksort\_permutacion}]
+calc
+  quicksort menoresIguales ++ (p :: quicksort mayores)
+      ~ menoresIguales ++ (p :: mayores) := hConcatenacion
+  _ ~ p :: (menoresIguales ++ mayores) := hPivote
+  _ ~ p :: cola := hCons
+\end{lean}
+\end{minipage}
+
+\pruebate{m2}{\item ¿Qué diferencia hay entre \cod{rw} y \cod{change}?
+\item ¿Qué significa \cod{at hmem}?
+\item En un \cod{calc}, ¿qué es \cod{_}?}
+{1.\ \cod{rw} usa una igualdad o ecuación; \cod{change} solo despliega: la meta es la misma por definición.
+2.\ Que se reescribe en la hipótesis \cod{hmem}, no en la meta.
+3.\ El lado derecho del paso anterior.}
+
+\navegacion{nivel8}{Nivel 8}{nivel10}{Nivel 10}
+
+\newpage
+%=====================================================================
+% NIVEL 10
+%=====================================================================
+\nivel{10}{2}{\faCodeBranch}{Casos y absurdo. Nivel objeto y nivel meta}{separar
+la lógica \textbf{de Lean} (con la que razonas) de la lógica \textbf{del cálculo} (sobre la que razonas).}
+
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+\tarj{tac}{\cod{by_cases hp : P}}{Dos metas: una con \cod{hp : P} y otra con \cod{hp : ¬P}.}
+\begin{estado}[title={Tras by\_cases hA : A}]
+case pos
+hA : A
+⊢ B
+case neg
+hA : ¬A
+⊢ B
+\end{estado}
+\tarj{tac}{\cod{rcases h with hA | hB}}{Si \cod{h : A ∨ B}: un caso por lado. \cod{cases hq : q a with} hace casos sobre un dato y \cod{hq} recuerda cuál.}
+\tarj{tac}{\cod{by_contra h}}{Supón la negación de la meta; ahora hay que probar \cod{False}.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.57\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=black!75, boxrule=1.3pt, arc=6pt,
+  title={\faBalanceScale\ La distinción que más preguntan}, colbacktitle=black!75,
+  fonttitle=\bfseries\large, left=4pt, right=4pt, top=2pt, bottom=2pt]
+\renewcommand{\arraystretch}{1.32}
+\begin{tabular}{@{}>{\bfseries}l@{\ \ }>{\raggedright}p{5.6cm}@{\ \ }>{\raggedright\arraybackslash}p{5.3cm}@{}}
+ & \cellcolor{m2!18}\textbf{META: la lógica de Lean} & \cellcolor{m4a!18}\textbf{OBJETO: el cálculo ND}\\
+negación & \cod{¬ P} & \cod{~φ}\\
+implicación & \cod{P → Q} & \cod{φ ⟶ ψ}\\
+lo falso & \cod{False} & \cod{Falsedad}\\
+demostrable & hay un término de tipo \cod{P} & \cod{ND Γ φ}\\
+absurdo & \cod{by_contra} & \cod{ND.classical} (regla RAA)\\
+casos & \cod{by_cases} & \cod{analisis_por_casos}\\
+\end{tabular}
+\end{tcolorbox}
+\begin{lean}[title={Los dos niveles, en dos líneas reales de la tesis}]
+by_contra hnp                  -- META: absurdo de Lean (correccion)
+exact ND.classical dFalsedad   -- OBJETO: regla RAA (debilitamiento)
+\end{lean}
+\clave{m2}{\textbf{Consecuencia:} \cod{by_cases} y \cod{by_contra} sobre proposiciones cualesquiera
+son lógica clásica de Lean. Por eso la completitud depende de \cod{Classical.choice} \chip{19}.}
+\end{minipage}
+
+\pruebate{m2}{\item ¿\cod{ND.classical} usa lógica clásica de Lean?
+\item ¿Qué tienes después de \cod{by_contra h}?
+\item ¿Cuál es la versión objeto de \cod{False}?}
+{1.\ No: es un constructor, un dato. La regla es clásica \emph{dentro} del cálculo.
+2.\ \cod{h}: la negación de la meta; y la meta nueva es \cod{False}.
+3.\ \cod{Falsedad}, la fórmula \cod{~(⊥ ⟶ ⊥)} con un átomo llamado «⊥».}
+
+\navegacion{nivel9}{Nivel 9}{nivel11}{Nivel 11}
+
+\newpage
+%=====================================================================
+% NIVEL 11
+%=====================================================================
+\nivel{11}{3}{\faListOl}{Inducción sobre datos}{probar algo para todas las listas
+o todas las fórmulas: un caso por constructor.}
+
+\begin{minipage}[t]{0.52\textwidth}
+\vspace{0pt}
+\begin{lean}[title={Thesis/Sort/Quicksort.lean (el caso false, recortado)}]
+theorem longitud_filtro_le (q : α → Bool) (l : List α) :
+    (l.filter q).length ≤ l.length := by
+  induction l with                                  @1
+  | nil => exact Nat.le_refl 0                      @2
+  | cons a cola hipInd =>                           @3
+      cases hq : q a with                           @4
+      | true =>
+          simp only [List.filter_cons, hq, ↓reduceIte,
+            List.length_cons]
+          exact Nat.succ_le_succ hipInd             @5
+      | false => …
+\end{lean}
+\begin{estado}[title={Estado real al entrar en el caso cons, rama true}]
+a : α
+cola : List α
+hipInd : (filter q cola).length ≤ cola.length
+hq : q a = true
+⊢ (filter q (a :: cola)).length ≤ (a :: cola).length
+\end{estado}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\vspace{0pt}
+\ex{1}{\cod{induction l with}: un caso por constructor de la lista.}
+\ex{2}{\cod{nil}: la lista vacía. Caso base.}
+\ex{3}{\cod{cons a cola hipInd}: tú pones los nombres de la cabeza, la cola y la \textbf{hipótesis inductiva}.}
+\ex{4}{Dentro, casos sobre si \cod{a} pasa el filtro.}
+\ex{5}{Aquí se usa \cod{hipInd}: sumar 1 a los dos lados.}
+\clave{m3}{\textbf{\cod{hipInd} es el mismo enunciado, pero para \cod{cola}.} Mira el estado:
+habla de \cod{cola}; la meta habla de \cod{a :: cola}.}
+\begin{leanS}[title={Sobre fórmulas (kalmar): tres constructores, tres casos}]
+induction φ with
+| atom s => …                    -- sin hipótesis inductiva
+| neg p hipInd => …              -- una: para p
+| impl p q hipIndP hipIndQ => …  -- dos: para p y para q
+\end{leanS}
+\end{minipage}
+
+\pruebate{m3}{\item ¿Cuántas hipótesis inductivas tiene el caso \cod{impl}? ¿Por qué?
+\item En el caso \cod{cons a cola hipInd}, ¿qué dice \cod{hipInd}?
+\item ¿Para qué sirve el \cod{hq} de \cod{cases hq : q a}?}
+{1.\ Dos: \cod{impl} tiene dos subfórmulas.
+2.\ El enunciado del teorema, para \cod{cola}.
+3.\ Guarda la ecuación \cod{q a = true} o \cod{q a = false} del caso.}
+
+\navegacion{nivel10}{Nivel 10}{nivel12}{Nivel 12}
+
+\newpage
+%=====================================================================
+% NIVEL 12
+%=====================================================================
+\nivel{12}{3}{\faProjectDiagram}{Inducción sobre reglas (derivaciones)}{es la
+técnica central del capítulo 11: las derivaciones también son datos inductivos.}
+
+\begin{minipage}[t]{0.50\textwidth}
+\vspace{0pt}
+\begin{lean}[title={Thesis/Prop/NaturalDeduction.lean: el cálculo completo}]
+inductive ND : Set Formula → Formula → Prop
+| hyp {Γ φ} : φ ∈ Γ → ND Γ φ                              @1
+| impI {Γ φ ψ} : ND (insert φ Γ) ψ → ND Γ (φ ⟶ ψ)        @2
+| impE {Γ φ ψ} : ND Γ (φ ⟶ ψ) → ND Γ φ → ND Γ ψ          @3
+| negI {Γ φ} : ND (insert φ Γ) Falsedad → ND Γ (~φ)       @4
+| negE {Γ φ} : ND Γ (~φ) → ND Γ φ → ND Γ Falsedad         @5
+| botE {Γ φ} : ND Γ Falsedad → ND Γ φ                     @6
+| classical {Γ φ} : ND (insert (~φ) Γ) Falsedad → ND Γ φ  @7
+\end{lean}
+\begin{tcolorbox}[colback=m3!6, colframe=m3, boxrule=1pt, arc=4pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt]
+\bola{1} hip. \ \bola{2} $\to$I \ \bola{3} $\to$E \ \bola{4} $\neg$I \ \bola{5} $\neg$E \
+\bola{6} $\bot$E \ \bola{7} RAA\\[3pt]
+\textbf{Cómo se lee un constructor:} lo que hay antes de la última \cod{→} son las
+\textbf{premisas}; lo de después, la \textbf{conclusión}. \cod{insert φ Γ} es la hipótesis que
+la regla descarga.
+\end{tcolorbox}
+\clave{m3}{\textbf{7 constructores $=$ 7 reglas $=$ 7 casos} en toda inducción sobre una derivación.}
+\ex{8}{El enunciado deja \cod{∀ {Δ}} \textbf{después} de los dos puntos. Así \cod{hipInd} vale para \emph{cualquier} $\Delta$ (generalizar antes de inducir).}
+\ex{9}{El \cod{@} deja nombrar también los implícitos. \cod{_} ignora la subderivación; \cod{hipInd} es lo que se usa.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+\begin{leanS}[title={debilitamiento: el caso de la regla →I}]
+theorem debilitamiento {Γ φ} (d : ND Γ φ) :
+    ∀ {Δ}, Γ ⊆ Δ → ND Δ φ := by                      @8
+  induction d with
+  | @impI Γ φ ψ _ hipInd =>                          @9
+      intro Δ hsub
+      have hAmpliado : insert φ Γ ⊆ insert φ Δ :=
+        Set.insert_subset_insert hsub
+      have dCuerpo : ND (insert φ Δ) ψ := hipInd hAmpliado
+      exact ND.impI dCuerpo
+  | …   -- y los otros seis casos
+\end{leanS}
+\begin{estado}[title={Estado real tras «intro Δ hsub» (sin las variables con ✝)}]
+hipInd : ∀ {Δ : Set Formula}, insert φ Γ ⊆ Δ → ND Δ ψ
+Δ : Set Formula
+hsub : Γ ⊆ Δ
+⊢ ND Δ (φ ⟶ ψ)
+\end{estado}
+\dice{«Por inducción sobre la derivación. Caso $\to$I: la premisa deriva $\psi$ desde
+$\Gamma,\varphi$. Como $\Gamma,\varphi\subseteq\Delta,\varphi$, la hipótesis inductiva da $\psi$
+desde $\Delta,\varphi$, y $\to$I concluye.»}
+\end{minipage}
+
+\navegacion{nivel11}{Nivel 11}{nivel13}{Nivel 13}
+
+\newpage
+%=====================================================================
+% NIVEL 13
+%=====================================================================
+\nivel{13}{3}{\faSync*}{Recursión bien fundada}{entender por qué quicksort
+necesita \texttt{termination\_by} y cómo un teorema «se llama a sí mismo».}
+
+\begin{minipage}[t]{0.58\textwidth}
+\vspace{0pt}
+\begin{leanS}[title={Thesis/Sort/Quicksort.lean (las pruebas de decreasing\_by, recortadas)}]
+def quicksort : List α → List α
+  | [] => []
+  | p :: cola =>
+      quicksort (cola.filter (fun x => decide (x ≤ p)))            @1
+        ++ p :: quicksort (cola.filter (fun x => ! decide (x ≤ p)))
+  termination_by l => l.length                                     @2
+  decreasing_by                                                    @3
+    · … exact longitud_filtro_lt_cons (fun x => decide (x ≤ p)) p cola
+    · … exact longitud_filtro_lt_cons (fun x => ! decide (x ≤ p)) p cola
+\end{leanS}
+\begin{estadoS}[title={Una de las dos obligaciones (estado real)}]
+⊢ (filter (fun x => decide (x ≤ p)) cola).length < (p :: cola).length
+\end{estadoS}
+\begin{leanS}[title={En un teorema, la llamada recursiva ES la hipótesis inductiva}]
+theorem quicksort_permutacion : ∀ l : List α, quicksort l ~ l
+  | [] => by …
+  | p :: cola => by
+      …
+      have hipIndMayores : quicksort mayores ~ mayores :=
+        quicksort_permutacion mayores                              @4
+      …
+  termination_by l => l.length
+  decreasing_by
+    · exact hMenoresIgualesLt
+    · exact hMayoresLt
+\end{leanS}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.39\textwidth}
+\vspace{0pt}
+\ex{1}{La llamada no es sobre \cod{cola}, sino sobre un \textbf{filtro} de \cod{cola}: Lean no ve solo que sea más pequeño.}
+\ex{2}{\cod{termination_by}: la \textbf{medida} que baja. Aquí, la longitud.}
+\ex{3}{\cod{decreasing_by}: una obligación por cada llamada recursiva: probar que la medida baja.}
+\ex{4}{El teorema se aplica a una lista más corta. Las mismas dos cotas lo justifican.}
+\tarj{m3}{\cod{decide (x ≤ p)}}{Convierte la proposición \cod{x ≤ p} en un \cod{Bool}, que es lo que \cod{filter} necesita. El \cod{!} es el «no» booleano.}
+\begin{tcolorbox}[colback=m3!6, colframe=m3, boxrule=1pt, arc=4pt, left=5pt, right=5pt,
+  top=3pt, bottom=3pt, title={\faBalanceScale\ Dos recursiones}, colbacktitle=m3, fonttitle=\bfseries]
+\textbf{Estructural:} sobre un trozo del dato (\cod{cola}). Lean la acepta sola: \cod{evaluar}, \cod{atomos}.\\[2pt]
+\textbf{Bien fundada:} sobre algo más pequeño según una medida. Hay que probarlo: \cod{quicksort}.
+\end{tcolorbox}
+\begin{lean}[]
+#eval quicksort [3, 1, 2]  -- [1, 2, 3]
+\end{lean}
+\end{minipage}
+
+\pruebate{m3}{\item ¿Por qué Lean no acepta quicksort sin \cod{termination_by}?
+\item ¿Cuántas obligaciones hay en \cod{decreasing_by}? ¿Por qué?
+\item ¿Dónde está la hipótesis inductiva de \cod{quicksort_permutacion}?}
+{1.\ La recursión no es estructural: se llama sobre un filtro, no sobre la cola.
+2.\ Dos: una por cada llamada recursiva.
+3.\ Es la llamada al propio teorema sobre \cod{menoresIguales} y \cod{mayores}.}
+
+\navegacion{nivel12}{Nivel 12}{nivel14}{Nivel 14}
+
+\newpage
+%=====================================================================
+% NIVEL 14
+%=====================================================================
+\nivel{14}{3}{\faTree}{Construir derivaciones}{ver que un árbol de deducción
+natural y una prueba en Lean son el mismo objeto, línea por línea.}
+
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+{\large\bfseries\color{m3}El árbol de $\vdash\neg\neg P\to P$}\\[2pt]
+{\small con $\Gamma=\{\neg\neg P\}$ y $\Delta=\Gamma\cup\{\neg P\}$}\\[4pt]
+\begin{center}
+\begin{tikzpicture}[
+  n/.style={draw=m3, fill=m3!7, line width=1.1pt, rounded corners=4pt, inner sep=5pt, font=\normalsize},
+  up/.style={-{Stealth[length=2.8mm]}, line width=1.3pt, m3}]
+  \node[n] (a) at (0,0) {\bola{1}\ $\Delta\vdash\neg\neg P$};
+  \node[n] (b) at (5.0,0) {\bola{2}\ $\Delta\vdash\neg P$};
+  \node[n] (c) at (2.5,-1.75) {\bola{3}\ $\Delta\vdash\bot$};
+  \node[n] (d) at (2.5,-3.5) {\bola{4}\ $\Gamma\vdash P$};
+  \node[n, fill=m3!20] (e) at (2.5,-5.25) {\bola{5}\ $\varnothing\vdash\neg\neg P\to P$};
+  \draw[up] (a) -- (c); \draw[up] (b) -- (c);
+  \draw[up] (c) -- node[right, font=\small, align=left]{RAA\\ descarga $\neg P$} (d);
+  \draw[up] (d) -- node[right, font=\small, align=left]{$\to$I\\ descarga $\neg\neg P$} (e);
+  \node[font=\small, text=m3!70!black] at (0,0.75) {hipótesis};
+  \node[font=\small, text=m3!70!black] at (5.0,0.75) {hipótesis};
+  \node[font=\small, text=m3!70!black, anchor=east] at (2.0,-0.95) {$\neg$E};
+\end{tikzpicture}
+\end{center}
+\clave{m3}{\textbf{Receta de la tesis:} \cod{let} nombra los contextos; los \cod{h…} prueban
+pertenencias; cada \cod{d…} es \textbf{un nodo del árbol}; \cod{exact} pone la raíz.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.57\textwidth}
+\vspace{0pt}
+\begin{lean}[title={Thesis/Prop/Main.lean}]
+theorem ej_eliminacion_doble_negacion :
+    ND (∅ : Set Formula) ((~~P) ⟶ P) := by
+  let Γ := insert (~~P) (∅ : Set Formula)
+  let Δ := insert (~P) Γ
+  have hDoble : (~~P) ∈ Γ := Set.mem_insert _ _
+  have hDobleDelta : (~~P) ∈ Δ := Set.mem_insert_of_mem _ hDoble
+  have hNeg : (~P) ∈ Δ := Set.mem_insert _ _
+  have dDoble : ND Δ (~~P) := ND.hyp hDobleDelta           @1
+  have dNeg : ND Δ (~P) := ND.hyp hNeg                     @2
+  have dFalsedad : ND Δ Falsedad := ND.negE dDoble dNeg    @3
+  have dP : ND Γ P := ND.classical dFalsedad               @4
+  exact ND.impI dP                                         @5
+\end{lean}
+\begin{tcbraster}[raster columns=2, raster column skip=6pt, raster equal height]
+\clave{m3}{El árbol se lee de las hojas a la raíz; Lean, de arriba abajo. \textbf{Es el mismo orden.}}
+\clave{m3}{\cod{ND.negE dDoble dNeg}: una regla es una función que recibe las derivaciones de arriba y devuelve la de abajo.}
+\end{tcbraster}
+\begin{estadoS}[title={\#print axioms ej\_eliminacion\_doble\_negacion}]
+'Thesis.Prop.ej_eliminacion_doble_negacion' does not depend on any axioms
+\end{estadoS}
+\clave{m3}{\textbf{Ningún axioma}, aunque usa RAA: \cod{ND.classical} es un constructor (un dato),
+no lógica clásica de Lean.}
+\end{minipage}
+
+\navegacion{nivel13}{Nivel 13}{nivel15}{Nivel 15}
+
+\newpage
+%=====================================================================
+% NIVEL 15
+%=====================================================================
+\nivel{15}{4}{\faPuzzlePiece}{Completitud: las piezas}{antes de leer el teorema,
+conocer sus dos lemas grandes y saber leer sus enunciados.}
+
+\begin{center}
+\begin{tikzpicture}[
+  b/.style={draw=#1, fill=#1!9, line width=1.2pt, rounded corners=5pt, font=\ttfamily\small,
+    inner sep=5pt, align=center},
+  f/.style={-{Stealth[length=2.8mm]}, line width=1.4pt, black!50}]
+  \node[b=m1] (at) at (0,0) {atomos};
+  \node[b=m1] (li) at (3.3,0) {literal};
+  \node[b=m1] (cl) at (7.6,0) {contextoLiterales};
+  \node[b=m4a] (pl) at (12.9,0) {pertenencia\_literal};
+  \node[b=m4a, line width=2pt] (ka) at (17.6,0) {\textbf{kalmar}};
+  \node[b=m3] (de) at (3.3,-1.5) {debilitamiento};
+  \node[b=m3] (dn) at (9.2,-1.5) {introduccion\_doble\_negacion};
+  \node[b=m3] (ac) at (15.6,-1.5) {analisis\_por\_casos};
+  \node[b=m4a] (co) at (3.3,-3.0) {congruencia\_contextoLiterales};
+  \node[b=m4a, line width=2pt] (ds) at (11.4,-3.0) {\textbf{descarga}};
+  \node[b=m4a, fill=m4a!30, line width=2pt] (ct) at (20.0,-3.0) {\textbf{completitud\_ND}};
+  \draw[f] (li) -- (cl); \draw[f] (cl) -- (pl); \draw[f] (pl) -- (ka);
+  \draw[f] (de) -- (dn); \draw[f] (dn) -- (ka);
+  \draw[f] (co) -- (ds); \draw[f] (ac) -- (ds);
+  \draw[f] (ka) -| (ct); \draw[f] (ds) -- (ct);
+  \draw[f] (at.north) -- ++(0,0.4) -| (ka.north);
+  \node[font=\small, text=m1, anchor=west] at (-1.0,-0.72) {definiciones};
+  \node[font=\small, text=m3, anchor=east] at (2.0,-2.2) {reglas derivadas (NaturalDeduction.lean)};
+\end{tikzpicture}
+\end{center}
+
+\begin{minipage}[t]{0.50\textwidth}
+\vspace{0pt}
+\begin{lean}[title={El enunciado de Kalmár (Lema 11.15), con saltos de línea añadidos}]
+theorem kalmar (v : Valuacion) (listaAtomos : List String) :
+    ∀ φ : Formula, atomos φ ⊆ listaAtomos →               @1
+      (evaluar v φ →
+          ND (contextoLiterales v listaAtomos) φ) ∧       @2
+      (¬ evaluar v φ →
+          ND (contextoLiterales v listaAtomos) (~φ))      @3
+\end{lean}
+\ex{1}{«Fijada una fila $v$ y una lista que \textbf{cubre} los átomos de $\varphi$…»}
+\ex{2}{«…si $\varphi$ es verdadera en $v$, los literales derivan $\varphi$…»}
+\ex{3}{«…y si es falsa, derivan $\neg\varphi$.» Las dos mitades van unidas por \cod{∧}.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+\begin{lean}[title={El enunciado de la descarga (Lema 11.17)}]
+theorem descarga {φ : Formula} :
+    ∀ (listaAtomos : List String), listaAtomos.Nodup →  @4
+      (∀ v, ND (contextoLiterales v listaAtomos) φ) →   @5
+      ND (∅ : Set Formula) φ                            @6
+\end{lean}
+\ex{4}{«Si la lista no tiene repetidos…»}
+\ex{5}{«…y \textbf{toda} fila deriva $\varphi$ desde sus literales…»}
+\ex{6}{«…entonces $\varphi$ se deriva sin hipótesis.»}
+\end{minipage}
+
+\vspace{2pt}
+\begin{tcolorbox}[colback=m4a!6, colframe=m4a, boxrule=1pt, arc=4pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt, title={\faExchange*\ Del papel a Lean: número del resultado y nombre}, colbacktitle=m4a,
+  fonttitle=\bfseries]
+\small
+\begin{tabular}{@{}l@{\ \ }l@{\qquad}l@{\ \ }l@{\qquad}l@{\ \ }l@{}}
+11.9 & \cod{debilitamiento} & 11.14 & \cod{pertenencia_literal} & 11.17 & \cod{descarga}\\
+11.10 & \cod{introduccion_doble_negacion} & 11.15 & \cod{kalmar} & 11.18 & \cod{completitud_ND}\\
+11.11 & \cod{analisis_por_casos} & 11.16 & \cod{congruencia_contextoLiterales} & A.3, A.6 & \cod{correccion}, \cod{correccion_completitud}\\
+\end{tabular}
+\end{tcolorbox}
+
+\navegacion{nivel14}{Nivel 14}{nivel16}{Nivel 16}
+
+\newpage
+%=====================================================================
+% NIVEL 16
+%=====================================================================
+\nivel{16}{4}{\faCheckDouble}{Completitud: el teorema, línea a línea}{poder
+explicar las 14 líneas del teorema principal de la tesis.}
+
+\begin{minipage}[t]{0.60\textwidth}
+\vspace{0pt}
+\begin{leanS}[title={Thesis/Prop/Completeness.lean (completo)}]
+theorem completitud_ND (φ : Formula) (h : EsTautologia φ) :
+    ND (∅ : Set Formula) φ := by
+  let listaAtomos := (atomos φ).dedup                              @1
+  have hSinRepeticiones : listaAtomos.Nodup := List.nodup_dedup _  @2
+  have hCobertura : atomos φ ⊆ listaAtomos := by                   @3
+    intro a ha
+    exact List.mem_dedup.mpr ha
+  have hUniversal : ∀ v, ND (contextoLiterales v listaAtomos) φ := by   @4
+    intro v
+    have hVerdadero : evaluar v φ := h v                           @5
+    have hPositiva : evaluar v φ → ND (contextoLiterales v listaAtomos) φ :=
+      (kalmar v listaAtomos φ hCobertura).left                     @6
+    exact hPositiva hVerdadero
+  exact descarga listaAtomos hSinRepeticiones hUniversal           @7
+\end{leanS}
+\begin{estado}[title={Estado real justo antes de la última línea}]
+φ : Formula
+h : EsTautologia φ
+listaAtomos : List String := (atomos φ).dedup
+hSinRepeticiones : listaAtomos.Nodup
+hCobertura : atomos φ ⊆ listaAtomos
+hUniversal : ∀ (v : Valuacion), ND (contextoLiterales v listaAtomos) φ
+⊢ ND ∅ φ
+\end{estado}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.37\textwidth}
+\vspace{0pt}
+\ex{1}{La lista de átomos de $\varphi$, sin repetidos.}
+\ex{2}{Sin repetidos: lo pide \cod{descarga}.}
+\ex{3}{Cubre todos los átomos: lo pide \cod{kalmar}.}
+\ex{4}{«Para toda fila $v$, sus literales derivan $\varphi$.» Es lo que pide \cod{descarga}.}
+\ex{5}{$h$ es un $\forall$: aplicarlo a $v$ da que $\varphi$ es verdadera en esa fila.}
+\ex{6}{Kalmár da dos mitades; \cod{.left} toma la positiva.}
+\ex{7}{\cod{descarga} recibe sus tres ingredientes y devuelve $\varnothing\vdash\varphi$.}
+\clave{m4a}{\textbf{El estado lo dice todo:} tres hechos arriba, que son justo los tres
+argumentos de \cod{descarga}.}
+\dice{«Tomo los átomos sin repetir. Por Kalmár, cada fila deriva $\varphi$ desde sus
+literales, porque $\varphi$ es tautología. La descarga elimina los literales.»}
+\end{minipage}
+
+\vspace{1pt}
+\begin{lean}[title={Y con la corrección: el «si y solo si» (Teorema A.6; líneas compactadas con «;»)}]
+theorem correccion_completitud (φ : Formula) : EsTautologia φ ↔ ND (∅ : Set Formula) φ := by
+  constructor                                  -- ↔ : dos direcciones
+  · intro hTautologia; exact completitud_ND φ hTautologia        -- ida: completitud
+  · intro d; exact tautologia_de_derivable d                     -- vuelta: corrección
+\end{lean}
+
+\navegacion{nivel15}{Nivel 15}{nivel17}{Nivel 17}
+
+\newpage
+%=====================================================================
+% NIVEL 17
+%=====================================================================
+\nivel{17}{4}{\faExchange*}{Quicksort: la permutación}{leer la prueba de que
+quicksort no pierde ni inventa elementos: cuatro hechos y una cadena.}
+
+\begin{minipage}[t]{0.60\textwidth}
+\vspace{0pt}
+\begin{leanS}[title={quicksort\_permutacion, caso p :: cola (segunda mitad; sangría reducida)}]
+have hDerecha : p :: quicksort mayores ~ p :: mayores :=
+  hipIndMayores.cons p                                              @1
+have hConcatenacion : quicksort menoresIguales ++ (p :: quicksort mayores)
+    ~ menoresIguales ++ (p :: mayores) :=
+  hipIndMenoresIguales.append hDerecha                              @2
+have hPivote : menoresIguales ++ (p :: mayores)
+    ~ p :: (menoresIguales ++ mayores) := List.perm_middle          @3
+have hCons : p :: (menoresIguales ++ mayores) ~ p :: cola :=
+  hParticion.cons p                                                 @4
+rw [quicksort_cons]                                                 @5
+change quicksort menoresIguales ++ (p :: quicksort mayores) ~ p :: cola
+calc                                                                @6
+  quicksort menoresIguales ++ (p :: quicksort mayores)
+      ~ menoresIguales ++ (p :: mayores) := hConcatenacion
+  _ ~ p :: (menoresIguales ++ mayores) := hPivote
+  _ ~ p :: cola := hCons
+\end{leanS}
+\begin{tcolorbox}[colback=m4b!7, colframe=m4b, boxrule=1pt, arc=4pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt, halign=center]
+\textbf{La misma cadena en papel} \ ($L$: menores o iguales, $R$: mayores)\\[3pt]
+$\mathrm{qs}(L)\mathbin{+\!\!+}(p::\mathrm{qs}(R))\ \overset{\text{\bola{2}}}{\sim}\ L\mathbin{+\!\!+}(p::R)
+\ \overset{\text{\bola{3}}}{\sim}\ p::(L\mathbin{+\!\!+}R)\ \overset{\text{\bola{4}}}{\sim}\ p::\mathrm{cola}$
+\end{tcolorbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.37\textwidth}
+\vspace{0pt}
+\ex{1}{\cod{.cons p}: añadir el mismo elemento delante conserva la permutación.}
+\ex{2}{\cod{.append}: pegar dos permutaciones da una permutación. Usa las \textbf{dos hipótesis inductivas}.}
+\ex{3}{\cod{List.perm_middle} (Mathlib): mover $p$ del medio al frente.}
+\ex{4}{\cod{hParticion}: los dos filtros juntos son una permutación de \cod{cola} (Lema 12.7).}
+\ex{5}{Despliega \cod{quicksort (p :: cola)} con su ecuación.}
+\ex{6}{\cod{calc} encadena por transitividad.}
+\clave{m4b}{\textbf{Ojo:} aquí \cod{~} es «\textbf{es permutación de}» (\cod{List.Perm}), no la negación de fórmulas del capítulo 11.}
+\tarj{m4b}{Qué viene de Mathlib}{La relación \cod{~} y sus reglas básicas (\cod{cons}, \cod{append}, \cod{perm_middle}). \textbf{Ningún} teorema sobre quicksort.}
+\end{minipage}
+
+\pruebate{m4b}{\item ¿Dónde se usan las hipótesis inductivas?
+\item ¿Qué lema propio justifica el último eslabón?
+\item ¿Qué hace \cod{hipIndMayores.cons p}?}
+{1.\ En \bola{1} y \bola{2}: una por cada mitad.
+2.\ \cod{particion_filtros_permutacion} (Lema 12.7), a través de \cod{hParticion}.
+3.\ De \cod{quicksort mayores ~ mayores} obtiene lo mismo con $p$ delante de los dos lados.}
+
+\navegacion{nivel16}{Nivel 16}{nivel18}{Nivel 18}
+
+\newpage
+%=====================================================================
+% NIVEL 18
+%=====================================================================
+\nivel{18}{4}{\faSortAmountUp}{Quicksort: el orden y el teorema final}{leer por
+qué la salida queda ordenada y cómo se juntan las dos mitades de la especificación.}
+
+\begin{minipage}[t]{0.60\textwidth}
+\vspace{0pt}
+\begin{leanS}[title={quicksort\_ordenada, caso p :: cola (los cinco hechos; las pruebas «…» están recortadas)}]
+have hCotaMenoresIguales : ∀ a ∈ quicksort menoresIguales, a ≤ p := …   @1
+have hCotaMayores : ∀ b ∈ quicksort mayores, p ≤ b := …                 @2
+have hParesDerecha : List.Pairwise (· ≤ ·) (p :: quicksort mayores) := …  @3
+have hCruce : ∀ a ∈ quicksort menoresIguales,
+    ∀ b ∈ p :: quicksort mayores, a ≤ b := …                            @4
+have hTodosPares : List.Pairwise (· ≤ ·)
+    (quicksort menoresIguales ++ (p :: quicksort mayores)) := by         @5
+  apply (relacion_pares_concatenacion_iff _ _ _).mpr
+  exact ⟨hParesMenoresIguales, hParesDerecha, hCruce⟩
+\end{leanS}
+\begin{lean}[title={El teorema final (Teorema 12.12), completo}]
+theorem quicksort_correcto (l : List α) :
+    quicksort l ~ l ∧ Ordenada (quicksort l) := by
+  have hPermutacion : quicksort l ~ l := quicksort_permutacion l
+  have hOrdenada : Ordenada (quicksort l) := quicksort_ordenada l
+  exact And.intro hPermutacion hOrdenada
+\end{lean}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.37\textwidth}
+\vspace{0pt}
+\ex{1}{Todo lo de la izquierda es $\le p$: estaba en el filtro (por la permutación ya probada).}
+\ex{2}{Todo lo de la derecha es $\ge p$. De \cod{¬ (b ≤ p)} sale \cod{p < b}: aquí se usa que el orden es \textbf{lineal}.}
+\ex{3}{$p$ delante de la derecha ordenada sigue ordenado.}
+\ex{4}{Cada elemento izquierdo es $\le$ cada elemento del bloque derecho (transitividad).}
+\ex{5}{El lema de concatenación (12.10), en la dirección \cod{.mpr}: de las tres condiciones a \cod{Pairwise}.}
+\clave{m4b}{\cod{Ordenada l} es \cod{l.Pairwise (· ≤ ·)}: todo elemento es $\le$ que cada uno de los posteriores.}
+\clave{m4b}{El final es una línea: \cod{And.intro} junta las dos pruebas. Es el \cod{∧} de la tabla maestra \chip{8}.}
+\end{minipage}
+
+\vspace{2pt}
+\begin{tcolorbox}[colback=m4b!6, colframe=m4b, boxrule=1pt, arc=4pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt, title={\faExchange*\ Del papel a Lean: número del resultado y nombre}, colbacktitle=m4b,
+  fonttitle=\bfseries]
+\small
+\begin{tabular}{@{}l@{\ \ }l@{\qquad}l@{\ \ }l@{\qquad}l@{\ \ }l@{}}
+12.5 & \cod{longitud_filtro_le} & 12.8 & \cod{quicksort_permutacion} & 12.11 & \cod{quicksort_ordenada}\\
+12.6 & \cod{termination_by}, \cod{longitud_filtro_lt_cons} & 12.9 & \cod{pertenencia_quicksort} & 12.12 & \cod{quicksort_correcto}\\
+12.7 & \cod{particion_filtros_permutacion} & 12.10 & \cod{relacion_pares_concatenacion_iff} & & \\
+\end{tabular}
+\end{tcolorbox}
+
+\navegacion{nivel17}{Nivel 17}{nivel19}{Nivel 19}
+
+\newpage
+%=====================================================================
+% NIVEL 19
+%=====================================================================
+\nivel{19}{4}{\faShield*}{Auditoría: qué comprobó Lean}{poder decir con
+exactitud de qué depende cada teorema y qué garantiza la verificación.}
+
+\begin{minipage}[t]{0.52\textwidth}
+\vspace{0pt}
+\begin{estado}[title={Salida real de \#print axioms (reports/*/audit.txt)}]
+'Thesis.Prop.completitud_ND' depends on axioms:
+    [propext, Classical.choice, Quot.sound]
+'Thesis.Prop.correccion_completitud' depends on axioms:
+    [propext, Classical.choice, Quot.sound]
+'Thesis.Sort.quicksort_correcto' depends on axioms:
+    [propext, Quot.sound]
+'Thesis.Prop.ej_identidad' does not depend on any axioms
+\end{estado}
+\begin{lean}[title={Si hubiera un hueco, se vería (ejemplo aparte, no es de la tesis)}]
+theorem falso_admitido : 1 = 2 := by sorry
+#print axioms falso_admitido
+-- 'falso_admitido' depends on axioms: [sorryAx]
+\end{lean}
+\begin{tcolorbox}[colback=m4c!6, colframe=m4c, boxrule=1pt, arc=4pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt, title={\faTerminal\ Cómo se repite}, colbacktitle=m4c, fonttitle=\bfseries]
+\cod{lake build} \hfill compila todo: si termina sin errores, el núcleo aceptó cada prueba\\
+\cod{lake env lean Thesis/Prop/Audit.lean} \hfill imprime los axiomas\\
+\cod{make audit} \hfill regenera el certificado; la integración continua lo compara
+\end{tcolorbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=m4c!6, colframe=m4c, boxrule=1pt, arc=4pt, left=6pt, right=6pt,
+  top=3pt, bottom=3pt, title={\faKey\ Los tres axiomas}, colbacktitle=m4c, fonttitle=\bfseries]
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}l@{\quad}>{\raggedright\arraybackslash}p{6.9cm}@{}}
+\cod{propext} & proposiciones equivalentes son iguales\\
+\cod{Quot.sound} & elementos relacionados dan la misma clase en un cociente\\
+\cod{Classical.choice} & elegir un elemento de un tipo no vacío; da la lógica clásica\\
+\end{tabular}
+\end{tcolorbox}
+\clave{m4c}{\textbf{Quicksort no usa \cod{Classical.choice}.} Completitud sí: razona por
+casos y por absurdo sobre \cod{evaluar v φ}, que es una \cod{Prop} cualquiera \chip{10}.}
+\begin{tcolorbox}[colback=white, colframe=black!75, boxrule=1.3pt, arc=6pt,
+  title={\faBalanceScale\ Qué garantiza Lean y qué no}, colbacktitle=black!75,
+  fonttitle=\bfseries, left=6pt, right=6pt, top=3pt, bottom=3pt]
+{\color{verde}\faCheckCircle}\ Que cada prueba es un término del tipo de su enunciado.\\
+{\color{verde}\faCheckCircle}\ Que no hay \cod{sorry} ni axiomas fuera de la lista.\\[3pt]
+{\color{rojo}\faTimesCircle}\ Que el enunciado diga lo que tú crees.\\
+{\color{rojo}\faTimesCircle}\ Que las definiciones (\cod{ND}, \cod{evaluar}, \cod{Ordenada}) sean las correctas.\\[3pt]
+Por eso los enunciados son cortos y se comparan con el papel.
+\end{tcolorbox}
+\end{minipage}
+
+\pruebate{m4c}{\item ¿De qué axiomas depende \cod{quicksort_correcto}?
+\item ¿Qué pasaría en la auditoría si quedara un \cod{sorry}?
+\item ¿Por qué \cod{ej_identidad} no depende de ningún axioma?}
+{1.\ De \cod{propext} y \cod{Quot.sound}; no de \cod{Classical.choice}.
+2.\ Aparecería \cod{sorryAx} en la lista.
+3.\ Es una derivación construida solo con constructores de \cod{ND}: datos puros.}
+
+\navegacion{nivel18}{Nivel 18}{simbolos}{Símbolos}
+
+\newpage
+%=====================================================================
+% SÍMBOLOS
+%=====================================================================
+\pagina{simbolos}{m2}{\faKeyboard}{Chuleta de símbolos: cómo se leen}{si un
+símbolo te frena, está aquí. La tercera columna es cómo se teclea en VS Code.}
+
+\newcommand{\sy}[3]{\cod{#1} & #2 & {\color{gris}\ttfamily\small #3}\\}
+\begin{minipage}[t]{0.325\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=m2!5, colframe=m2, boxrule=1pt, arc=5pt, left=5pt, right=5pt,
+  title={Lógica (de Lean)}, colbacktitle=m2, fonttitle=\bfseries]
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}>{\large}l@{\ \ }>{\raggedright}p{3.85cm}@{\ }l@{}}
+\sy{→}{implica; función}{\textbackslash to}
+\sy{∀}{para todo}{\textbackslash forall}
+\sy{∃}{existe}{\textbackslash exists}
+\sy{¬}{no}{\textbackslash not}
+\sy{∧}{y}{\textbackslash and}
+\sy{∨}{o}{\textbackslash or}
+\sy{↔}{si y solo si}{\textbackslash iff}
+\sy{=}{es igual a (una \cod{Prop})}{}
+\sy{:=}{se define como}{}
+\sy{⊢}{«hay que probar» (solo en el estado)}{}
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.325\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=m4a!5, colframe=m4a, boxrule=1pt, arc=5pt, left=5pt, right=5pt,
+  title={Datos y notación de la tesis}, colbacktitle=m4a, fonttitle=\bfseries]
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}>{\large}l@{\ \ }>{\raggedright}p{3.85cm}@{\ }l@{}}
+\sy{~φ}{negación de una fórmula}{}
+\sy{φ ⟶ ψ}{implicación de fórmulas}{\textbackslash hom}
+\sy{l₁ ~ l₂}{es permutación de}{}
+\sy{∈}{pertenece a}{\textbackslash in}
+\sy{⊆}{está contenido en}{\textbackslash sub}
+\sy{∅}{vacío}{\textbackslash empty}
+\sy{::}{poner delante de la lista}{}
+\sy{++}{pegar dos listas}{}
+\sy{≤}{menor o igual}{\textbackslash le}
+\sy{!}{«no» de un \cod{Bool}}{}
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.325\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=m3!5, colframe=m3, boxrule=1pt, arc=5pt, left=5pt, right=5pt,
+  title={Escritura de pruebas}, colbacktitle=m3, fonttitle=\bfseries]
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}>{\large}l@{\ \ }>{\raggedright}p{3.85cm}@{\ }l@{}}
+\sy{⟨a, b⟩}{par: constructor anónimo}{\textbackslash< \textbackslash>}
+\sy{·}{enfoca una meta}{\textbackslash .}
+\sy{_}{dedúcelo tú}{}
+\sy{?_}{meta que pruebo después}{}
+\sy{fun x => e}{la función $x\mapsto e$}{}
+\sy{(· ≤ ·)}{\cod{fun a b => a ≤ b}}{}
+\sy{h ▸ e}{reescribe \cod{e} con \cod{h}}{\textbackslash t}
+\sy{@f}{\cod{f} con todo explícito}{}
+\sy{x✝}{nombre inaccesible}{}
+\sy{--}{comentario}{}
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}
+
+\vspace{4pt}
+\begin{tcbraster}[raster columns=3, raster column skip=6pt, raster equal height]
+\clave{m2}{\textbf{Letras griegas:} \cod{Γ}, \cod{Δ} son contextos; \cod{φ}, \cod{ψ}, \cod{χ} son fórmulas; \cod{α} es un tipo cualquiera. Se teclean \texttt{\textbackslash Gamma}, \texttt{\textbackslash phi}…}
+\clave{m4a}{\textbf{Subíndices:} \cod{l₁} es solo un nombre, como \cod{l1}. Se teclea \texttt{\textbackslash 1}.}
+\clave{m3}{\textbf{El punto:} \cod{h.left}, \cod{h.mp}, \cod{l.length}: «de \cod{h}, su parte…». \cod{.atom s} al inicio: el constructor, con el tipo sobreentendido.}
+\end{tcbraster}
+
+\navegacion{nivel19}{Nivel 19}{diccionario}{Cómo decirlo}
+
+\newpage
+%=====================================================================
+% DICCIONARIO
+%=====================================================================
+\pagina{diccionario}{m3}{\faCommentDots}{Cómo decirlo en voz alta, y 10 trampas}{el
+tribunal evalúa el argumento, no la sintaxis. Traduce cada línea a una frase.}
+
+\begin{minipage}[t]{0.50\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=m3, boxrule=1.1pt, arc=5pt, left=5pt, right=5pt,
+  top=2pt, bottom=2pt, title={\faCommentDots\ De Lean al español}, colbacktitle=m3, fonttitle=\bfseries\large]
+\renewcommand{\arraystretch}{1.24}
+\begin{tabular}{@{}l@{\quad}>{\raggedright\arraybackslash}p{7.6cm}@{}}
+\cod{intro h} & «Supongamos…» / «Sea … cualquiera.»\\
+\cod{have h : P := …} & «Primero observamos que $P$.»\\
+\cod{exact e} & «…que es justo lo que había que probar.»\\
+\cod{apply f} & «Por $f$, basta probar…»\\
+\cod{constructor} & «Probamos cada parte por separado.»\\
+\cod{obtain ⟨a, b⟩ := h} & «De $h$ obtenemos $a$ y $b$.»\\
+\cod{rcases h with a | b} & «Distinguimos dos casos.»\\
+\cod{by_cases hp : P} & «O bien $P$, o bien no $P$.»\\
+\cod{by_contra h} & «Por reducción al absurdo, supongamos que no.»\\
+\cod{induction x with} & «Por inducción sobre $x$.»\\
+\cod{rw [h]} & «Reescribiendo con $h$…»\\
+\cod{simp only [...]} & «Simplificando con estos lemas…»\\
+\cod{change P} & «Por definición, la meta es $P$.»\\
+\cod{calc} & «Encadenando: … que a su vez …»\\
+\cod{hipInd hAmpliado} & «Por la hipótesis inductiva, aplicada a…»\\
+\cod{ND.impI dCuerpo} & «Por la regla $\to$I, descargando la hipótesis.»\\
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=white, colframe=rojo, boxrule=1.1pt, arc=5pt, left=5pt, right=5pt,
+  top=2pt, bottom=2pt, title={\faExclamationTriangle\ 10 trampas}, colbacktitle=rojo, fonttitle=\bfseries\large]
+\begin{enumerate}[leftmargin=6mm, itemsep=1.5pt, topsep=1pt]
+\item \cod{~} significa dos cosas: negación de fórmulas (cap.\ 11) y «es permutación de» (cap.\ 12).
+\item \cod{→} es a la vez «implica» y «función». Por Curry–Howard es lo mismo.
+\item \cod{¬}, \cod{→}, \cod{False} son de Lean. \cod{~}, \cod{⟶}, \cod{Falsedad} son del cálculo.
+\item \cod{hipInd}, \cod{hsub}, \cod{dP} son solo nombres. Lean no les da significado.
+\item \cod{_} es «dedúcelo tú»; \cod{?_} es «lo pruebo después».
+\item \cod{:=} define; \cod{=} es la igualdad, una proposición.
+\item \cod{Set} (sin orden ni repeticiones) no es \cod{List} (con orden y repeticiones).
+\item \cod{decide (x ≤ p)} es un \cod{Bool}; \cod{x ≤ p} es una \cod{Prop}.
+\item \cod{change} no demuestra nada: solo muestra la misma meta desplegada.
+\item \cod{ND.classical} es un dato; \cod{by_contra} es lógica clásica de Lean.
+\end{enumerate}
+\end{tcolorbox}
+\clave{m3}{\large\textbf{Receta para explicar una prueba:} (1) el enunciado en español;
+(2) el método, del comentario \cod{-- Método:}; (3) el estado en el paso clave;
+(4) qué lema lo cierra.}
+\end{minipage}
+
+\navegacion{simbolos}{Símbolos}{indice}{Índice}
+
+\newpage
+%=====================================================================
+% ÍNDICE
+%=====================================================================
+\pagina{indice}{m4c}{\faFont}{Índice: de la palabra al nivel}{pulsa el número
+para ir al nivel donde se explica.}
+
+\newcommand{\ix}[2]{\cod{#1}\ \chip{#2}\par}
+\newcommand{\ixx}[3]{\cod{#1}\ \chip{#2}\ \chip{#3}\par}
+\begin{tcolorbox}[colback=white, colframe=m4c, boxrule=1pt, arc=6pt, top=3pt, bottom=3pt]
+\begin{minipage}[t]{0.19\textwidth}\raggedright
+\texttt{\#check}\ \chip{1}\par
+\texttt{\#eval}\ \chip{1}\par
+\texttt{\#print axioms}\ \chip{19}\par
+\ix{abbrev}{2}\ix{And.intro}{18}\ixx{apply}{7}{8}\ix{at}{9}\ix{by}{5}\ix{by_cases}{10}\ix{by_contra}{10}\ix{calc}{9}\ix{cases … with}{10}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.19\textwidth}\raggedright
+\ix{change}{9}\ix{Classical.choice}{19}\ixx{constructor}{7}{8}\ix{decide}{13}\ix{decreasing_by}{13}\ix{def}{4}\ix{deriving}{2}\ix{exact}{7}\ix{example}{5}\ix{False.elim}{8}\ix{fun … => …}{4}\ix{have}{7}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.19\textwidth}\raggedright
+\ix{hipInd}{11}\ix{import}{2}\ix{induction … with}{11}\ix{inductive}{3}\ix{insert φ Γ}{3}\ix{intro}{7}\ix{lake build}{19}\ix{let}{14}\ix{List}{3}\ix{.mp / .mpr}{8}\ix{namespace}{2}\ix{ND}{12}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.19\textwidth}\raggedright
+\ix{noncomputable}{4}\ix{obtain}{8}\ix{open}{2}\ix{Prop / Type}{1}\ix{rcases}{10}\ix{refine ⟨?_, ?_⟩}{7}\ix{rfl}{9}\ix{rw}{9}\ix{Set}{3}\ix{simp only}{9}\ix{simpa}{9}\ix{sorry}{19}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.19\textwidth}\raggedright
+\ix{subst}{9}\ix{termination_by}{13}\ix{theorem}{5}\ix{variable}{4}\ix{⊢}{6}\ix{⟨ , ⟩}{8}\ix{·}{7}\ix{_}{4}\ix{@}{12}\ix{{Γ φ}}{4}\ix{[LinearOrder α]}{4}\ix{~}{17}
+\end{minipage}
+\end{tcolorbox}
+
+\newcommand{\grupo}[3]{\begin{tcolorbox}[colback=#1!6, colframe=#1, boxrule=1.1pt,
+  arc=5pt, title={#2}, colbacktitle=#1, fonttitle=\bfseries, left=5pt, top=2pt, bottom=2pt]
+  \begin{itemize}[label={\faSquare[regular]}, leftmargin=6mm, itemsep=1.5pt, topsep=0pt]#3\end{itemize}\end{tcolorbox}}
+{\large\bfseries\faTasks\ ¿Listo? Marca cuando lo hagas sin mirar}\\[1pt]
+\begin{tcbraster}[raster columns=4, raster column skip=6pt, raster equal height]
+\grupo{m1}{Mundo 1 · Leer}{
+  \item Leer \cod{a : A} y un \texttt{\#check}
+  \item Decir un enunciado en español
+  \item Pasar $\Gamma,\varphi\vdash\psi$ a Lean}
+\grupo{m2}{Mundo 2 · Probar}{
+  \item Leer un estado: qué tengo, qué falta
+  \item La tabla maestra de memoria
+  \item Objeto y meta: tres parejas}
+\grupo{m3}{Mundo 3 · Inducción}{
+  \item Qué dice \cod{hipInd} en cada caso
+  \item Las 7 reglas $=$ 7 constructores
+  \item Por qué \cod{termination_by}}
+\grupo{m4a}{Mundo 4 · Teoremas}{
+  \item \cod{completitud_ND} en 7 pasos
+  \item La cadena \cod{calc} de quicksort
+  \item Los axiomas de cada teorema}
+\end{tcbraster}
+
+\navegacion{diccionario}{Cómo decirlo}{portada}{Portada}
+
+\end{document}
