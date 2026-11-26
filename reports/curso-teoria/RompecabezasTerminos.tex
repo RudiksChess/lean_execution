@@ -925,7 +925,7 @@ qué comprueba Lean y qué no.}
 \term{p9}{Núcleo (kernel)}{Programa pequeño que solo comprueba tipos del CIC.}{conclusiones}
 \term{p9}{Táctica}{Instrucción que ayuda a construir el término (\texttt{intro}, \texttt{induction}).}{Cap.\ 11–12}
 \term{p9}{\texttt{sorry}}{Hueco sin demostrar. Saldría como \texttt{sorryAx} en la auditoría.}{auditoría: 0}
-\term{p9}{Los 3 axiomas}{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}.}{Ap.\ A, Cap.\ 12}
+\term{p9}{Los axiomas}{Completitud: \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}. Quicksort: solo el primero y el último.}{auditorías de los Cap.\ 11 y 12}
 \term{p9}{Mathlib}{La gran biblioteca de Lean. Se usa solo para resultados generales.}{Cap.\ 11–12}
 \term{p9}{Foundation}{Biblioteca con una completitud propia. Módulo aparte: la prueba principal no depende de él.}{conclusiones}
 \term{p9}{\texttt{termination\_by}}{Le dice a Lean qué medida decrece en una recursión.}{quicksort, Cap.\ 12}
@@ -936,7 +936,7 @@ qué comprueba Lean y qué no.}
 \pruebate{p9}{\item ¿Qué parte de Lean hay que creerse?
 \item ¿Cómo sabrías si quedó un \texttt{sorry}?
 \item ¿Se usó la completitud de una biblioteca?}
-{1.\ Solo el núcleo (y los 3 axiomas).
+{1.\ Solo el núcleo (y los axiomas que lista la auditoría).
 2.\ \texttt{\#print axioms} mostraría \texttt{sorryAx}.
 3.\ No: \texttt{Completeness.lean} no la importa; Foundation está en un módulo aparte.}
 
@@ -1113,7 +1113,7 @@ palabra que te hace dudar y pulsa su número.}
 \begin{tcolorbox}[colback=white, colframe=p9, boxrule=1pt, arc=6pt]
 \begin{minipage}[t]{0.195\textwidth}\raggedright\normalsize
 \ix{Abstracción}{5}\ix{Adecuación}{10}\ix{α-equivalencia}{5}\ix{Análisis por casos}{10}\ix{Aplicación}{5}%
-\ix{Asistente de pruebas}{1}\ix{Auditoría de axiomas}{12}\ix{Axiomas (los 3)}{9}\ix{BHK}{4}\ix{β-reducción}{5}%
+\ix{Asistente de pruebas}{1}\ix{Auditoría de axiomas}{12}\ix{Axiomas}{9}\ix{BHK}{4}\ix{β-reducción}{5}%
 \ix{Bien fundada}{11}\ix{Cálculo λ}{5}\ix{CIC}{8}\ix{Clásica (NK)}{4}%
 \end{minipage}\hfill
 \begin{minipage}[t]{0.195\textwidth}\raggedright\normalsize

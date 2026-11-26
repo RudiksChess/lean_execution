@@ -154,7 +154,7 @@ seis ramas. Sigue los números del 1 al 6.}
   \node[rama=conf] (k) at (-9.4,-4.35)
     {{\large\bfseries\color{conf}\faShield*\ Confianza}\hfill\pega{conf}{pág.\ 8}\\[3pt]
      • el núcleo \textbf{solo comprueba tipos}\\
-     • \texttt{\#print axioms}: 3 axiomas, 0 \texttt{sorry}\\
+     • auditoría: 2 o 3 axiomas, 0 \texttt{sorry}\\
      • lo único que puede fallar:\\\hphantom{• }\textbf{el enunciado}};
 
   % Columna derecha: casos y límites
@@ -242,7 +242,7 @@ al Cálculo de Construcciones Inductivas, que es la lógica de Lean. Después la
 aplica a dos casos opuestos: un \textbf{teorema de lógica}, la completitud de la
 deducción natural clásica, demostrada desde cero con el lema de Kalmár, y un
 \textbf{algoritmo}, quicksort, que termina, permuta y ordena. El núcleo de Lean
-lo comprueba todo; la auditoría muestra solo los tres axiomas estándar.»
+lo comprueba todo; la auditoría muestra solo axiomas estándar de Lean.»
 \end{tcolorbox}
 
 \vfill
@@ -546,14 +546,14 @@ otra cosa.}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.42\textwidth}
 \vspace{0pt}
-\begin{tarjeta}{conf}{\faKey\ Los 3 axiomas (y nada más)}
+\begin{tarjeta}{conf}{\faKey\ Los axiomas (y nada más)}
 \large
 \textbf{\texttt{propext}}: si $a\leftrightarrow b$, entonces $a=b$.\\[3pt]
 \textbf{\texttt{Classical.choice}}: si existe algo, se puede elegir uno.
 Hace la lógica clásica.\\[3pt]
 \textbf{\texttt{Quot.sound}}: elementos relacionados tienen la misma clase en
 un cociente.\\[3pt]
-Son los estándar de Lean y Mathlib, y son consistentes con el CIC.
+Son los estándar de Lean. \textbf{Completitud usa los tres; quicksort, solo dos} (no usa \texttt{Classical.choice}).
 \end{tarjeta}
 \begin{tarjeta}{conf}{\faRobot\ Si preguntan por la IA: 3 capas}
 \large
@@ -701,7 +701,7 @@ falta memorizar frases: hace falta poder reconstruirlas.}
   \item La medida de terminación
   \item La cadena de permutaciones}
 \grupo{conf}{\faShield*\ Confianza y alcance}{
-  \item Los 3 axiomas, uno por línea
+  \item Los axiomas de cada teorema
   \item Qué puede seguir estando mal
   \item El semáforo y los 3 pasos}
 \end{tcbraster}
